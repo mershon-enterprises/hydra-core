@@ -1,5 +1,14 @@
+# OS temp files
+Desktop.ini
+.DS_Store
+
+# Maven files
 target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.next
 release.properties
+
+# Vim Swapfiles
+*.swo
+*.swp
