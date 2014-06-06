@@ -1,6 +1,7 @@
 # OS temp files
 Desktop.ini
 .DS_Store
+Thumbs.db
 
 # Maven files
 target/
@@ -12,3 +13,12 @@ release.properties
 # Vim Swapfiles
 *.swo
 *.swp
+
+# Directories and files created by standard tools that shouldn't be versioned.
+node_modules
+dist
+.tmp
+.sass-cache
+bower_components
+test/bower_components
+
