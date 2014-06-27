@@ -37,7 +37,11 @@ documentation](http://www.liquibase.org/documentation/changeset.html), and
 involve all necessary
 [refactoring](http://www.liquibase.org/documentation/changes/index.html) actions
 (see the **Bundled Changes** menu on the left-hand side) to make the desired
-change. Once the child changelog has been finished, ensure the master
+change. Every `<changeSet>` element must have a unique alphanumeric id and full name
+of the author who originated it. Use of `<comment>` tags is preferred to
+XML-formatted comments.
+
+Once the child changelog has been finished, ensure the master
 `changelog.xml` file has been updated to have a reference to the child
 changelog, and then the `liquibase` command line can be executed to update the
 associated database.
