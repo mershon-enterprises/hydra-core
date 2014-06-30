@@ -85,6 +85,57 @@
             referencedColumnNames="id"
             referencedTableName="user_session" />
 
+        <comment>Create the user access level table</comment>
+        <createTable schemaName="public" tableName="user_access_level">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_modified" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <comment>Create the user to user access level join table</comment>
+        <createTable schemaName="public" tableName="user_to_user_access_level">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_modified" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="user_access_level_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+            baseTableName="user_to_user_access_level"
+            constraintName="fk_user_access_level_to_user"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="user_access_level_id"
+            baseTableName="user_to_user_access_level"
+            constraintName="fk_user_access_level_to_access_level"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user_access_level" />
     </changeSet>
 
 </databaseChangeLog>
