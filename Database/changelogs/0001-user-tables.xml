@@ -53,6 +53,38 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="user" />
+
+        <comment>Create the user session detail table</comment>
+        <createTable schemaName="public" tableName="user_session_detail">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_modified" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="attribute" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="session_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="session_id"
+            baseTableName="user"
+            constraintName="fk_detail_to_session"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user_session" />
+
     </changeSet>
 
 </databaseChangeLog>
