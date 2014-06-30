@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="2" author="Kevin Mershon">
+        <comment>Create the client table</comment>
+        <createTable schemaName="public" tableName="client">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_modified" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="character varying(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+
+        <comment>Create the client location table</comment>
+        <createTable schemaName="public" tableName="client_location">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_modified" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="client_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="client_id"
+            baseTableName="client"
+            constraintName="fk_location_to_client"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="client" />
+    </changeSet>
+
+</databaseChangeLog>
