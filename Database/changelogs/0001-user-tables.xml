@@ -114,7 +114,7 @@
             <column name="user_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-            <column name="user_access_level_id" type="bigint">
+            <column name="access_level_id" type="bigint">
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -127,7 +127,7 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="user" />
-        <addForeignKeyConstraint baseColumnNames="user_access_level_id"
+        <addForeignKeyConstraint baseColumnNames="access_level_id"
             baseTableName="user_to_user_access_level"
             constraintName="fk_user_access_level_to_access_level"
             deferrable="false"
