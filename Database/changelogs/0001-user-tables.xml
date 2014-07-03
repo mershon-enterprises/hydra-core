@@ -95,7 +95,7 @@
             <column name="date_modified" type="timestamp with time zone">
                 <constraints nullable="false" />
             </column>
-            <column name="description" type="timestamp with time zone">
+            <column name="description" type="character varying(255)">
                 <constraints nullable="false" />
             </column>
         </createTable>
