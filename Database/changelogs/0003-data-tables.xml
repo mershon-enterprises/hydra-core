@@ -15,10 +15,34 @@
             <column name="date_created" type="timestamp with time zone">
                 <constraints nullable="false" />
             </column>
-            <column name="deleted" type="boolean">
-                <constraints nullable="false"/>
+            <column name="created_by" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
             </column>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set"
+            constraintName="fk_data_set_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set"
+            constraintName="fk_data_set_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
 
         <createTable schemaName="public" tableName="data_set_attachment"
                 remarks="stores binary file attachments">
@@ -28,13 +52,19 @@
             <column name="date_created" type="timestamp with time zone">
                 <constraints nullable="false" />
             </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <column name="description" type="character varying(255)">
                 <constraints nullable="false" />
             </column>
             <column name="value" type="blob">
-                <constraints nullable="false" />
-            </column>
-            <column name="deleted" type="boolean">
                 <constraints nullable="false" />
             </column>
             <column name="data_set_id" type="bigint">
@@ -50,6 +80,24 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="data_set" />
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_attachment"
+            constraintName="fk_attachment_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_attachment"
+            constraintName="fk_attachment_set_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
 
         <createTable schemaName="public" tableName="data_set_boolean"
                 remarks="stores true/false primitive data">
@@ -221,37 +269,6 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="client_location" />
-
-        <createTable schemaName="public" tableName="data_set_user"
-                remarks="describes relationships of data to originating users">
-            <column name="data_set_id" type="bigint">
-                <constraints primaryKey="true" nullable="false" />
-            </column>
-            <column name="date_created" type="timestamp with time zone">
-                <constraints nullable="false" />
-            </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false" />
-            </column>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="data_set_id"
-            baseTableName="data_set_user"
-            constraintName="fk_user_data_set"
-            deferrable="false"
-            initiallyDeferred="false"
-            onDelete="CASCADE"
-            onUpdate="RESTRICT"
-            referencedColumnNames="id"
-            referencedTableName="data_set" />
-        <addForeignKeyConstraint baseColumnNames="data_set_id"
-            baseTableName="data_set_user"
-            constraintName="fk_data_set_user"
-            deferrable="false"
-            initiallyDeferred="false"
-            onDelete="CASCADE"
-            onUpdate="RESTRICT"
-            referencedColumnNames="id"
-            referencedTableName="user" />
     </changeSet>
 
 </databaseChangeLog>
