@@ -233,7 +233,7 @@
             onDelete="CASCADE"
             onUpdate="RESTRICT"
             referencedColumnNames="id"
-            referencedTableName="data_set" />
+            referencedTableName="user" />
     </changeSet>
 
 </databaseChangeLog>
