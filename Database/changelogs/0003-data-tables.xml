@@ -19,6 +19,37 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <comment>Create the attachment table</comment>
+        <createTable schemaName="public" tableName="data_set_attachment">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="blob">
+                <constraints nullable="false" />
+            </column>
+            <column name="deleted" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set"
+            constraintName="fk_attachment_to_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
     </changeSet>
 
 </databaseChangeLog>
