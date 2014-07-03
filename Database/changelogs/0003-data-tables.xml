@@ -7,8 +7,8 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
 
     <changeSet id="9" author="Kevin Mershon">
-        <comment>Create the data set table</comment>
-        <createTable schemaName="public" tableName="data_set">
+        <createTable schemaName="public" tableName="data_set"
+                remarks="describes a collection of data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -20,8 +20,8 @@
             </column>
         </createTable>
 
-        <comment>Create the attachment table</comment>
-        <createTable schemaName="public" tableName="data_set_attachment">
+        <createTable schemaName="public" tableName="data_set_attachment"
+                remarks="stores binary file attachments">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -51,8 +51,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Create the boolean table</comment>
-        <createTable schemaName="public" tableName="data_set_boolean">
+        <createTable schemaName="public" tableName="data_set_boolean"
+                remarks="stores true/false primitive data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -79,8 +79,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Create the date table</comment>
-        <createTable schemaName="public" tableName="data_set_date">
+        <createTable schemaName="public" tableName="data_set_date"
+                remarks="stores date data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -107,8 +107,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Create the integer table</comment>
-        <createTable schemaName="public" tableName="data_set_integer">
+        <createTable schemaName="public" tableName="data_set_integer"
+                remarks="stores numeric integer data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -135,8 +135,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Create the real table</comment>
-        <createTable schemaName="public" tableName="data_set_real">
+        <createTable schemaName="public" tableName="data_set_real"
+                remarks="stores numeric real/double precision data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -163,8 +163,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Create the text table</comment>
-        <createTable schemaName="public" tableName="data_set_text">
+        <createTable schemaName="public" tableName="data_set_text"
+                remarks="stores text data">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -191,8 +191,8 @@
             referencedColumnNames="id"
             referencedTableName="data_set" />
 
-        <comment>Link the data_set to the client location it belongs to</comment>
-        <createTable schemaName="public" tableName="data_set_client_location">
+        <createTable schemaName="public" tableName="data_set_client_location"
+                remarks="describes relationships of data to client locations">
             <column name="data_set_id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -213,8 +213,8 @@
             referencedColumnNames="id"
             referencedTableName="client_location" />
 
-        <comment>Link the data_set to the user who created it</comment>
-        <createTable schemaName="public" tableName="data_set_user">
+        <createTable schemaName="public" tableName="data_set_user"
+                remarks="describes relationships of data to originating users">
             <column name="data_set_id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
