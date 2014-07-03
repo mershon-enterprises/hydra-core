@@ -190,6 +190,50 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="data_set" />
+
+        <comment>Link the data_set to the client location it belongs to</comment>
+        <createTable schemaName="public" tableName="data_set_client_location">
+            <column name="data_set_id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="client_location_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="client_location_id"
+            baseTableName="data_set_client_location"
+            constraintName="fk_data_set_user"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="client_location" />
+
+        <comment>Link the data_set to the user who created it</comment>
+        <createTable schemaName="public" tableName="data_set_user">
+            <column name="data_set_id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_user"
+            constraintName="fk_data_set_user"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
     </changeSet>
 
 </databaseChangeLog>
