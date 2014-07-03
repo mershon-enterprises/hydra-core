@@ -208,6 +208,8 @@
             constraintName="fk_client_location_data_set"
             deferrable="false"
             initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="data_set" />
         <addForeignKeyConstraint baseColumnNames="client_location_id"
@@ -237,6 +239,8 @@
             constraintName="fk_user_data_set"
             deferrable="false"
             initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="data_set" />
         <addForeignKeyConstraint baseColumnNames="data_set_id"
