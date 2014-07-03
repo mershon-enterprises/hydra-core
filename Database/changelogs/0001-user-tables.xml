@@ -7,7 +7,6 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
 
     <changeSet id="1" author="Kevin Mershon">
-        <comment>Create the user table</comment>
         <createTable schemaName="public" tableName="user">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
@@ -23,8 +22,8 @@
             </column>
         </createTable>
 
-        <comment>Create the user session table</comment>
-        <createTable schemaName="public" tableName="user_session">
+        <createTable schemaName="public" tableName="user_session"
+                remarks="tracks client-side session activity for each user">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -45,7 +44,7 @@
             </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="user_id"
-            baseTableName="user"
+            baseTableName="user_session"
             constraintName="fk_session_to_user"
             deferrable="false"
             initiallyDeferred="false"
@@ -54,8 +53,8 @@
             referencedColumnNames="id"
             referencedTableName="user" />
 
-        <comment>Create the user session detail table</comment>
-        <createTable schemaName="public" tableName="user_session_detail">
+        <createTable schemaName="public" tableName="user_session_detail"
+                remarks="tracks arbitrary details about a session">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -76,7 +75,7 @@
             </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="session_id"
-            baseTableName="user"
+            baseTableName="user_session"
             constraintName="fk_detail_to_session"
             deferrable="false"
             initiallyDeferred="false"
@@ -85,8 +84,8 @@
             referencedColumnNames="id"
             referencedTableName="user_session" />
 
-        <comment>Create the user access level table</comment>
-        <createTable schemaName="public" tableName="user_access_level">
+        <createTable schemaName="public" tableName="user_access_level"
+                remarks="defines available privileges a user might have">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -100,8 +99,9 @@
                 <constraints nullable="false" />
             </column>
         </createTable>
-        <comment>Create the user to user access level join table</comment>
-        <createTable schemaName="public" tableName="user_to_user_access_level">
+
+        <createTable schemaName="public" tableName="user_to_user_access_level"
+                remarks="defines which privileges a user may have">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false" />
             </column>
