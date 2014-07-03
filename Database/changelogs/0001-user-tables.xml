@@ -75,7 +75,7 @@
             </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="session_id"
-            baseTableName="user_session"
+            baseTableName="user_session_detail"
             constraintName="fk_detail_to_session"
             deferrable="false"
             initiallyDeferred="false"
