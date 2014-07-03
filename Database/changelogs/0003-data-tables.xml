@@ -203,9 +203,16 @@
                 <constraints nullable="false" />
             </column>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_client_location"
+            constraintName="fk_client_location_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
         <addForeignKeyConstraint baseColumnNames="client_location_id"
             baseTableName="data_set_client_location"
-            constraintName="fk_data_set_user"
+            constraintName="fk_data_set_client_location"
             deferrable="false"
             initiallyDeferred="false"
             onDelete="CASCADE"
@@ -225,6 +232,13 @@
                 <constraints nullable="false" />
             </column>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_user"
+            constraintName="fk_user_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
         <addForeignKeyConstraint baseColumnNames="data_set_id"
             baseTableName="data_set_user"
             constraintName="fk_data_set_user"
