@@ -42,8 +42,148 @@
             </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="data_set_id"
-            baseTableName="data_set"
-            constraintName="fk_attachment_to_data_set"
+            baseTableName="data_set_attachment"
+            constraintName="fk_data_set_attachment"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <comment>Create the boolean table</comment>
+        <createTable schemaName="public" tableName="data_set_boolean">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_boolean"
+            constraintName="fk_data_set_boolean"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <comment>Create the date table</comment>
+        <createTable schemaName="public" tableName="data_set_date">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_date"
+            constraintName="fk_data_set_date"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <comment>Create the integer table</comment>
+        <createTable schemaName="public" tableName="data_set_integer">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_integer"
+            constraintName="fk_data_set_integer"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <comment>Create the real table</comment>
+        <createTable schemaName="public" tableName="data_set_real">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="double precision">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_real"
+            constraintName="fk_data_set_real"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <comment>Create the text table</comment>
+        <createTable schemaName="public" tableName="data_set_text">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="text">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_text"
+            constraintName="fk_data_set_text"
             deferrable="false"
             initiallyDeferred="false"
             onDelete="CASCADE"
