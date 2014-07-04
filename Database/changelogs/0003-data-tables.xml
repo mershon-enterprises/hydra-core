@@ -76,6 +76,9 @@
             <column name="filename" type="character varying(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="mime_type" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
             <column name="contents" type="blob">
                 <constraints nullable="false" />
             </column>
