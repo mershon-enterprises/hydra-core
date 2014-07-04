@@ -16,7 +16,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
             <column name="date_deleted" type="timestamp with time zone">
                 <constraints nullable="true" />
