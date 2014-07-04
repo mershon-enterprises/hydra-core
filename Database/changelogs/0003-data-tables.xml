@@ -122,6 +122,15 @@
             <column name="date_created" type="timestamp with time zone">
                 <constraints nullable="false" />
             </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <column name="description" type="character varying(255)">
                 <constraints nullable="false" />
             </column>
@@ -132,9 +141,27 @@
                 <constraints nullable="false" />
             </column>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_boolean"
+            constraintName="fk_boolean_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_boolean"
+            constraintName="fk_boolean_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
         <addForeignKeyConstraint baseColumnNames="data_set_id"
             baseTableName="data_set_boolean"
-            constraintName="fk_data_set_boolean"
+            constraintName="fk_boolean_data_set"
             deferrable="false"
             initiallyDeferred="false"
             onDelete="CASCADE"
