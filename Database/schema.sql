@@ -92,7 +92,10 @@ COMMENT ON TABLE client_location IS 'describes a location of client interest';
 CREATE TABLE data_set (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
-    deleted boolean NOT NULL
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
+    client_location_id bigint
 );
 
 
@@ -112,9 +115,12 @@ COMMENT ON TABLE data_set IS 'describes a collection of data';
 CREATE TABLE data_set_attachment (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
-    description character varying(255) NOT NULL,
-    value bytea NOT NULL,
-    deleted boolean NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
+    filename character varying(255) NOT NULL,
+    mime_type character varying(255) NOT NULL,
+    contents bytea NOT NULL,
     data_set_id bigint NOT NULL
 );
 
@@ -135,6 +141,9 @@ COMMENT ON TABLE data_set_attachment IS 'stores binary file attachments';
 CREATE TABLE data_set_boolean (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
     description character varying(255) NOT NULL,
     value boolean NOT NULL,
     data_set_id bigint NOT NULL
@@ -151,32 +160,15 @@ COMMENT ON TABLE data_set_boolean IS 'stores true/false primitive data';
 
 
 --
--- Name: data_set_client_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
---
-
-CREATE TABLE data_set_client_location (
-    data_set_id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    client_location_id bigint NOT NULL
-);
-
-
-ALTER TABLE public.data_set_client_location OWNER TO postgres;
-
---
--- Name: TABLE data_set_client_location; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE data_set_client_location IS 'describes relationships of data to client locations';
-
-
---
 -- Name: data_set_date; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_date (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
     description character varying(255) NOT NULL,
     value timestamp with time zone NOT NULL,
     data_set_id bigint NOT NULL
@@ -199,6 +191,9 @@ COMMENT ON TABLE data_set_date IS 'stores date data';
 CREATE TABLE data_set_integer (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
     description character varying(255) NOT NULL,
     value bigint NOT NULL,
     data_set_id bigint NOT NULL
@@ -221,6 +216,9 @@ COMMENT ON TABLE data_set_integer IS 'stores numeric integer data';
 CREATE TABLE data_set_real (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
     description character varying(255) NOT NULL,
     value double precision NOT NULL,
     data_set_id bigint NOT NULL
@@ -243,6 +241,9 @@ COMMENT ON TABLE data_set_real IS 'stores numeric real/double precision data';
 CREATE TABLE data_set_text (
     id bigint NOT NULL,
     date_created timestamp with time zone NOT NULL,
+    created_by bigint,
+    date_deleted timestamp with time zone,
+    deleted_by bigint,
     description character varying(255) NOT NULL,
     value text NOT NULL,
     data_set_id bigint NOT NULL
@@ -256,26 +257,6 @@ ALTER TABLE public.data_set_text OWNER TO postgres;
 --
 
 COMMENT ON TABLE data_set_text IS 'stores text data';
-
-
---
--- Name: data_set_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
---
-
-CREATE TABLE data_set_user (
-    data_set_id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    user_id bigint NOT NULL
-);
-
-
-ALTER TABLE public.data_set_user OWNER TO postgres;
-
---
--- Name: TABLE data_set_user; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE data_set_user IS 'describes relationships of data to originating users';
 
 
 --
@@ -430,14 +411,6 @@ ALTER TABLE ONLY data_set_boolean
 
 
 --
--- Name: pk_data_set_client_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
---
-
-ALTER TABLE ONLY data_set_client_location
-    ADD CONSTRAINT pk_data_set_client_location PRIMARY KEY (data_set_id);
-
-
---
 -- Name: pk_data_set_date; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
@@ -467,14 +440,6 @@ ALTER TABLE ONLY data_set_real
 
 ALTER TABLE ONLY data_set_text
     ADD CONSTRAINT pk_data_set_text PRIMARY KEY (id);
-
-
---
--- Name: pk_data_set_user; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
---
-
-ALTER TABLE ONLY data_set_user
-    ADD CONSTRAINT pk_data_set_user PRIMARY KEY (data_set_id);
 
 
 --
@@ -526,29 +491,56 @@ ALTER TABLE ONLY "user"
 
 
 --
--- Name: fk_client_location_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY data_set_client_location
-    ADD CONSTRAINT fk_client_location_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: fk_data_set_attachment; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_attachment_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY data_set_attachment
-    ADD CONSTRAINT fk_data_set_attachment FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ADD CONSTRAINT fk_attachment_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
--- Name: fk_data_set_boolean; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_attachment_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment
+    ADD CONSTRAINT fk_attachment_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_attachment_set_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment
+    ADD CONSTRAINT fk_attachment_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_boolean_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY data_set_boolean
-    ADD CONSTRAINT fk_data_set_boolean FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ADD CONSTRAINT fk_boolean_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_boolean_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_boolean
+    ADD CONSTRAINT fk_boolean_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_boolean_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_boolean
+    ADD CONSTRAINT fk_boolean_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
@@ -556,53 +548,53 @@ ALTER TABLE ONLY data_set_boolean
 -- Name: fk_data_set_client_location; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY data_set_client_location
+ALTER TABLE ONLY data_set
     ADD CONSTRAINT fk_data_set_client_location FOREIGN KEY (client_location_id) REFERENCES client_location(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
--- Name: fk_data_set_date; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_data_set_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set
+    ADD CONSTRAINT fk_data_set_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_data_set_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set
+    ADD CONSTRAINT fk_data_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_date_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY data_set_date
-    ADD CONSTRAINT fk_data_set_date FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ADD CONSTRAINT fk_date_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
--- Name: fk_data_set_integer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_date_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY data_set_integer
-    ADD CONSTRAINT fk_data_set_integer FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+ALTER TABLE ONLY data_set_date
+    ADD CONSTRAINT fk_date_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
--- Name: fk_data_set_real; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_date_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY data_set_real
-    ADD CONSTRAINT fk_data_set_real FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: fk_data_set_text; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY data_set_text
-    ADD CONSTRAINT fk_data_set_text FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: fk_data_set_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY data_set_user
-    ADD CONSTRAINT fk_data_set_user FOREIGN KEY (data_set_id) REFERENCES "user"(id)
+ALTER TABLE ONLY data_set_date
+    ADD CONSTRAINT fk_date_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
@@ -616,6 +608,33 @@ ALTER TABLE ONLY user_session_detail
 
 
 --
+-- Name: fk_integer_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_integer
+    ADD CONSTRAINT fk_integer_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_integer_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_integer
+    ADD CONSTRAINT fk_integer_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_integer_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_integer
+    ADD CONSTRAINT fk_integer_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
 -- Name: fk_location_to_client; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -625,11 +644,65 @@ ALTER TABLE ONLY client_location
 
 
 --
+-- Name: fk_real_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_real
+    ADD CONSTRAINT fk_real_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_real_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_real
+    ADD CONSTRAINT fk_real_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_real_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_real
+    ADD CONSTRAINT fk_real_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
 -- Name: fk_session_to_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_session
     ADD CONSTRAINT fk_session_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_text_created_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_text
+    ADD CONSTRAINT fk_text_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_text_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_text
+    ADD CONSTRAINT fk_text_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_text_deleted_by; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_text
+    ADD CONSTRAINT fk_text_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
@@ -648,15 +721,6 @@ ALTER TABLE ONLY user_to_user_access_level
 
 ALTER TABLE ONLY user_to_user_access_level
     ADD CONSTRAINT fk_user_access_level_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: fk_user_data_set; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY data_set_user
-    ADD CONSTRAINT fk_user_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
