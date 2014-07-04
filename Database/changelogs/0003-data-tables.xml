@@ -88,7 +88,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="data_set_id"
             baseTableName="data_set_attachment"
-            constraintName="fk_data_set_attachment"
+            constraintName="fk_attachment_data_set"
             deferrable="false"
             initiallyDeferred="false"
             onDelete="CASCADE"
