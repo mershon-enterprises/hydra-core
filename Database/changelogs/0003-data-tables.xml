@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="9" author="Kevin Mershon">
+        <createTable schemaName="public" tableName="data_set"
+                remarks="describes a collection of data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="client_location_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set"
+            constraintName="fk_data_set_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set"
+            constraintName="fk_data_set_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="client_location_id"
+            baseTableName="data_set"
+            constraintName="fk_data_set_client_location"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="client_location" />
+
+        <createTable schemaName="public" tableName="data_set_attachment"
+                remarks="stores binary file attachments">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="filename" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="mime_type" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="contents" type="blob">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_attachment"
+            constraintName="fk_attachment_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_attachment"
+            constraintName="fk_attachment_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_attachment"
+            constraintName="fk_attachment_set_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+
+        <createTable schemaName="public" tableName="data_set_boolean"
+                remarks="stores true/false primitive data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_boolean"
+            constraintName="fk_boolean_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_boolean"
+            constraintName="fk_boolean_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_boolean"
+            constraintName="fk_boolean_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <createTable schemaName="public" tableName="data_set_date"
+                remarks="stores date data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_date"
+            constraintName="fk_date_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_date"
+            constraintName="fk_date_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_date"
+            constraintName="fk_date_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <createTable schemaName="public" tableName="data_set_integer"
+                remarks="stores numeric integer data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_integer"
+            constraintName="fk_integer_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_integer"
+            constraintName="fk_integer_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_integer"
+            constraintName="fk_integer_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <createTable schemaName="public" tableName="data_set_real"
+                remarks="stores numeric real/double precision data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="double precision">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_real"
+            constraintName="fk_real_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_real"
+            constraintName="fk_real_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_real"
+            constraintName="fk_real_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+
+        <createTable schemaName="public" tableName="data_set_text"
+                remarks="stores text data">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_by" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="character varying(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="text">
+                <constraints nullable="false" />
+            </column>
+            <column name="data_set_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="created_by"
+            baseTableName="data_set_text"
+            constraintName="fk_text_created_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="deleted_by"
+            baseTableName="data_set_text"
+            constraintName="fk_text_deleted_by"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="data_set_id"
+            baseTableName="data_set_text"
+            constraintName="fk_text_data_set"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set" />
+    </changeSet>
+
+</databaseChangeLog>
+
