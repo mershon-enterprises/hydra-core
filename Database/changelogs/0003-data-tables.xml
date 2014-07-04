@@ -73,10 +73,10 @@
             <column name="deleted_by" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="description" type="character varying(255)">
+            <column name="filename" type="character varying(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="value" type="blob">
+            <column name="contents" type="blob">
                 <constraints nullable="false" />
             </column>
             <column name="data_set_id" type="bigint">
