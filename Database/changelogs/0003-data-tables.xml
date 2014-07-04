@@ -24,6 +24,9 @@
             <column name="deleted_by" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="client_location_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="created_by"
             baseTableName="data_set"
@@ -43,6 +46,15 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="user" />
+        <addForeignKeyConstraint baseColumnNames="client_location_id"
+            baseTableName="data_set"
+            constraintName="fk_data_set_client_location"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="client_location" />
 
         <createTable schemaName="public" tableName="data_set_attachment"
                 remarks="stores binary file attachments">
@@ -238,37 +250,6 @@
             onUpdate="RESTRICT"
             referencedColumnNames="id"
             referencedTableName="data_set" />
-
-        <createTable schemaName="public" tableName="data_set_client_location"
-                remarks="describes relationships of data to client locations">
-            <column name="data_set_id" type="bigint">
-                <constraints primaryKey="true" nullable="false" />
-            </column>
-            <column name="date_created" type="timestamp with time zone">
-                <constraints nullable="false" />
-            </column>
-            <column name="client_location_id" type="bigint">
-                <constraints nullable="false" />
-            </column>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="data_set_id"
-            baseTableName="data_set_client_location"
-            constraintName="fk_client_location_data_set"
-            deferrable="false"
-            initiallyDeferred="false"
-            onDelete="CASCADE"
-            onUpdate="RESTRICT"
-            referencedColumnNames="id"
-            referencedTableName="data_set" />
-        <addForeignKeyConstraint baseColumnNames="client_location_id"
-            baseTableName="data_set_client_location"
-            constraintName="fk_data_set_client_location"
-            deferrable="false"
-            initiallyDeferred="false"
-            onDelete="CASCADE"
-            onUpdate="RESTRICT"
-            referencedColumnNames="id"
-            referencedTableName="client_location" />
     </changeSet>
 
 </databaseChangeLog>
