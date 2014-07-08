@@ -2,7 +2,8 @@
   :description "REST API for hydra-core"
   :url "slixbits.com"
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [compojure "1.1.8"]]
+                 [compojure "1.1.8"]
+                 [ring/ring-json "0.3.1"]]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler web-service.handler/app}
   :profiles
