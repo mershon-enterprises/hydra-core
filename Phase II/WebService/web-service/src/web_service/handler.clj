@@ -5,8 +5,11 @@
             [ring.middleware.json :as middleware]
             [compojure.route :as route]))
 
+(defn get-version
+  (response {:version "0.1.0"}))
+
 (defroutes app-routes
-  (GET "/" [] "Hello World")
+  (GET "/version" [] get-version)
   (route/resources "/")
   (route/not-found "Not Found"))
 
