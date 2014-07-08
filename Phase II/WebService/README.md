@@ -5,8 +5,27 @@ Cloud-based Application for the Extraction of in-field Datafiles
 
 Overview
 --
+
 This is a [Clojure](http://clojure.org) on
 [Compojure](https://github.com/weavejester/compojure) web service REST API.
+
+API
+--
+### GET
+#### `/version`
+* output the current version
+* request:
+```json
+{ /* any content */ }
+```
+
+* response:
+```json
+{
+  version: "0.1.0"
+}```
+
+### POST
 
 Getting Started
 --
