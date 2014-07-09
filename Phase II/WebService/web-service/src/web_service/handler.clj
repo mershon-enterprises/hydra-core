@@ -41,7 +41,7 @@
   (response
     {:success
      (try
-       (sql/execute!
+       (sql/insert!
          db
          ["insert into public.user (email_address) values (?)" email_address])
        true
