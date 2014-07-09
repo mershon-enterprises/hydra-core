@@ -52,7 +52,7 @@
 (defroutes app-routes
   (GET "/version" [] (get-version))
   (GET "/user/list" [] (user-list))
-  (GET "/user/register" [email_address] (user-register email_address))
+  (POST "/user/register" [email_address] (user-register email_address))
   (route/resources "/")
   (route/not-found "Not Found"))
 
