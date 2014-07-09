@@ -26,21 +26,32 @@
 
 
 ; list the users in the database
-(defn users-list
+(defn user-list
   []
   (response
     {:emails
-     (sql/query db
-                ["select * from public.user"]
-                :row-fn :email_address)
-     }
-    )
+     (sql/query
+       db
+       ["select * from public.user"]
+       :row-fn :email_address)}))
 
-)
+; register a user by username
+(defn user-register
+  [email_address]
+  (response
+    {:success
+     (try
+       (sql/execute!
+         db
+         ["insert into public.user (email_address) values (?)" email_address])
+       true
+       (catch Exception e
+         false))}))
 
 (defroutes app-routes
   (GET "/version" [] (get-version))
-  (GET "/user/list" [] (users-list))
+  (GET "/user/list" [] (user-list))
+  (GET "/user/register" [email_address] (user-register email_address))
   (route/resources "/")
   (route/not-found "Not Found"))
 
