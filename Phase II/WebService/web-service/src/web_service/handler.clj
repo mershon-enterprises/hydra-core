@@ -41,11 +41,12 @@
   (response
     {:success
      (try
-       (sql/insert!
+       (sql/execute!
          db
          ["insert into public.user (email_address) values (?)" email_address])
        true
        (catch Exception e
+         (println (.getMessage e))
          false))}))
 
 (defroutes app-routes
