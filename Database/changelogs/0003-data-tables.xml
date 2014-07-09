@@ -9,10 +9,10 @@
     <changeSet id="9" author="Kevin Mershon">
         <createTable schemaName="public" tableName="data_set"
                 remarks="describes a collection of data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -58,10 +58,10 @@
 
         <createTable schemaName="public" tableName="data_set_attachment"
                 remarks="stores binary file attachments">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -116,10 +116,10 @@
 
         <createTable schemaName="public" tableName="data_set_boolean"
                 remarks="stores true/false primitive data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -171,10 +171,10 @@
 
         <createTable schemaName="public" tableName="data_set_date"
                 remarks="stores date data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -226,10 +226,10 @@
 
         <createTable schemaName="public" tableName="data_set_integer"
                 remarks="stores numeric integer data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -281,10 +281,10 @@
 
         <createTable schemaName="public" tableName="data_set_real"
                 remarks="stores numeric real/double precision data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">
@@ -336,10 +336,10 @@
 
         <createTable schemaName="public" tableName="data_set_text"
                 remarks="stores text data">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="bigint">

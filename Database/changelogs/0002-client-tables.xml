@@ -8,13 +8,13 @@
 
     <changeSet id="2" author="Kevin Mershon">
         <createTable schemaName="public" tableName="client">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="name" type="character varying(255)">
@@ -24,13 +24,13 @@
 
         <createTable schemaName="public" tableName="client_location"
                 remarks="describes a location of client interest">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="description" type="character varying(255)">
