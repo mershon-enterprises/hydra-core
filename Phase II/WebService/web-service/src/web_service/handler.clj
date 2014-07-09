@@ -27,11 +27,13 @@
 
 ; list the users in the database
 (defn users-list
-  []
+  [db-connection (sql/get-connection db)]
   (response
-    (sql/query db
-               [ "select * from public.user"]
-               :row-fn :email_address)
+    (sql/with-db-transaction db-connection db
+      (sql/query db
+                 [ "select * from public.user"]
+                 :row-fn :email_address)
+      )
     )
 )
 
