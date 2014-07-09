@@ -8,13 +8,13 @@
 
     <changeSet id="1" author="Kevin Mershon">
         <createTable schemaName="public" tableName="user">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="email_address" type="character varying(255)">
@@ -24,13 +24,13 @@
 
         <createTable schemaName="public" tableName="user_session"
                 remarks="tracks client-side session activity for each user">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="start_date" type="timestamp with time zone">
@@ -55,13 +55,13 @@
 
         <createTable schemaName="public" tableName="user_session_detail"
                 remarks="tracks arbitrary details about a session">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="attribute" type="character varying(255)">
@@ -86,13 +86,13 @@
 
         <createTable schemaName="public" tableName="user_access_level"
                 remarks="defines available privileges a user might have">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="description" type="character varying(255)">
@@ -102,13 +102,13 @@
 
         <createTable schemaName="public" tableName="user_to_user_access_level"
                 remarks="defines which privileges a user may have">
-            <column name="id" type="bigint">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
-            <column name="date_created" type="timestamp with time zone">
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="date_modified" type="timestamp with time zone">
+            <column name="date_modified" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="user_id" type="bigint">
