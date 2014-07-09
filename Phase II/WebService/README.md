@@ -12,13 +12,28 @@ This is a [Clojure](http://clojure.org) on
 API
 --
 ### GET
+#### `/user/list`
+* lists the emails of the users
+* request:
+```json
+{ /* any content */ }
+```
+* response
+```json
+{
+  emails: [
+    "kevin@slixbits.com",
+    "brent@slixbits.com"
+  ]
+}
+```
+
 #### `/version`
 * output the current version
 * request:
 ```json
 { /* any content */ }
 ```
-
 * response:
 ```json
 {
@@ -27,6 +42,16 @@ API
 ```
 
 ### POST
+#### `/user/register`
+* registers an emails for a user
+* request:
+```json
+{ email_address: "contact@slixbits.com" }
+```
+* response
+```json
+{ success: true }
+```
 
 Getting Started
 --
