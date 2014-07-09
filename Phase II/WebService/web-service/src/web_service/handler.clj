@@ -24,8 +24,20 @@
   []
   (response {:version "0.1.0"}))
 
+
+; list the users in the database
+(defn users-list
+  []
+  (response
+    (sql/query db
+               [ "select * from public.user"]
+               :row-fn :email_address)
+    )
+)
+
 (defroutes app-routes
   (GET "/version" [] (get-version))
+  (GET "/user/list" [] (users-list))
   (route/resources "/")
   (route/not-found "Not Found"))
 
