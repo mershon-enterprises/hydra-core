@@ -19,6 +19,7 @@
            :user "postgres"
            :password "password"}))
 
+; get the version of the API
 (defn get-version
   []
   (response {:version "0.1.0"}))
