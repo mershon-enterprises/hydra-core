@@ -14,8 +14,16 @@
 
 (defroutes app-routes
   (GET "/version" [] (get-version))
+  (POST "/user/access/add"
+        [email_address access_level]
+        (user-access-add email_address access_level))
+  (GET "/user/access/list"
+        [email_address]
+        (user-access-list email_address))
   (GET "/user/list" [] (user-list))
-  (POST "/user/register" [email_address] (user-register email_address))
+  (POST "/user/register"
+        [email_address]
+        (user-register email_address))
   (route/resources "/")
   (route/not-found "Not Found"))
 
