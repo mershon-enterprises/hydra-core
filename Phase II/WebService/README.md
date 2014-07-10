@@ -9,6 +9,14 @@ Overview
 This is a [Clojure](http://clojure.org) on
 [Compojure](https://github.com/weavejester/compojure) web service REST API.
 
+Table of Contents
+--
+1. [/user/access/list](#useraccesslist) (GET) - list access levels for a user
+1. [/user/access/add](#useraccessadd) (POST) - add an access level to a user
+1. [/user/list](#userlist) (GET) - list users
+1. [/user/register](#userregister) (POST) - register a new user
+1. [/version](#version) (GET) - get the version of the API
+
 API
 --
 ### GET
