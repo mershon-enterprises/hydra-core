@@ -12,6 +12,24 @@ This is a [Clojure](http://clojure.org) on
 API
 --
 ### GET
+#### `/user/access/list`
+* lists the access levels of a user
+* request:
+
+    ```json
+    { email_address: "kevin@slixbits.com" }
+    ```
+* response:
+
+    ```json
+    {
+      access: [
+        "Add User Access",
+        "Add Users"
+      ]
+    }
+    ```
+
 #### `/user/list`
 * lists the emails of the users
 * request:
@@ -46,6 +64,22 @@ API
     ```
 
 ### POST
+#### `/user/access/add`
+* add access for the specified user
+* request:
+
+    ```json
+    {
+      email_address: "kevin@slixbits.com",
+      access_level: "Add Users"
+    }
+    ```
+* response:
+
+    ```json
+    { success: true }
+    ```
+
 #### `/user/register`
 * registers an email for a user
 * request:
