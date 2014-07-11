@@ -49,17 +49,38 @@
        ["select * from public.user"]
        :row-fn :email_address)}))
 
+(defn user-get
+  [email-address]
+  (let
+    [user (first
+            (sql/query
+              db
+              ["select * from public.user where email_address=?" email-address]))]
+    (if user
+      (response user)
+      {:status 404})
+    )
+  )
+
 ; register a user by username
 (defn user-register
   [email-address]
-  (response
-    {:success
-     (try
-       (sql/execute!
-         db
-         ["insert into public.user (email_address) values (?)" email-address])
-       true
-       (catch Exception e
-         (println (.getMessage e))
-         false))}))
+  (let
+    [success (try
+               (sql/execute!
+                 db
+                 ["insert into public.user (email_address) values (?)" email-address])
+               true
+               (catch Exception e
+                 (println (.getMessage e))
+                 false))]
+    ; if we successfully created the user, return a "created" status and invoke
+    ; user-get
+    ; otherwise, return a "conflict" status
+    (if success
+      {:status 201
+       :body (user-get email-address)}
+      {:status 409})
+    )
+  )
 
