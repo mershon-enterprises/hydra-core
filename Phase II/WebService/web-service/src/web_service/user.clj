@@ -39,16 +39,7 @@
              "  on ual.id=u2ual.access_level_id")]
        :row-fn :description)}))
 
-; list the users in the database
-(defn user-list
-  []
-  (response
-    {:emails
-     (sql/query
-       db
-       ["select * from public.user"]
-       :row-fn :email_address)}))
-
+; get the specified user
 (defn user-get
   [email-address]
   (let
@@ -58,9 +49,17 @@
               ["select * from public.user where email_address=?" email-address]))]
     (if user
       (response user)
-      {:status 404})
-    )
-  )
+      {:status 404})))
+
+; list the users in the database
+(defn user-list
+  []
+  (response
+    {:emails
+     (sql/query
+       db
+       ["select * from public.user"]
+       :row-fn :email_address)}))
 
 ; register a user by username
 (defn user-register
@@ -80,7 +79,4 @@
     (if success
       {:status 201
        :body (user-get email-address)}
-      {:status 409})
-    )
-  )
-
+      {:status 409})))
