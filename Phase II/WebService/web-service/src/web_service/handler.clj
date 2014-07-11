@@ -30,13 +30,6 @@
           (POST "/" [] (access-level-add description))
           (DELETE "/" [] (status {:body "Delete access level not allowed"} 403))))))
 
-  ; (POST "/user/access/add"
-  ;       [email_address access_level]
-  ;       (user-access-add email_address access_level))
-  ; (GET "/user/access/list"
-  ;       [email_address]
-  ;      (user-access-list email_address))
-
   (context
     "/users" []
     (defroutes document-routes
@@ -50,7 +43,13 @@
           (GET "/" [] (user-get email-address))
           (PUT "/" [] (status {:body "Update user not implemented"} 405))
           (POST "/" [] (user-register email-address))
-          (DELETE "/" [] (status {:body "Delete user not allowed"} 403))))))
+          (DELETE "/" [] (status {:body "Delete user not allowed"} 403))
+          (context "/access" []
+                   (defroutes document-routes
+                     (GET "/" [] (user-access-list email-address))
+                     (PUT "/" [] (status {:body "User Update-all access not implemented"} 405))
+                     (POST "/" [description] (user-access-add email-address description))
+                     (DELETE "/" [] (status {:body "User Delete-all access not allowed"} 403))))))))
   (route/resources "/")
   (route/not-found "Not Found"))
 

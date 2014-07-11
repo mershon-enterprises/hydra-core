@@ -4,41 +4,6 @@
   (:require [clojure.java.jdbc :as sql]
             [compojure.route :as route]))
 
-; add the specified permission to the user
-(defn user-access-add
-  [email-address access-level]
-  (response
-    {:success
-     (try
-       (sql/execute!
-         db
-         [(str "insert into public.user_to_user_access_level "
-               "(user_id, access_level_id) "
-               "values ("
-               "(select id from public.user where email_address=?), "
-               "(select id from public.user_access_level where description=?))")
-          email-address access-level]
-         )
-       true
-       (catch Exception e
-         (println (.getMessage e))
-         false))}))
-
-; list the users in the database
-(defn user-access-list
-  [email-address]
-  (response
-    {:access
-     (sql/query
-       db
-       [(str "select distinct ual.description "
-             "from public.user u "
-             "left join public.user_to_user_access_level u2ual "
-             "  on u.id=u2ual.user_id "
-             "inner join public.user_access_level ual "
-             "  on ual.id=u2ual.access_level_id")]
-       :row-fn :description)}))
-
 ; get the specified user
 (defn user-get
   [email-address]
@@ -79,3 +44,49 @@
     (if success
       (status (user-get email-address) 201)
       (status {:body "User already exists"} 409))))
+
+; list the access levels for the specified user
+(defn user-access-list
+  [email-address]
+  (response
+    (sql/query
+      db
+      [(str "select distinct ual.description "
+            "from public.user u "
+            "left join public.user_to_user_access_level u2ual "
+            "  on u.id=u2ual.user_id "
+            "inner join public.user_access_level ual "
+            "  on ual.id=u2ual.access_level_id "
+            "where u.email_address=?") email-address]
+      :row-fn :description)))
+
+; add the specified permission to the user
+(defn user-access-add
+  [email-address access-level]
+  (response
+    (let
+      [success (try
+                 (sql/execute!
+                   db
+                   [(str "insert into public.user_to_user_access_level "
+                         "(user_id, access_level_id) "
+                         "values ("
+                         "(select id from public.user where email_address=?), "
+                         "(select id from public.user_access_level where description=?))")
+                    email-address access-level])
+                 true
+                 (catch Exception e
+                   (println (.getMessage e))
+                   (println (.getMessage (.getNextException e)))
+                   false))]
+
+      ; if we successfully created the user access level, return a "created"
+      ; status and invoke user-get
+      ; otherwise, return a "conflict" status
+      (if success
+        (status (user-access-list email-address) 201)
+        (status {:body (str "User access for "
+                            email-address
+                            " already exists: "
+                            access-level)}
+                409)))))
