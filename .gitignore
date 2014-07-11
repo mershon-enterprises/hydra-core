@@ -3,9 +3,11 @@ Desktop.ini
 .DS_Store
 Thumbs.db
 
+# Ctags tags
+.tags
+
 # Maven files
 target/
-pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.next
 release.properties
