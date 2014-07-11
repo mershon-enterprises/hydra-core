@@ -1,4 +1,4 @@
-(ns web-service.access-levels
+(ns web-service.access-level
   (:use [ring.util.response]
         [web-service.db])
   (:require [clojure.java.jdbc :as sql]

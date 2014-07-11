@@ -1,7 +1,7 @@
 (ns web-service.handler
   (:use [ring.util.response]
         [web-service.user]
-        [web-service.access-levels])
+        [web-service.access-level])
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [ring.middleware.json :as middleware]
