@@ -26,13 +26,16 @@
     "/users" []
     (defroutes document-routes
       (GET "/" [] (user-list))
+      (PUT "/" [] (status {:body "Update-all users not allowed"} 403))
       (POST "/" [email_address] (user-register email_address))
+      (DELETE "/" [] (status {:body "Delete-all users not allowed"} 403))
       (context
         "/:email-address" [email-address]
         (defroutes document-routes
           (GET "/" [] (user-get email-address))
-          ))
-      ))
+          (PUT "/" [] (status {:body "Update user not implemented"} 405))
+          (POST "/" [] (user-register email-address))
+          (DELETE "/" [] (status {:body "Delete user not allowed"} 403))))))
   (route/resources "/")
   (route/not-found "Not Found"))
 
