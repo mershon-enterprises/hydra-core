@@ -49,7 +49,7 @@
               ["select * from public.user where email_address=?" email-address]))]
     (if user
       (response user)
-      {:status 404})))
+      (not-found "User not found"))))
 
 ; list the users in the database
 (defn user-list
@@ -77,6 +77,5 @@
     ; user-get
     ; otherwise, return a "conflict" status
     (if success
-      {:status 201
-       :body (user-get email-address)}
-      {:status 409})))
+      (status (user-get email-address) 201)
+      (status {:body "User already exists"} 409))))
