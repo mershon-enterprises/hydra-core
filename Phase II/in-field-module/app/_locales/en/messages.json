@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Data Gatherer",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "An app for collecting well test data from a Red Lion data logger as well as manually-entered well test data.",
+    "description": "The description of the application"
+  }
+}
