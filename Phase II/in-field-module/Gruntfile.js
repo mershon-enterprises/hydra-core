@@ -130,7 +130,7 @@ module.exports = function (grunt) {
         // Automatically inject Bower components into the HTML file
         bowerInstall: {
             app: {
-                src: [ 
+                src: [
                      '<%= config.app %>/*.html'
                 ]
             }
