@@ -13,9 +13,9 @@ Run ```grunt build``` to produce an unpacked copy of the extension in the
 ```dist``` folder. Generating a packed extension that can be installed directly
 into the browser requires registering with the Chrome app store, so at this
 point in development we simply generate an unpacked version of the extension.
-To install it, make sure Chrome is in developer mode and navigate to the
-extensions page (Main Menu > Tools > Extensions). Now check the small box at
-the top-right for developer mode. A "Load Unpacked Extension..." button will be
-become visible. Click it and in the dialog box that appears, navigate to the
-dist folder and click Open. The browser should then load the extension.
+To install it, navigate to the extensions page in Chrome (Main Menu > Tools >
+Extensions). Now check the small box at the top-right for developer mode. A
+"Load Unpacked Extension..." button will be become visible. Click it and in the
+dialog box that appears, navigate to the dist folder and click Open. The
+browser should then load the extension.
 
