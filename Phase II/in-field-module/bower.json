@@ -1,6 +1,23 @@
 {
   "name": "data-gatherer",
   "version": "0.0.0",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "jquery": "~2.1.1"
+  },
+  "homepage": "https://github.com/Slixbits/hydra-core",
+  "authors": [
+    "Brent Houghton <brent@slixbits.com>",
+    "Devin Leonhart <devin@slixbits.com>",
+    "Kevin Mershon <kevin@slixbits.com>"
+  ],
+  "license": "GPLv3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ]
 }
