@@ -6,5 +6,9 @@
   "appDescription": {
     "message": "An app for collecting well test data from a Red Lion data logger as well as manually-entered well test data.",
     "description": "The description of the application"
-  }
+  },
+  "toolbarButtonTooltip": {
+    "message": "Submit well test data",
+    "description": "The tooltip shown over the button displayed in the browser's toolbar"
+  },
 }

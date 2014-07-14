@@ -1,7 +1,6 @@
 'use strict';
 
-chrome.runtime.onInstalled.addListener(function (details) {
-    console.log('previousVersion', details.previousVersion);
+chrome.browserAction.onClicked.addListener(function() {
+    chrome.tabs.create({ url: chrome.extension.getURL("main.html") });
 });
 
-console.log('\'Allo \'Allo! Event Page');
