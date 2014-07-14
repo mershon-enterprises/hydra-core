@@ -1,0 +1,281 @@
+<html>
+
+<head>
+<title>HMI Remote Monitoring</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+
+<script language="JavaScript">
+
+<!--
+
+var pause = -1;
+var today = new Date();
+var count = today.getTime();
+var click = '';
+var state = 0;
+var delay = 0;
+var timer = 0;
+
+function pressKey(c)
+{
+	click = "?0," + c;
+
+	state = 1;
+
+	clearDelay();
+	}
+
+function clickImage(x, y)
+{
+	click = "?1," + x + "." + y;
+
+	state = 1;
+
+	clearDelay();
+	}
+
+function inputDone()
+{
+	clearDelay();
+
+	if( state == 1 ) {
+
+		state = 4;
+
+		return;
+		}
+
+	state = 0;
+	}
+
+function clearDelay()
+{
+	if( delay ) {
+
+		clearTimeout(delay);
+
+		delay = 0;
+		}
+	}
+
+function inputDelay()
+{
+	if( state == 2 ) {
+
+		state = 3;
+
+		clearDelay();
+		}
+	}
+
+function retryImage()
+{
+	status = "Retrying image load...";
+   
+	timer  = setTimeout("refreshImage()", 100);
+	}
+
+function refreshImage()
+{
+	if( timer ) {
+	
+		clearTimeout(timer);
+		
+		timer = 0;
+		}
+	
+	newImage = document.images.displayImage.src;
+
+	qMark    = newImage.indexOf("?", 0);
+
+	if( qMark > 0 ) {
+	
+		newImage = newImage.substr(0, qMark);
+		}
+
+	if( true ) {
+
+		newImage = newImage + "?";
+
+		newImage = newImage + count++;
+		}
+
+	if( state > 0 ) {
+
+		newState = state;
+
+		if( state == 1 ) {
+
+			newImage = newImage + click;
+
+			delay    = setTimeout("inputDelay()", 750);
+
+			newState = 2;
+			}
+
+		if( state == 3 ) {
+
+			newImage = newImage + click;
+			}
+
+		if( state == 4 ) {
+
+			newImage = newImage + click;
+
+			newState = 0;
+			}
+
+		state = newState;
+		}
+
+	document.images.displayImage.src = newImage;
+	
+	status = "";
+	}
+
+function scheduleImage()
+{
+	if( pause < 0 ) {
+
+		text  = location.search;
+
+		pause = 0;
+
+		if( text.length ) {
+
+			text  = text.substr(1, 100);
+
+			pause = eval(text);
+			}
+		}
+
+	if( pause ) {
+   
+		timer = setTimeout("refreshImage()", pause);
+
+		return;
+		}
+
+	refreshImage();
+	}
+
+//-->
+
+</script>
+
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" bgcolor="#000000">
+
+	<tr>
+		<td width ="64">&nbsp;</td>
+		<td height="16">&nbsp;</td>
+		<td width ="16">&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td width="64">
+          <div align="center">
+            <center>
+            <table border="2" width="80%" height="480" bgcolor="#C0C0C0" cellpadding="2"
+            bordercolorlight="#000000" bordercolor="#000000" bordercolordark="#000000">
+              <tr>
+                <td width="100%" onmousedown="pressKey('80')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=0" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('81')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=1" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('82')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=2" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('83')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=3" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('84')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=4" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('85')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=5" width="32" height="32"></p>
+				</td>
+              </tr>
+              <tr>
+                <td width="100%" onmousedown="pressKey('86')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=6" width="32" height="32"></p>
+				</td>
+              </tr>
+            </table>
+            </center>
+          </div>
+        </td>
+
+		<td width="640" height="480">
+
+			<table border="0" cellpadding="0" cellspacing="0" width="640" height="480">
+
+				<tr><td>
+					
+					<img	border     ="0"
+							src        ="display.bmp"
+							name       ="displayImage"
+							width      ="640"
+							height     ="480"
+							onload     ="scheduleImage()"
+							onerror    ="retryImage()"
+							onmousedown="clickImage(event.offsetX, event.offsetY)"
+							onmouseup  ="inputDone()"
+							onmouseout ="inputDone()"
+							ondragstart="inputDone()"
+							>
+
+				</td></tr>
+		
+			</table>
+        
+		</td>
+
+		<td width="16">&nbsp;</td>
+	
+	</tr>
+
+	<tr>
+		<td width ="64">
+          <div align="center">
+            <center>
+            <table border="2" width="80%" height="70" bgcolor="#C0C0C0" cellpadding="2"
+            bordercolorlight="#000000" bordercolor="#000000" bordercolordark="#000000">
+              <tr>
+                <td width="100%" onmousedown="pressKey('A2')" onmouseup="inputDone()" onmouseout="inputDone()" ondragstart="inputDone()">
+					<p align="center"><img border="0" src="key.gif?k=9" width="32" height="32"></p>
+				</td>
+              </tr>
+            </table>
+            </center>
+          </div>
+        </td>
+		<td height="16">&nbsp;</td>
+		<td width ="16">&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td width ="64">
+          &nbsp;
+        </td>
+		<td height="16">&nbsp;</td>
+		<td width ="16">&nbsp;</td>
+	</tr>
+
+</table>
+</body>
+</html>
