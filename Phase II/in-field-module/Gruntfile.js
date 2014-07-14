@@ -257,38 +257,6 @@ module.exports = function (grunt) {
             ],
             test: [
             ]
-        },
-
-        // Auto buildnumber, exclude debug files. smart builds that event pages
-        chromeManifest: {
-            dist: {
-                options: {
-                    buildnumber: true,
-                    background: {
-                        target: 'scripts/background.js',
-                        exclude: [
-                            'scripts/chromereload.js'
-                        ]
-                    }
-                },
-                src: '<%= config.app %>',
-                dest: '<%= config.dist %>'
-            }
-        },
-
-        // Compres dist files to package
-        compress: {
-            dist: {
-                options: {
-                    archive: 'package/Data Gatherer<%= config.manifest.version %>.zip'
-                },
-                files: [{
-                    expand: true,
-                    cwd: 'dist/',
-                    src: ['**'],
-                    dest: ''
-                }]
-            }
         }
     });
 
@@ -308,15 +276,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'chromeManifest:dist',
         'useminPrepare',
         'concurrent:dist',
         'cssmin',
         'concat',
         'uglify',
         'copy',
-        'usemin',
-        'compress'
+        'usemin'
     ]);
 
     grunt.registerTask('default', [
