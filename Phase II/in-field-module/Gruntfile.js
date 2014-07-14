@@ -230,6 +230,23 @@ module.exports = function (grunt) {
 
         // Copies remaining files to places other tasks can use
         copy: {
+            dev: {
+                files: [{
+                    expand: true,
+                    dot: true,
+                    cwd: '<%= config.app %>',
+                    dest: '<%= config.dist %>',
+                    src: [
+                        '*.{ico,png,txt}',
+                        'images/{,*/}*.{webp,gif}',
+                        '{,*/}*.html',
+                        'scripts/{,*/}*.js',
+                        'styles/fonts/{,*/}*.*',
+                        '_locales/{,*/}*.json',
+                        'manifest.json'
+                    ]
+                }]
+            },
             dist: {
                 files: [{
                     expand: true,
@@ -240,9 +257,9 @@ module.exports = function (grunt) {
                         '*.{ico,png,txt}',
                         'images/{,*/}*.{webp,gif}',
                         '{,*/}*.html',
-                        'styles/{,*/}*.css',
                         'styles/fonts/{,*/}*.*',
                         '_locales/{,*/}*.json',
+                        'manifest.json'
                     ]
                 }]
             }
@@ -285,6 +302,18 @@ module.exports = function (grunt) {
                     ext: '.css'
                 }]
             }
+        },
+
+        // copy Bower-installed libraries to where they need to be
+        bowercopy: {
+            dist: {
+                options: {
+                    destPrefix: '<%= config.dist %>/scripts/'
+                },
+                files: {
+                    'jquery.js': 'jquery/dist/jquery.min.js'
+                }
+            }
         }
     });
 
@@ -302,6 +331,14 @@ module.exports = function (grunt) {
         'mocha'
     ]);
 
+    grunt.registerTask('dev', [
+        'clean:dist',
+        'sass:dist',
+        'concurrent:dist',
+        'bowercopy:dist',
+        'copy:dev'
+    ]);
+
     grunt.registerTask('build', [
         'clean:dist',
         'bowerInstall',
@@ -311,7 +348,8 @@ module.exports = function (grunt) {
         'cssmin',
         'concat',
         'uglify',
-        'copy',
+        'bowercopy:dist',
+        'copy:dist',
         'usemin'
     ]);
 
