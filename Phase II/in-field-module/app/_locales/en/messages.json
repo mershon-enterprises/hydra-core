@@ -10,5 +10,5 @@
   "toolbarButtonTooltip": {
     "message": "Submit well test data",
     "description": "The tooltip shown over the button displayed in the browser's toolbar"
-  },
+  }
 }
