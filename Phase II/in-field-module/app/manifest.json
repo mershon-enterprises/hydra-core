@@ -22,5 +22,9 @@
             "38": "images/icon-38.png"
         },
         "default_title": "__MSG_toolbarButtonTooltip__"
-    }
+    },
+    "permissions": [
+        "http://*/",
+        "https://*/"
+    ]
 }
