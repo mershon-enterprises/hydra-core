@@ -144,7 +144,7 @@ module.exports = function (grunt) {
                 dest: '<%= config.dist %>'
             },
             html: [
-                '<%= config.app %>/popup.html',
+                '<%= config.app %>/main.html',
                 '<%= config.app %>/options.html'
             ]
         },
@@ -257,6 +257,33 @@ module.exports = function (grunt) {
             ],
             test: [
             ]
+        },
+
+        // Compiles Sass to CSS and generates necessary files if requested
+        sass: {
+            options: {
+                loadPath: [
+                    'bower_components'
+                ]
+            },
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/styles',
+                    src: ['*.scss'],
+                    dest: '<%= config.dist %>/styles',
+                    ext: '.css'
+                }]
+            },
+            server: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/styles',
+                    src: ['*.scss'],
+                    dest: '.tmp/styles',
+                    ext: '.css'
+                }]
+            }
         }
     });
 
@@ -276,6 +303,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
+        'sass:dist',
         'useminPrepare',
         'concurrent:dist',
         'cssmin',
