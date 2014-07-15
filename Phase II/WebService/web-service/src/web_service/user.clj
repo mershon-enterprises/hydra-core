@@ -1,6 +1,7 @@
 (ns web-service.user
   (:use [ring.util.response]
-        [web-service.db])
+        [web-service.db]
+        [web-service.session])
   (:require [clojure.java.jdbc :as sql]
             [compojure.route :as route]))
 
@@ -23,13 +24,15 @@
 
 ; list the users in the database
 (defn user-list
-  []
-  (response
-    {:emails
-     (sql/query
-       db
-       ["select * from public.user"]
-       :row-fn :email_address)}))
+  [session]
+  (let [required-access "Manage Users"]
+    (if (has-access session required-access)
+      (response
+        (sql/query
+          db
+          ["select * from public.user"]
+          :row-fn :email_address))
+      (access-denied required-access))))
 
 ; register a user by username
 (defn user-register

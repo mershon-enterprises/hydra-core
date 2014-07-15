@@ -52,7 +52,7 @@
   (context
     "/users" []
     (defroutes document-routes
-      (GET "/" [] (user-list))
+      (GET "/" {session :session} (user-list session))
       (PUT "/" [] (not-allowed "Update-all users"))
       (POST "/" [email_address] (user-register email_address))
       (DELETE "/" [] (not-allowed "Delete-all users"))

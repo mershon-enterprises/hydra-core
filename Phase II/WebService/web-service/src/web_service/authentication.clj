@@ -1,6 +1,7 @@
 (ns web-service.authentication
   (:use [ring.util.response]
-        [web-service.user])
+        [web-service.user]
+        [web-service.session])
   (:require [compojure.core :refer :all]))
 
 ; login to the API or error
