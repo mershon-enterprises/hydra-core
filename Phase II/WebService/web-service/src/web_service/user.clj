@@ -5,13 +5,18 @@
             [compojure.route :as route]))
 
 ; get the specified user
+(defn get-user
+  [email-address]
+  (first
+    (sql/query
+      db
+      ["select * from public.user where email_address=?" email-address])))
+
+; get the specified user, as an HTTP response
 (defn user-get
   [email-address]
   (let
-    [user (first
-            (sql/query
-              db
-              ["select * from public.user where email_address=?" email-address]))]
+    [user (get-user email-address)]
     (if user
       (response user)
       (not-found "User not found"))))

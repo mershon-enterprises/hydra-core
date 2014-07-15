@@ -1,10 +1,12 @@
 (ns web-service.handler
   (:use [ring.util.response]
-        [web-service.user]
-        [web-service.access-level])
+        [web-service.access-level]
+        [web-service.authentication]
+        [web-service.user])
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [ring.middleware.json :as middleware]
+            [ring.middleware.session :as session]
             [compojure.route :as route]))
 
 ; get the version of the API
@@ -13,6 +15,13 @@
   (response {:version "0.1.0"}))
 
 (defroutes app-routes
+  (POST "/login" {session :session
+                  params :params}
+        (let [email-address (:email_address params)
+              password (:password params)]
+
+          (login session email-address password)))
+  (POST "/logout" [] (logout))
   (GET "/version" [] (get-version))
 
   (context
