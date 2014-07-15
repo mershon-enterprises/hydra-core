@@ -11,15 +11,16 @@ This is a [Clojure](http://clojure.org) on
 
 Table of Contents
 --
-1. [/access-levels](#accesslevels) - manage global access levels
+1. [/access-levels](#access-levels) - manage global access levels
 1. [/users](#users)  - manage users
 1. [/version](#version) - get the version of the API
 
 API
 --
 ### `/access-levels`
+
 #### GET
-lists all the the access levels in the system
+lists all the access levels in the system
 * response:
 
     ```json
@@ -28,8 +29,10 @@ lists all the the access levels in the system
       "Add Users"
     ]
     ```
+
 #### PUT
-not allowed
+update-all access levels not allowed
+
 #### POST
 add an access level
 * sample request:
@@ -46,9 +49,75 @@ add an access level
       "description": "View Reports",
       "date_modified": "2014-07-15T15:12:07Z",
       "date_created": "2014-07-15T15:12:07Z",
-      "id": 2
+      "id": 3
     }
     ```
+
+#### DELETE
+delete-all access levels not allowed
+    
+### `/access-levels/[description]`
+#### GET
+get details of the specified access level
+* sample response (url `/access-levels/View Reports`):
+
+    ```json
+    {
+      "description": "View Reports",
+      "date_modified": "2014-07-15T15:12:07Z",
+      "date_created": "2014-07-15T15:12:07Z",
+      "id": 3
+    }
+    ```
+
+#### PUT
+update access level not implemented
+
+#### POST
+[same as `/access-levels/`](#post)
+
+#### DELETE
+delete not allowed
+
+### `/users`
+#### GET
+lists all the users in the system
+* response:
+
+    ```json
+    {
+      emails: [
+        "brent@slixbits.com",
+        "kevin@slixbits.com"
+      ]
+    }
+    ```
+
+#### PUT
+update-all users not allowed
+
+#### POST
+add an access level
+* sample request:
+
+    ```json
+    {
+      email_address: "ryan@slixbits.com"
+    }
+    ```
+* sample response:
+
+    ```json
+    {
+      "email_address": "ryan@slixbits.com",
+      "date_modified": "2014-07-15T15:12:07Z",
+      "date_created": "2014-07-15T15:12:07Z",
+      "id": 3
+    }
+    ```
+
+#### DELETE
+delete-all users not allowed
 
 ### `/version`
 #### GET
@@ -60,12 +129,15 @@ output the current version
       version: "0.1.0"
     }
     ```
+
 #### PUT
-not allowed
+update version not allowed
+
 #### POST
-not allowed
+add version not allowed
+
 #### DELETE
-not allowed
+delete version not allowed
 
 Getting Started
 --
