@@ -22,16 +22,15 @@
         (let [user (get-user email-address)]
           (if user
             {:body (str "Now logged in as " email-address)
-             :session {:email-address email-address}}
+             ; store the email address and permissions to the session
+             :session {:email-address email-address
+                       :access (get-user-access email-address)}}
 
             ; invalid user
             bad-credentials))
 
         ; no email was specified
-        bad-credentials)
-      )
-    )
-  )
+        bad-credentials))))
 
 ; logout of the API
 (defn logout

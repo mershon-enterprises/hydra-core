@@ -50,11 +50,10 @@
       (status (user-get email-address) 201)
       (status {:body "User already exists"} 409))))
 
-; list the access levels for the specified user
-(defn user-access-list
+; get the access for the specified user
+(defn get-user-access
   [email-address]
-  (response
-    (sql/query
+  (sql/query
       db
       [(str "select distinct ual.description "
             "from public.user u "
@@ -63,7 +62,12 @@
             "inner join public.user_access_level ual "
             "  on ual.id=u2ual.access_level_id "
             "where u.email_address=?") email-address]
-      :row-fn :description)))
+      :row-fn :description))
+
+; list the access levels for the specified user
+(defn user-access-list
+  [email-address]
+  (response (get-user-access email-address)))
 
 ; add the specified permission to the user
 (defn user-access-add
