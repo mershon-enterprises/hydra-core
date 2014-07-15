@@ -60,6 +60,10 @@ module.exports = function (grunt) {
                     '<%= config.app %>/manifest.json',
                     '<%= config.app %>/_locales/{,*/}*.json'
                 ]
+            },
+            emberTemplates: {
+                files: 'app/scripts/**/*.handlebars',
+                tasks: ['emberTemplates', 'livereload']
             }
         },
 
@@ -314,6 +318,17 @@ module.exports = function (grunt) {
                     'jquery.js': 'jquery/dist/jquery.min.js'
                 }
             }
+        },
+
+        // compiles Ember templates written in the Handlebars templating
+        // language into HTML
+        emberTemplates: {
+            compile: {
+                options: {
+                    templateBasePath: '<%= config.app %>/templates/'
+                },
+                files: 'app/templates/**/*.handlebars'
+            }
         }
     });
 
@@ -334,6 +349,7 @@ module.exports = function (grunt) {
     grunt.registerTask('dev', [
         'clean:dist',
         'sass:dist',
+        'emberTemplates',
         'concurrent:dist',
         'bowercopy:dist',
         'copy:dev'
@@ -343,6 +359,7 @@ module.exports = function (grunt) {
         'clean:dist',
         'bowerInstall',
         'sass:dist',
+        'emberTemplates',
         'useminPrepare',
         'concurrent:dist',
         'cssmin',
