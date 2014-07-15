@@ -77,7 +77,7 @@ update access level not implemented
 [same as `/access-levels/`](#post)
 
 #### DELETE
-delete not allowed
+delete access level not allowed
 
 ### `/users`
 #### GET
@@ -97,7 +97,7 @@ lists all the users in the system
 update-all users not allowed
 
 #### POST
-add an access level
+add a user
 * sample request:
 
     ```json
@@ -118,6 +118,65 @@ add an access level
 
 #### DELETE
 delete-all users not allowed
+
+### `/users/[email address]`
+#### GET
+get details of the specified user
+* sample response (url `/access-levels/ryan@slixbits.com`):
+
+    ```json
+    {
+      "email_address": "ryan@slixbits.com",
+      "date_modified": "2014-07-15T15:12:07Z",
+      "date_created": "2014-07-15T15:12:07Z",
+      "id": 3
+    }
+    ```
+
+#### PUT
+update user not implemented
+
+#### POST
+[same as `/users/`](#post1)
+
+#### DELETE
+delete user not allowed
+
+
+### `/users/[email address]/access`
+#### GET
+get details of the specified user's access
+* sample response (url `/access-levels/ryan@slixbits.com/access`):
+
+    ```json
+    [
+      "View Reports"
+    ]
+    ```
+
+#### PUT
+update-all user access not implemented
+
+#### POST
+add access to the specified user
+* sample request:
+
+    ```json
+    {
+      description: "Add Users"
+    }
+    ```
+* sample response:
+
+    ```json
+    [
+      "Add Users",
+      "View Reports"
+    ]
+    ```
+
+#### DELETE
+delete-all user access not allowed
 
 ### `/version`
 #### GET
