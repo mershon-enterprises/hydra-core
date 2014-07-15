@@ -11,58 +11,48 @@ This is a [Clojure](http://clojure.org) on
 
 Table of Contents
 --
-1. [/user/access/list](#useraccesslist) (GET) - list access levels for a user
-1. [/user/access/add](#useraccessadd) (POST) - add an access level to a user
-1. [/user/list](#userlist) (GET) - list users
-1. [/user/register](#userregister) (POST) - register a new user
-1. [/version](#version) (GET) - get the version of the API
+1. [/access-levels](#accesslevels) - manage global access levels
+1. [/users](#users)  - manage users
+1. [/version](#version) - get the version of the API
 
 API
 --
-### GET
-#### `/user/access/list`
-* lists the access levels of a user
-* request:
-
-    ```json
-    { email_address: "kevin@slixbits.com" }
-    ```
+### `/access-levels`
+#### GET
+lists all the the access levels in the system
 * response:
 
     ```json
-    {
-      access: [
-        "Add User Access",
-        "Add Users"
-      ]
-    }
+    [
+      "Add User Access",
+      "Add Users"
+    ]
     ```
-
-#### `/user/list`
-* lists the emails of the users
-* request:
-
-    ```json
-    { /* any content */ }
-    ```
-* response:
+#### PUT
+not allowed
+#### POST
+add an access level
+* sample request:
 
     ```json
     {
-      emails: [
-        "kevin@slixbits.com",
-        "brent@slixbits.com"
-      ]
+      description: "View Reports"
+    }
+    ```
+* sample response:
+
+    ```json
+    {
+      "description": "View Reports",
+      "date_modified": "2014-07-15T15:12:07Z",
+      "date_created": "2014-07-15T15:12:07Z",
+      "id": 2
     }
     ```
 
-#### `/version`
-* output the current version
-* request:
-
-    ```json
-    { /* any content */ }
-    ```
+### `/version`
+#### GET
+output the current version
 * response:
 
     ```json
@@ -70,36 +60,12 @@ API
       version: "0.1.0"
     }
     ```
-
-### POST
-#### `/user/access/add`
-* add access for the specified user
-* request:
-
-    ```json
-    {
-      email_address: "kevin@slixbits.com",
-      access_level: "Add Users"
-    }
-    ```
-* response:
-
-    ```json
-    { success: true }
-    ```
-
-#### `/user/register`
-* registers an email for a user
-* request:
-
-    ```json
-    { email_address: "contact@slixbits.com" }
-    ```
-* response:
-
-    ```json
-    { success: true }
-    ```
+#### PUT
+not allowed
+#### POST
+not allowed
+#### DELETE
+not allowed
 
 Getting Started
 --
