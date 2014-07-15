@@ -14,6 +14,16 @@
   []
   (response {:version "0.1.0"}))
 
+; easy methods to handle not allowed and not implemented APIs
+(defn- not-allowed
+  [api-method]
+  (status {:body (str api-method " not allowed")}
+          403))
+(defn- not-implemented
+  [api-method]
+  (status {:body (str api-method " not implemented")}
+          405))
+
 (defroutes app-routes
   (POST "/login" {session :session
                   params :params}
@@ -28,37 +38,37 @@
     "/access-levels" []
     (defroutes document-routes
       (GET "/" [] (access-level-list))
-      (PUT "/" [] (status {:body "Update-all access levels not allowed"} 403))
+      (PUT "/" [] (not-allowed "Update-all access levels"))
       (POST "/" [description] (access-level-add description))
-      (DELETE "/" [] (status {:body "Delete-all access levels not allowed"} 403))
+      (DELETE "/" [] (not-allowed "Delete-all access levels"))
       (context
         "/:description" [description]
         (defroutes document-routes
           (GET "/" [] (access-level-get description))
-          (PUT "/" [] (status {:body "Update access level not implemented"} 405))
+          (PUT "/" [] (not-implemented "Update access level"))
           (POST "/" [] (access-level-add description))
-          (DELETE "/" [] (status {:body "Delete access level not allowed"} 403))))))
+          (DELETE "/" [] (not-allowed "Delete access level"))))))
 
   (context
     "/users" []
     (defroutes document-routes
       (GET "/" [] (user-list))
-      (PUT "/" [] (status {:body "Update-all users not allowed"} 403))
+      (PUT "/" [] (not-allowed "Update-all users"))
       (POST "/" [email_address] (user-register email_address))
-      (DELETE "/" [] (status {:body "Delete-all users not allowed"} 403))
+      (DELETE "/" [] (not-allowed "Delete-all users"))
       (context
         "/:email-address" [email-address]
         (defroutes document-routes
           (GET "/" [] (user-get email-address))
-          (PUT "/" [] (status {:body "Update user not implemented"} 405))
+          (PUT "/" [] (not-implemented "Update user"))
           (POST "/" [] (user-register email-address))
-          (DELETE "/" [] (status {:body "Delete user not allowed"} 403))
+          (DELETE "/" [] (not-allowed "Delete user"))
           (context "/access" []
                    (defroutes document-routes
                      (GET "/" [] (user-access-list email-address))
-                     (PUT "/" [] (status {:body "User Update-all access not implemented"} 405))
+                     (PUT "/" [] (not-implemented "User update-all access"))
                      (POST "/" [description] (user-access-add email-address description))
-                     (DELETE "/" [] (status {:body "User Delete-all access not allowed"} 403))))))))
+                     (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))
 
