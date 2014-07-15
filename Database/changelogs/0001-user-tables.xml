@@ -96,7 +96,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="description" type="character varying(255)">
-                <constraints nullable="false" />
+                <constraints unique="true" nullable="false" />
             </column>
         </createTable>
 
