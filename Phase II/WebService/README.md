@@ -12,16 +12,20 @@ This is a [Clojure](http://clojure.org) on
 Table of Contents
 --
 1. [/access-levels](#access-levels) - manage global access levels
-1. [/users](#users)  - manage users
+1. [/login](#login) - login to the system and establish a session
+1. [/logout](#logout) - log out of the system
+1. [/users](#users) - manage users
 1. [/version](#version) - get the version of the API
 
 API
 --
 ### `/access-levels`
 
-#### GET
-lists all the access levels in the system
-* response:
+  * #### GET
+
+    lists all the access levels in the system
+
+    * sample response:
 
     ```json
     [
@@ -30,19 +34,23 @@ lists all the access levels in the system
     ]
     ```
 
-#### PUT
-update-all access levels not allowed
+  * #### PUT
 
-#### POST
-add an access level
-* sample request:
+    update-all access levels not allowed
+
+  * #### POST
+
+    add an access level
+
+    * sample request:
 
     ```json
     {
       description: "View Reports"
     }
     ```
-* sample response:
+
+    * sample response:
 
     ```json
     {
@@ -53,13 +61,17 @@ add an access level
     }
     ```
 
-#### DELETE
-delete-all access levels not allowed
+  * #### DELETE
+
+    delete-all access levels not allowed
     
+<hr/>
 ### `/access-levels/[description]`
-#### GET
-get details of the specified access level
-* sample response (url `/access-levels/View Reports`):
+  * #### GET
+
+    get details of the specified access level
+
+    * sample response (url `/access-levels/View Reports`):
 
     ```json
     {
@@ -70,42 +82,71 @@ get details of the specified access level
     }
     ```
 
-#### PUT
-update access level not implemented
+  * #### PUT
 
-#### POST
-[same as `/access-levels/`](#post)
+    update access level not implemented
 
-#### DELETE
-delete access level not allowed
+  * #### POST
 
-### `/users`
-#### GET
-lists all the users in the system
-* response:
+    [same as `/access-levels/`](#post)
+
+  * #### DELETE
+
+    delete access level not allowed
+
+<hr/>
+### `/login`
+  * #### POST
+
+    login to the system and establish a session
+
+    * sample request:
 
     ```json
     {
-      emails: [
-        "brent@slixbits.com",
-        "kevin@slixbits.com"
-      ]
+      email_address: "brent@slixbits.com",
+      password: "nunyabidness"
     }
     ```
 
-#### PUT
-update-all users not allowed
+<hr/>
+### `/logout`
+  * #### POST
 
-#### POST
-add a user
-* sample request:
+    log out of the system
+
+<hr/>
+### `/users`
+  * #### GET
+
+    lists all the users in the system
+
+    * sample response:
+
+    ```json
+    [
+      "brent@slixbits.com",
+      "kevin@slixbits.com"
+    ]
+    ```
+
+  * #### PUT
+
+    update-all users not allowed
+
+  * #### POST
+
+    add a user
+
+    * sample request:
 
     ```json
     {
       email_address: "ryan@slixbits.com"
     }
     ```
-* sample response:
+
+    * sample response:
 
     ```json
     {
@@ -116,13 +157,18 @@ add a user
     }
     ```
 
-#### DELETE
-delete-all users not allowed
+  * #### DELETE
 
+    delete-all users not allowed
+
+<hr/>
 ### `/users/[email address]`
-#### GET
-get details of the specified user
-* sample response (url `/access-levels/ryan@slixbits.com`):
+
+  * #### GET
+
+    get details of the specified user
+
+    * sample response (url `/access-levels/ryan@slixbits.com`):
 
     ```json
     {
@@ -133,20 +179,26 @@ get details of the specified user
     }
     ```
 
-#### PUT
-update user not implemented
+  * #### PUT
 
-#### POST
-[same as `/users/`](#post1)
+    update user not implemented
 
-#### DELETE
-delete user not allowed
+  * #### POST
 
+    [same as `/users/`](#post1)
 
+  * #### DELETE
+
+    delete user not allowed
+
+<hr/>
 ### `/users/[email address]/access`
-#### GET
-get details of the specified user's access
-* sample response (url `/access-levels/ryan@slixbits.com/access`):
+
+  * #### GET
+
+    get details of the specified user's access
+
+    * sample response (url `/access-levels/ryan@slixbits.com/access`):
 
     ```json
     [
@@ -154,19 +206,23 @@ get details of the specified user's access
     ]
     ```
 
-#### PUT
-update-all user access not implemented
+  * #### PUT
 
-#### POST
-add access to the specified user
-* sample request:
+    update-all user access not implemented
+
+  * #### POST
+
+    add access to the specified user
+
+    * sample request:
 
     ```json
     {
       description: "Add Users"
     }
     ```
-* sample response:
+
+    * sample response:
 
     ```json
     [
@@ -175,28 +231,24 @@ add access to the specified user
     ]
     ```
 
-#### DELETE
-delete-all user access not allowed
+  * #### DELETE
 
+    delete-all user access not allowed
+
+<hr/>
 ### `/version`
-#### GET
-output the current version
-* response:
+
+  * #### GET
+
+    output the current version
+
+    * sample response:
 
     ```json
     {
       version: "0.1.0"
     }
     ```
-
-#### PUT
-update version not allowed
-
-#### POST
-add version not allowed
-
-#### DELETE
-delete version not allowed
 
 Getting Started
 --
