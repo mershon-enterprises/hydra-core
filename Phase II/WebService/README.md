@@ -185,7 +185,7 @@ API
 
   * #### POST
 
-    [same as `/users/`](#post1)
+    [same as `/users/`](#post-4)
 
   * #### DELETE
 
