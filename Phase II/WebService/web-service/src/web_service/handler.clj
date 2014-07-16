@@ -65,9 +65,12 @@
           (DELETE "/" [] (not-allowed "Delete user"))
           (context "/access" []
                    (defroutes document-routes
-                     (GET "/" [] (user-access-list email-address))
+                     (GET "/" {session :session} (user-access-list session email-address))
                      (PUT "/" [] (not-implemented "User update-all access"))
-                     (POST "/" [description] (user-access-add email-address description))
+                     (POST "/" {session :session
+                                params :params}
+                           (let [description (:description params)]
+                             (user-access-add session email-address description)))
                      (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))

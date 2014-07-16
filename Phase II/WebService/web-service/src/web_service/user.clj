@@ -26,10 +26,10 @@
       (let [user (get-user email-address)]
         (if user
           (response user)
-          (not-found "User not found"))) ; inconceivabl!
+          (not-found "User not found"))) ; inconceivable!
       (access-denied constants/manage-users))))
 
-; list the users in the database
+; list the users in the database, as an HTTP response
 (defn user-list
   [session]
   (if (has-access session constants/manage-users)
@@ -40,18 +40,16 @@
         :row-fn :email_address))
     (access-denied constants/manage-users)))
 
-; register a user by username
+; register a user by username, as an HTTP response
 (defn user-register
   [email-address]
   (let
-    [success (try
-               (sql/execute!
-                 db
-                 ["insert into public.user (email_address) values (?)" email-address])
-               true
-               (catch Exception e
-                 (println (.getMessage e))
-                 false))]
+    [query "insert into public.user (email_address) values (?)"
+     success (try (sql/execute! db [query email-address])
+                  true
+                  (catch Exception e
+                    (println (.getMessage e))
+                    false))]
     ; if we successfully created the user, return a "created" status and invoke
     ; user-get
     ; otherwise, return a "conflict" status
@@ -73,37 +71,43 @@
             "where u.email_address=?") email-address]
       :row-fn :description))
 
-; list the access levels for the specified user
+; list the access levels for the specified user, as an HTTP response
 (defn user-access-list
-  [email-address]
-  (response (get-user-access email-address)))
+  [session email-address]
 
-; add the specified permission to the user
+  ; let a user view their own information but not the information of others,
+  ; unless they have the Manage Users access
+  (let [can-access (or (= email-address (:email-address session))
+                       (has-access session constants/manage-users))]
+    (if can-access
+      (response (get-user-access email-address))
+      (access-denied constants/manage-users))))
+
+; add the specified permission to the user, as an HTTP response
 (defn user-access-add
-  [email-address access-level]
-  (let
-    [success (try
-               (sql/execute!
-                 db
-                 [(str "insert into public.user_to_user_access_level "
-                       "(user_id, access_level_id) "
-                       "values ("
-                       "(select id from public.user where email_address=?), "
-                       "(select id from public.user_access_level where description=?))")
-                  email-address access-level])
-               true
-               (catch Exception e
-                 (println (.getMessage e))
-                 (println (.getMessage (.getNextException e)))
-                 false))]
+  [session email-address access-level]
+  (if (has-access session constants/manage-users)
+    (let
+      [query (str "insert into public.user_to_user_access_level "
+                  "(user_id, access_level_id) "
+                  "values ("
+                  "(select id from public.user where email_address=?), "
+                  "(select id from public.user_access_level where description=?))")
+       success (try (sql/execute! db [query email-address access-level])
+                    true
+                    (catch Exception e
+                      (println (.getMessage e))
+                      (println (.getMessage (.getNextException e)))
+                      false))]
 
-    ; if we successfully created the user access level, return a "created"
-    ; status and invoke user-get
-    ; otherwise, return a "conflict" status
-    (if success
-      (status (user-access-list email-address) 201)
-      (status {:body (str "User access for "
-                          email-address
-                          " already exists: "
-                          access-level)}
-              409))))
+      ; if we successfully created the user access level, return a "created"
+      ; status and invoke user-get
+      ; otherwise, return a "conflict" status
+      (if success
+        (status (user-access-list email-address) 201)
+        (status {:body (str "User access for "
+                            email-address
+                            " already exists: "
+                            access-level)}
+                409))
+      (access-denied constants/manage-users))))
