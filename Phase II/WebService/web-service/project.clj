@@ -5,7 +5,8 @@
                  [org.clojure/java.jdbc "0.3.4"]
                  [compojure "1.1.8"]
                  [ring/ring-json "0.3.1"]
-                 [postgresql "9.3-1101.jdbc4"]]
+                 [postgresql "9.3-1101.jdbc4"]
+                 [org.clojure/data.json "0.2.5"]]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler web-service.handler/app}
   :profiles
