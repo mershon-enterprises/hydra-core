@@ -3,7 +3,8 @@
         [web-service.db]
         [web-service.session])
   (:require [clojure.java.jdbc :as sql]
-            [compojure.route :as route]))
+            [compojure.route :as route]
+            [web-service.constants :as constants]))
 
 ; get the specified user
 (defn get-user
@@ -15,24 +16,29 @@
 
 ; get the specified user, as an HTTP response
 (defn user-get
-  [email-address]
-  (let
-    [user (get-user email-address)]
-    (if user
-      (response user)
-      (not-found "User not found"))))
+  [session email-address]
+
+  ; let a user view their own information but not the information of others,
+  ; unless they have the Manage Users access
+  (let [can-access (or (= email-address (:email-address session))
+                       (has-access session constants/manage-users))]
+    (if can-access
+      (let [user (get-user email-address)]
+        (if user
+          (response user)
+          (not-found "User not found"))) ; inconceivabl!
+      (access-denied constants/manage-users))))
 
 ; list the users in the database
 (defn user-list
   [session]
-  (let [required-access "Manage Users"]
-    (if (has-access session required-access)
-      (response
-        (sql/query
-          db
-          ["select * from public.user"]
-          :row-fn :email_address))
-      (access-denied required-access))))
+  (if (has-access session constants/manage-users)
+    (response
+      (sql/query
+        db
+        ["select * from public.user"]
+        :row-fn :email_address))
+    (access-denied constants/manage-users)))
 
 ; register a user by username
 (defn user-register
