@@ -6,6 +6,11 @@
             [compojure.route :as route]
             [web-service.constants :as constants]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                INTERNAL APIS                                 ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ; get the specified user
 (defn get-user
   [email-address]
@@ -13,6 +18,27 @@
     (sql/query
       db
       ["select * from public.user where email_address=?" email-address])))
+
+
+; get the access for the specified user
+(defn get-user-access
+  [email-address]
+  (sql/query
+      db
+      [(str "select distinct ual.description "
+            "from public.user u "
+            "left join public.user_to_user_access_level u2ual "
+            "  on u.id=u2ual.user_id "
+            "inner join public.user_access_level ual "
+            "  on ual.id=u2ual.access_level_id "
+            "where u.email_address=?") email-address]
+      :row-fn :description))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                EXTERNAL APIS                                 ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; get the specified user, as an HTTP response
 (defn user-get
@@ -29,6 +55,7 @@
           (not-found "User not found"))) ; inconceivable!
       (access-denied constants/manage-users))))
 
+
 ; list the users in the database, as an HTTP response
 (defn user-list
   [session]
@@ -39,6 +66,7 @@
         ["select * from public.user"]
         :row-fn :email_address))
     (access-denied constants/manage-users)))
+
 
 ; register a user by username, as an HTTP response
 (defn user-register
@@ -57,19 +85,6 @@
       (status (user-get email-address) 201)
       (status {:body "User already exists"} 409))))
 
-; get the access for the specified user
-(defn get-user-access
-  [email-address]
-  (sql/query
-      db
-      [(str "select distinct ual.description "
-            "from public.user u "
-            "left join public.user_to_user_access_level u2ual "
-            "  on u.id=u2ual.user_id "
-            "inner join public.user_access_level ual "
-            "  on ual.id=u2ual.access_level_id "
-            "where u.email_address=?") email-address]
-      :row-fn :description))
 
 ; list the access levels for the specified user, as an HTTP response
 (defn user-access-list
@@ -82,6 +97,7 @@
     (if can-access
       (response (get-user-access email-address))
       (access-denied constants/manage-users))))
+
 
 ; add the specified permission to the user, as an HTTP response
 (defn user-access-add
