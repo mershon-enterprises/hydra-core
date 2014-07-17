@@ -77,11 +77,12 @@
                   (catch Exception e
                     (println (.getMessage e))
                     false))]
-    ; if we successfully created the user, return a "created" status and invoke
-    ; user-get
+    ; if we successfully created the user, return a "created" status, invoke
+    ; get-user, and log the user into their first session
     ; otherwise, return a "conflict" status
     (if success
-      (status (user-get email-address) 201)
+      (status {:body (get-user email-address)
+               :session {:email-address email-address}} 201)
       (status {:body "User already exists"} 409))))
 
 
