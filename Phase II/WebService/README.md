@@ -12,6 +12,7 @@ This is a [Clojure](http://clojure.org) on
 Table of Contents
 --
 1. [/access-levels](#access-levels) - manage global access levels
+1. [/clients](#clients) - manage clients
 1. [/login](#login) - login to the system and establish a session
 1. [/logout](#logout) - log out of the system
 1. [/users](#users) - manage users
@@ -74,6 +75,82 @@ API
   * #### DELETE
 
     delete access level not allowed
+
+<hr/>
+### `/clients`
+  * #### GET
+
+    lists all the clients in the system
+
+    * sample response:
+
+    ```json
+    [
+      "Aera Energy",
+      "Chevron"
+    ]
+    ```
+
+  * #### PUT
+
+    update-all clients not allowed
+
+  * #### POST
+
+    add a client
+
+    * sample request:
+
+    ```json
+    {
+      name: "Occidental Petroleum"
+    }
+    ```
+
+    * sample response:
+
+    ```json
+    {
+      "name": "Occidental Petroleum",
+      "date_modified": "2014-07-15T15:12:07Z",
+      "date_created": "2014-07-15T15:12:07Z",
+      "id": 3
+    }
+    ```
+
+  * #### DELETE
+
+    delete-all clients not allowed
+
+<hr/>
+### `/clients/[name]`
+
+  * #### GET
+
+    get details of the specified client
+
+    * sample response (url `/clients/Chevron`):
+
+    ```json
+    {
+      "name": "Chevron",
+      "date_modified": "2014-07-17T15:59:24Z",
+      "date_created": "2014-07-17T15:59:24Z",
+      "id": 2
+    }
+    ```
+
+  * #### PUT
+
+    update client not implemented
+
+  * #### POST
+
+    [same as `/clients`](#post-2)
+
+  * #### DELETE
+
+    delete client not allowed
 
 <hr/>
 ### `/login`
@@ -149,7 +226,7 @@ API
 
     get details of the specified user
 
-    * sample response (url `/access-levels/ryan@slixbits.com`):
+    * sample response (url `/users/ryan@slixbits.com`):
 
     ```json
     {
@@ -166,7 +243,7 @@ API
 
   * #### POST
 
-    [same as `/users/`](#post-4)
+    [same as `/users/`](#post-6)
 
   * #### DELETE
 
@@ -179,7 +256,7 @@ API
 
     get details of the specified user's access
 
-    * sample response (url `/access-levels/ryan@slixbits.com/access`):
+    * sample response (url `/users/ryan@slixbits.com/access`):
 
     ```json
     [
