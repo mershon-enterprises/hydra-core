@@ -8,27 +8,22 @@
 (defn access-level-get
   [description]
   (let
-    [access-level (first
-                    (sql/query
-                      db
-                      ["select * from public.user_access_level where description=?" description]))]
+    [query "select * from public.user_access_level where description=?"
+     access-level (first (sql/query db [query description]))]
     (if access-level
       (response access-level)
       (not-found "Access Level not found"))))
 
-; add the specified permission to the user
+; add the specified access level to the system
 (defn access-level-add
   [description]
   (let
-    [success (try
-               (sql/execute!
-                 db
-                 ["insert into public.user_access_level (description) values (?)"
-                  description])
-               true
-               (catch Exception e
-                 (println (.getMessage e))
-                 false))]
+    [query "insert into public.user_access_level (description) values (?)"
+     success (try (sql/execute! db [query description])
+                  true
+                  (catch Exception e
+                    (println (.getMessage e))
+                    false))]
     ; if we successfully created the access level, return a "created" status and
     ; invoke access-level-get
     ; otherwise, return a "conflict" status
