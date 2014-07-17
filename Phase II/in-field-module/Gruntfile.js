@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                 ]
             },
             emberTemplates: {
-                files: 'app/scripts/**/*.handlebars',
+                files: '<%= config.app %>/templates/{,*/}*.hbs',
                 tasks: ['emberTemplates', 'livereload']
             }
         },
@@ -327,7 +327,7 @@ module.exports = function (grunt) {
                 options: {
                     templateBasePath: '<%= config.app %>/templates/'
                 },
-                files: 'app/templates/**/*.handlebars'
+                files: '<%= config.app %>/templates/{,*/}*.hbs'
             }
         }
     });
