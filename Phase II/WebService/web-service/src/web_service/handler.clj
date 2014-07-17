@@ -2,6 +2,7 @@
   (:use [ring.util.response]
         [web-service.access-level]
         [web-service.authentication]
+        [web-service.client]
         [web-service.user])
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -28,7 +29,6 @@
                   params :params}
         (let [email-address (:email_address params)
               password (:password params)]
-
           (login session email-address password)))
   (POST "/logout" [] (logout))
   (GET "/version" [] (get-version))
@@ -47,6 +47,24 @@
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
+
+  (context
+    "/clients" []
+    (defroutes document-routes
+      (GET "/" {session :session} (client-list session))
+      (PUT "/" [] (not-allowed "Update-all clients"))
+      (POST "/" {session :session
+                 params :params}
+            (let [name (:name params)]
+              (client-register session name)))
+      (DELETE "/" [] (not-allowed "Delete-all clients"))
+      (context
+        "/:name" [name]
+        (defroutes document-routes
+          (GET "/" {session :session} (client-get session name))
+          (PUT "/" [] (not-implemented "Update client"))
+          (POST "/" {session :session} (client-register session name))
+          (DELETE "/" [] (not-allowed "Delete client"))))))
 
   (context
     "/users" []
