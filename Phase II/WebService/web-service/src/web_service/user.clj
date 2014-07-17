@@ -3,7 +3,6 @@
         [web-service.db]
         [web-service.session])
   (:require [clojure.java.jdbc :as sql]
-            [compojure.route :as route]
             [web-service.constants :as constants]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

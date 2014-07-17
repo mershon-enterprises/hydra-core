@@ -5,8 +5,7 @@
         [web-service.user])
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
-            [ring.middleware.json :as middleware]
-            [ring.middleware.session :as session]
+            [ring.middleware.json :as json]
             [compojure.route :as route]))
 
 ; get the version of the API
@@ -78,5 +77,5 @@
 (def app
   (->
     (handler/site app-routes)
-    (middleware/wrap-json-body)
-    (middleware/wrap-json-response)))
+    (json/wrap-json-body)
+    (json/wrap-json-response)))
