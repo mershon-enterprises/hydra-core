@@ -39,14 +39,14 @@
     (defroutes document-routes
       (GET "/" [] (access-level-list))
       (PUT "/" [] (not-allowed "Update-all access levels"))
-      (POST "/" [description] (access-level-add description))
+      (POST "/" [] (not-allowed "Create access level"))
       (DELETE "/" [] (not-allowed "Delete-all access levels"))
       (context
         "/:description" [description]
         (defroutes document-routes
           (GET "/" [] (access-level-get description))
-          (PUT "/" [] (not-implemented "Update access level"))
-          (POST "/" [] (access-level-add description))
+          (PUT "/" [] (not-allowed "Update access level"))
+          (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
 
   (context

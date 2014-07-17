@@ -40,31 +40,12 @@ API
 
   * #### POST
 
-    add an access level
-
-    * sample request:
-
-    ```json
-    {
-      description: "View Reports"
-    }
-    ```
-
-    * sample response:
-
-    ```json
-    {
-      "description": "View Reports",
-      "date_modified": "2014-07-15T15:12:07Z",
-      "date_created": "2014-07-15T15:12:07Z",
-      "id": 3
-    }
-    ```
+    create access level not allowed
 
   * #### DELETE
 
     delete-all access levels not allowed
-    
+
 <hr/>
 ### `/access-levels/[description]`
   * #### GET
@@ -84,11 +65,11 @@ API
 
   * #### PUT
 
-    update access level not implemented
+    update access level not allowed
 
   * #### POST
 
-    [same as `/access-levels/`](#post)
+    create access level not allowed
 
   * #### DELETE
 
