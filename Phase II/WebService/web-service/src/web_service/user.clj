@@ -116,13 +116,13 @@
                       false))]
 
       ; if we successfully created the user access level, return a "created"
-      ; status and invoke user-get
+      ; status and invoke user-access-list
       ; otherwise, return a "conflict" status
       (if success
-        (status (user-access-list email-address) 201)
+        (status (user-access-list session email-address) 201)
         (status {:body (str "User access for "
                             email-address
                             " already exists: "
                             access-level)}
-                409))
-      (access-denied constants/manage-users))))
+                409)))
+    (access-denied constants/manage-users)))
