@@ -64,7 +64,16 @@
           (GET "/" {session :session} (client-get session name))
           (PUT "/" [] (not-implemented "Update client"))
           (POST "/" {session :session} (client-register session name))
-          (DELETE "/" [] (not-allowed "Delete client"))))))
+          (DELETE "/" [] (not-allowed "Delete client"))
+          (context "/locations" []
+                   (defroutes document-routes
+                     (GET "/" {session :session} (client-location-list session name))
+                     (PUT "/" [] (not-implemented "Client update-all locations"))
+                     (POST "/" {session :session
+                                params :params}
+                           (let [description (:description params)]
+                             (client-location-add session name description)))
+                     (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
 
   (context
     "/users" []
