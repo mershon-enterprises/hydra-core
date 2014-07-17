@@ -30,8 +30,8 @@ API
 
     ```json
     [
-      "Add User Access",
-      "Add Users"
+      "Manage Users",
+      "Manage Clients"
     ]
     ```
 
@@ -151,6 +151,50 @@ API
   * #### DELETE
 
     delete client not allowed
+
+<hr/>
+### `/clients/[name]/locations`
+
+  * #### GET
+
+    get details of the specified clients's locations
+
+    * sample response (url `/clients/Chevron/locations`):
+
+    ```json
+    [
+      "Kern River"
+    ]
+    ```
+
+  * #### PUT
+
+    update-all client locations not implemented
+
+  * #### POST
+
+    add a location to the specified client
+
+    * sample request:
+
+    ```json
+    {
+      description: "Cymric"
+    }
+    ```
+
+    * sample response:
+
+    ```json
+    [
+      "Cymric",
+      "Kern River"
+    ]
+    ```
+
+  * #### DELETE
+
+    delete-all client locations not allowed
 
 <hr/>
 ### `/login`
