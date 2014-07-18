@@ -5,7 +5,7 @@
 
 (def manage-attachments "Manage Attachments")
 (def manage-clients "Manage Clients")
-(def create-data "Manage Data")
+(def manage-data "Manage Data")
 (def manage-users "Manage Users")
 
 (def view-attachments "View Attachments")
