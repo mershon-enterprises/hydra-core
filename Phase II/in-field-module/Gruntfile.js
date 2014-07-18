@@ -222,9 +222,17 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: {
-                    '<%= config.dist %>/scripts/scripts.js': [
-                        '<%= config.app %>/scripts/{,*/}*.js'
-                    ]
+                    '<%= config.dist %>/scripts/main.js': [
+                        '<%= config.app %>/scripts/{,*/}*.js',
+                        '!<%= config.app %>/scripts/background.js',
+                        '!<%= config.app %>/scripts/chromereload.js'
+                    ],
+                    '<%= config.dist %>/scripts/background.js': [
+                        '<%= config.app %>/scripts/background.js'
+                    ],
+                    '<%= config.dist %>/scripts/chromereload.js': [
+                        '<%= config.app %>/scripts/chromereload.js'
+                    ],
                 }
             }
         },
