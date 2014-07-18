@@ -308,18 +308,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // copy Bower-installed libraries to where they need to be
-        bowercopy: {
-            dist: {
-                options: {
-                    destPrefix: '<%= config.dist %>/scripts/'
-                },
-                files: {
-                    'jquery.js': 'jquery/dist/jquery.min.js'
-                }
-            }
-        },
-
         // compiles Ember templates written in the Handlebars templating
         // language into HTML
         emberTemplates: {
@@ -351,7 +339,6 @@ module.exports = function (grunt) {
         'sass:dist',
         'emberTemplates',
         'concurrent:dist',
-        'bowercopy:dist',
         'copy:dev'
     ]);
 
@@ -365,7 +352,6 @@ module.exports = function (grunt) {
         'cssmin',
         'concat',
         'uglify',
-        'bowercopy:dist',
         'copy:dist',
         'usemin'
     ]);
