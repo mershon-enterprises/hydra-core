@@ -237,7 +237,14 @@ module.exports = function (grunt) {
             }
         },
         concat: {
-            dist: {}
+            js:  {
+                src: [
+                    '<%= config.app %>/scripts/{,*/}*.js',
+                    '!<%= config.app %>/scripts/background.js',
+                    '!<%= config.app %>/scripts/chromereload.js'
+                ],
+                dest: '<%= config.dist %>/scripts/application.js',
+            }
         },
 
         // Copies remaining files to places other tasks can use
@@ -252,14 +259,16 @@ module.exports = function (grunt) {
                         '*.{ico,png,txt}',
                         'images/{,*/}*.{webp,gif}',
                         '{,*/}*.html',
-                        'scripts/{,*/}*.js',
                         'styles/fonts/{,*/}*.*',
                         '_locales/{,*/}*.json',
-                        'manifest.json'
+                        'manifest.json',
+                        'bower_components/**',
+                        'scripts/background.js',
+                        'scripts/chromereload.js'
                     ]
                 }]
             },
-            dist: {
+            build: {
                 files: [{
                     expand: true,
                     dot: true,
@@ -271,7 +280,8 @@ module.exports = function (grunt) {
                         '{,*/}*.html',
                         'styles/fonts/{,*/}*.*',
                         '_locales/{,*/}*.json',
-                        'manifest.json'
+                        'manifest.json',
+                        'bower_components/**'
                     ]
                 }]
             }
@@ -348,7 +358,8 @@ module.exports = function (grunt) {
         'sass:dist',
         'emberTemplates',
         'concurrent:dist',
-        'copy:dev',
+        'concat:js',
+        'copy:dev'
     ]);
 
     grunt.registerTask('build', [
@@ -360,7 +371,7 @@ module.exports = function (grunt) {
         'concurrent:dist',
         'cssmin',
         'uglify',
-        'copy:dist',
+        'copy:build',
         'usemin'
     ]);
 
