@@ -336,6 +336,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('dev', [
         'clean:dist',
+        'bowerInstall',
         'sass:dist',
         'emberTemplates',
         'concurrent:dist',
