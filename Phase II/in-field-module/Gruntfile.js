@@ -223,7 +223,7 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     '<%= config.dist %>/scripts/scripts.js': [
-                        '<%= config.dist %>/scripts/{,*/}*.js'
+                        '<%= config.app %>/scripts/{,*/}*.js'
                     ]
                 }
             }
