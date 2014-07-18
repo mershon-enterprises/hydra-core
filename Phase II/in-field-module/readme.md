@@ -28,8 +28,8 @@ Getting Started
 These tools will be able to install the other dependencies themselves. Just
 make sure your terminal's working directory is the folder that contains the
 Gruntfile and run the following commands:
-1. ```npm install``` to fetch all Node modules
-1. ```bower install``` to fetch all Bower assets
+1. fetch all Node modules: ```npm install```
+1. fetch all Bower assets: ```bower install```
 
 Developing
 --
