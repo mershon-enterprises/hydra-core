@@ -3,6 +3,7 @@
         [web-service.access-level]
         [web-service.authentication]
         [web-service.client]
+        [web-service.data]
         [web-service.user])
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -74,6 +75,14 @@
                            (let [description (:description params)]
                              (client-location-add session name description)))
                      (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
+
+  (context
+    "/data" []
+    (defroutes document-routes
+      (GET "/" {session :session} (data-list session))
+      (PUT "/" [] (not-allowed "Update-all data"))
+      (POST "/" [] (not-implemented "Add data"))
+      (DELETE "/" [] (not-allowed "Delete-all data"))))
 
   (context
     "/users" []
