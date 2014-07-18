@@ -1,21 +1,6 @@
 Data Gatherer (working name)
 ==
 
-Setup
---
-From the ```in-field-module``` directory, run the following commands in order:
-1. ```bower install```
-2. ```grunt bowerInstall```
-
-Development
---
-
-Production
---
-Still being worked on. Right now there is a ```build``` task, but it doesn't
-fully work. Be aware that it will also rewrite the script and stylesheet links
-in the HTML source files in the app folder when run.
-
 Overview
 --
 This is a browser extension designed to gather information from a well test and
@@ -44,8 +29,8 @@ These tools will be able to install the other dependencies themselves. Just
 make sure your terminal's working directory is the folder that contains the
 Gruntfile and run the following commands:
 1. ```npm install```
-2. ```bower install```
-3. ```grunt bowerInstall```
+1. ```bower install```
+1. ```grunt bowerInstall```
 
 Developing
 --
