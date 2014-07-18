@@ -81,7 +81,12 @@
     (defroutes document-routes
       (GET "/" {session :session} (data-list session))
       (PUT "/" [] (not-allowed "Update-all data"))
-      (POST "/" [] (not-implemented "Add data"))
+      (POST "/" {session :session
+                 params :params}
+            (let [date-created (:date_created params)
+                  created-by (:created_by params)
+                  data (:data params)]
+              (data-submit session date-created created-by data) ))
       (DELETE "/" [] (not-allowed "Delete-all data"))
       (context
         "/:date-created" [date-created]

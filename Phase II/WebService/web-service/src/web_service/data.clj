@@ -65,9 +65,27 @@
                    "where date_trunc('second', ds.date_created)="
                    "?::timestamp with time zone "
                    "and ds.date_deleted is null")]
-    (if (sql/execute! db
-                      [query (:email-address session) date-created])
+    (if (sql/execute! db [query (:email-address session) date-created])
       {:status 204}
+      {:status 409})))
+
+
+; submit data
+(defn data-submit
+  [session date-created created-by data]
+  (let [can-access (or (has-access session constants/create-data)
+                       (has-access session constants/manage-data))
+        query (str "insert into public.data_set "
+                   "(date_created, created_by) values "
+                   "(?::timestamp with time zone, ("
+                   " select id from public.user where email_address=?"
+                   "))")
+        ; TODO -- wrap in transaction
+        success (sql/execute! db [query date-created created-by])]
+    (if success
+      ; TODO - on success, iterate child elements of 'data' and add to the
+      ; database also
+      {:status 201}
       {:status 409})))
 
 
