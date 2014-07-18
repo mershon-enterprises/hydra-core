@@ -28,9 +28,8 @@ Getting Started
 These tools will be able to install the other dependencies themselves. Just
 make sure your terminal's working directory is the folder that contains the
 Gruntfile and run the following commands:
-1. ```npm install```
-1. ```bower install```
-1. ```grunt bowerInstall```
+1. ```npm install``` to fetch all Node modules
+1. ```bower install``` to fetch all Bower assets
 
 Developing
 --
@@ -43,6 +42,12 @@ for instantly seeing updates as soon as a file is changed. I'm investigating
 ways to implement this useful development feature but for now you will have to
 run ```grunt dev``` and then reload the extension in Chrome to see changes to
 source files take effect.
+
+When developing, if you add an HTML file to the project or add a new Bower
+asset, be sure to run ```grunt bowerInstall``` to automatically inject
+```<script>``` and ```<link>``` tags. If creating a new HTML file, it'll need
+the ```<!-- bower:css --><!-- endbower -->``` and ```<!-- bower:js --><!--
+endbower -->``` annotations in the ```<head>``` section.
 
 Building
 --
