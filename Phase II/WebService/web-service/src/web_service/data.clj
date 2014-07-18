@@ -66,14 +66,6 @@
       {:status 409})))
 
 ; list up to 10 data items in the database, as an HTTP response
-; create-attachments
-; create-data
-; manage-attachments
-; manage-data
-; view-attachments
-; view-same-client-data
-; view-same-client-location-data
-; view-own-data
 (defn data-list
   [session]
   (let [can-access (or (has-access session constants/manage-data))
