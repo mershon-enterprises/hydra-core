@@ -50,6 +50,10 @@ asset, be sure to run ```grunt bowerInstall``` to automatically inject
 the ```<!-- bower:css --><!-- endbower -->``` and ```<!-- bower:js --><!--
 endbower -->``` annotations in the ```<head>``` section.
 
+Optionally, you can install the [Chrome Apps and Extensions Developer
+Tools](https://chrome.google.com/webstore/detail/chrome-apps-extensions-de/ohmmkhmmmpcnpikjeljgnaoabkaalbgc?hl=en-US).
+This extension may make debugging easier but isn't required.
+
 Building
 --
 Run ```grunt build``` to produce an unpacked copy of the extension in the
