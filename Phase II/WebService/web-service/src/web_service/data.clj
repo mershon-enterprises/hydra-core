@@ -9,6 +9,7 @@
 ;                                INTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 (defn- get-primitive-data
   [type data-set-id]
   (let [query (str "select '" type "' as type, description, value "
@@ -28,6 +29,7 @@
                    (get-primitive-data "real" (:id row))
                    (get-primitive-data "text" (:id row))])})
 
+
 (def data-set-query
   (str "select ds.id, ds.date_created, u.email_address "
        "from public.data_set ds "
@@ -35,9 +37,11 @@
        "  on u.id = ds.created_by "
        "where ds.date_deleted is null "))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                EXTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; get the specified data set by date
 (defn data-get
@@ -49,6 +53,7 @@
     (if can-access
       (response (sql/query db [query date-created] :row-fn format-data-set))
       (access-denied constants/manage-data))))
+
 
 ; delete the specified data set by date
 (defn data-delete
@@ -64,6 +69,7 @@
                       [query (:email-address session) date-created])
       {:status 204}
       {:status 409})))
+
 
 ; list up to 10 data items in the database, as an HTTP response
 (defn data-list
