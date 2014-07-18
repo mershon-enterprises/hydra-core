@@ -1,9 +1,9 @@
 (ns web-service.constants)
 
-(def create-data "Create Attachments")
+(def create-attachments "Create Attachments")
 (def create-data "Create Data")
 
-(def manage-clients "Manage Attachments")
+(def manage-attachments "Manage Attachments")
 (def manage-clients "Manage Clients")
 (def create-data "Manage Data")
 (def manage-users "Manage Users")
