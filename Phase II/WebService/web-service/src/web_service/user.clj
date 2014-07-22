@@ -72,7 +72,7 @@
   [email-address]
   (let
     [query "insert into public.user (email_address) values (?)"
-     success (try (sql/db-do-prepared db query [email-address])
+     success (try (sql/execute! db [query email-address])
                   true
                   (catch Exception e
                     (println (.getMessage e))
@@ -109,7 +109,7 @@
                   "values ("
                   "(select id from public.user where email_address=?), "
                   "(select id from public.user_access_level where description=?))")
-       success (try (sql/db-do-prepared db query [email-address access-level])
+       success (try (sql/execute! db [query email-address access-level])
                     true
                     (catch Exception e
                       (println (.getMessage e))

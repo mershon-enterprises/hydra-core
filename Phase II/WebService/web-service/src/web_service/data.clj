@@ -75,7 +75,7 @@
                    "?::timestamp with time zone "
                    "and ds.date_deleted is null")]
     (if can-access
-      (if (sql/db-do-prepared db query [(:email-address session) date-created])
+      (if (sql/execute! db [query (:email-address session) date-created])
         {:status 204}
         {:status 409})
       (access-denied constants/manage-data))))
@@ -113,9 +113,8 @@
                                  "::timestamp with time zone"
                                  "")
                                ")")
-                    success (sql/db-do-prepared db
-                                                query
-                                                [id description value])]
+                    success (sql/execute! db
+                                          [query id description value])]
                 (if (not success)
                   (throw Exception "Failed to insert new child row!"))))
             (status (data-get session date-created) 201))
