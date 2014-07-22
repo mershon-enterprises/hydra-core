@@ -47,19 +47,27 @@
 ; get the specified data set by date
 (defn data-get
   [session date-created]
-  (let [can-access (or (has-access session constants/manage-data))
+  (let [can-access (has-access session constants/manage-data)
+        can-access-own (has-access session constants/view-own-data)
         query (str data-set-query
                    " and date_trunc('second', ds.date_created)="
-                   "?::timestamp with time zone")]
+                   "?::timestamp with time zone")
+        query-own (str query " and u.email_address=? limit 10")]
     (if can-access
       (response (sql/query db [query date-created] :row-fn format-data-set))
-      (access-denied constants/manage-data))))
+      ; if the user cannot access all data, try to at least show them their own
+      ; data instead
+      (if can-access-own
+        (response (sql/query db
+                             [query-own date-created (:email-address session)]
+                             :row-fn format-data-set))
+        (access-denied constants/manage-data)))))
 
 
 ; delete the specified data set by date
 (defn data-delete
   [session date-created]
-  (let [can-access (or (has-access session constants/manage-data))
+  (let [can-access (has-access session constants/manage-data)
         query (str "update public.data_set ds "
                    "set date_deleted=now(), deleted_by="
                    "(select id from public.user where email_address=?) "
@@ -109,9 +117,8 @@
                                                 query
                                                 [id description value])]
                 (if (not success)
-                  (throw Exception "Failed to insert new child row!")))
-              )
-            {:status 201})
+                  (throw Exception "Failed to insert new child row!"))))
+            (status (data-get session date-created) 201))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))
@@ -123,7 +130,15 @@
 (defn data-list
   [session]
   (let [can-access (or (has-access session constants/manage-data))
-        query (str data-set-query "limit 10")]
+        can-access-own (has-access session constants/view-own-data)
+        query (str data-set-query "limit 10")
+        query-own (str data-set-query "and u.email_address=? limit 10")]
     (if can-access
       (response (sql/query db [query] :row-fn format-data-set))
-      (access-denied constants/manage-data))))
+      ; if the user cannot access all data, try to at least show them their own
+      ; data instead
+      (if can-access-own
+        (response (sql/query db
+                             [query-own (:email-address session)]
+                             :row-fn format-data-set))
+        (access-denied constants/manage-data)))))
