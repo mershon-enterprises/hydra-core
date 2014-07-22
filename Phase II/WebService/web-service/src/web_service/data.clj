@@ -65,9 +65,11 @@
                    "where date_trunc('second', ds.date_created)="
                    "?::timestamp with time zone "
                    "and ds.date_deleted is null")]
-    (if (sql/execute! db [query (:email-address session) date-created])
-      {:status 204}
-      {:status 409})))
+    (if can-access
+      (if (sql/execute! db [query (:email-address session) date-created])
+        {:status 204}
+        {:status 409})
+      (access-denied constants/manage-data))))
 
 
 ; submit data
