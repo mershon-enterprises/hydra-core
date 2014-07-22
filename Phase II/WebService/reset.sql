@@ -71,7 +71,16 @@ insert into public.user_to_user_access_level (user_id, access_level_id) values
 (
     (select id from public.user where email_address='kevin@slixbits.com'),
     (select id from public.user_access_level where description='Manage Users')
+),
+(
+    (select id from public.user where email_address='brent@slixbits.com'),
+    (select id from public.user_access_level where description='Create Data')
+),
+(
+    (select id from public.user where email_address='brent@slixbits.com'),
+    (select id from public.user_access_level where description='View Own Data')
 );
+
 
 -- set up some sample data
 insert into public.data_set (created_by) values
