@@ -70,7 +70,7 @@
   (if (has-access session constants/manage-clients)
     (let
       [query "insert into public.client (name) values (?)"
-       success (try (sql/execute! db [query client-name])
+       success (try (sql/db-do-prepared db [client-name])
                     true
                     (catch Exception e
                       (println (.getMessage e))
@@ -101,7 +101,7 @@
       [query (str "insert into public.client_location "
                   "(client_id, description) values "
                   "((select id from public.client where name=?), ?)")
-       success (try (sql/execute! db [query client-name description])
+       success (try (sql/db-do-prepared db query [client-name description])
                     true
                     (catch Exception e
                       (println (.getMessage e))
