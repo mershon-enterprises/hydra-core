@@ -3,7 +3,8 @@
         [web-service.db]
         [web-service.session])
   (:require [clojure.java.jdbc :as sql]
-            [web-service.constants :as constants]))
+            [web-service.constants :as constants]
+            [clojure.data.json :as json]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -81,14 +82,41 @@
                    "(date_created, created_by) values "
                    "(?::timestamp with time zone, ("
                    " select id from public.user where email_address=?"
-                   "))")
-        ; TODO -- wrap in transaction
-        success (sql/execute! db [query date-created created-by])]
-    (if success
-      ; TODO - on success, iterate child elements of 'data' and add to the
-      ; database also
-      {:status 201}
-      {:status 409})))
+                   "))")]
+    (if can-access
+      (if (empty? data)
+        {:body "Cannot record empty data-set"
+         :status 409}
+        (try
+          (let [keys (sql/db-do-prepared-return-keys db
+                                                     query
+                                                     [date-created created-by])
+                id (:id keys)
+                json-data (json/read-str data :key-fn keyword)]
+            ; iterate child elements of 'data' and add to the database also
+            (doseq [data-element json-data]
+              (let [type (:type data-element)
+                    description (:description data-element)
+                    value (:value data-element)
+                    query (str "insert into public.data_set_" type " "
+                               "(data_set_id, description, value) values "
+                               "(?,?,?"
+                               (if (= type "date") ; cast dates correctly
+                                 "::timestamp with time zone"
+                                 "")
+                               ")")
+                    success (sql/db-do-prepared db
+                                                query
+                                                [id description value])]
+                (if (not success)
+                  (throw Exception "Failed to insert new child row!")))
+              )
+            {:status 201})
+          (catch Exception e
+            ; TODO -- rollback the transaction
+            (println (.getMessage e))
+            {:status 409})))
+      (access-denied constants/create-data))))
 
 
 ; list up to 10 data items in the database, as an HTTP response
