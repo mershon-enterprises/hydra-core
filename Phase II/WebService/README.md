@@ -13,6 +13,7 @@ Table of Contents
 --
 1. [/access-levels](#access-levels) - manage global access levels
 1. [/clients](#clients) - manage clients
+1. [/data](#data) - manage data
 1. [/login](#login) - login to the system and establish a session
 1. [/logout](#logout) - log out of the system
 1. [/users](#users) - manage users
@@ -197,6 +198,160 @@ API
     delete-all client locations not allowed
 
 <hr/>
+### `/data`
+  * #### GET
+
+    lists the last 10 data sets in the system
+
+    * sample response:
+
+    ```json
+    [
+      {
+        "date_created": "2014-07-18T19:18:57Z",
+        "created_by": "kevin@slixbits.com",
+        "data": [
+            {
+                "value": false,
+                "description": "Reconciled to QuickBooks",
+                "type": "boolean"
+            },
+            {
+                "value": "2014-07-18T16:00:00Z",
+                "description": "Start Date",
+                "type": "date"
+            },
+            {
+                "value": "2014-07-18T16:30:00Z",
+                "description": "End Date",
+                "type": "date"
+            },
+            {
+                "value": 0,
+                "description": "Duration (hours)",
+                "type": "integer"
+            },
+            {
+                "value": 30,
+                "description": "Duration (minutes)",
+                "type": "integer"
+            },
+            {
+                "value": "Time Log Entry",
+                "description": "Description",
+                "type": "text"
+            },
+            {
+                "value": "hydra-core",
+                "description": "Project",
+                "type": "text"
+            }
+        ]
+      },
+      /*
+       * ...
+       *
+       * more data sets here
+       *
+       * ...
+       */
+    ]
+    ```
+
+  * #### PUT
+
+    update-all data not allowed
+
+  * #### POST
+
+    add a set of data
+
+    * sample request:
+
+    ```json
+    {
+        "date_created": "2014-07-18T19:51:01Z",
+        "created_by": "brent@slixbits.com",
+        "data": [
+            {
+                "value": false,
+                "description": "Reconciled to QuickBooks",
+                "type": "boolean"
+            },
+            {
+                "value": 2,
+                "description": "Duration (hours)",
+                "type": "integer"
+            },
+            {
+                "value": 30,
+                "description": "Duration (minutes)",
+                "type": "integer"
+            },
+            {
+                "value": 125,
+                "description": "cost",
+                "type": "real"
+            }
+        ]
+    }
+    ```
+
+  * #### DELETE
+
+    delete-all data not allowed
+
+<hr/>
+### `/users/[timestamp with time zone]`
+
+  * #### GET
+
+    get details of the specified data set
+
+    * sample response (url `/data/2014-07-18T19:51:01Z`):
+
+    ```json
+    {
+        "date_created": "2014-07-18T19:51:01Z",
+        "created_by": "brent@slixbits.com",
+        "data": [
+            {
+                "value": false,
+                "description": "Reconciled to QuickBooks",
+                "type": "boolean"
+            },
+            {
+                "value": 2,
+                "description": "Duration (hours)",
+                "type": "integer"
+            },
+            {
+                "value": 30,
+                "description": "Duration (minutes)",
+                "type": "integer"
+            },
+            {
+                "value": 125,
+                "description": "cost",
+                "type": "real"
+            }
+        ]
+    }
+    ```
+
+  * #### PUT
+
+    update data not implemented
+
+  * #### POST
+
+    [same as `/data/`](#post-5)
+
+  * #### DELETE
+
+    delete the data set
+
+<hr/>
 ### `/login`
   * #### POST
 
@@ -287,7 +442,7 @@ API
 
   * #### POST
 
-    [same as `/users/`](#post-6)
+    [same as `/users/`](#post-9)
 
   * #### DELETE
 
