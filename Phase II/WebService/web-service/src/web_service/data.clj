@@ -75,7 +75,7 @@
                    "?::timestamp with time zone "
                    "and ds.date_deleted is null")]
     (if can-access
-      (if (sql/execute! db [query (:email-address session) date-created])
+      (if (sql/db-do-prepared db query [(:email-address session) date-created])
         {:status 204}
         {:status 409})
       (access-denied constants/manage-data))))
