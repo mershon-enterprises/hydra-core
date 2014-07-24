@@ -114,24 +114,38 @@
                 json-data (json/read-str data :key-fn keyword)]
             ; iterate child elements of 'data' and add to the database also
             (doseq [data-element json-data]
-              (let [type (:type data-element)
-                    description (:description data-element)
-                    value (:value data-element)
-                    query (str "insert into public.data_set_" type " "
-                               "(data_set_id, description, value) values "
-                               "(?,?,?"
-                               (if (= type "date") ; cast dates correctly
-                                 "::timestamp with time zone"
-                                 "")
-                               ")")
-                    success (sql/execute! db
-                                          [query id description value])]
-                (if (not success)
-                  (throw Exception "Failed to insert new child row!"))))
+              (let [type (:type data-element)]
+                ; treat attachments and primitive data differently
+                (if (= type "attachment")
+                  (let [filename (:filename data-element)
+                        mime-type (:mime_type data-element)
+                        contents (:contents data-element)
+                        query (str "insert into public.data_set_attachment "
+                                   "(data_set_id, filename, mime_type, contents) "
+                                   "values (?,?,?,decode(?, 'base64'))")
+                        success (sql/execute! db [query id filename mime-type
+                                                  contents])]
+                    (if (not success)
+                      (throw Exception "Failed to insert new attachment!")))
+                  (let [type (:type data-element)
+                        description (:description data-element)
+                        value (:value data-element)
+                        query (str "insert into public.data_set_" type " "
+                                   "(data_set_id, description, value) values "
+                                   "(?,?,?"
+                                   (if (= type "date") ; cast dates correctly
+                                     "::timestamp with time zone"
+                                     "")
+                                   ")")
+                        success (sql/execute! db
+                                              [query id description value])]
+                    (if (not success)
+                      (throw Exception "Failed to insert new child row!"))))))
             (status (data-get session date-created) 201))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))
+            (println (.getMessage (.getNextException e)))
             {:status 409})))
       (access-denied constants/create-data))))
 
