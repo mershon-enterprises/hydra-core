@@ -63,7 +63,7 @@
         query (str data-set-query
                    " and date_trunc('second', ds.date_created)="
                    "?::timestamp with time zone")
-        query-own (str query " and u.email_address=? limit 10")]
+        query-own (str query " and u.email_address=?")]
     (if can-access
       (response (sql/query db [query date-created] :row-fn format-data-set))
       ; if the user cannot access all data, try to at least show them their own
