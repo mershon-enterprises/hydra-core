@@ -11,6 +11,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(defn- get-attachment-data
+  [data-set-id]
+  (let [query (str "select 'attachment' as type, filename, "
+                   "  octet_length(contents) as bytes "
+                   "from public.data_set_attachment "
+                   "where data_set_id=? "
+                   "and date_deleted is null")]
+    (sql/query db [query data-set-id])))
+
+
 (defn- get-primitive-data
   [type data-set-id]
   (let [query (str "select '" type "' as type, description, value "
@@ -24,7 +34,8 @@
 (defn- format-data-set [row]
   {:date_created (:date_created row)
    :created_by (:email_address row)
-   :data (flatten [(get-primitive-data "boolean" (:id row))
+   :data (flatten [(get-attachment-data (:id row))
+                   (get-primitive-data "boolean" (:id row))
                    (get-primitive-data "date" (:id row))
                    (get-primitive-data "integer" (:id row))
                    (get-primitive-data "real" (:id row))
