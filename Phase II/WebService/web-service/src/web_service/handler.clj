@@ -66,15 +66,16 @@
           (PUT "/" [] (not-implemented "Update client"))
           (POST "/" {session :session} (client-register session name))
           (DELETE "/" [] (not-allowed "Delete client"))
-          (context "/locations" []
-                   (defroutes document-routes
-                     (GET "/" {session :session} (client-location-list session name))
-                     (PUT "/" [] (not-allowed "Client update-all locations"))
-                     (POST "/" {session :session
-                                params :params}
-                           (let [description (:description params)]
-                             (client-location-add session name description)))
-                     (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
+          (context
+            "/locations" []
+            (defroutes document-routes
+              (GET "/" {session :session} (client-location-list session name))
+              (PUT "/" [] (not-allowed "Client update-all locations"))
+              (POST "/" {session :session
+                         params :params}
+                    (let [description (:description params)]
+                      (client-location-add session name description)))
+              (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
 
   (context
     "/data" []
@@ -112,15 +113,16 @@
           (PUT "/" [] (not-implemented "Update user"))
           (POST "/" [] (user-register email-address))
           (DELETE "/" [] (not-allowed "Delete user"))
-          (context "/access" []
-                   (defroutes document-routes
-                     (GET "/" {session :session} (user-access-list session email-address))
-                     (PUT "/" [] (not-implemented "User update-all access"))
-                     (POST "/" {session :session
-                                params :params}
-                           (let [description (:description params)]
-                             (user-access-add session email-address description)))
-                     (DELETE "/" [] (not-allowed "User delete-all access"))))))))
+          (context
+            "/access" []
+            (defroutes document-routes
+              (GET "/" {session :session} (user-access-list session email-address))
+              (PUT "/" [] (not-implemented "User update-all access"))
+              (POST "/" {session :session
+                         params :params}
+                    (let [description (:description params)]
+                      (user-access-add session email-address description)))
+              (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))
 
