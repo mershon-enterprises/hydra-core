@@ -97,7 +97,16 @@
           (POST "/" [] (not-implemented "Submit data"))
           (DELETE "/" {session :session
                        params :params}
-                  (data-delete session date-created))))))
+                  (data-delete session date-created))
+          (context
+            "/:filename" [filename]
+            (defroutes document-routes
+              (GET "/" {session :session} (data-get-attachment session
+                                                               date-created
+                                                               filename))
+              (PUT "/" [] (not-implemented "Update data attachment"))
+              (POST "/" [] (not-implemented "Submit data attachment"))
+              (DELETE "/" [] (not-implemented "Delete data attachment"))))))))
 
   (context
     "/users" []

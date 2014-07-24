@@ -42,12 +42,38 @@
                    (get-primitive-data "text" (:id row))])})
 
 
+; format the specified attachment from the data_set_attachment table
+(defn- format-attachment [row]
+  (->
+    {:body (java.io.ByteArrayInputStream. (:contents row))}
+    (content-type (:mime_type row))
+    (header "Content-Length" (:bytes row))
+    (header "Content-Disposition" (str "attachment;filename='"
+                                       (:filename row)
+                                       "'"))))
+
+
 (def data-set-query
   (str "select ds.id, ds.date_created, u.email_address "
        "from public.data_set ds "
        "inner join public.user u "
        "  on u.id = ds.created_by "
        "where ds.date_deleted is null "))
+
+
+(def data-set-attachment-query
+  (str "select a.filename, a.mime_type, a.contents, "
+       "  octet_length(a.contents) as bytes "
+       "from public.data_set_attachment a "
+       "inner join public.data_set ds "
+       "  on ds.id = a.data_set_id "
+       "inner join public.user u "
+       "  on u.id = ds.created_by "
+       "where a.date_deleted is null "
+       "and ds.date_deleted is null "
+       "and date_trunc('second', ds.date_created)="
+       "  ?::timestamp with time zone "
+       "and a.filename=? "))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -166,3 +192,26 @@
                              [query-own (:email-address session)]
                              :row-fn format-data-set))
         (access-denied constants/manage-data)))))
+
+
+; get the specified attachment to a data set, by date and filename
+(defn data-get-attachment
+  [session date-created filename]
+  (let [can-access (or (has-access session constants/manage-attachments)
+                       (has-access session constants/manage-attachments))
+        can-access-own (has-access session constants/view-own-data)
+        query-own (str data-set-attachment-query " and u.email_address=?")]
+    (if can-access
+      (first (sql/query db [data-set-attachment-query
+                            date-created
+                            filename]
+                        :row-fn format-attachment))
+      ; if the user cannot access all attachments, try to show them the
+      ; attachment if this is their data set
+      (if can-access-own
+        (first (sql/query db [query-own
+                              date-created
+                              filename (:email-address session)]
+                          :row-fn format-attachment))
+        (access-denied constants/manage-data)))
+    ))
