@@ -51,33 +51,33 @@ insert into public.client_location (client_id, description) values
 
 -- set up users
 insert into public.user (email_address) values
-('kevin@slixbits.com'),
-('brent@slixbits.com');
+('admin@example.com'),
+('manager@example.com');
 
 -- set up manager access for kevin
 insert into public.user_to_user_access_level (user_id, access_level_id) values
 (
-    (select id from public.user where email_address='kevin@slixbits.com'),
+    (select id from public.user where email_address='admin@example.com'),
     (select id from public.user_access_level where description='Manage Attachments')
 ),
 (
-    (select id from public.user where email_address='kevin@slixbits.com'),
+    (select id from public.user where email_address='admin@example.com'),
     (select id from public.user_access_level where description='Manage Clients')
 ),
 (
-    (select id from public.user where email_address='kevin@slixbits.com'),
+    (select id from public.user where email_address='admin@example.com'),
     (select id from public.user_access_level where description='Manage Data')
 ),
 (
-    (select id from public.user where email_address='kevin@slixbits.com'),
+    (select id from public.user where email_address='admin@example.com'),
     (select id from public.user_access_level where description='Manage Users')
 ),
 (
-    (select id from public.user where email_address='brent@slixbits.com'),
+    (select id from public.user where email_address='manager@example.com'),
     (select id from public.user_access_level where description='Create Data')
 ),
 (
-    (select id from public.user where email_address='brent@slixbits.com'),
+    (select id from public.user where email_address='manager@example.com'),
     (select id from public.user_access_level where description='View Own Data')
 );
 
@@ -85,14 +85,14 @@ insert into public.user_to_user_access_level (user_id, access_level_id) values
 -- set up some sample data
 insert into public.data_set (created_by) values
 (
-    (select id from public.user where email_address='kevin@slixbits.com')
+    (select id from public.user where email_address='admin@example.com')
 );
     insert into public.data_set_boolean
     (description, value, created_by, data_set_id) values
     (
         'Reconciled to QuickBooks',
         false,
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     );
     insert into public.data_set_date
@@ -100,13 +100,13 @@ insert into public.data_set (created_by) values
     (
         'Start Date',
         '2014-07-18 09:00:00',
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     ),
     (
         'End Date',
         '2014-07-18 09:30:00',
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     );
     insert into public.data_set_integer
@@ -114,13 +114,13 @@ insert into public.data_set (created_by) values
     (
         'Duration (hours)',
         0,
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     ),
     (
         'Duration (minutes)',
         30,
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     );
     insert into public.data_set_text
@@ -128,13 +128,13 @@ insert into public.data_set (created_by) values
     (
         'Description',
         'Time Log Entry',
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     ),
     (
         'Project',
         'hydra-core',
-        (select id from public.user where email_address='kevin@slixbits.com'),
+        (select id from public.user where email_address='admin@example.com'),
         (select max(id) from public.data_set)
     );
 
