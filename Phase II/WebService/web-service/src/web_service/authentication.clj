@@ -1,7 +1,8 @@
 (ns web-service.authentication
   (:use [ring.util.response]
         [web-service.user]
-        [web-service.session])
+        [web-service.session]
+        [clojure.string :only (join split)])
   (:require [compojure.core :refer :all]
             [clj-ldap.client :as ldap]
             [clojure.tools.logging :as log] ))
@@ -63,15 +64,18 @@
         bad-credentials {:body "Invalid email or password"
                          :status 401}
         handle-user (fn [x]
-                      {:body (str "Now logged in as " x)
+                      {:body (str "Now logged in as "
+                                  (join " " [(:first-name x) (:last-name x)]))
                        ; store the email address and permissions to the session
-                       :session {:email-address x
-                                 :access (get-user-access x)}})]
+                       :session {:email-address (:email-address x)
+                                 :first-name (:first-name x)
+                                 :last-name (:last-name x)
+                                 :access (get-user-access (:email-address x))}})]
 
     (if current-email
       ; we're already logged in
       (response (str "Currently logged in as "
-                     current-email))
+                     (join " " [(:first-name session) (:last-name session)])))
 
       ; we're not logged in, so maybe we're trying to login
       (if email-address
@@ -81,7 +85,7 @@
               db-user (get-user email-address)]
           (if ldap-user
             (if db-user
-              (handle-user email-address)
+              (handle-user ldap-user)
 
               ; otherwise, create the user first
               (do
