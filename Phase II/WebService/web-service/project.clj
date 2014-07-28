@@ -7,7 +7,8 @@
                  [ring/ring-json "0.3.1"]
                  [postgresql "9.3-1101.jdbc4"]
                  [org.clojure/data.json "0.2.5"]
-                 [org.clojars.pntblnk/clj-ldap "0.0.9"]]
+                 [org.clojars.pntblnk/clj-ldap "0.0.9"]
+                 [org.clojure/tools.logging "0.3.0"]]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler web-service.handler/app}
   :profiles
