@@ -113,14 +113,14 @@
     (defroutes document-routes
       (GET "/" {session :session} (user-list session))
       (PUT "/" [] (not-allowed "Update-all users"))
-      (POST "/" [email_address] (user-register email_address))
+      (POST "/" [] (not-allowed "Register user"))
       (DELETE "/" [] (not-allowed "Delete-all users"))
       (context
         "/:email-address" [email-address]
         (defroutes document-routes
           (GET "/" {session :session} (user-get session email-address))
           (PUT "/" [] (not-implemented "Update user"))
-          (POST "/" [] (user-register email-address))
+          (POST "/" [] (not-allowed "Register user"))
           (DELETE "/" [] (not-allowed "Delete user"))
           (context
             "/access" []

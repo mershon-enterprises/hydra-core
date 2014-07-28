@@ -78,18 +78,6 @@
     (access-denied constants/manage-users)))
 
 
-; register a user by username, as an HTTP response
-(defn user-register
-  [email-address]
-  ; if we successfully created the user, return a "created" status, invoke
-  ; get-user, and log the user into their first session
-  ; otherwise, return a "conflict" status
-  (if (add-user email-address)
-    (status {:body (get-user email-address)
-             :session {:email-address email-address}} 201)
-    (status {:body "User already exists"} 409)))
-
-
 ; list the access levels for the specified user, as an HTTP response
 (defn user-access-list
   [session email-address]
