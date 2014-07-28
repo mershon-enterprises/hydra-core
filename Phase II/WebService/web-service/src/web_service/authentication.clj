@@ -14,9 +14,7 @@
 (defn- get-user-ldap
   [email-address password]
   (def ^:dynamic user-data nil)
-  (let [ldap-server (ldap/connect {;:host "192.168.138.12"
-                                   :host {:address "localhost"
-                                          :port 3389}
+  (let [ldap-server (ldap/connect {:host "192.168.138.12"
                                    :bind-dn "pic\\admin"
                                    :password "adminpassword"})
         search-fn (fn [x]
