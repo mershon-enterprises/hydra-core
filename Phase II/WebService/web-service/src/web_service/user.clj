@@ -10,6 +10,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+; add the specified user
+(defn add-user
+  [email-address]
+  (let [query "insert into public.user (email_address) values (?)"]
+    (try (sql/execute! db [query email-address])
+         true
+         (catch Exception e
+           (println (.getMessage e))
+           false))))
+
+
 ; get the specified user
 (defn get-user
   [email-address]
@@ -70,20 +81,13 @@
 ; register a user by username, as an HTTP response
 (defn user-register
   [email-address]
-  (let
-    [query "insert into public.user (email_address) values (?)"
-     success (try (sql/execute! db [query email-address])
-                  true
-                  (catch Exception e
-                    (println (.getMessage e))
-                    false))]
-    ; if we successfully created the user, return a "created" status, invoke
-    ; get-user, and log the user into their first session
-    ; otherwise, return a "conflict" status
-    (if success
-      (status {:body (get-user email-address)
-               :session {:email-address email-address}} 201)
-      (status {:body "User already exists"} 409))))
+  ; if we successfully created the user, return a "created" status, invoke
+  ; get-user, and log the user into their first session
+  ; otherwise, return a "conflict" status
+  (if (add-user email-address)
+    (status {:body (get-user email-address)
+             :session {:email-address email-address}} 201)
+    (status {:body "User already exists"} 409)))
 
 
 ; list the access levels for the specified user, as an HTTP response
