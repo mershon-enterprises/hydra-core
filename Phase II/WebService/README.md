@@ -302,7 +302,7 @@ API
     delete-all data not allowed
 
 <hr/>
-### `/users/[timestamp with time zone]`
+### `/data/[timestamp with time zone]`
 
   * #### GET
 
@@ -355,7 +355,7 @@ API
 ### `/login`
   * #### POST
 
-    login to the system and establish a session
+    login to the system and establish a session. user must first exist in the LDAP server.
 
     * sample request:
 
@@ -393,26 +393,7 @@ API
 
   * #### POST
 
-    add a user
-
-    * sample request:
-
-    ```json
-    {
-      email_address: "ryan@slixbits.com"
-    }
-    ```
-
-    * sample response:
-
-    ```json
-    {
-      "email_address": "ryan@slixbits.com",
-      "date_modified": "2014-07-15T15:12:07Z",
-      "date_created": "2014-07-15T15:12:07Z",
-      "id": 3
-    }
-    ```
+    register user not allowed
 
   * #### DELETE
 
@@ -442,7 +423,7 @@ API
 
   * #### POST
 
-    [same as `/users/`](#post-9)
+    register user not allowed
 
   * #### DELETE
 
