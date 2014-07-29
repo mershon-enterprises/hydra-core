@@ -60,6 +60,10 @@
                        (has-access session constants/manage-users))]
     (if can-access
       (let [user (get-user email-address)]
+        ; log the activity in the session
+        (log-detail session
+                    constants/session-activity
+                    (str constants/session-get-user " " email-address))
         (if user
           (response user)
           (not-found "User not found"))) ; inconceivable!
@@ -69,6 +73,10 @@
 ; list the users in the database, as an HTTP response
 (defn user-list
   [session]
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              constants/session-list-users)
   (if (has-access session constants/manage-users)
     (response
       (sql/query
@@ -82,6 +90,11 @@
 (defn user-access-list
   [session email-address]
 
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-get-user-access " " email-address))
+
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
   (let [can-access (or (= email-address (:email-address session))
@@ -94,6 +107,13 @@
 ; add the specified permission to the user, as an HTTP response
 (defn user-access-add
   [session email-address access-level]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-add-user-access " "
+                   email-address " " access-level))
+
   (if (has-access session constants/manage-users)
     (let
       [query (str "insert into public.user_to_user_access_level "

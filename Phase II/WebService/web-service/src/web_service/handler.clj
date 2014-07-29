@@ -31,7 +31,7 @@
         (let [email-address (:email_address params)
               password (:password params)]
           (login session email-address password)))
-  (POST "/logout" [] (logout))
+  (POST "/logout" {session :session} (logout session))
   (GET "/version" [] (get-version))
 
   (context

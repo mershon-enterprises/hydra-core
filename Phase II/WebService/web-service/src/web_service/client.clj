@@ -38,6 +38,12 @@
 ; get the specified client, as an HTTP response
 (defn client-get
   [session client-name]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-get-client " " client-name))
+
   ; users who can view or manage clients can see information about a client
   (let [can-access (or (has-access session constants/view-clients)
                        (has-access session constants/manage-clients))]
@@ -52,6 +58,12 @@
 ; list the clients in the database, as an HTTP response
 (defn client-list
   [session]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              constants/session-list-clients)
+
   ; users who can view or manage clients can see the list of clients
   (let [can-access (or (has-access session constants/view-clients)
                        (has-access session constants/manage-clients))]
@@ -67,6 +79,12 @@
 ; add a new client by name, as an HTTP response
 (defn client-register
   [session client-name]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-add-client " " client-name))
+
   (if (has-access session constants/manage-clients)
     (let
       [query "insert into public.client (name) values (?)"
@@ -86,6 +104,13 @@
 ; list the locations for the specified client, as an HTTP response
 (defn client-location-list
   [session client-name]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-list-client-locations " "
+                   client-name))
+
   (let [can-access (or (has-access session constants/view-clients)
                        (has-access session constants/manage-clients))]
     (if can-access
@@ -96,6 +121,13 @@
 ; add the specified location to the client, as an HTTP response
 (defn client-location-add
   [session client-name description]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-add-client-location " "
+                   client-name " " description))
+
   (if (has-access session constants/manage-clients)
     (let
       [query (str "insert into public.client_location "

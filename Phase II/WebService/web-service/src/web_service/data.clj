@@ -84,6 +84,12 @@
 ; get the specified data set by date
 (defn data-get
   [session date-created]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-get-dataset " " date-created))
+
   (let [can-access (has-access session constants/manage-data)
         can-access-own (has-access session constants/view-own-data)
         query (str data-set-query
@@ -104,6 +110,12 @@
 ; delete the specified data set by date
 (defn data-delete
   [session date-created]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-delete-dataset " " date-created))
+
   (let [can-access (has-access session constants/manage-data)
         query (str "update public.data_set ds "
                    "set date_deleted=now(), deleted_by="
@@ -121,6 +133,12 @@
 ; submit data
 (defn data-submit
   [session date-created created-by data]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-add-dataset " " date-created))
+
   (let [can-access (or (has-access session constants/create-data)
                        (has-access session constants/manage-data))
         query (str "insert into public.data_set "
@@ -179,6 +197,12 @@
 ; list up to 10 data items in the database, as an HTTP response
 (defn data-list
   [session]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              constants/session-list-datasets)
+
   (let [can-access (or (has-access session constants/manage-data))
         can-access-own (has-access session constants/view-own-data)
         query (str data-set-query "limit 10")
@@ -197,6 +221,13 @@
 ; get the specified attachment to a data set, by date and filename
 (defn data-get-attachment
   [session date-created filename]
+
+  ; log the activity in the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-get-dataset-attachment " "
+                   date-created " " filename))
+
   (let [can-access (or (has-access session constants/manage-attachments)
                        (has-access session constants/manage-attachments))
         can-access-own (has-access session constants/view-own-data)
@@ -213,5 +244,4 @@
                               date-created
                               filename (:email-address session)]
                           :row-fn format-attachment))
-        (access-denied constants/manage-data)))
-    ))
+        (access-denied constants/manage-data)))))
