@@ -21,6 +21,8 @@
 ; session activity constants
 ;
 (def session-activity "activity")
+(def session-get-access-level "get access level")
+(def session-list-access-levels "list access levels")
 (def session-add-user-access "add user access")
 (def session-get-user "get user")
 (def session-get-user-access "get user access")

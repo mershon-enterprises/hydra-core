@@ -1,11 +1,19 @@
 (ns web-service.access-level
   (:use [ring.util.response]
-        [web-service.db])
-  (:require [clojure.java.jdbc :as sql]))
+        [web-service.db]
+        [web-service.session])
+  (:require [clojure.java.jdbc :as sql]
+            [web-service.constants :as constants]))
 
 ; get the specified access level
 (defn access-level-get
-  [description]
+  [session description]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              (str constants/session-get-access-level " " description))
+
   (let
     [query "select * from public.user_access_level where description=?"
      access-level (first (sql/query db [query description]))]
@@ -15,7 +23,13 @@
 
 ; list the access-levels in the database
 (defn access-level-list
-  []
+  [session]
+
+  ; log the activity to the session
+  (log-detail session
+              constants/session-activity
+              constants/session-list-access-levels)
+
   (response
     (sql/query
       db
