@@ -4,7 +4,8 @@
         [web-service.session])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [web-service.smtp :as smtp]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -185,6 +186,9 @@
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
+            (smtp/send-message created-by
+                               (str "Data Received for " date-created)
+                               "[no text]")
             (status (data-get session date-created) 201))
           (catch Exception e
             ; TODO -- rollback the transaction

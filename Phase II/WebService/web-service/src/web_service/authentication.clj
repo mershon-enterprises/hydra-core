@@ -5,7 +5,7 @@
         [clojure.string :only (join split)])
   (:require [compojure.core :refer :all]
             [clj-ldap.client :as ldap]
-            [clojure.tools.logging :as log] ))
+            [clojure.tools.logging :as log]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
