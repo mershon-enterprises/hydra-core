@@ -8,6 +8,7 @@
 
 (function(exports) {
 
+  /*jslint node: true */
   'use strict';
 
   var rest = require('rest');
