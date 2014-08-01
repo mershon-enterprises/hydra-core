@@ -3,6 +3,7 @@
 module.exports = function (grunt) {
   // Load all grunt tasks
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-browserify');
   // Show elapsed time at the end.
   require('time-grunt')(grunt);
 
@@ -16,13 +17,31 @@ module.exports = function (grunt) {
       '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
       ' Licensed GPLv3 */\n',
     // Task configuration.
+    browserify: {
+      requirejs: {
+        src: 'node_modules/requirejs/require.js',
+        dest: 'dist/libs/requirejs.js'
+      },
+      rest: {
+        src: 'node_modules/rest/rest.js',
+        dest: 'dist/libs/rest.js'
+      }
+    },
+    clean: {
+      dist: ["dist"],
+      browserified: ["dist/libs"]
+    },
     concat: {
       options: {
         banner: '<%= banner %>',
         stripBanners: true
       },
       dist: {
-        src: ['src/<%= pkg.name %>.js'],
+        src: [
+          'dist/libs/require.js',
+          'dist/libs/rest.js',
+          'src/<%= pkg.name %>.js'
+        ],
         dest: 'dist/<%= pkg.name %>.js'
       },
     },
@@ -73,9 +92,9 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'nodeunit', 'concat', 'uglify']);
-  grunt.registerTask('dist', ['concat:dist', 'uglify:dist']);
+  grunt.registerTask('dist', ['browserify', 'concat:dist', 'uglify:dist', 'clean:browserified']);
   grunt.registerTask('build', ['dist']);
   grunt.registerTask('test', ['nodeunit']);
+  grunt.registerTask('default', ['jshint', 'test', 'build']);
 
 };
