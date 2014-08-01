@@ -10,8 +10,21 @@
 
   'use strict';
 
-  exports.awesome = function() {
-    return 'awesome';
+  var rest = require('rest');
+
+  var endpointUrl = 'http://54.187.61.110:8080';
+
+  exports.login = function(emailAddress, password, callback) {
+    rest({
+      method: 'POST',
+      path: endpointUrl + '/login',
+      params: {
+        email_address: emailAddress,
+        password: password
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
   };
 
 }(typeof exports === 'object' && exports || this));

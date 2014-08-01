@@ -22,15 +22,32 @@ var restclient = require('../src/restclient.js');
     test.ifError(value)
 */
 
-exports['awesome'] = {
+exports['login'] = {
   setUp: function(done) {
     // setup here
     done();
   },
-  'no args': function(test) {
-    test.expect(1);
+  'no-args': function(test) {
+    test.expect(2);
+    restclient.login(
+        null,
+        null,
+        function(statusCode, body) {
+          test.equal(statusCode, 401, 'login should fail');
+          test.equal(body, 'Invalid email or password', 'login body text');
+          test.done();
+        });
+  },
+  'admin': function(test) {
+    test.expect(2);
     // tests here
-    test.equal(restclient.awesome(), 'awesome', 'should be awesome.');
-    test.done();
+    restclient.login(
+        "admin@example.com",
+        "adminpassword",
+        function(statusCode, body) {
+          test.equal(statusCode, 200, 'login should succeed');
+          test.equal(body, 'Now logged in as PI VPN ', 'login body text');
+          test.done();
+        });
   }
 };
