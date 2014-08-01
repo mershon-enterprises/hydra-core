@@ -14,6 +14,15 @@
 
   var endpointUrl = 'http://54.187.61.110:8080';
 
+  exports.version = function(callback) {
+    rest({
+      method: 'GET',
+      path: endpointUrl + '/version',
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
   exports.login = function(emailAddress, password, callback) {
     rest({
       method: 'POST',

@@ -22,6 +22,23 @@ var restclient = require('../src/restclient.js');
     test.ifError(value)
 */
 
+exports['version'] = {
+  setUp: function(done) {
+    // setup here
+    done();
+  },
+  'no-args': function(test) {
+    test.expect(2);
+    restclient.version(
+        function(statusCode, body) {
+          test.equal(statusCode, 200, 'get version should succeed');
+          var bodyObj = JSON.parse(body);
+          test.notEqual(bodyObj['version'], undefined, 'version should be stated');
+          test.done();
+        });
+  }
+};
+
 exports['login'] = {
   setUp: function(done) {
     // setup here
