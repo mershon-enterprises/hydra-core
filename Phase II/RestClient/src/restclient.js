@@ -27,4 +27,13 @@
     });
   };
 
+  exports.logout = function(callback) {
+    rest({
+      method: 'POST',
+      path: endpointUrl + '/logout',
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));

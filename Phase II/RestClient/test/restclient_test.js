@@ -51,3 +51,19 @@ exports['login'] = {
         });
   }
 };
+
+exports['logout'] = {
+  setUp: function(done) {
+    // setup here
+    done();
+  },
+  'no-args': function(test) {
+    test.expect(2);
+    restclient.logout(
+        function(statusCode, body) {
+          test.equal(statusCode, 200, 'logout should succeed');
+          test.equal(body, 'Now logged out', 'logout body text');
+          test.done();
+        });
+  }
+};
