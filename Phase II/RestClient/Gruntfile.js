@@ -75,5 +75,7 @@ module.exports = function (grunt) {
   // Default task.
   grunt.registerTask('default', ['jshint', 'nodeunit', 'concat', 'uglify']);
   grunt.registerTask('dist', ['concat:dist', 'uglify:dist']);
+  grunt.registerTask('build', ['dist']);
+  grunt.registerTask('test', ['nodeunit']);
 
 };
