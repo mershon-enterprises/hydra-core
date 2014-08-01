@@ -18,9 +18,9 @@ module.exports = function (grunt) {
       ' Licensed GPLv3 */\n',
     // Task configuration.
     browserify: {
-      requirejs: {
+      require: {
         src: 'node_modules/requirejs/require.js',
-        dest: 'dist/libs/requirejs.js'
+        dest: 'dist/libs/require.js'
       },
       rest: {
         src: 'node_modules/rest/rest.js',
