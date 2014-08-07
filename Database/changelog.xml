@@ -10,6 +10,7 @@
     <include file="changelogs/0001-user-tables.xml"/>
     <include file="changelogs/0002-client-tables.xml"/>
     <include file="changelogs/0003-data-tables.xml"/>
+    <include file="changelogs/0004-revisions.xml"/>
     <!-- add child changelogs above this line -->
 
 </databaseChangeLog>
