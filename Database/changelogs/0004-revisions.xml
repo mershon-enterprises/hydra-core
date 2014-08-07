@@ -7,7 +7,7 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
 
     <changeSet id="4" author="Kevin Mershon">
-        <createTable schemaName="public" tableName="user_api_tokens">
+        <createTable schemaName="public" tableName="user_api_token">
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
@@ -25,7 +25,7 @@
             </column>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="user_id"
-            baseTableName="user_api_tokens"
+            baseTableName="user_api_token"
             constraintName="fk_api_token_to_user"
             deferrable="false"
             initiallyDeferred="false"
