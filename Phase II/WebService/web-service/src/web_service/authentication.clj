@@ -100,12 +100,3 @@
 
         ; no email was specified
         bad-credentials))))
-
-; logout of the API
-(defn logout
-  [session]
-  ; log the end of the session in the database
-  (end session)
-  ; purge the session
-  {:body "Now logged out"
-   :session {:email-address nil}})
