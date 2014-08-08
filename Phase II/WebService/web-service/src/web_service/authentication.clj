@@ -1,11 +1,17 @@
 (ns web-service.authentication
   (:use [ring.util.response]
-        [web-service.user]
+        [web-service.db]
         [web-service.session]
+        [web-service.user]
         [clojure.string :only (join split)])
   (:require [compojure.core :refer :all]
             [clj-ldap.client :as ldap]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clojure.java.jdbc :as sql]
+            [clj-time.core :as t]
+            [clj-time.coerce :as c]
+            [crypto.random]
+            [crypto.password.bcrypt]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -51,52 +57,87 @@
       nil)))
 
 
+; create an API token for the user
+(defn- make-api-token
+  [email-address]
+
+  (let [expire-query (str "update public.user_api_token "
+                          "set expiration_date=(now()-interval '1 second')"
+                          "where user_id="
+                          "(select id from public.user where email_address=?) "
+                          "and expiration_date > now()")
+        expire-success (try (sql/execute! db [expire-query email-address])
+                            true
+                            (catch Exception e
+                              (println (.getMessage e))
+                              false))]
+
+    ; don't make a new token unless the old one is dead, because security
+    (if expire-success
+      (let [api-token (crypto.random/hex 255)
+            api-token-hash (crypto.password.bcrypt/encrypt api-token)
+            expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
+            ; we store the hash of the api token to the database, not the token
+            ; itself, because security
+            new-query (str "insert into public.user_api_token "
+                           "(api_token, expiration_date, user_id) values "
+                           "(?, ?, "
+                           "(select id from public.user where email_address=?)"
+                           ")")
+            new-success (try (sql/execute! db [new-query
+                                               api-token-hash
+                                               expiration-date
+                                               email-address])
+                             true
+                             (catch Exception e
+                               (println (.getMessage e))
+                               false))]
+        (if new-success
+          {:token api-token
+           :expiration-date expiration-date})))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                EXTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-; login to the API or error
-(defn login
-  [session email-address password]
+; authenticate to the API or error
+(defn authenticate
+  [email-address password]
 
-  (let [current-email (:email-address session)
-        bad-credentials {:body "Invalid email or password"
+  (let [bad-credentials {:body "Invalid email or password"
                          :status 401}
         handle-user (fn [x]
                       ; log the start of the session in the database
                       (start email-address)
 
-                      {:body (str "Now logged in as "
-                                  (join " " [(:first-name x) (:last-name x)]))
-                       ; store the email address and permissions to the session
-                       :session {:email-address (:email-address x)
-                                 :first-name (:first-name x)
-                                 :last-name (:last-name x)
-                                 :access (get-user-access (:email-address x))}})]
+                      (let [api-token (make-api-token email-address)]
+                        {:body
+                         {:email_address (:email-address x)
+                          :first_name (:first-name x)
+                          :last_name (:last-name x)
+                          :access (get-user-access (:email-address x))
+                          :api_token (:token api-token)
+                          :api_token_expiration_date (:expiration-date api-token)}}))]
 
-    (if current-email
-      ; we're already logged in
-      (response (str "Currently logged in as "
-                     (join " " [(:first-name session) (:last-name session)])))
+    ; we need both an email and password to authenticate
+    (if (and email-address password)
+      ; authenticate the user to the LDAP server first, and only if the user
+      ; exists in LDAP, try to verify the user to the databsae
+      (let [ldap-user (get-user-ldap email-address password)
+            db-user (get-user email-address)]
+        (if ldap-user
+          (if db-user
+            (handle-user ldap-user)
 
-      ; we're not logged in, so maybe we're trying to login
-      (if email-address
-        ; authenticate the user to the LDAP server first, and only if the user
-        ; exists in LDAP, try to verify the user to the databsae
-        (let [ldap-user (get-user-ldap email-address password)
-              db-user (get-user email-address)]
-          (if ldap-user
-            (if db-user
-              (handle-user ldap-user)
+            ; otherwise, create the user first
+            (do
+              (add-user email-address)
+              (handle-user ldap-user))
+            )
+          ; invalid user
+          bad-credentials))
 
-              ; otherwise, create the user first
-              (do
-                (add-user email-address)
-                (handle-user email-address))
-              )
-            ; invalid user
-            bad-credentials))
-
-        ; no email was specified
-        bad-credentials))))
+      ; no email was specified
+      bad-credentials)))

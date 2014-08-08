@@ -26,11 +26,8 @@
           405))
 
 (defroutes app-routes
-  (POST "/login" {session :session
-                  params :params}
-        (let [email-address (:email_address params)
-              password (:password params)]
-          (login session email-address password)))
+  (POST "/authenticate" [email_address password]
+        (authenticate email_address password))
   (GET "/version" [] (get-version))
 
   (context
