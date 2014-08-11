@@ -1,5 +1,6 @@
 (ns web-service.user
   (:use [ring.util.response]
+        [web-service.authentication]
         [web-service.db]
         [web-service.session])
   (:require [clojure.java.jdbc :as sql]

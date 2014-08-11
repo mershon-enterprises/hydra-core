@@ -40,26 +40,9 @@
            false))))
 
 
-; end the current session
-(defn end
-  [session]
-  ; end all open sessions for this user, not just the current one
-  (let [query (str "update public.user_session "
-                   "set end_date=now() where end_date is null and user_id="
-                   "(select id from public.user where email_address=?)")]
-    (try (sql/execute! db [query (:email-address session)])
-         true
-         (catch Exception e
-           (println (.getMessage e))
-           false))))
-
-
 ; start a new session
 (defn start
   [email-address]
-
-  ; first, close out any old sessions
-  (end {:email-address email-address})
 
   ; now, start a new session
   (let [query (str "insert into public.user_session (start_date, user_id) "
