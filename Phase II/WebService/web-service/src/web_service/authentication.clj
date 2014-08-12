@@ -171,11 +171,12 @@
   (if (is-token-valid api-token)
     (let [user (get-user-by-token api-token)
           new-token (if user (make-token (:email_address user)))]
-      (expire-token api-token)
       ; return a modified result object with the token information
       ; included
       (let [fn-results (fun)]
-        {:status (:status fn-results)
-         :headers (:headers fn-results)
-         :body (merge (:body fn-results) new-token)}))
+        (do
+          (expire-token api-token)
+          {:status (:status fn-results)
+           :headers (:headers fn-results)
+           :body (merge (:body fn-results) new-token)})))
     (invalid-token)))
