@@ -83,8 +83,9 @@ insert into public.user_to_user_access_level (user_id, access_level_id) values
 
 
 -- set up some sample data
-insert into public.data_set (created_by) values
+insert into public.data_set (uuid, created_by) values
 (
+    '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
     (select id from public.user where email_address='admin@example.com')
 );
     insert into public.data_set_boolean
