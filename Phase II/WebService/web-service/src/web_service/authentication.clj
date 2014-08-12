@@ -57,44 +57,57 @@
       nil)))
 
 
+; encrypt the specified API token to get the DB hash
+(defn hash-token
+  [api-token]
+  (crypto.password.bcrypt/encrypt api-token))
+
+
+; expire the specified API token
+(defn expire-token
+  [api-token]
+ (let [expire-query (str "delete from public.user_api_token "
+                         "where api_token=?")]
+   (try (sql/execute! db [expire-query (hash-token api-token)])
+        true
+        (catch Exception e
+          (println (.getMessage e))
+          false))))
+
+
+; check the specified API token for validity
+(defn is-token-valid
+  [api-token]
+  (let [query (str "select * from public.user_api_token "
+                   "where api_token=? "
+                   "and expiration_date > now()")]
+   (not (empty? (sql/query db [query (hash-token api-token)])))))
+
+
 ; create an API token for the user
 (defn- make-api-token
   [email-address]
-
-  (let [expire-query (str "update public.user_api_token "
-                          "set expiration_date=(now()-interval '1 second')"
-                          "where user_id="
-                          "(select id from public.user where email_address=?) "
-                          "and expiration_date > now()")
-        expire-success (try (sql/execute! db [expire-query email-address])
-                            true
-                            (catch Exception e
-                              (println (.getMessage e))
-                              false))]
-
-    ; don't make a new token unless the old one is dead, because security
-    (if expire-success
-      (let [api-token (crypto.random/hex 255)
-            api-token-hash (crypto.password.bcrypt/encrypt api-token)
-            expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
-            ; we store the hash of the api token to the database, not the token
-            ; itself, because security
-            new-query (str "insert into public.user_api_token "
-                           "(api_token, expiration_date, user_id) values "
-                           "(?, ?, "
-                           "(select id from public.user where email_address=?)"
-                           ")")
-            new-success (try (sql/execute! db [new-query
-                                               api-token-hash
-                                               expiration-date
-                                               email-address])
-                             true
-                             (catch Exception e
-                               (println (.getMessage e))
-                               false))]
-        (if new-success
-          {:token api-token
-           :expiration-date expiration-date})))))
+  (let [api-token (crypto.random/hex 255)
+        api-token-hash (hash-token api-token)
+        expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
+        ; we store the hash of the api token to the database, not the token
+        ; itself, because security
+        query (str "insert into public.user_api_token "
+                   "(api_token, expiration_date, user_id) values "
+                   "(?, ?, "
+                   "(select id from public.user where email_address=?)"
+                   ")")
+        success (try (sql/execute! db [query
+                                       api-token-hash
+                                       expiration-date
+                                       email-address])
+                     true
+                     (catch Exception e
+                       (println (.getMessage e))
+                       false))]
+    (if success
+      {:token api-token
+       :expiration-date expiration-date})))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,7 +118,6 @@
 ; authenticate to the API or error
 (defn authenticate
   [email-address password]
-
   (let [bad-credentials {:body "Invalid email or password"
                          :status 401}
         handle-user (fn [x]
