@@ -70,10 +70,9 @@
         can-access (or (contains? access constants/view-clients)
                        (contains? access constants/manage-clients))]
     (if can-access
-      {:body
-       {:response (sql/query db
-                             ["select * from public.client"]
-                             :row-fn :name)}}
+      (response {:response (sql/query db
+                                      ["select * from public.client"]
+                                      :row-fn :name)})
       (access-denied constants/view-clients))))
 
 
