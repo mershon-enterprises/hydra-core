@@ -33,16 +33,18 @@
   (context
     "/access-levels" []
     (defroutes document-routes
-      (GET "/" [api_token] (guard api_token
-                                  (fn [] (access-level-list))))
+      (GET "/" [api_token]
+           (guard api_token
+                  (fn [] (access-level-list))))
       (PUT "/" [] (not-allowed "Update-all access levels"))
       (POST "/" [] (not-allowed "Create access level"))
       (DELETE "/" [] (not-allowed "Delete-all access levels"))
       (context
         "/:description" [description]
         (defroutes document-routes
-          (GET "/" [api_token] (guard api_token
-                                      (fn [] (access-level-get description))))
+          (GET "/" [api_token]
+               (guard api_token
+                      (fn [] (access-level-get description))))
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
@@ -50,7 +52,10 @@
   (context
     "/clients" []
     (defroutes document-routes
-      (GET "/" {session :session} (client-list session))
+      (GET "/" [api_token]
+           (guard api_token
+                  (let [user (get-user-by-token api_token)]
+                    (fn [] (client-list (:email_address user))))))
       (PUT "/" [] (not-allowed "Update-all clients"))
       (POST "/" {session :session
                  params :params}

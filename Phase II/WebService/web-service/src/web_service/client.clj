@@ -1,7 +1,8 @@
 (ns web-service.client
   (:use [ring.util.response]
         [web-service.db]
-        [web-service.session])
+        [web-service.session]
+        [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]))
 
@@ -57,22 +58,22 @@
 
 ; list the clients in the database, as an HTTP response
 (defn client-list
-  [session]
+  [email-address]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              constants/session-list-clients)
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             constants/session-list-clients)
 
   ; users who can view or manage clients can see the list of clients
-  (let [can-access (or (has-access session constants/view-clients)
-                       (has-access session constants/manage-clients))]
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/view-clients)
+                       (contains? access constants/manage-clients))]
     (if can-access
-      (response
-        (sql/query
-          db
-          ["select * from public.client"]
-          :row-fn :name))
+      {:body
+       {:response (sql/query db
+                             ["select * from public.client"]
+                             :row-fn :name)}}
       (access-denied constants/view-clients))))
 
 
