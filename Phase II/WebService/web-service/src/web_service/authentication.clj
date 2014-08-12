@@ -11,7 +11,7 @@
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [crypto.random]
-            [crypto.password.bcrypt]))
+            [web-service.constants :as constants]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -57,48 +57,58 @@
       nil)))
 
 
-; encrypt the specified API token to get the DB hash
-(defn hash-token
-  [api-token]
-  (crypto.password.bcrypt/encrypt api-token))
+; response helper for access denied
+(defn- invalid-token
+  []
+  (status {:body (str "Access Denied: Invalid API Token")}
+          401))
 
 
 ; expire the specified API token
 (defn expire-token
   [api-token]
  (let [expire-query (str "delete from public.user_api_token "
-                         "where api_token=?")]
-   (try (sql/execute! db [expire-query (hash-token api-token)])
+                         "where api_token=crypt(?, api_token)")]
+   (try (sql/execute! db [expire-query api-token])
         true
         (catch Exception e
           (println (.getMessage e))
           false))))
 
 
+; get the user associated with the specified API token
+(defn get-user-by-token
+  [api-token]
+  (let [query (str "select u.* from public.user_api_token ut "
+                   "inner join public.user u on u.id = ut.user_id "
+                   "where ut.api_token=crypt(?, ut.api_token) "
+                   "and ut.expiration_date > now()")]
+    (first (sql/query db [query api-token]))))
+
+
 ; check the specified API token for validity
 (defn is-token-valid
   [api-token]
   (let [query (str "select * from public.user_api_token "
-                   "where api_token=? "
+                   "where api_token=crypt(?, api_token) "
                    "and expiration_date > now()")]
-   (not (empty? (sql/query db [query (hash-token api-token)])))))
+    (not (empty? (sql/query db [query api-token])))))
 
 
 ; create an API token for the user
-(defn- make-api-token
+(defn- make-token
   [email-address]
-  (let [api-token (crypto.random/hex 255)
-        api-token-hash (hash-token api-token)
+  (let [api-token (str (crypto.random/hex 255))
         expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
         ; we store the hash of the api token to the database, not the token
         ; itself, because security
         query (str "insert into public.user_api_token "
                    "(api_token, expiration_date, user_id) values "
-                   "(?, ?, "
+                   "(crypt(?, gen_salt('bf', 11)), ?, "
                    "(select id from public.user where email_address=?)"
                    ")")
         success (try (sql/execute! db [query
-                                       api-token-hash
+                                       api-token
                                        expiration-date
                                        email-address])
                      true
@@ -107,7 +117,7 @@
                        false))]
     (if success
       {:token api-token
-       :expiration-date expiration-date})))
+       :token_expiration_date expiration-date})))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -124,14 +134,14 @@
                       ; log the start of the session in the database
                       (start email-address)
 
-                      (let [api-token (make-api-token email-address)]
+                      (let [api-token (make-token email-address)]
                         {:body
-                         {:email_address (:email-address x)
-                          :first_name (:first-name x)
-                          :last_name (:last-name x)
-                          :access (get-user-access (:email-address x))
-                          :api_token (:token api-token)
-                          :api_token_expiration_date (:expiration-date api-token)}}))]
+                         (merge
+                           {:email_address (:email-address x)
+                            :first_name (:first-name x)
+                            :last_name (:last-name x)
+                            :access (get-user-access (:email-address x))}
+                           api-token)}))]
 
     ; we need both an email and password to authenticate
     (if (and email-address password)
@@ -153,3 +163,15 @@
 
       ; no email was specified
       bad-credentials)))
+
+
+; guard the specified function from being run unless the API token is valid
+(defn guard
+  [api-token fun]
+  (if (is-token-valid api-token)
+    (let [user (get-user-by-token api-token)
+          new-token (if user (make-token (:email_address user)))]
+      (expire-token api-token)
+      (let [fn-results (fun)]
+        (merge (fun) new-token)))
+    (invalid-token)))
