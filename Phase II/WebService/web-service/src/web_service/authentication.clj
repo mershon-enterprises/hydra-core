@@ -104,7 +104,7 @@
         ; itself, because security
         query (str "insert into public.user_api_token "
                    "(api_token, expiration_date, user_id) values "
-                   "(crypt(?, gen_salt('bf', 11)), ?, "
+                   "(crypt(?, gen_salt('bf', 7)), ?, "
                    "(select id from public.user where email_address=?)"
                    ")")
         success (try (sql/execute! db [query
@@ -137,10 +137,10 @@
                       (let [api-token (make-token email-address)]
                         {:body
                          (merge
-                           {:email_address (:email-address x)
-                            :first_name (:first-name x)
-                            :last_name (:last-name x)
-                            :access (get-user-access (:email-address x))}
+                           {:response {:email_address (:email-address x)
+                                       :first_name (:first-name x)
+                                       :last_name (:last-name x)
+                                       :access (get-user-access (:email-address x))}}
                            api-token)}))]
 
     ; we need both an email and password to authenticate
@@ -172,6 +172,10 @@
     (let [user (get-user-by-token api-token)
           new-token (if user (make-token (:email_address user)))]
       (expire-token api-token)
+      ; return a modified result object with the token information
+      ; included
       (let [fn-results (fun)]
-        (merge (fun) new-token)))
+        {:status (:status fn-results)
+         :headers (:headers fn-results)
+         :body (merge (:body fn-results) new-token)}))
     (invalid-token)))

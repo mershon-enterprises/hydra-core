@@ -7,31 +7,30 @@
 
 ; get the specified access level
 (defn access-level-get
-  [session description]
+  [description]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-get-access-level " " description))
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-get-access-level " " description))
 
   (let
     [query "select * from public.user_access_level where description=?"
      access-level (first (sql/query db [query description]))]
     (if access-level
-      (response access-level)
+      {:body {:response access-level}}
       (not-found "Access Level not found"))))
 
 ; list the access-levels in the database
 (defn access-level-list
-  [session]
+  []
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              constants/session-list-access-levels)
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             constants/session-list-access-levels)
 
-  (response
-    (sql/query
-      db
-      ["select * from public.user_access_level"]
-      :row-fn :description)))
+  {:body {:response (sql/query db
+                               ["select * from public.user_access_level"]
+                               :row-fn :description)}}
+  )
