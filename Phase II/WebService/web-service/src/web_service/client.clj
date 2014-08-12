@@ -38,20 +38,21 @@
 
 ; get the specified client, as an HTTP response
 (defn client-get
-  [session client-name]
+  [email-address client-name]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-get-client " " client-name))
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-get-client " " client-name))
 
   ; users who can view or manage clients can see information about a client
-  (let [can-access (or (has-access session constants/view-clients)
-                       (has-access session constants/manage-clients))]
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/view-clients)
+                       (contains? access constants/manage-clients))]
     (if can-access
       (let [client (get-client client-name)]
         (if client
-          (response client)
+          (response {:response client})
           (not-found "Client not found"))) ; inconceivable!
       (access-denied constants/view-clients))))
 

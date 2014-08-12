@@ -65,7 +65,10 @@
       (context
         "/:name" [name]
         (defroutes document-routes
-          (GET "/" {session :session} (client-get session name))
+          (GET "/" [api_token]
+               (guard api_token
+                      (let [user (get-user-by-token api_token)]
+                        (fn [] (client-get (:email_address user) name)))))
           (PUT "/" [] (not-implemented "Update client"))
           (POST "/" {session :session} (client-register session name))
           (DELETE "/" [] (not-allowed "Delete client"))
