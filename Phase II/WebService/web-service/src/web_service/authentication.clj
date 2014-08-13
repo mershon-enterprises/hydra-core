@@ -175,11 +175,10 @@
       ; return a modified result object with the token information
       ; included
       (let [fn-results (apply fun args)]
-        (do
-          (expire-token api-token)
-          {:status (:status fn-results)
-           :headers (:headers fn-results)
-           :body (merge (:body fn-results) new-token)})))
+        (expire-token api-token)
+        {:status (:status fn-results)
+         :headers (:headers fn-results)
+         :body (merge (:body fn-results) new-token)}))
     (invalid-token)))
 
 
