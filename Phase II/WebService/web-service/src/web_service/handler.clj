@@ -79,7 +79,8 @@
   (context
     "/data" []
     (defroutes document-routes
-      (GET "/" {session :session} (data-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token data-list))
       (PUT "/" [] (not-allowed "Update-all data"))
       (POST "/" {session :session
                  params :params}

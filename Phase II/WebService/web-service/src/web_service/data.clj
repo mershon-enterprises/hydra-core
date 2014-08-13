@@ -1,7 +1,8 @@
 (ns web-service.data
   (:use [ring.util.response]
         [web-service.db]
-        [web-service.session])
+        [web-service.session]
+        [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
             [clojure.data.json :as json]
@@ -200,25 +201,26 @@
 
 ; list up to 10 data items in the database, as an HTTP response
 (defn data-list
-  [session]
+  [email-address]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              constants/session-list-datasets)
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             constants/session-list-datasets)
 
-  (let [can-access (or (has-access session constants/manage-data))
-        can-access-own (has-access session constants/view-own-data)
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data))
+        can-access-own (contains? access constants/view-own-data)
         query (str data-set-query "limit 10")
         query-own (str data-set-query "and u.email_address=? limit 10")]
     (if can-access
-      (response (sql/query db [query] :row-fn format-data-set))
+      (response {:response (sql/query db [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response (sql/query db
-                             [query-own (:email-address session)]
-                             :row-fn format-data-set))
+        (response {:response (sql/query db
+                                        [query-own email-address]
+                                        :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
 
