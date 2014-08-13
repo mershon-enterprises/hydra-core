@@ -22,20 +22,22 @@
 
 ; get the specified user, as an HTTP response
 (defn user-get
-  [session email-address]
+  [email-address target-user-email-address]
 
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
-  (let [can-access (or (= email-address (:email-address session))
-                       (has-access session constants/manage-users))]
+  (let [access (set (get-user-access email-address))
+        can-access (or (= target-user-email-address email-address)
+                       (contains? access constants/manage-users))]
     (if can-access
-      (let [user (get-user email-address)]
-        ; log the activity in the session
-        (log-detail session
-                    constants/session-activity
-                    (str constants/session-get-user " " email-address))
+      (let [user (get-user target-user-email-address)]
+        ;FIXME  log the activity in the session
+        ; (log-detail session
+        ;             constants/session-activity
+        ;             (str constants/session-get-user " "
+        ;                  target-user-email-address))
         (if user
-          (response user)
+          (response {:response user})
           (not-found "User not found"))) ; inconceivable!
       (access-denied constants/manage-users))))
 

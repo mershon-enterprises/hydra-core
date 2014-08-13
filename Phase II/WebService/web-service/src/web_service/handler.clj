@@ -117,7 +117,8 @@
       (context
         "/:email-address" [email-address]
         (defroutes document-routes
-          (GET "/" {session :session} (user-get session email-address))
+          (GET "/" [api_token]
+               (guard-with-user api_token user-get email-address))
           (PUT "/" [] (not-implemented "Update user"))
           (POST "/" [] (not-allowed "Register user"))
           (DELETE "/" [] (not-allowed "Delete user"))
