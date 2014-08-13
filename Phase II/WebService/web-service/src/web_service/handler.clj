@@ -42,7 +42,7 @@
         "/:description" [description]
         (defroutes document-routes
           (GET "/" [api_token]
-               (guard api_token #(access-level-get description)))
+               (guard api_token access-level-get description))
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))

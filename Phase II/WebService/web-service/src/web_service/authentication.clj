@@ -167,13 +167,13 @@
 
 ; guard the specified function from being run unless the API token is valid
 (defn guard
-  [api-token fun]
+  [api-token fun & args]
   (if (is-token-valid api-token)
     (let [user (get-user-by-token api-token)
           new-token (if user (make-token (:email_address user)))]
       ; return a modified result object with the token information
       ; included
-      (let [fn-results (fun)]
+      (let [fn-results (apply fun args)]
         (do
           (expire-token api-token)
           {:status (:status fn-results)
