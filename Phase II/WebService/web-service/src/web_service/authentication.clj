@@ -182,9 +182,26 @@
            :body (merge (:body fn-results) new-token)})))
     (invalid-token)))
 
+
+; guard the specified function from being run unless the API token is valid, and
+; pass the user's email to the function as the first parameter
 (defn guard-with-user
   [api-token fun & args]
   (guard api-token
          (let [user (get-user-by-token api-token)]
            (fn []
              (apply fun (:email_address user) args)))))
+
+
+; guard the specified file from being accessed unless the API token is valid,
+; and pass the user's email to the function as the first parameter.
+;
+; don't invalidate the api token since the body cannot be modified
+(defn guard-file-with-user
+  [api-token fun & args]
+  (if (is-token-valid api-token)
+    ; unlike guard and guard-with-user, don't invalidate the token or append to
+    ; the body
+    (let [user (get-user-by-token api-token)]
+      (apply fun (:email_address user) args))
+    (invalid-token)))
