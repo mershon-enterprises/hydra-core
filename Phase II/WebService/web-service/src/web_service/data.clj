@@ -34,7 +34,8 @@
 
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
-  {:date_created (:date_created row)
+  {:uuid (:uuid row)
+   :date_created (:date_created row)
    :created_by (:email_address row)
    :data (flatten [(get-attachment-data (:id row))
                    (get-primitive-data "boolean" (:id row))
@@ -56,7 +57,7 @@
 
 
 (def data-set-query
-  (str "select ds.id, ds.date_created, u.email_address "
+  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
        "from public.data_set ds "
        "inner join public.user u "
        "  on u.id = ds.created_by "
