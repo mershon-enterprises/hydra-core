@@ -102,9 +102,11 @@
           (context
             "/:filename" [filename]
             (defroutes document-routes
-              (GET "/" {session :session} (data-get-attachment session
-                                                               uuid
-                                                               filename))
+              (GET "/" [api_token]
+                   (guard-file-with-user api_token
+                                         data-get-attachment
+                                         uuid
+                                         filename))
               (PUT "/" [] (not-implemented "Update data attachment"))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [] (not-implemented "Delete data attachment"))))))))

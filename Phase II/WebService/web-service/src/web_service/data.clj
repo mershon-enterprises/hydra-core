@@ -74,8 +74,7 @@
        "  on u.id = ds.created_by "
        "where a.date_deleted is null "
        "and ds.date_deleted is null "
-       "and date_trunc('second', ds.date_created)="
-       "  ?::timestamp with time zone "
+       "and uuid::character varying=? "
        "and a.filename=? "))
 
 
@@ -227,28 +226,27 @@
 
 ; get the specified attachment to a data set, by date and filename
 (defn data-get-attachment
-  [session date-created filename]
+  [email-address uuid filename]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-get-dataset-attachment " "
-                   date-created " " filename))
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-get-dataset-attachment " "
+  ;                  date-created " " filename))
 
-  (let [can-access (or (has-access session constants/manage-attachments)
-                       (has-access session constants/manage-attachments))
-        can-access-own (has-access session constants/view-own-data)
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-attachments)
+                       (contains? access constants/manage-attachments))
+        can-access-own (contains? access constants/view-own-data)
         query-own (str data-set-attachment-query " and u.email_address=?")]
     (if can-access
-      (first (sql/query db [data-set-attachment-query
-                            date-created
-                            filename]
+      (first (sql/query db
+                        [data-set-attachment-query uuid filename]
                         :row-fn format-attachment))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
       (if can-access-own
-        (first (sql/query db [query-own
-                              date-created
-                              filename (:email-address session)]
+        (first (sql/query db
+                          [query-own uuid filename email-address]
                           :row-fn format-attachment))
         (access-denied constants/manage-data)))))
