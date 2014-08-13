@@ -7,7 +7,7 @@
 
 ; get the specified access level
 (defn access-level-get
-  [description]
+  [email-address description]
 
   ; FIXME log the activity to the session
   ; (log-detail session
@@ -23,7 +23,7 @@
 
 ; list the access-levels in the database
 (defn access-level-list
-  []
+  [email-address]
 
   ; FIXME log the activity to the session
   ; (log-detail session

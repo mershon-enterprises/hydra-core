@@ -34,7 +34,7 @@
     "/access-levels" []
     (defroutes document-routes
       (GET "/" [api_token]
-           (guard api_token access-level-list))
+           (guard-with-user api_token access-level-list))
       (PUT "/" [] (not-allowed "Update-all access levels"))
       (POST "/" [] (not-allowed "Create access level"))
       (DELETE "/" [] (not-allowed "Delete-all access levels"))
@@ -42,7 +42,7 @@
         "/:description" [description]
         (defroutes document-routes
           (GET "/" [api_token]
-               (guard api_token access-level-get description))
+               (guard-with-user api_token access-level-get description))
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
