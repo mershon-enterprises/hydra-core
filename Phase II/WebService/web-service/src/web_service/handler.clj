@@ -126,7 +126,8 @@
           (context
             "/access" []
             (defroutes document-routes
-              (GET "/" {session :session} (user-access-list session email-address))
+              (GET "/" [api_token]
+                   (guard-with-user api_token user-access-list email-address))
               (PUT "/" [] (not-implemented "User update-all access"))
               (POST "/" {session :session
                          params :params}

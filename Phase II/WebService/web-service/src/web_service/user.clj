@@ -61,19 +61,20 @@
 
 ; list the access levels for the specified user, as an HTTP response
 (defn user-access-list
-  [session email-address]
+  [email-address target-email-address]
 
   ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-get-user-access " " email-address))
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-get-user-access " " target-email-address))
 
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
-  (let [can-access (or (= email-address (:email-address session))
-                       (has-access session constants/manage-users))]
+  (let [access (set (get-user-access email-address))
+        can-access (or (= email-address target-email-address)
+                       (contains? access constants/manage-users))]
     (if can-access
-      (response (get-user-access email-address))
+      (response {:response (get-user-access target-email-address)})
       (access-denied constants/manage-users))))
 
 
