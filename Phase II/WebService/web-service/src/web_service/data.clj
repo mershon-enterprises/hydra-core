@@ -87,10 +87,10 @@
 (defn data-get
   [email-address uuid]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-get-dataset " " uuid))
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-dataset " " uuid))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
@@ -112,10 +112,10 @@
 (defn data-delete
   [email-address uuid]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-delete-dataset " " date-created))
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-delete-dataset " " uuid))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
@@ -135,10 +135,10 @@
 (defn data-submit
   [email-address uuid date-created created-by data]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-add-dataset " " date-created))
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-add-dataset " " uuid))
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/create-data)
@@ -203,10 +203,10 @@
 (defn data-list
   [email-address]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             constants/session-list-datasets)
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-datasets)
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
@@ -228,11 +228,11 @@
 (defn data-get-attachment
   [email-address uuid filename]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-get-dataset-attachment " "
-  ;                  date-created " " filename))
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-dataset-attachment " "
+                   uuid " " filename))
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
