@@ -9,10 +9,10 @@
 (defn access-level-get
   [email-address description]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-get-access-level " " description))
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-access-level " " description))
 
   (let
     [query "select * from public.user_access_level where description=?"
@@ -25,10 +25,10 @@
 (defn access-level-list
   [email-address]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             constants/session-list-access-levels)
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-access-levels)
 
   (response {:response (sql/query db
                                   ["select * from public.user_access_level"]
