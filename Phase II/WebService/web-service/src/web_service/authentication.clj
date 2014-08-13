@@ -182,8 +182,8 @@
     (invalid-token)))
 
 (defn guard-with-user
-  [api-token fun %]
+  [api-token fun & args]
   (guard api-token
          (let [user (get-user-by-token api-token)]
            (fn []
-             (fun (:email_address user) %)))))
+             (apply fun (:email_address user) args)))))
