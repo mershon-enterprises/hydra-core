@@ -86,27 +86,26 @@
 
 ; get the specified data set by date
 (defn data-get
-  [session date-created]
+  [email-address uuid]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-get-dataset " " date-created))
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-get-dataset " " uuid))
 
-  (let [can-access (has-access session constants/manage-data)
-        can-access-own (has-access session constants/view-own-data)
-        query (str data-set-query
-                   " and date_trunc('second', ds.date_created)="
-                   "?::timestamp with time zone")
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        can-access-own (contains? access constants/view-own-data)
+        query (str data-set-query " and uuid::character varying=?")
         query-own (str query " and u.email_address=?")]
     (if can-access
-      (response (sql/query db [query date-created] :row-fn format-data-set))
+      (response {:response (sql/query db [query uuid] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response (sql/query db
-                             [query-own date-created (:email-address session)]
-                             :row-fn format-data-set))
+        (response {:response (sql/query db
+                                        [query-own uuid email-address]
+                                        :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
 

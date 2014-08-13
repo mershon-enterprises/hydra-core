@@ -82,27 +82,29 @@
       (GET "/" [api_token]
            (guard-with-user api_token data-list))
       (PUT "/" [] (not-allowed "Update-all data"))
-      (POST "/" {session :session
-                 params :params}
-            (let [date-created (:date_created params)
-                  created-by (:created_by params)
-                  data (:data params)]
-              (data-submit session date-created created-by data) ))
+      (POST "/" [api_token uuid date-created created-by data]
+            (guard-with-user api_token
+                             data-submit
+                             uuid
+                             date-created
+                             created-by
+                             data))
       (DELETE "/" [] (not-allowed "Delete-all data"))
       (context
-        "/:date-created" [date-created]
+        "/:uuid" [uuid]
         (defroutes document-routes
-          (GET "/" {session :session} (data-get session date-created))
+          (GET "/" [api_token]
+               (guard-with-user api_token data-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
           (POST "/" [] (not-implemented "Submit data"))
           (DELETE "/" {session :session
                        params :params}
-                  (data-delete session date-created))
+                  (data-delete session uuid))
           (context
             "/:filename" [filename]
             (defroutes document-routes
               (GET "/" {session :session} (data-get-attachment session
-                                                               date-created
+                                                               uuid
                                                                filename))
               (PUT "/" [] (not-implemented "Update data attachment"))
               (POST "/" [] (not-implemented "Submit data attachment"))
