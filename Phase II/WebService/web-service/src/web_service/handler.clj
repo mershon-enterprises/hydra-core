@@ -82,12 +82,12 @@
       (GET "/" [api_token]
            (guard-with-user api_token data-list))
       (PUT "/" [] (not-allowed "Update-all data"))
-      (POST "/" [api_token uuid date-created created-by data]
+      (POST "/" [api_token uuid date_created created_by data]
             (guard-with-user api_token
                              data-submit
                              uuid
-                             date-created
-                             created-by
+                             date_created
+                             created_by
                              data))
       (DELETE "/" [] (not-allowed "Delete-all data"))
       (context

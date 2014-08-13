@@ -134,28 +134,28 @@
 
 ; submit data
 (defn data-submit
-  [session date-created created-by data]
+  [email-address uuid date-created created-by data]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-add-dataset " " date-created))
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-add-dataset " " date-created))
 
-  (let [can-access (or (has-access session constants/create-data)
-                       (has-access session constants/manage-data))
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/create-data)
+                       (contains? access constants/manage-data))
         query (str "insert into public.data_set "
-                   "(date_created, created_by) values "
-                   "(?::timestamp with time zone, ("
+                   "(uuid, date_created, created_by) values "
+                   "(?::uuid, ?::timestamp with time zone, ("
                    " select id from public.user where email_address=?"
                    "))")]
     (if can-access
       (if (empty? data)
-        {:body "Cannot record empty data-set"
-         :status 409}
+        (status (response {:response "Cannot record empty data-set"}) 409)
         (try
-          (let [keys (sql/db-do-prepared-return-keys db
-                                                     query
-                                                     [date-created created-by])
+          (let [keys (sql/db-do-prepared-return-keys db query [uuid
+                                                               date-created
+                                                               created-by])
                 id (:id keys)
                 json-data (json/read-str data :key-fn keyword)]
             ; iterate child elements of 'data' and add to the database also
@@ -188,14 +188,15 @@
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
             (smtp/send-message created-by
-                               (str "Data Received for " date-created)
+                               (str "Data received from " created-by)
                                "[no text]")
-            (status (data-get session date-created) 201))
+            (status (data-get email-address uuid) 201))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))
-            (println (.getMessage (.getNextException e)))
-            {:status 409})))
+            (if (.getNextException e)
+              (println (.getMessage (.getNextException e))))
+            (status (response {:response "Failure"}) 409))))
       (access-denied constants/create-data))))
 
 
