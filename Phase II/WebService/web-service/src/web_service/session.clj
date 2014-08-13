@@ -13,8 +13,10 @@
 ; quick helper for access denied
 (defn access-denied
   [access-level]
-  (status {:body (str "Access Denied: requires ['" access-level "'] access")}
-          401))
+  (status
+    {:body
+     {:response (str "Access Denied: requires ['" access-level "'] access")}}
+    401))
 
 
 ; get the current session id
