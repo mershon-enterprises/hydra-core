@@ -31,11 +31,11 @@
                        (contains? access constants/manage-users))]
     (if can-access
       (let [user (get-user target-user-email-address)]
-        ;FIXME  log the activity in the session
-        ; (log-detail session
-        ;             constants/session-activity
-        ;             (str constants/session-get-user " "
-        ;                  target-user-email-address))
+        ; log the activity in the session
+        (log-detail email-address
+                    constants/session-activity
+                    (str constants/session-get-user " "
+                         target-user-email-address))
         (if user
           (response {:response user})
           (not-found "User not found"))) ; inconceivable!
@@ -46,10 +46,11 @@
 (defn user-list
   [email-address]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             constants/session-list-users)
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-users)
+
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-users)
       (response {:response (sql/query
@@ -64,9 +65,9 @@
   [email-address target-email-address]
 
   ; log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-get-user-access " " target-email-address))
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-user-access " " target-email-address))
 
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
@@ -82,11 +83,11 @@
 (defn user-access-add
   [email-address target-email-address access-level]
 
-  ; FIXME log the activity in the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-add-user-access " "
-  ;                  target-email-address " " access-level))
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-add-user-access " "
+                   target-email-address " " access-level))
 
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-users)
