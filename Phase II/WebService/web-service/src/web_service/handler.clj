@@ -97,9 +97,8 @@
                (guard-with-user api_token data-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
           (POST "/" [] (not-implemented "Submit data"))
-          (DELETE "/" {session :session
-                       params :params}
-                  (data-delete session uuid))
+          (DELETE "/" [api_token]
+                  (guard-with-user api_token data-delete uuid))
           (context
             "/:filename" [filename]
             (defroutes document-routes

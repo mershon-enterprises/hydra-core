@@ -111,24 +111,24 @@
 
 ; delete the specified data set by date
 (defn data-delete
-  [session date-created]
+  [email-address uuid]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-delete-dataset " " date-created))
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-delete-dataset " " date-created))
 
-  (let [can-access (has-access session constants/manage-data)
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
         query (str "update public.data_set ds "
                    "set date_deleted=now(), deleted_by="
                    "(select id from public.user where email_address=?) "
-                   "where date_trunc('second', ds.date_created)="
-                   "?::timestamp with time zone "
+                   "where uuid::character varying=? "
                    "and ds.date_deleted is null")]
     (if can-access
-      (if (sql/execute! db [query (:email-address session) date-created])
-        {:status 204}
-        {:status 409})
+      (if (sql/execute! db [query email-address uuid])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
 
 
