@@ -18,12 +18,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn- get-user-ldap
-  [email-address password]
+(def ldap-credentials
+  {:host "192.168.138.12"
+   :bind-dn "pic\\admin"
+   :password "adminpassword"})
+
+
+(defn- find-user-ldap
+  [email-address]
   (def ^:dynamic user-data nil)
-  (let [ldap-server (ldap/connect {:host "192.168.138.12"
-                                   :bind-dn "pic\\admin"
-                                   :password "adminpassword"})
+  (let [ldap-server (ldap/connect ldap-credentials)
         search-fn (fn [x]
                     (def user-data {:account-name (:sAMAccountName x)
                                     :dn (:dn x)})
@@ -39,21 +43,32 @@
         ; do nothing
         nil))
 
-    ; now, try to authenticate as that user
+    ; now, authenticate and pull the user's data directly
     (if (not (nil? user-data))
       (do
         (log/trace "LDAP account exists")
-        (if (ldap/bind? ldap-server
-                        (str "pic\\" (:account-name user-data))
-                        password)
-          (do
-            (log/trace "login to LDAP successful")
-            (let [user (ldap/get ldap-server (:dn user-data))]
-             {:first-name (:givenName user)
-              :last-name (:sN user)
-              :email-address (:mail user)}
-             ))
-         nil))
+        (let [user (ldap/get ldap-server (:dn user-data))]
+          {:account-name (:sAMAccountName user)
+           :first-name (:givenName user)
+           :last-name (:sn user)
+           :email-address (:mail user)
+           :groups (:memberOf user)}))
+      nil)))
+
+
+(defn- get-user-ldap
+  [email-address password]
+  (let [ldap-user (find-user-ldap email-address)
+        ldap-server (ldap/connect ldap-credentials)]
+
+    ; now, try to authenticate as that user
+    (if (and (not (nil? ldap-user))
+             (ldap/bind? ldap-server
+                         (str "pic\\" (:account-name ldap-user))
+                         password))
+      (do
+        (log/trace "login to LDAP successful")
+        ldap-user)
       nil)))
 
 
@@ -121,6 +136,36 @@
        :token_expiration_date expiration-date})))
 
 
+(defn- format-ldap-user
+  [ldap-user]
+  {:response {:email_address (:email-address ldap-user)
+              :first_name (:first-name ldap-user)
+              :last_name (:last-name ldap-user)
+              :access (get-user-access (:email-address ldap-user))}})
+
+
+(defn- login-and-maybe-create-user
+  [email-address ldap-user db-user]
+  (let [bad-credentials {:body "Invalid credentials"
+                         :status 401}
+        handle-user (fn [x]
+                      ; log the start of the session in the database
+                      (start email-address)
+
+                      (let [api-token (make-token email-address)]
+                        {:body (merge (format-ldap-user x) api-token)}))]
+    (if ldap-user
+      (if db-user
+        (handle-user ldap-user)
+
+        ; otherwise, create the user first
+        (do
+          (add-user email-address)
+          (handle-user ldap-user)))
+      ; invalid user
+      bad-credentials)))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                EXTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -130,19 +175,7 @@
 (defn authenticate
   [email-address password]
   (let [bad-credentials {:body "Invalid email or password"
-                         :status 401}
-        handle-user (fn [x]
-                      ; log the start of the session in the database
-                      (start email-address)
-
-                      (let [api-token (make-token email-address)]
-                        {:body
-                         (merge
-                           {:response {:email_address (:email-address x)
-                                       :first_name (:first-name x)
-                                       :last_name (:last-name x)
-                                       :access (get-user-access (:email-address x))}}
-                           api-token)}))]
+                         :status 401}]
 
     ; we need both an email and password to authenticate
     (if (and email-address password)
@@ -150,20 +183,30 @@
       ; exists in LDAP, try to verify the user to the databsae
       (let [ldap-user (get-user-ldap email-address password)
             db-user (get-user email-address)]
-        (if ldap-user
-          (if db-user
-            (handle-user ldap-user)
-
-            ; otherwise, create the user first
-            (do
-              (add-user email-address)
-              (handle-user ldap-user))
-            )
-          ; invalid user
-          bad-credentials))
+        (login-and-maybe-create-user email-address ldap-user db-user))
 
       ; no email was specified
       bad-credentials)))
+
+
+; authenticate a user on behalf of a domain admin
+(defn admin-authenticate
+  [email-address password user-email-address]
+
+  ; first, just authenticate the domain admin normally
+  (let [admin (authenticate email-address password)]
+    (if admin
+      ; now that we know the admin is a valid user, we want to ensure that the
+      ; admin is actually a member of the Domain Admins group
+      (let [admin-ldap-user (get-user-ldap email-address password)
+            ; there's no substring, wtf
+            is-domain-admin (not= (.indexOf (:groups admin-ldap-user)
+                                            "Domain Admins")
+                                  -1)]
+        (if is-domain-admin
+          (let [ldap-user (find-user-ldap user-email-address)
+                db-user (get-user user-email-address)]
+            (login-and-maybe-create-user user-email-address ldap-user db-user)))))))
 
 
 ; guard the specified function from being run unless the API token is valid

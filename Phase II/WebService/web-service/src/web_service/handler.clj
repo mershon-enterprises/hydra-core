@@ -26,6 +26,8 @@
           405))
 
 (defroutes app-routes
+  (POST "/admin-authenticate" [email_address password user_email_address]
+        (admin-authenticate email_address password user_email_address))
   (POST "/authenticate" [email_address password]
         (authenticate email_address password))
   (GET "/version" [] (get-version))
