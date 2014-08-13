@@ -68,7 +68,8 @@
           (context
             "/locations" []
             (defroutes document-routes
-              (GET "/" {session :session} (client-location-list session name))
+              (GET "/" [api_token]
+                   (guard-with-user api_token client-location-list name))
               (PUT "/" [] (not-allowed "Client update-all locations"))
               (POST "/" {session :session
                          params :params}

@@ -106,18 +106,19 @@
 
 ; list the locations for the specified client, as an HTTP response
 (defn client-location-list
-  [session client-name]
+  [email-address client-name]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-list-client-locations " "
-                   client-name))
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-list-client-locations " "
+  ;                  client-name))
 
-  (let [can-access (or (has-access session constants/view-clients)
-                       (has-access session constants/manage-clients))]
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/view-clients)
+                       (contains? access constants/manage-clients))]
     (if can-access
-      (response (get-client-locations client-name))
+      (response {:response (get-client-locations client-name)})
       (access-denied constants/view-clients))))
 
 
