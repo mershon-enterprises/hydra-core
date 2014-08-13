@@ -67,13 +67,14 @@
 ; expire the specified API token
 (defn expire-token
   [api-token]
- (let [expire-query (str "delete from public.user_api_token "
-                         "where api_token=crypt(?, api_token)")]
-   (try (sql/execute! db [expire-query api-token])
-        true
-        (catch Exception e
-          (println (.getMessage e))
-          false))))
+  (let [expire-query (str "delete from public.user_api_token "
+                          "where expiration_date<now() "
+                          "or api_token=crypt(?, api_token)")]
+    (try (sql/execute! db [expire-query api-token])
+         true
+         (catch Exception e
+           (println (.getMessage e))
+           false))))
 
 
 ; get the user associated with the specified API token
