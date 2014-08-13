@@ -80,36 +80,39 @@
 
 ; add the specified permission to the user, as an HTTP response
 (defn user-access-add
-  [session email-address access-level]
+  [email-address target-email-address access-level]
 
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-add-user-access " "
-                   email-address " " access-level))
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-add-user-access " "
+  ;                  target-email-address " " access-level))
 
-  (if (has-access session constants/manage-users)
-    (let
-      [query (str "insert into public.user_to_user_access_level "
-                  "(user_id, access_level_id) "
-                  "values ("
-                  "(select id from public.user where email_address=?), "
-                  "(select id from public.user_access_level where description=?))")
-       success (try (sql/execute! db [query email-address access-level])
-                    true
-                    (catch Exception e
-                      (println (.getMessage e))
-                      (println (.getMessage (.getNextException e)))
-                      false))]
+  (let [access (set (get-user-access email-address))]
+    (if (contains? access constants/manage-users)
+      (let
+        [query (str "insert into public.user_to_user_access_level "
+                    "(user_id, access_level_id) "
+                    "values ("
+                    "(select id from public.user where email_address=?), "
+                    "(select id from public.user_access_level where description=?))")
+         success (try (sql/execute! db [query
+                                        target-email-address
+                                        access-level])
+                      true
+                      (catch Exception e
+                        (println (.getMessage e))
+                        (println (.getMessage (.getNextException e)))
+                        false))]
 
-      ; if we successfully created the user access level, return a "created"
-      ; status and invoke user-access-list
-      ; otherwise, return a "conflict" status
-      (if success
-        (status (user-access-list session email-address) 201)
-        (status {:body (str "User access for "
-                            email-address
-                            " already exists: "
-                            access-level)}
-                409)))
-    (access-denied constants/manage-users)))
+        ; if we successfully created the user access level, return a "created"
+        ; status and invoke user-access-list
+        ; otherwise, return a "conflict" status
+        (if success
+          (status (user-access-list email-address target-email-address) 201)
+          (status (response {:response (str "User access for "
+                                            target-email-address
+                                            " already exists: "
+                                            access-level)})
+                  409)))
+      (access-denied constants/manage-users))))

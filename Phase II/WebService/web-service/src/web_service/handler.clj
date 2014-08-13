@@ -129,10 +129,11 @@
               (GET "/" [api_token]
                    (guard-with-user api_token user-access-list email-address))
               (PUT "/" [] (not-implemented "User update-all access"))
-              (POST "/" {session :session
-                         params :params}
-                    (let [description (:description params)]
-                      (user-access-add session email-address description)))
+              (POST "/" [api_token description]
+                    (guard-with-user api_token
+                                     user-access-add
+                                     email-address
+                                     description))
               (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))
