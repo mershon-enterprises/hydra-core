@@ -40,10 +40,10 @@
 (defn client-get
   [email-address client-name]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-get-client " " client-name))
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-client " " client-name))
 
   ; users who can view or manage clients can see information about a client
   (let [access (set (get-user-access email-address))
@@ -61,10 +61,10 @@
 (defn client-list
   [email-address]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             constants/session-list-clients)
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-clients)
 
   ; users who can view or manage clients can see the list of clients
   (let [access (set (get-user-access email-address))
@@ -81,10 +81,10 @@
 (defn client-register
   [email-address client-name]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-add-client " " client-name))
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-add-client " " client-name))
 
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-clients)
@@ -108,11 +108,11 @@
 (defn client-location-list
   [email-address client-name]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-list-client-locations " "
-  ;                  client-name))
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-list-client-locations " "
+                   client-name))
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/view-clients)
@@ -126,11 +126,11 @@
 (defn client-location-add
   [email-address client-name description]
 
-  ; FIXME log the activity to the session
-  ; (log-detail session
-  ;             constants/session-activity
-  ;             (str constants/session-add-client-location " "
-  ;                  client-name " " description))
+  ; log the activity to the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-add-client-location " "
+                   client-name " " description))
 
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-clients)
