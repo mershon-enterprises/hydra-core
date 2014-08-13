@@ -180,3 +180,10 @@
            :headers (:headers fn-results)
            :body (merge (:body fn-results) new-token)})))
     (invalid-token)))
+
+(defn guard-with-user
+  [api-token fun %]
+  (guard api-token
+         (let [user (get-user-by-token api-token)]
+           (fn []
+             (fun (:email_address user) %)))))

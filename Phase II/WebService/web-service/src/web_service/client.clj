@@ -79,27 +79,29 @@
 
 ; add a new client by name, as an HTTP response
 (defn client-register
-  [session client-name]
+  [email-address client-name]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-add-client " " client-name))
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-add-client " " client-name))
 
-  (if (has-access session constants/manage-clients)
-    (let
-      [query "insert into public.client (name) values (?)"
-       success (try (sql/execute! db [query client-name])
-                    true
-                    (catch Exception e
-                      (println (.getMessage e))
-                      false))]
-      ; if we successfully created the client, return a "created" status and
-      ; invoke client-get
-      ; otherwise, return a "conflict" status
-      (if success
-        (status (client-get session client-name) 201)
-        (status {:body "Client already exists"} 409)))))
+  (let [access (set (get-user-access email-address))]
+    (if (contains? access constants/manage-clients)
+     (let
+       [query "insert into public.client (name) values (?)"
+        success (try (sql/execute! db [query client-name])
+                     true
+                     (catch Exception e
+                       (println (.getMessage e))
+                       false))]
+       ; if we successfully created the client, return a "created" status and
+       ; invoke client-get
+       ; otherwise, return a "conflict" status
+       (if success
+         (status (client-get email-address client-name) 201)
+         (status (response {:response "Client already exists"}) 409)))
+      (access-denied constants/manage-clients))))
 
 
 ; list the locations for the specified client, as an HTTP response

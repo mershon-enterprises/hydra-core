@@ -34,8 +34,7 @@
     "/access-levels" []
     (defroutes document-routes
       (GET "/" [api_token]
-           (guard api_token
-                  (fn [] (access-level-list))))
+           (guard api_token access-level-list))
       (PUT "/" [] (not-allowed "Update-all access levels"))
       (POST "/" [] (not-allowed "Create access level"))
       (DELETE "/" [] (not-allowed "Delete-all access levels"))
@@ -43,8 +42,7 @@
         "/:description" [description]
         (defroutes document-routes
           (GET "/" [api_token]
-               (guard api_token
-                      (fn [] (access-level-get description))))
+               (guard api_token #(access-level-get description)))
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
@@ -53,24 +51,19 @@
     "/clients" []
     (defroutes document-routes
       (GET "/" [api_token]
-           (guard api_token
-                  (let [user (get-user-by-token api_token)]
-                    (fn [] (client-list (:email_address user))))))
+           (guard-with-user api_token client-list))
       (PUT "/" [] (not-allowed "Update-all clients"))
-      (POST "/" {session :session
-                 params :params}
-            (let [name (:name params)]
-              (client-register session name)))
+      (POST "/" [api_token name]
+            (guard-with-user api_token client-register name))
       (DELETE "/" [] (not-allowed "Delete-all clients"))
       (context
         "/:name" [name]
         (defroutes document-routes
           (GET "/" [api_token]
-               (guard api_token
-                      (let [user (get-user-by-token api_token)]
-                        (fn [] (client-get (:email_address user) name)))))
+               (guard-with-user api_token client-get name))
           (PUT "/" [] (not-implemented "Update client"))
-          (POST "/" {session :session} (client-register session name))
+          (POST "/" [api_token]
+                (guard-with-user api_token client-register name))
           (DELETE "/" [] (not-allowed "Delete client"))
           (context
             "/locations" []
