@@ -110,7 +110,8 @@
   (context
     "/users" []
     (defroutes document-routes
-      (GET "/" {session :session} (user-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token user-list))
       (PUT "/" [] (not-allowed "Update-all users"))
       (POST "/" [] (not-allowed "Register user"))
       (DELETE "/" [] (not-allowed "Delete-all users"))

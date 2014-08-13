@@ -44,18 +44,19 @@
 
 ; list the users in the database, as an HTTP response
 (defn user-list
-  [session]
-  ; log the activity in the session
-  (log-detail session
-              constants/session-activity
-              constants/session-list-users)
-  (if (has-access session constants/manage-users)
-    (response
-      (sql/query
-        db
-        ["select * from public.user"]
-        :row-fn :email_address))
-    (access-denied constants/manage-users)))
+  [email-address]
+
+  ; FIXME log the activity in the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             constants/session-list-users)
+  (let [access (set (get-user-access email-address))]
+    (if (contains? access constants/manage-users)
+      (response {:response (sql/query
+                             db
+                             ["select * from public.user"]
+                             :row-fn :email_address)})
+      (access-denied constants/manage-users))))
 
 
 ; list the access levels for the specified user, as an HTTP response
