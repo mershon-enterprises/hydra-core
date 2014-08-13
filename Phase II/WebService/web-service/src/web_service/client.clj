@@ -124,34 +124,34 @@
 
 ; add the specified location to the client, as an HTTP response
 (defn client-location-add
-  [session client-name description]
+  [email-address client-name description]
 
-  ; log the activity to the session
-  (log-detail session
-              constants/session-activity
-              (str constants/session-add-client-location " "
-                   client-name " " description))
+  ; FIXME log the activity to the session
+  ; (log-detail session
+  ;             constants/session-activity
+  ;             (str constants/session-add-client-location " "
+  ;                  client-name " " description))
 
-  (if (has-access session constants/manage-clients)
-    (let
-      [query (str "insert into public.client_location "
-                  "(client_id, description) values "
-                  "((select id from public.client where name=?), ?)")
-       success (try (sql/execute! db [query client-name description])
-                    true
-                    (catch Exception e
-                      (println (.getMessage e))
-                      (println (.getMessage (.getNextException e)))
-                      false))]
+  (let [access (set (get-user-access email-address))]
+    (if (contains? access constants/manage-clients)
+     (let
+       [query (str "insert into public.client_location "
+                   "(client_id, description) values "
+                   "((select id from public.client where name=?), ?)")
+        success (try (sql/execute! db [query client-name description])
+                     true
+                     (catch Exception e
+                       (println (.getMessage e))
+                       (println (.getMessage (.getNextException e)))
+                       false))]
 
-      ; if we successfully created the client location, return a "created"
-      ; status and invoke client-location-get
-      ; otherwise, return a "conflict" status
-      (if success
-        (status (client-location-list session client-name) 201)
-        (status {:body (str "Client location for "
-                            client-name
-                            " already exists: "
-                            description)}
-                409)))
-    (access-denied constants/manage-clients)))
+       ; if we successfully created the client location, return a "created"
+       ; status and invoke client-location-get
+       ; otherwise, return a "conflict" status
+       (if success
+         (status (client-location-list email-address
+                                       client-name) 201)
+         (status (response {:response (str "Client location for " client-name
+                                           " already exists: " description)})
+                 409)))
+     (access-denied constants/manage-clients))))

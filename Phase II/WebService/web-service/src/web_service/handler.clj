@@ -71,10 +71,9 @@
               (GET "/" [api_token]
                    (guard-with-user api_token client-location-list name))
               (PUT "/" [] (not-allowed "Client update-all locations"))
-              (POST "/" {session :session
-                         params :params}
-                    (let [description (:description params)]
-                      (client-location-add session name description)))
+              (POST "/" [api_token description]
+                    (guard-with-user
+                      api_token client-location-add name description))
               (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
 
   (context
