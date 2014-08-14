@@ -1,7 +1,8 @@
 (ns web-service.data
   (:use [ring.util.response]
         [web-service.db]
-        [web-service.session])
+        [web-service.session]
+        [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
             [clojure.data.json :as json]
@@ -33,7 +34,8 @@
 
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
-  {:date_created (:date_created row)
+  {:uuid (:uuid row)
+   :date_created (:date_created row)
    :created_by (:email_address row)
    :data (flatten [(get-attachment-data (:id row))
                    (get-primitive-data "boolean" (:id row))
@@ -55,7 +57,7 @@
 
 
 (def data-set-query
-  (str "select ds.id, ds.date_created, u.email_address "
+  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
        "from public.data_set ds "
        "inner join public.user u "
        "  on u.id = ds.created_by "
@@ -72,8 +74,7 @@
        "  on u.id = ds.created_by "
        "where a.date_deleted is null "
        "and ds.date_deleted is null "
-       "and date_trunc('second', ds.date_created)="
-       "  ?::timestamp with time zone "
+       "and uuid::character varying=? "
        "and a.filename=? "))
 
 
@@ -84,77 +85,76 @@
 
 ; get the specified data set by date
 (defn data-get
-  [session date-created]
+  [email-address uuid]
 
   ; log the activity in the session
-  (log-detail session
+  (log-detail email-address
               constants/session-activity
-              (str constants/session-get-dataset " " date-created))
+              (str constants/session-get-dataset " " uuid))
 
-  (let [can-access (has-access session constants/manage-data)
-        can-access-own (has-access session constants/view-own-data)
-        query (str data-set-query
-                   " and date_trunc('second', ds.date_created)="
-                   "?::timestamp with time zone")
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        can-access-own (contains? access constants/view-own-data)
+        query (str data-set-query " and uuid::character varying=?")
         query-own (str query " and u.email_address=?")]
     (if can-access
-      (response (sql/query db [query date-created] :row-fn format-data-set))
+      (response {:response (sql/query db [query uuid] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response (sql/query db
-                             [query-own date-created (:email-address session)]
-                             :row-fn format-data-set))
+        (response {:response (sql/query db
+                                        [query-own uuid email-address]
+                                        :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
 
 ; delete the specified data set by date
 (defn data-delete
-  [session date-created]
+  [email-address uuid]
 
   ; log the activity in the session
-  (log-detail session
+  (log-detail email-address
               constants/session-activity
-              (str constants/session-delete-dataset " " date-created))
+              (str constants/session-delete-dataset " " uuid))
 
-  (let [can-access (has-access session constants/manage-data)
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
         query (str "update public.data_set ds "
                    "set date_deleted=now(), deleted_by="
                    "(select id from public.user where email_address=?) "
-                   "where date_trunc('second', ds.date_created)="
-                   "?::timestamp with time zone "
+                   "where uuid::character varying=? "
                    "and ds.date_deleted is null")]
     (if can-access
-      (if (sql/execute! db [query (:email-address session) date-created])
-        {:status 204}
-        {:status 409})
+      (if (sql/execute! db [query email-address uuid])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
 
 
 ; submit data
 (defn data-submit
-  [session date-created created-by data]
+  [email-address uuid date-created created-by data]
 
   ; log the activity in the session
-  (log-detail session
+  (log-detail email-address
               constants/session-activity
-              (str constants/session-add-dataset " " date-created))
+              (str constants/session-add-dataset " " uuid))
 
-  (let [can-access (or (has-access session constants/create-data)
-                       (has-access session constants/manage-data))
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/create-data)
+                       (contains? access constants/manage-data))
         query (str "insert into public.data_set "
-                   "(date_created, created_by) values "
-                   "(?::timestamp with time zone, ("
+                   "(uuid, date_created, created_by) values "
+                   "(?::uuid, ?::timestamp with time zone, ("
                    " select id from public.user where email_address=?"
                    "))")]
     (if can-access
       (if (empty? data)
-        {:body "Cannot record empty data-set"
-         :status 409}
+        (status (response {:response "Cannot record empty data-set"}) 409)
         (try
-          (let [keys (sql/db-do-prepared-return-keys db
-                                                     query
-                                                     [date-created created-by])
+          (let [keys (sql/db-do-prepared-return-keys db query [uuid
+                                                               date-created
+                                                               created-by])
                 id (:id keys)
                 json-data (json/read-str data :key-fn keyword)]
             ; iterate child elements of 'data' and add to the database also
@@ -187,65 +187,66 @@
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
             (smtp/send-message created-by
-                               (str "Data Received for " date-created)
+                               (str "Data received from " created-by)
                                "[no text]")
-            (status (data-get session date-created) 201))
+            (status (data-get email-address uuid) 201))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))
-            (println (.getMessage (.getNextException e)))
-            {:status 409})))
+            (if (.getNextException e)
+              (println (.getMessage (.getNextException e))))
+            (status (response {:response "Failure"}) 409))))
       (access-denied constants/create-data))))
 
 
 ; list up to 10 data items in the database, as an HTTP response
 (defn data-list
-  [session]
+  [email-address]
 
   ; log the activity in the session
-  (log-detail session
+  (log-detail email-address
               constants/session-activity
               constants/session-list-datasets)
 
-  (let [can-access (or (has-access session constants/manage-data))
-        can-access-own (has-access session constants/view-own-data)
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data))
+        can-access-own (contains? access constants/view-own-data)
         query (str data-set-query "limit 10")
         query-own (str data-set-query "and u.email_address=? limit 10")]
     (if can-access
-      (response (sql/query db [query] :row-fn format-data-set))
+      (response {:response (sql/query db [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response (sql/query db
-                             [query-own (:email-address session)]
-                             :row-fn format-data-set))
+        (response {:response (sql/query db
+                                        [query-own email-address]
+                                        :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
 
 ; get the specified attachment to a data set, by date and filename
 (defn data-get-attachment
-  [session date-created filename]
+  [email-address uuid filename]
 
   ; log the activity in the session
-  (log-detail session
+  (log-detail email-address
               constants/session-activity
               (str constants/session-get-dataset-attachment " "
-                   date-created " " filename))
+                   uuid " " filename))
 
-  (let [can-access (or (has-access session constants/manage-attachments)
-                       (has-access session constants/manage-attachments))
-        can-access-own (has-access session constants/view-own-data)
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-attachments)
+                       (contains? access constants/manage-attachments))
+        can-access-own (contains? access constants/view-own-data)
         query-own (str data-set-attachment-query " and u.email_address=?")]
     (if can-access
-      (first (sql/query db [data-set-attachment-query
-                            date-created
-                            filename]
+      (first (sql/query db
+                        [data-set-attachment-query uuid filename]
                         :row-fn format-attachment))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
       (if can-access-own
-        (first (sql/query db [query-own
-                              date-created
-                              filename (:email-address session)]
+        (first (sql/query db
+                          [query-own uuid filename email-address]
                           :row-fn format-attachment))
         (access-denied constants/manage-data)))))
