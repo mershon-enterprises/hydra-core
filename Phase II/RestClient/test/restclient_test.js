@@ -178,3 +178,39 @@ exports['getAccessLevel'] = {
       });
   }
 };
+
+exports['listClients'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listClients(
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'client list get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(7);
+    restclient.listClients(
+      apiToken,
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'client list should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'client list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one client should exist');
+        test.notEqual(bodyObj['response'].indexOf('Chevron'), -1,
+          'Chevron client should exist');
+        test.done();
+      });
+  }
+};
