@@ -173,7 +173,7 @@ exports['getAccessLevel'] = {
         test.ok('date_created' in bodyObj['response'],
           'date created should be stated');
         test.equal(bodyObj['response']['description'], 'Manage Clients',
-          'description should be manage Clients');
+          'description should be Manage Clients');
         test.done();
       });
   }
