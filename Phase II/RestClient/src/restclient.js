@@ -37,4 +37,16 @@
     });
   };
 
+  exports.accessLevelList = function(apiToken, callback) {
+    rest({
+      method: 'GET',
+      path: endpointUrl + '/access-levels',
+      params: {
+        api_token: apiToken
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));
