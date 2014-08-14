@@ -316,7 +316,7 @@ exports['listData'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(6);
+    test.expect(13);
     restclient.listData(
       apiToken,
       function(statusCode, body) {
@@ -328,6 +328,24 @@ exports['listData'] = {
           'data list should be an array');
         test.ok(bodyObj['response'].length > 0,
           'at least one data-set should exist');
+        test.ok('uuid' in bodyObj['response'][0],
+          'data-set uuid should be stated');
+        test.ok('date_created' in bodyObj['response'][0],
+          'data-set date created should be stated');
+        test.ok('created_by' in bodyObj['response'][0],
+          'data-set created-by should be stated');
+        test.ok('data' in bodyObj['response'][0],
+          'data-set data should be stated');
+        test.ok(Array.isArray(bodyObj['response'][0]['data']),
+          'data-set data should be an array');
+        test.ok(bodyObj['response'][0]['data'].length > 0,
+          'at least one data-set data item should exist');
+
+        test.equal(
+          bodyObj['response'][0]['uuid'],
+          '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
+          'testing data-set sentinel uuid should exist');
+
         test.done();
       });
   }
