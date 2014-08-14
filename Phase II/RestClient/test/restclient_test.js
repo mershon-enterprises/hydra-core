@@ -102,7 +102,7 @@ exports['authenticate'] = {
   }
 };
 
-exports['accessLevelList'] = {
+exports['listAccessLevels'] = {
   setUp: function(done) {
     if (apiToken == null)
       goodLogin();
@@ -110,7 +110,7 @@ exports['accessLevelList'] = {
   },
   'no-api-token': function(test) {
     test.expect(2);
-    restclient.accessLevelList(
+    restclient.listAccessLevels(
       null,
       function(statusCode, body) {
         test.equal(statusCode, 401, 'access level list should fail');
@@ -120,7 +120,7 @@ exports['accessLevelList'] = {
   },
   'with-api-token': function(test) {
     test.expect(7);
-    restclient.accessLevelList(
+    restclient.listAccessLevels(
       apiToken,
       function(statusCode, body) {
         test.equal(statusCode, 200, 'access level list should succeed');
@@ -138,7 +138,7 @@ exports['accessLevelList'] = {
   }
 };
 
-exports['accessLevelGet'] = {
+exports['getAccessLevel'] = {
   setUp: function(done) {
     if (apiToken == null)
       goodLogin();
@@ -146,7 +146,7 @@ exports['accessLevelGet'] = {
   },
   'no-api-token': function(test) {
     test.expect(2);
-    restclient.accessLevelGet(
+    restclient.getAccessLevel(
       null,
       null,
       function(statusCode, body) {
@@ -158,7 +158,7 @@ exports['accessLevelGet'] = {
   // TODO -- implement test for specifying nonexistent access level
   'manage-clients': function(test) {
     test.expect(8);
-    restclient.accessLevelGet(
+    restclient.getAccessLevel(
       apiToken,
       'Manage Clients',
       function(statusCode, body) {

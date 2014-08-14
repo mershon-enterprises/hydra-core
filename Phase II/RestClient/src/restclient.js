@@ -37,7 +37,7 @@
     });
   };
 
-  exports.accessLevelList = function(apiToken, callback) {
+  exports.listAccessLevels = function(apiToken, callback) {
     rest({
       method: 'GET',
       path: endpointUrl + '/access-levels',
@@ -49,7 +49,7 @@
     });
   };
 
-  exports.accessLevelGet = function(apiToken, description, callback) {
+  exports.getAccessLevel = function(apiToken, description, callback) {
     rest({
       method: 'GET',
       path: endpointUrl + '/access-levels/' + description,
