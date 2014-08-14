@@ -73,10 +73,10 @@
     });
   };
 
-  exports.getClient = function(apiToken, description, callback) {
+  exports.getClient = function(apiToken, name, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/clients/' + description,
+      path: endpointUrl + '/clients/' + name,
       params: {
         api_token: apiToken
       }
