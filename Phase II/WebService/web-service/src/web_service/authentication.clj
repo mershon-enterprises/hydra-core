@@ -174,7 +174,7 @@
 ; authenticate to the API or error
 (defn authenticate
   [email-address password]
-  (let [bad-credentials {:body "Invalid email or password"
+  (let [bad-credentials {:body "Invalid credentials"
                          :status 401}]
 
     ; we need both an email and password to authenticate
