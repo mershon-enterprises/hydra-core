@@ -255,3 +255,41 @@ exports['getClient'] = {
       });
   }
 };
+
+exports['listClientLocations'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listClientLocations(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'list client locations get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(7);
+    restclient.listClientLocations(
+      apiToken,
+      'Chevron',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'client list should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'locations list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one location should exist');
+        test.notEqual(bodyObj['response'].indexOf('Kern River'), -1,
+          'Kern River location should exist');
+        test.done();
+      });
+  }
+};

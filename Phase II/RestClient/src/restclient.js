@@ -85,4 +85,16 @@
     });
   };
 
+  exports.listClientLocations = function(apiToken, name, callback) {
+    rest({
+      method: 'GET',
+      path: endpointUrl + '/clients/' + name + '/locations',
+      params: {
+        api_token: apiToken,
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));
