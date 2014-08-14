@@ -214,3 +214,44 @@ exports['listClients'] = {
       });
   }
 };
+
+exports['getClient'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getClient(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'get client get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  // TODO -- implement test for specifying nonexistent client
+  'with-api-token': function(test) {
+    test.expect(8);
+    restclient.getClient(
+      apiToken,
+      'Chevron',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'get client should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok('name' in bodyObj['response'],
+          'name should be stated');
+        test.ok('date_modified' in bodyObj['response'],
+          'date modified should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'date created should be stated');
+        test.equal(bodyObj['response']['name'], 'Chevron',
+          'name should be Chevron');
+        test.done();
+      });
+  }
+};
