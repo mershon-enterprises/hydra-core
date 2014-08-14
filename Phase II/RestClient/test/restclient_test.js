@@ -131,8 +131,9 @@ exports['listAccessLevels'] = {
           'access level list should be an array');
         test.ok(bodyObj['response'].length > 0,
           'at least one access level should exist');
+
         test.notEqual(bodyObj['response'].indexOf('Manage Clients'), -1,
-          'Manage Clients access level should exist');
+          'testing sentinel access level should exist');
         test.done();
       });
   }
@@ -172,8 +173,9 @@ exports['getAccessLevel'] = {
           'date modified should be stated');
         test.ok('date_created' in bodyObj['response'],
           'date created should be stated');
+
         test.equal(bodyObj['response']['description'], 'Manage Clients',
-          'description should be Manage Clients');
+          'testing sentinel access level should match');
         test.done();
       });
   }
@@ -208,8 +210,9 @@ exports['listClients'] = {
           'client list should be an array');
         test.ok(bodyObj['response'].length > 0,
           'at least one client should exist');
+
         test.notEqual(bodyObj['response'].indexOf('Chevron'), -1,
-          'Chevron client should exist');
+          'testing sentinel client should exist');
         test.done();
       });
   }
@@ -249,8 +252,9 @@ exports['getClient'] = {
           'date modified should be stated');
         test.ok('date_created' in bodyObj['response'],
           'date created should be stated');
+
         test.equal(bodyObj['response']['name'], 'Chevron',
-          'name should be Chevron');
+          'testing sentinel client name should match');
         test.done();
       });
   }
@@ -287,8 +291,9 @@ exports['listClientLocations'] = {
           'locations list should be an array');
         test.ok(bodyObj['response'].length > 0,
           'at least one location should exist');
+
         test.notEqual(bodyObj['response'].indexOf('Kern River'), -1,
-          'Kern River location should exist');
+          'testing client sentinel location should exist');
         test.done();
       });
   }
