@@ -24,23 +24,14 @@
     });
   };
 
-  exports.login = function(emailAddress, password, callback) {
+  exports.authenticate = function(emailAddress, password, callback) {
     rest({
       method: 'POST',
-      path: endpointUrl + '/login',
+      path: endpointUrl + '/authenticate',
       params: {
         email_address: emailAddress,
         password: password
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    });
-  };
-
-  exports.logout = function(callback) {
-    rest({
-      method: 'POST',
-      path: endpointUrl + '/logout',
     }).then(function(response) {
       callback(response.status.code, response.entity);
     });

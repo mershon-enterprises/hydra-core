@@ -33,53 +33,53 @@ exports['version'] = {
         function(statusCode, body) {
           test.equal(statusCode, 200, 'get version should succeed');
           var bodyObj = JSON.parse(body);
-          test.notEqual(bodyObj['version'], undefined, 'version should be stated');
+          test.ok('version' in bodyObj,
+            'version should be stated');
           test.done();
         });
   }
 };
 
-exports['login'] = {
+exports['authenticate'] = {
   setUp: function(done) {
     // setup here
     done();
   },
   'no-args': function(test) {
     test.expect(2);
-    restclient.login(
+    restclient.authenticate(
         null,
         null,
         function(statusCode, body) {
           test.equal(statusCode, 401, 'login should fail');
-          test.equal(body, 'Invalid email or password', 'login body text');
+          test.equal(body, 'Invalid credentials', 'login body text');
           test.done();
         });
   },
   'admin': function(test) {
-    test.expect(2);
-    // tests here
-    restclient.login(
+    test.expect(8);
+    restclient.authenticate(
         "admin@example.com",
         "adminpassword",
         function(statusCode, body) {
           test.equal(statusCode, 200, 'login should succeed');
-          test.equal(body, 'Now logged in as PI VPN ', 'login body text');
-          test.done();
-        });
-  }
-};
 
-exports['logout'] = {
-  setUp: function(done) {
-    // setup here
-    done();
-  },
-  'no-args': function(test) {
-    test.expect(2);
-    restclient.logout(
-        function(statusCode, body) {
-          test.equal(statusCode, 200, 'logout should succeed');
-          test.equal(body, 'Now logged out', 'logout body text');
+          var bodyObj = JSON.parse(body);
+          test.ok('token' in bodyObj,
+            'token should be supplied');
+          test.notEqual('token_expiration_date' in bodyObj,
+            'token expiration should be supplied');
+          test.notEqual('response' in bodyObj,
+            'login response should be stated');
+
+          test.notEqual('email_address' in bodyObj['response'],
+            'login response email address should be stated');
+          test.notEqual('first_name' in bodyObj['response'],
+            'login response first name should be stated');
+          test.ok('last_name' in bodyObj['response'],
+            'login response last name should be stated');
+          test.ok('access' in bodyObj['response'],
+            'login response user access should be stated');
           test.done();
         });
   }
