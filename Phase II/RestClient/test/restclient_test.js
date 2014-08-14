@@ -28,18 +28,23 @@ var goodLogin = function(callback) {
     "admin@example.com",
     "adminpassword",
     function(statusCode, body) {
+      // update the api token
       var bodyObj = JSON.parse(body);
       apiToken = bodyObj['token'];
+
       callback(statusCode, body);
     });
 };
 var checkResponse = function(test, bodyObj) {
   test.ok('token' in bodyObj,
-      'token should be supplied');
+    'token should be supplied');
   test.notEqual('token_expiration_date' in bodyObj,
-      'token expiration should be supplied');
+    'token expiration should be supplied');
   test.notEqual('response' in bodyObj,
-      'login response should be stated');
+    'login response should be stated');
+
+  // update the api token
+  apiToken = bodyObj['token'];
 };
 
 exports['version'] = {
