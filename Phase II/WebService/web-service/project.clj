@@ -1,4 +1,4 @@
-(defproject web-service "0.1.0-SNAPSHOT"
+(defproject web-service "0.2.0-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "slixbits.com"
   :dependencies [[org.clojure/clojure "1.6.0"]
