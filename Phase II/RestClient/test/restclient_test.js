@@ -114,7 +114,7 @@ exports['accessLevelList'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(5);
+    test.expect(7);
     restclient.accessLevelList(
       apiToken,
       function(statusCode, body) {
@@ -124,6 +124,10 @@ exports['accessLevelList'] = {
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'access level list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one access level should exist');
+        test.notEqual(bodyObj['response'].indexOf('Manage Clients'), -1,
+          'Manage Clients access level should exist');
         test.done();
       });
   }
