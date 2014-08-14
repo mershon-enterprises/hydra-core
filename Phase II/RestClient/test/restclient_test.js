@@ -293,3 +293,37 @@ exports['listClientLocations'] = {
       });
   }
 };
+
+exports['listData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listData(
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'list data get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(6);
+    restclient.listData(
+      apiToken,
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'data should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'data list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one data-set should exist');
+        test.done();
+      });
+  }
+};
