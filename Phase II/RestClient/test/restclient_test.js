@@ -137,3 +137,44 @@ exports['accessLevelList'] = {
       });
   }
 };
+
+exports['accessLevelGet'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.accessLevelGet(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'access level get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  // TODO -- implement test for specifying nonexistent access level
+  'manage-clients': function(test) {
+    test.expect(8);
+    restclient.accessLevelGet(
+      apiToken,
+      'Manage Clients',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'access level get should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok('description' in bodyObj['response'],
+          'description should be stated');
+        test.ok('date_modified' in bodyObj['response'],
+          'date modified should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'date created should be stated');
+        test.equal(bodyObj['response']['description'], 'Manage Clients',
+          'description should be manage Clients');
+        test.done();
+      });
+  }
+};
