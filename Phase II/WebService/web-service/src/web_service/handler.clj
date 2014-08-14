@@ -13,7 +13,7 @@
 ; get the version of the API
 (defn get-version
   []
-  (response {:version "0.1.0"}))
+  (response {:version "0.2.0"}))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed
@@ -26,25 +26,25 @@
           405))
 
 (defroutes app-routes
-  (POST "/login" {session :session
-                  params :params}
-        (let [email-address (:email_address params)
-              password (:password params)]
-          (login session email-address password)))
-  (POST "/logout" {session :session} (logout session))
+  (POST "/admin-authenticate" [email_address password user_email_address]
+        (admin-authenticate email_address password user_email_address))
+  (POST "/authenticate" [email_address password]
+        (authenticate email_address password))
   (GET "/version" [] (get-version))
 
   (context
     "/access-levels" []
     (defroutes document-routes
-      (GET "/" {session :session} (access-level-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token access-level-list))
       (PUT "/" [] (not-allowed "Update-all access levels"))
       (POST "/" [] (not-allowed "Create access level"))
       (DELETE "/" [] (not-allowed "Delete-all access levels"))
       (context
         "/:description" [description]
         (defroutes document-routes
-          (GET "/" {session :session} (access-level-get session description))
+          (GET "/" [api_token]
+               (guard-with-user api_token access-level-get description))
           (PUT "/" [] (not-allowed "Update access level"))
           (POST "/" [] (not-allowed "Create access level"))
           (DELETE "/" [] (not-allowed "Delete access level"))))))
@@ -52,58 +52,63 @@
   (context
     "/clients" []
     (defroutes document-routes
-      (GET "/" {session :session} (client-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token client-list))
       (PUT "/" [] (not-allowed "Update-all clients"))
-      (POST "/" {session :session
-                 params :params}
-            (let [name (:name params)]
-              (client-register session name)))
+      (POST "/" [api_token name]
+            (guard-with-user api_token client-register name))
       (DELETE "/" [] (not-allowed "Delete-all clients"))
       (context
         "/:name" [name]
         (defroutes document-routes
-          (GET "/" {session :session} (client-get session name))
+          (GET "/" [api_token]
+               (guard-with-user api_token client-get name))
           (PUT "/" [] (not-implemented "Update client"))
-          (POST "/" {session :session} (client-register session name))
+          (POST "/" [api_token]
+                (guard-with-user api_token client-register name))
           (DELETE "/" [] (not-allowed "Delete client"))
           (context
             "/locations" []
             (defroutes document-routes
-              (GET "/" {session :session} (client-location-list session name))
+              (GET "/" [api_token]
+                   (guard-with-user api_token client-location-list name))
               (PUT "/" [] (not-allowed "Client update-all locations"))
-              (POST "/" {session :session
-                         params :params}
-                    (let [description (:description params)]
-                      (client-location-add session name description)))
+              (POST "/" [api_token description]
+                    (guard-with-user
+                      api_token client-location-add name description))
               (DELETE "/" [] (not-allowed "Client delete-all locations"))))))))
 
   (context
     "/data" []
     (defroutes document-routes
-      (GET "/" {session :session} (data-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token data-list))
       (PUT "/" [] (not-allowed "Update-all data"))
-      (POST "/" {session :session
-                 params :params}
-            (let [date-created (:date_created params)
-                  created-by (:created_by params)
-                  data (:data params)]
-              (data-submit session date-created created-by data) ))
+      (POST "/" [api_token uuid date_created created_by data]
+            (guard-with-user api_token
+                             data-submit
+                             uuid
+                             date_created
+                             created_by
+                             data))
       (DELETE "/" [] (not-allowed "Delete-all data"))
       (context
-        "/:date-created" [date-created]
+        "/:uuid" [uuid]
         (defroutes document-routes
-          (GET "/" {session :session} (data-get session date-created))
+          (GET "/" [api_token]
+               (guard-with-user api_token data-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
           (POST "/" [] (not-implemented "Submit data"))
-          (DELETE "/" {session :session
-                       params :params}
-                  (data-delete session date-created))
+          (DELETE "/" [api_token]
+                  (guard-with-user api_token data-delete uuid))
           (context
             "/:filename" [filename]
             (defroutes document-routes
-              (GET "/" {session :session} (data-get-attachment session
-                                                               date-created
-                                                               filename))
+              (GET "/" [api_token]
+                   (guard-file-with-user api_token
+                                         data-get-attachment
+                                         uuid
+                                         filename))
               (PUT "/" [] (not-implemented "Update data attachment"))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [] (not-implemented "Delete data attachment"))))))))
@@ -111,26 +116,30 @@
   (context
     "/users" []
     (defroutes document-routes
-      (GET "/" {session :session} (user-list session))
+      (GET "/" [api_token]
+           (guard-with-user api_token user-list))
       (PUT "/" [] (not-allowed "Update-all users"))
       (POST "/" [] (not-allowed "Register user"))
       (DELETE "/" [] (not-allowed "Delete-all users"))
       (context
         "/:email-address" [email-address]
         (defroutes document-routes
-          (GET "/" {session :session} (user-get session email-address))
+          (GET "/" [api_token]
+               (guard-with-user api_token user-get email-address))
           (PUT "/" [] (not-implemented "Update user"))
           (POST "/" [] (not-allowed "Register user"))
           (DELETE "/" [] (not-allowed "Delete user"))
           (context
             "/access" []
             (defroutes document-routes
-              (GET "/" {session :session} (user-access-list session email-address))
+              (GET "/" [api_token]
+                   (guard-with-user api_token user-access-list email-address))
               (PUT "/" [] (not-implemented "User update-all access"))
-              (POST "/" {session :session
-                         params :params}
-                    (let [description (:description params)]
-                      (user-access-add session email-address description)))
+              (POST "/" [api_token description]
+                    (guard-with-user api_token
+                                     user-access-add
+                                     email-address
+                                     description))
               (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))

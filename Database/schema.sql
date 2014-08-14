@@ -137,7 +137,8 @@ CREATE TABLE data_set (
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
-    client_location_id bigint
+    client_location_id bigint,
+    uuid uuid NOT NULL
 );
 
 
@@ -505,6 +506,42 @@ ALTER SEQUENCE user_access_level_id_seq OWNED BY user_access_level.id;
 
 
 --
+-- Name: user_api_token; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+--
+
+CREATE TABLE user_api_token (
+    id bigint NOT NULL,
+    api_token character varying(255) NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    expiration_date timestamp with time zone NOT NULL,
+    user_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.user_api_token OWNER TO postgres;
+
+--
+-- Name: user_api_token_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_api_token_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_api_token_id_seq OWNER TO postgres;
+
+--
+-- Name: user_api_token_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_api_token_id_seq OWNED BY user_api_token.id;
+
+
+--
 -- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -737,6 +774,13 @@ ALTER TABLE ONLY user_access_level ALTER COLUMN id SET DEFAULT nextval('user_acc
 -- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
+ALTER TABLE ONLY user_api_token ALTER COLUMN id SET DEFAULT nextval('user_api_token_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY user_session ALTER COLUMN id SET DEFAULT nextval('user_session_id_seq'::regclass);
 
 
@@ -760,6 +804,14 @@ ALTER TABLE ONLY user_to_user_access_level ALTER COLUMN id SET DEFAULT nextval('
 
 ALTER TABLE ONLY client
     ADD CONSTRAINT client_name_key UNIQUE (name);
+
+
+--
+-- Name: data_set_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY data_set
+    ADD CONSTRAINT data_set_uuid_key UNIQUE (uuid);
 
 
 --
@@ -851,6 +903,14 @@ ALTER TABLE ONLY user_access_level
 
 
 --
+-- Name: pk_user_api_token; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT pk_user_api_token PRIMARY KEY (id);
+
+
+--
 -- Name: pk_user_session; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
@@ -883,11 +943,28 @@ ALTER TABLE ONLY user_access_level
 
 
 --
+-- Name: user_api_token_api_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT user_api_token_api_token_key UNIQUE (api_token);
+
+
+--
 -- Name: user_email_address_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_email_address_key UNIQUE (email_address);
+
+
+--
+-- Name: fk_api_token_to_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT fk_api_token_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --

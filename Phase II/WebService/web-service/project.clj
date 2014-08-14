@@ -9,7 +9,8 @@
                  [org.clojure/data.json "0.2.5"]
                  [org.clojars.pntblnk/clj-ldap "0.0.9"]
                  [org.clojure/tools.logging "0.3.0"]
-                 [com.draines/postal "1.11.1"]]
+                 [com.draines/postal "1.11.1"]
+                 [crypto-password "0.1.3"]]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler web-service.handler/app}
   :profiles
