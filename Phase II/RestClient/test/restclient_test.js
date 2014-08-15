@@ -316,7 +316,7 @@ exports['listData'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(13);
+    test.expect(12);
     restclient.listData(
       apiToken,
       function(statusCode, body) {
@@ -340,11 +340,6 @@ exports['listData'] = {
           'data-set data should be an array');
         test.ok(bodyObj['response'][0]['data'].length > 0,
           'at least one data-set data item should exist');
-
-        test.equal(
-          bodyObj['response'][0]['uuid'],
-          '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
-          'testing data-set sentinel uuid should exist');
 
         test.done();
       });
@@ -397,5 +392,60 @@ exports['getData'] = {
           'testing sentinel data-set uuid should match');
         test.done();
       });
+  }
+};
+
+exports['submitData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.submitData(
+      null,
+      null,
+      null,
+      [restclient.PrimitiveData('boolean', 'placeholder', false)],
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'submit data get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'no-data': function(test) {
+    test.expect(1);
+    test.throws(function() {
+      restclient.submitData(
+        apiToken,
+        new Date(),
+        'anyone@anywhere',
+        [],
+        function(statusCode, body) {
+          // doesn't matter, callback shouldn't run
+        });
+      },
+      'Data items must be an array of Attachment and PrimitiveData ' +
+        'and contain at least one item',
+      'error thrown when dataItems empty');
+    test.done();
+  },
+  'bad-data': function(test) {
+    test.expect(1);
+    test.throws(function() {
+      restclient.submitData(
+        apiToken,
+        new Date(),
+        'anyone@anywhere',
+        [{value: 'ploop'}],
+        function(statusCode, body) {
+          // doesn't matter, callback shouldn't run
+        });
+    },
+    'Invalid data item at position 0: ' +
+      'must be of type Attachment or PrimitiveData',
+    'error thrown when bad dataItems submitted');
+    test.done();
   }
 };
