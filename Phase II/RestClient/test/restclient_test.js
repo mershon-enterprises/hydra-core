@@ -320,7 +320,7 @@ exports['listData'] = {
     restclient.listData(
       apiToken,
       function(statusCode, body) {
-        test.equal(statusCode, 200, 'data should succeed');
+        test.equal(statusCode, 200, 'list data should succeed');
 
         var bodyObj = JSON.parse(body);
         checkResponse(test, bodyObj);
@@ -346,6 +346,55 @@ exports['listData'] = {
           '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
           'testing data-set sentinel uuid should exist');
 
+        test.done();
+      });
+  }
+};
+
+exports['getData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getData(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'get data get should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  // TODO -- implement test for specifying nonexistent data
+  'with-api-token': function(test) {
+    test.expect(11);
+    restclient.getData(
+      apiToken,
+      '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'get data should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok('uuid' in bodyObj['response'],
+          'data-set uuid should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'data-set date created should be stated');
+        test.ok('created_by' in bodyObj['response'],
+          'data-set created-by should be stated');
+        test.ok('data' in bodyObj['response'],
+          'data-set data should be stated');
+        test.ok(Array.isArray(bodyObj['response']['data']),
+          'data-set data should be an array');
+        test.ok(bodyObj['response']['data'].length > 0,
+          'at least one data item should exist');
+
+        test.equal(bodyObj['response']['uuid'],
+          '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
+          'testing sentinel data-set uuid should match');
         test.done();
       });
   }
