@@ -117,9 +117,9 @@ API
         "user_email_address": "basicuser@example.com"
       }
       ```
-    
+
     * sample response:
-    
+
       ```json
       {
         "token_expiration_date": "2014-08-21T14:39:12Z",
@@ -341,57 +341,55 @@ API
       {
         "token_expiration_date": "2014-08-21T15:07:12Z",
         "token": "[[api token]]",
-        "response": [
-          {
-            "uuid": "7fa1f8f6-498d-4054-9300-4fcd4fa6bb57",
-            "date_created": "2014-08-13T22:05:27Z",
-            "created_by": "admin@example.com",
-            "data": [
-              {
-                "value": false,
-                "description": "Reconciled to QuickBooks",
-                "type": "boolean"
-              },
-              {
-                "value": "2014-07-18T16:00:00Z",
-                "description": "Start Date",
-                "type": "date"
-              },
-              {
-                "value": "2014-07-18T16:30:00Z",
-                "description": "End Date",
-                "type": "date"
-              },
-              {
-                "value": 0,
-                "description": "Duration (hours)",
-                "type": "integer"
-              },
-              {
-                "value": 30,
-                "description": "Duration (minutes)",
-                "type": "integer"
-              },
-              {
-                "value": "Time Log Entry",
-                "description": "Description",
-                "type": "text"
-              },
-              {
-                "value": "hydra-core",
-                "description": "Project",
-                "type": "text"
-              }
-            ]
-          },
-          /*
-           * ...
-           *
-           * more data sets here
-           *
-           * ...
-           */
-        ]
+        "response": {
+          "uuid": "7fa1f8f6-498d-4054-9300-4fcd4fa6bb57",
+          "date_created": "2014-08-13T22:05:27Z",
+          "created_by": "admin@example.com",
+          "data": [
+            {
+              "value": false,
+              "description": "Reconciled to QuickBooks",
+              "type": "boolean"
+            },
+            {
+              "value": "2014-07-18T16:00:00Z",
+              "description": "Start Date",
+              "type": "date"
+            },
+            {
+              "value": "2014-07-18T16:30:00Z",
+              "description": "End Date",
+              "type": "date"
+            },
+            {
+              "value": 0,
+              "description": "Duration (hours)",
+              "type": "integer"
+            },
+            {
+              "value": 30,
+              "description": "Duration (minutes)",
+              "type": "integer"
+            },
+            {
+              "value": "Time Log Entry",
+              "description": "Description",
+              "type": "text"
+            },
+            {
+              "value": "hydra-core",
+              "description": "Project",
+              "type": "text"
+            }
+          ]
+        },
+        /*
+         * ...
+         *
+         * more data sets here
+         *
+         * ...
+         */
       }
       ```
 

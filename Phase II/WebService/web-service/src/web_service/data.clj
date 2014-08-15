@@ -98,13 +98,15 @@
         query (str data-set-query " and uuid::character varying=?")
         query-own (str query " and u.email_address=?")]
     (if can-access
-      (response {:response (sql/query db [query uuid] :row-fn format-data-set)})
+      (response {:response (first (sql/query db
+                                             [query uuid]
+                                             :row-fn format-data-set))})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response {:response (sql/query db
-                                        [query-own uuid email-address]
-                                        :row-fn format-data-set)})
+        (response {:response (first (sql/query db
+                                               [query-own uuid email-address]
+                                               :row-fn format-data-set))})
         (access-denied constants/manage-data)))))
 
 
