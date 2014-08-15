@@ -117,9 +117,9 @@ API
         "user_email_address": "basicuser@example.com"
       }
       ```
-    
+
     * sample response:
-    
+
       ```json
       {
         "token_expiration_date": "2014-08-21T14:39:12Z",
