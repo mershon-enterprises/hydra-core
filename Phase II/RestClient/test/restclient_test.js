@@ -24,6 +24,7 @@ restclient.endpointUrl = 'http://localhost:3000';
 */
 
 var apiToken = null;
+var createdUUID = null;
 var goodLogin = function(callback) {
   restclient.authenticate(
     "admin@example.com",
@@ -503,6 +504,41 @@ exports['submitData'] = {
           true,
           'data value should match submitted value');
 
+        createdUUID = bodyObj['response']['uuid'];
+
+        test.done();
+      });
+  }
+};
+
+exports['deleteData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.deleteData(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'delete data should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(5);
+    restclient.deleteData(
+      apiToken,
+      createdUUID,
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'delete data should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.equal(bodyObj['response'], 'OK', 'success response');
         test.done();
       });
   }

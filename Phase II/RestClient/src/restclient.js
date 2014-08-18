@@ -196,4 +196,16 @@
     });
   };
 
+  exports.deleteData = function(apiToken, uuid, callback) {
+    rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid,
+      params: {
+        api_token: apiToken
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));
