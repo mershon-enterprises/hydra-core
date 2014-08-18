@@ -580,3 +580,45 @@ exports['listUsers'] = {
       });
   }
 };
+
+exports['getUser'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getUser(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'get user should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(8);
+    restclient.getUser(
+      apiToken,
+      'admin@example.com',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'get user should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok('email_address' in bodyObj['response'],
+          'email_address should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'date created should be stated');
+        test.ok('date_modified' in bodyObj['response'],
+          'date modified should be stated');
+
+        test.equal(bodyObj['response']['email_address'],
+          'admin@example.com',
+          'email should match request value');
+        test.done();
+      });
+  }
+};
