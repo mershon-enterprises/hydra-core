@@ -543,3 +543,40 @@ exports['deleteData'] = {
       });
   }
 };
+
+exports['listUsers'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listUsers(
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'list users should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(7);
+    restclient.listUsers(
+      apiToken,
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'delete data should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'user list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one user should exist');
+
+        test.notEqual(bodyObj['response'].indexOf('admin@example.com'), -1,
+          'VPN account should exist');
+        test.done();
+      });
+  }
+};

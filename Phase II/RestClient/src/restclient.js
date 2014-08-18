@@ -208,4 +208,16 @@
     });
   };
 
+  exports.listUsers = function(apiToken, callback) {
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/users',
+      params: {
+        api_token: apiToken
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));
