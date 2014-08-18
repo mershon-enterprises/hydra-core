@@ -463,5 +463,46 @@ exports['submitData'] = {
       'must be of type Attachment or PrimitiveData',
     'error thrown when bad dataItems submitted');
     test.done();
+  },
+  'good-data': function(test) {
+    test.expect(14);
+    restclient.submitData(
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [{type: 'boolean', description: 'test data', value: true}],
+      function(statusCode, body) {
+        test.equal(statusCode, 201, 'submit data should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok('uuid' in bodyObj['response'],
+          'data-set uuid should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'data-set date created should be stated');
+        test.ok('created_by' in bodyObj['response'],
+          'data-set created-by should be stated');
+        test.ok('data' in bodyObj['response'],
+          'data-set data should be stated');
+        test.ok(Array.isArray(bodyObj['response']['data']),
+          'data-set data should be an array');
+        test.equal(bodyObj['response']['data'].length, 1,
+          'one data item should exist');
+
+        test.equal(bodyObj['response']['created_by'],
+          'admin@example.com',
+          'email should match submitted value');
+        test.equal(bodyObj['response']['data'][0]['type'],
+          'boolean',
+          'data type should match submitted value');
+        test.equal(bodyObj['response']['data'][0]['description'],
+          'test data',
+          'data description should match submitted value');
+        test.equal(bodyObj['response']['data'][0]['value'],
+          true,
+          'data value should match submitted value');
+
+        test.done();
+      });
   }
 };

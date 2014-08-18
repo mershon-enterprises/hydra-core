@@ -189,7 +189,7 @@
         uuid: exports.uuid(),
         date_created: dateCreated.toISOString(),
         created_by: createdBy,
-        data: data
+        data: JSON.stringify(data)
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
