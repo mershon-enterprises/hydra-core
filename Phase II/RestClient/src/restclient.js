@@ -13,7 +13,7 @@
 
   var rest = require('rest');
 
-  var endpointUrl = 'http://54.187.61.110:8080';
+  exports.endpointUrl = 'http://54.187.61.110:8080';
 
   exports.uuid = (function() {
     // borrowed from http://stackoverflow.com/a/105074/3541792
@@ -47,7 +47,7 @@
   exports.version = function(callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/version',
+      path: exports.endpointUrl + '/version',
     }).then(function(response) {
       callback(response.status.code, response.entity);
     });
@@ -56,7 +56,7 @@
   exports.authenticate = function(emailAddress, password, callback) {
     rest({
       method: 'POST',
-      path: endpointUrl + '/authenticate',
+      path: exports.endpointUrl + '/authenticate',
       params: {
         email_address: emailAddress,
         password: password
@@ -69,7 +69,7 @@
   exports.listAccessLevels = function(apiToken, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/access-levels',
+      path: exports.endpointUrl + '/access-levels',
       params: {
         api_token: apiToken
       }
@@ -81,7 +81,7 @@
   exports.getAccessLevel = function(apiToken, description, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/access-levels/' + description,
+      path: exports.endpointUrl + '/access-levels/' + description,
       params: {
         api_token: apiToken
       }
@@ -93,7 +93,7 @@
   exports.listClients = function(apiToken, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/clients',
+      path: exports.endpointUrl + '/clients',
       params: {
         api_token: apiToken
       }
@@ -105,7 +105,7 @@
   exports.getClient = function(apiToken, name, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/clients/' + name,
+      path: exports.endpointUrl + '/clients/' + name,
       params: {
         api_token: apiToken
       }
@@ -117,7 +117,7 @@
   exports.listClientLocations = function(apiToken, name, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/clients/' + name + '/locations',
+      path: exports.endpointUrl + '/clients/' + name + '/locations',
       params: {
         api_token: apiToken,
       }
@@ -129,7 +129,7 @@
   exports.listData = function(apiToken, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/data',
+      path: exports.endpointUrl + '/data',
       params: {
         api_token: apiToken
       }
@@ -141,7 +141,7 @@
   exports.getData = function(apiToken, uuid, callback) {
     rest({
       method: 'GET',
-      path: endpointUrl + '/data/' + uuid,
+      path: exports.endpointUrl + '/data/' + uuid,
       params: {
         api_token: apiToken
       }
@@ -183,7 +183,7 @@
 
     rest({
       method: 'POST',
-      path: endpointUrl + '/data',
+      path: exports.endpointUrl + '/data',
       params: {
         api_token: apiToken,
         uuid: exports.uuid(),

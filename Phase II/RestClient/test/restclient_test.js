@@ -1,6 +1,7 @@
 'use strict';
 
 var restclient = require('../src/restclient.js');
+restclient.endpointUrl = 'http://localhost:3000';
 
 /*
   ======== A Handy Little Nodeunit Reference ========
