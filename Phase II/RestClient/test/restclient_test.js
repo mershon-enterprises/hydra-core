@@ -622,3 +622,42 @@ exports['getUser'] = {
       });
   }
 };
+
+exports['listUserAccess'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listUserAccess(
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'list user access should fail');
+        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(7);
+    restclient.listUserAccess(
+      apiToken,
+      'admin@example.com',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'list user access should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'user access list should be an array');
+        test.ok(bodyObj['response'].length > 0,
+          'at least one user access should exist');
+
+        test.notEqual(bodyObj['response'].indexOf('Manage Users'), -1,
+          'Manage Users access level should exist');
+        test.done();
+      });
+  }
+};

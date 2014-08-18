@@ -232,4 +232,16 @@
     });
   };
 
+  exports.listUserAccess = function(apiToken, emailAddress, callback) {
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/users/' + emailAddress + '/access',
+      params: {
+        api_token: apiToken
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
 }(typeof exports === 'object' && exports || this));
