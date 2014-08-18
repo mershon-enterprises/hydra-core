@@ -98,7 +98,13 @@
           (GET "/" [api_token]
                (guard-with-user api_token data-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
-          (POST "/" [] (not-implemented "Submit data"))
+          (POST "/" [api_token date_created created_by data]
+                (guard-with-user api_token
+                                 data-submit
+                                 uuid
+                                 date_created
+                                 created_by
+                                 data))
           (DELETE "/" [api_token]
                   (guard-with-user api_token data-delete uuid))
           (context
