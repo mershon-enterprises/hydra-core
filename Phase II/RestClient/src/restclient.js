@@ -154,6 +154,10 @@
   exports.submitData = function(apiToken, dateCreated, createdBy, dataItems,
       callback) {
 
+    // guard against null date
+    if (dateCreated == null)
+      throw 'Date created must be specified';
+
     // guard against empty dataItems
     if (dataItems == undefined || !Array.isArray(dataItems) ||
         dataItems.length == 0) {
@@ -183,7 +187,7 @@
       params: {
         api_token: apiToken,
         uuid: exports.uuid(),
-        date_created: dateCreated,
+        date_created: dateCreated.toISOString(),
         created_by: createdBy,
         data: data
       }

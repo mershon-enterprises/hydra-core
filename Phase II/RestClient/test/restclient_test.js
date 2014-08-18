@@ -405,7 +405,7 @@ exports['submitData'] = {
     test.expect(2);
     restclient.submitData(
       null,
-      null,
+      new Date(),
       null,
       [restclient.PrimitiveData('boolean', 'placeholder', false)],
       function(statusCode, body) {
@@ -413,6 +413,22 @@ exports['submitData'] = {
         test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
+  },
+  'null-date': function(test) {
+    test.expect(1);
+    test.throws(function() {
+      restclient.submitData(
+        apiToken,
+        null,
+        'anyone@anywhere',
+        [],
+        function(statusCode, body) {
+          // doesn't matter, callback shouldn't run
+        });
+      },
+      'Date created must be specified',
+      'error thrown when dateCreated null');
+    test.done();
   },
   'no-data': function(test) {
     test.expect(1);
