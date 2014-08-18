@@ -149,16 +149,21 @@
                    "(uuid, date_created, created_by) values "
                    "(?::uuid, ?::timestamp with time zone, ("
                    " select id from public.user where email_address=?"
-                   "))")]
+                   "))")
+        json-data (try
+                    (json/read-str data :key-fn keyword)
+                    (catch Exception e
+                      (println (str "Failed to parse 'data' as JSON string"))
+                      ; return an empty data-set
+                      []))]
     (if can-access
-      (if (empty? data)
+      (if (empty? json-data)
         (status (response {:response "Cannot record empty data-set"}) 409)
         (try
           (let [keys (sql/db-do-prepared-return-keys db query [uuid
                                                                date-created
                                                                created-by])
-                id (:id keys)
-                json-data (json/read-str data :key-fn keyword)]
+                id (:id keys)]
             ; iterate child elements of 'data' and add to the database also
             (doseq [data-element json-data]
               (let [type (:type data-element)]
