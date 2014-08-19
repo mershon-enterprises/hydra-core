@@ -18,40 +18,26 @@ module.exports = function (grunt) {
       ' Licensed GPLv3 */\n',
     // Task configuration.
     browserify: {
-      require: {
-        src: 'node_modules/requirejs/require.js',
-        dest: 'dist/libs/require.js'
-      },
-      rest: {
-        src: 'node_modules/rest/rest.js',
-        dest: 'dist/libs/rest.js'
+      standalone: {
+        src: [ 'src/<%= pkg.name %>.js' ],
+        dest: 'dist/<%= pkg.name%>.standalone.js',
+        options: {
+          bundleOptions: {
+            standalone: '<%= pkg.name %>'
+          }
+        }
       }
     },
     clean: {
-      dist: ["dist"],
-      browserified: ["dist/libs"]
-    },
-    concat: {
-      options: {
-        banner: '<%= banner %>',
-        stripBanners: true
-      },
-      dist: {
-        src: [
-          'dist/libs/require.js',
-          'dist/libs/rest.js',
-          'src/<%= pkg.name %>.js'
-        ],
-        dest: 'dist/<%= pkg.name %>.js'
-      },
+      dist: ["dist"]
     },
     uglify: {
       options: {
         banner: '<%= banner %>'
       },
       dist: {
-        src: '<%= concat.dist.dest %>',
-        dest: 'dist/<%= pkg.name %>.min.js'
+        src: '<%= browserify.standalone.dest %>',
+        dest: 'dist/<%= pkg.name %>.standalone.min.js'
       },
     },
     nodeunit: {
@@ -92,7 +78,7 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('dist', ['browserify', 'concat:dist', 'uglify:dist', 'clean:browserified']);
+  grunt.registerTask('dist', ['browserify', 'uglify:dist']);
   grunt.registerTask('build', ['dist']);
   grunt.registerTask('test', ['nodeunit']);
   grunt.registerTask('default', ['jshint', 'test', 'build']);
