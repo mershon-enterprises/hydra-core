@@ -55,8 +55,8 @@ SET default_with_oids = false;
 
 CREATE TABLE client (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     name character varying(255) NOT NULL
 );
 
@@ -64,13 +64,34 @@ CREATE TABLE client (
 ALTER TABLE public.client OWNER TO postgres;
 
 --
+-- Name: client_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE client_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.client_id_seq OWNER TO postgres;
+
+--
+-- Name: client_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE client_id_seq OWNED BY client.id;
+
+
+--
 -- Name: client_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE client_location (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     description character varying(255) NOT NULL,
     client_id bigint NOT NULL
 );
@@ -86,16 +107,38 @@ COMMENT ON TABLE client_location IS 'describes a location of client interest';
 
 
 --
+-- Name: client_location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE client_location_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.client_location_id_seq OWNER TO postgres;
+
+--
+-- Name: client_location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE client_location_id_seq OWNED BY client_location.id;
+
+
+--
 -- Name: data_set; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
-    client_location_id bigint
+    client_location_id bigint,
+    uuid uuid NOT NULL
 );
 
 
@@ -114,7 +157,7 @@ COMMENT ON TABLE data_set IS 'describes a collection of data';
 
 CREATE TABLE data_set_attachment (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -135,12 +178,33 @@ COMMENT ON TABLE data_set_attachment IS 'stores binary file attachments';
 
 
 --
+-- Name: data_set_attachment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_attachment_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_attachment_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_attachment_id_seq OWNED BY data_set_attachment.id;
+
+
+--
 -- Name: data_set_boolean; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_boolean (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -160,12 +224,33 @@ COMMENT ON TABLE data_set_boolean IS 'stores true/false primitive data';
 
 
 --
+-- Name: data_set_boolean_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_boolean_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_boolean_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_boolean_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_boolean_id_seq OWNED BY data_set_boolean.id;
+
+
+--
 -- Name: data_set_date; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_date (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -185,12 +270,54 @@ COMMENT ON TABLE data_set_date IS 'stores date data';
 
 
 --
+-- Name: data_set_date_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_date_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_date_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_date_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_date_id_seq OWNED BY data_set_date.id;
+
+
+--
+-- Name: data_set_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_id_seq OWNED BY data_set.id;
+
+
+--
 -- Name: data_set_integer; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_integer (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -210,12 +337,33 @@ COMMENT ON TABLE data_set_integer IS 'stores numeric integer data';
 
 
 --
+-- Name: data_set_integer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_integer_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_integer_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_integer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_integer_id_seq OWNED BY data_set_integer.id;
+
+
+--
 -- Name: data_set_real; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_real (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -235,12 +383,33 @@ COMMENT ON TABLE data_set_real IS 'stores numeric real/double precision data';
 
 
 --
+-- Name: data_set_real_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_real_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_real_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_real_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_real_id_seq OWNED BY data_set_real.id;
+
+
+--
 -- Name: data_set_text; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE data_set_text (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
@@ -260,13 +429,34 @@ COMMENT ON TABLE data_set_text IS 'stores text data';
 
 
 --
+-- Name: data_set_text_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_text_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_text_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_text_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_text_id_seq OWNED BY data_set_text.id;
+
+
+--
 -- Name: user; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE "user" (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     email_address character varying(255) NOT NULL
 );
 
@@ -279,8 +469,8 @@ ALTER TABLE public."user" OWNER TO postgres;
 
 CREATE TABLE user_access_level (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     description character varying(255) NOT NULL
 );
 
@@ -295,13 +485,91 @@ COMMENT ON TABLE user_access_level IS 'defines available privileges a user might
 
 
 --
+-- Name: user_access_level_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_access_level_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_access_level_id_seq OWNER TO postgres;
+
+--
+-- Name: user_access_level_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_access_level_id_seq OWNED BY user_access_level.id;
+
+
+--
+-- Name: user_api_token; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+--
+
+CREATE TABLE user_api_token (
+    id bigint NOT NULL,
+    api_token character varying(255) NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    expiration_date timestamp with time zone NOT NULL,
+    user_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.user_api_token OWNER TO postgres;
+
+--
+-- Name: user_api_token_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_api_token_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_api_token_id_seq OWNER TO postgres;
+
+--
+-- Name: user_api_token_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_api_token_id_seq OWNED BY user_api_token.id;
+
+
+--
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_id_seq OWNER TO postgres;
+
+--
+-- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_id_seq OWNED BY "user".id;
+
+
+--
 -- Name: user_session; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE user_session (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     start_date timestamp with time zone NOT NULL,
     end_date timestamp with time zone,
     user_id bigint NOT NULL
@@ -323,8 +591,8 @@ COMMENT ON TABLE user_session IS 'tracks client-side session activity for each u
 
 CREATE TABLE user_session_detail (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     attribute character varying(255) NOT NULL,
     value character varying(255) NOT NULL,
     session_id bigint NOT NULL
@@ -341,13 +609,55 @@ COMMENT ON TABLE user_session_detail IS 'tracks arbitrary details about a sessio
 
 
 --
+-- Name: user_session_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_session_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_session_detail_id_seq OWNER TO postgres;
+
+--
+-- Name: user_session_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_session_detail_id_seq OWNED BY user_session_detail.id;
+
+
+--
+-- Name: user_session_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_session_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_session_id_seq OWNER TO postgres;
+
+--
+-- Name: user_session_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_session_id_seq OWNED BY user_session.id;
+
+
+--
 -- Name: user_to_user_access_level; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE user_to_user_access_level (
     id bigint NOT NULL,
-    date_created timestamp with time zone NOT NULL,
-    date_modified timestamp with time zone NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_modified timestamp with time zone DEFAULT now() NOT NULL,
     user_id bigint NOT NULL,
     access_level_id bigint NOT NULL
 );
@@ -363,11 +673,145 @@ COMMENT ON TABLE user_to_user_access_level IS 'defines which privileges a user m
 
 
 --
+-- Name: user_to_user_access_level_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_to_user_access_level_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_to_user_access_level_id_seq OWNER TO postgres;
+
+--
+-- Name: user_to_user_access_level_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_to_user_access_level_id_seq OWNED BY user_to_user_access_level.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY client ALTER COLUMN id SET DEFAULT nextval('client_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY client_location ALTER COLUMN id SET DEFAULT nextval('client_location_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set ALTER COLUMN id SET DEFAULT nextval('data_set_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment ALTER COLUMN id SET DEFAULT nextval('data_set_attachment_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_boolean ALTER COLUMN id SET DEFAULT nextval('data_set_boolean_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_date ALTER COLUMN id SET DEFAULT nextval('data_set_date_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_integer ALTER COLUMN id SET DEFAULT nextval('data_set_integer_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_real ALTER COLUMN id SET DEFAULT nextval('data_set_real_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_text ALTER COLUMN id SET DEFAULT nextval('data_set_text_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "user" ALTER COLUMN id SET DEFAULT nextval('user_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_access_level ALTER COLUMN id SET DEFAULT nextval('user_access_level_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_api_token ALTER COLUMN id SET DEFAULT nextval('user_api_token_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_session ALTER COLUMN id SET DEFAULT nextval('user_session_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_session_detail ALTER COLUMN id SET DEFAULT nextval('user_session_detail_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_to_user_access_level ALTER COLUMN id SET DEFAULT nextval('user_to_user_access_level_id_seq'::regclass);
+
+
+--
 -- Name: client_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY client
     ADD CONSTRAINT client_name_key UNIQUE (name);
+
+
+--
+-- Name: data_set_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY data_set
+    ADD CONSTRAINT data_set_uuid_key UNIQUE (uuid);
 
 
 --
@@ -459,6 +903,14 @@ ALTER TABLE ONLY user_access_level
 
 
 --
+-- Name: pk_user_api_token; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT pk_user_api_token PRIMARY KEY (id);
+
+
+--
 -- Name: pk_user_session; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
@@ -483,11 +935,36 @@ ALTER TABLE ONLY user_to_user_access_level
 
 
 --
+-- Name: user_access_level_description_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_access_level
+    ADD CONSTRAINT user_access_level_description_key UNIQUE (description);
+
+
+--
+-- Name: user_api_token_api_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT user_api_token_api_token_key UNIQUE (api_token);
+
+
+--
 -- Name: user_email_address_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_email_address_key UNIQUE (email_address);
+
+
+--
+-- Name: fk_api_token_to_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT fk_api_token_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
+    ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
