@@ -3,10 +3,10 @@
 --
 
 SET statement_timeout = 0;
-SET client_encoding = 'UTF8';
+SET clients_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
-SET client_min_messages = warning;
+SET clients_min_messages = warning;
 
 --
 -- Name: postgres; Type: COMMENT; Schema: -; Owner: postgres
@@ -50,10 +50,10 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: client; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: clients; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
-CREATE TABLE client (
+CREATE TABLE clients (
     id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -61,13 +61,13 @@ CREATE TABLE client (
 );
 
 
-ALTER TABLE public.client OWNER TO postgres;
+ALTER TABLE public.clients OWNER TO postgres;
 
 --
--- Name: client_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: clients_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE client_id_seq
+CREATE SEQUENCE clients_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -75,42 +75,42 @@ CREATE SEQUENCE client_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.client_id_seq OWNER TO postgres;
+ALTER TABLE public.clients_id_seq OWNER TO postgres;
 
 --
--- Name: client_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: clients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE client_id_seq OWNED BY client.id;
+ALTER SEQUENCE clients_id_seq OWNED BY client.id;
 
 
 --
--- Name: client_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: clients_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
-CREATE TABLE client_location (
+CREATE TABLE clients_location (
     id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     description character varying(255) NOT NULL,
-    client_id bigint NOT NULL
+    clients_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.client_location OWNER TO postgres;
+ALTER TABLE public.clients_location OWNER TO postgres;
 
 --
--- Name: TABLE client_location; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE clients_location; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE client_location IS 'describes a location of client interest';
+COMMENT ON TABLE clients_location IS 'describes a location of client interest';
 
 
 --
--- Name: client_location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: clients_location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE client_location_id_seq
+CREATE SEQUENCE clients_location_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -118,13 +118,13 @@ CREATE SEQUENCE client_location_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.client_location_id_seq OWNER TO postgres;
+ALTER TABLE public.clients_location_id_seq OWNER TO postgres;
 
 --
--- Name: client_location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: clients_location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE client_location_id_seq OWNED BY client_location.id;
+ALTER SEQUENCE clients_location_id_seq OWNED BY client_location.id;
 
 
 --
@@ -137,7 +137,7 @@ CREATE TABLE data_set (
     created_by bigint,
     date_deleted timestamp with time zone,
     deleted_by bigint,
-    client_location_id bigint,
+    clients_location_id bigint,
     uuid uuid NOT NULL
 );
 
@@ -582,7 +582,7 @@ ALTER TABLE public.user_session OWNER TO postgres;
 -- Name: TABLE user_session; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE user_session IS 'tracks client-side session activity for each user';
+COMMENT ON TABLE user_session IS 'tracks clients-side session activity for each user';
 
 
 --
@@ -697,14 +697,14 @@ ALTER SEQUENCE user_to_user_access_level_id_seq OWNED BY user_to_user_access_lev
 -- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY client ALTER COLUMN id SET DEFAULT nextval('client_id_seq'::regclass);
+ALTER TABLE ONLY clients ALTER COLUMN id SET DEFAULT nextval('client_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY client_location ALTER COLUMN id SET DEFAULT nextval('client_location_id_seq'::regclass);
+ALTER TABLE ONLY clients_location ALTER COLUMN id SET DEFAULT nextval('client_location_id_seq'::regclass);
 
 
 --
@@ -799,11 +799,11 @@ ALTER TABLE ONLY user_to_user_access_level ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
--- Name: client_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: clients_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
-ALTER TABLE ONLY client
-    ADD CONSTRAINT client_name_key UNIQUE (name);
+ALTER TABLE ONLY clients
+    ADD CONSTRAINT clients_name_key UNIQUE (name);
 
 
 --
@@ -815,19 +815,19 @@ ALTER TABLE ONLY data_set
 
 
 --
--- Name: pk_client; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_clients; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
-ALTER TABLE ONLY client
-    ADD CONSTRAINT pk_client PRIMARY KEY (id);
+ALTER TABLE ONLY clients
+    ADD CONSTRAINT pk_clients PRIMARY KEY (id);
 
 
 --
--- Name: pk_client_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_clients_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
-ALTER TABLE ONLY client_location
-    ADD CONSTRAINT pk_client_location PRIMARY KEY (id);
+ALTER TABLE ONLY clients_location
+    ADD CONSTRAINT pk_clients_location PRIMARY KEY (id);
 
 
 --
@@ -1022,11 +1022,11 @@ ALTER TABLE ONLY data_set_boolean
 
 
 --
--- Name: fk_data_set_client_location; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_data_set_clients_location; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY data_set
-    ADD CONSTRAINT fk_data_set_client_location FOREIGN KEY (client_location_id) REFERENCES client_location(id)
+    ADD CONSTRAINT fk_data_set_clients_location FOREIGN KEY (client_location_id) REFERENCES client_location(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
@@ -1112,11 +1112,11 @@ ALTER TABLE ONLY data_set_integer
 
 
 --
--- Name: fk_location_to_client; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_location_to_clients; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY client_location
-    ADD CONSTRAINT fk_location_to_client FOREIGN KEY (client_id) REFERENCES client(id)
+ALTER TABLE ONLY clients_location
+    ADD CONSTRAINT fk_location_to_clients FOREIGN KEY (client_id) REFERENCES client(id)
     ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
