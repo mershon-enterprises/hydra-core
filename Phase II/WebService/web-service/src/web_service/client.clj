@@ -35,6 +35,9 @@
 ;                                EXTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; possible buffer overflow on client name or email address in client-get
+; recommend fuzzing with large inputs in test environment to confirm vulnerability
+; easily fixed with front- and back-end length maximums and white-list filtering
 
 ; get the specified client, as an HTTP response
 (defn client-get
