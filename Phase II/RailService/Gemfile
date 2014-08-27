@@ -14,9 +14,9 @@ gem 'coffee-rails', '~> 4.0.0'
 # Gems used when running tests.
 # Taken from https://github.com/devleorepo/bountyboard/
 group :test do
-  gem 'rspec-rails', '~> 3.0.0'
-  gem 'rspec-mocks', '~> 3.0.0'
-  gem 'rspec-expectations', '~>3.0.0'
+  gem 'rspec-rails'#, '~> 3.0.0'
+  gem 'rspec-mocks'#, '~> 3.0.0'
+  gem 'rspec-activemodel-mocks', '~> 1.0.1'
   # uncomment this gem when upgrading to rspec 3
   gem 'rspec-its', '~> 1.0.1' # Support for its syntax
    

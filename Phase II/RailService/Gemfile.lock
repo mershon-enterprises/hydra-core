@@ -103,6 +103,10 @@ GEM
     rake (10.3.2)
     rdoc (4.1.1)
       json (~> 1.4)
+    rspec-activemodel-mocks (1.0.1)
+      activemodel (>= 3.0)
+      activesupport (>= 3.0)
+      rspec-mocks (>= 2.99, < 4.0)
     rspec-core (3.0.4)
       rspec-support (~> 3.0.0)
     rspec-expectations (3.0.4)
@@ -179,10 +183,10 @@ DEPENDENCIES
   pg
   rails (= 4.1.5)
   rake
-  rspec-expectations (~> 3.0.0)
+  rspec-activemodel-mocks (~> 1.0.1)
   rspec-its (~> 1.0.1)
-  rspec-mocks (~> 3.0.0)
-  rspec-rails (~> 3.0.0)
+  rspec-mocks
+  rspec-rails
   sass-rails (~> 4.0.3)
   sdoc (~> 0.4.0)
   simplecov

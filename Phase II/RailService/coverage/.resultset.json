@@ -1,0 +1,19 @@
+{
+  "RSpec": {
+    "coverage": {
+      "/home/oni/development/slixbits/hydra-core/Phase II/RailService/app/helpers/application_helper.rb": [
+        1,
+        null
+      ],
+      "/home/oni/development/slixbits/hydra-core/Phase II/RailService/app/helpers/client_locations_helper.rb": [
+        1,
+        null
+      ],
+      "/home/oni/development/slixbits/hydra-core/Phase II/RailService/app/helpers/clients_helper.rb": [
+        1,
+        null
+      ]
+    },
+    "timestamp": 1409180142
+  }
+}
