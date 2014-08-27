@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  host: localhost
+  username: postgres
+# password: <%= ENV['PI_PWT_RAILSERVICE_PASS'] %>
+  pool: 5
+
+development:
+  database: pi-pwt-railservice_development
+  <<: *default
+
+test:
+  <<: *default
+  database: pi-pwt-railservice_test
+
+# production:
+#   <<: *default
+#   database: pi-pwt-railservice_production
+#   username: pi-pwt-railservice
+
+
