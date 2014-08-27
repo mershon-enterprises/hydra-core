@@ -1,0 +1,2 @@
+module ClientLocationsHelper
+end
