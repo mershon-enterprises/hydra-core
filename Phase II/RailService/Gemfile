@@ -16,7 +16,10 @@ gem 'coffee-rails', '~> 4.0.0'
 group :test do
   gem 'rspec-rails', '~> 2.99'
   # uncomment this gem when upgrading to rspec 3
-  # gem 'rspec-its'
+  gem 'rspec-its' # Support for its syntax
+   
+  # Support for stubbing model in view specs 
+  gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'capybara'
   gem 'rake'
   gem 'email_spec'
