@@ -53,7 +53,7 @@ SET default_with_oids = false;
 -- Name: clients; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
-CREATE TABLE clients (
+CREATE TABLE IF NOT EXISTS clients (
     id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -81,7 +81,7 @@ ALTER TABLE public.clients_id_seq OWNER TO postgres;
 -- Name: clients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE clients_id_seq OWNED BY client.id;
+ALTER SEQUENCE clients_id_seq OWNED BY clients.id;
 
 
 --
