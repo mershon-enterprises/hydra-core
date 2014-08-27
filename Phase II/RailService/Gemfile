@@ -14,12 +14,13 @@ gem 'coffee-rails', '~> 4.0.0'
 # Gems used when running tests.
 # Taken from https://github.com/devleorepo/bountyboard/
 group :test do
-  gem 'rspec-rails', '~> 2.99'
+  gem 'rspec-rails', '~> 3.0.0'
+  gem 'rspec-mocks', '~> 3.0.0'
+  gem 'rspec-expectations', '~>3.0.0'
   # uncomment this gem when upgrading to rspec 3
-  gem 'rspec-its' # Support for its syntax
+  gem 'rspec-its', '~> 1.0.1' # Support for its syntax
    
   # Support for stubbing model in view specs 
-  gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'capybara'
   gem 'rake'
   gem 'email_spec'
