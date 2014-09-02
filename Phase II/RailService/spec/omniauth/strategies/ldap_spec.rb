@@ -9,12 +9,12 @@ describe "OmniAuth::Strategies::LDAP" do
   # :name_proc => Proc.new {|name| name.gsub(/@.*$/,'')}
   # :bind_dn => 'default_bind_dn'
   # :password => 'password'
-  class MyLdapProvider < OmniAuth::Strategies::LDAP; end
+  class PISlixLdapProvider < OmniAuth::Strategies::LDAP; end
 
   let(:app) do
     Rack::Builder.new {
       use OmniAuth::Test::PhonySession
-      use PISlixVpn, :name => 'ldap', :title => 'PI Slix VPN', :host => 'localhost:3000', :base => 'dc=score, dc=local', :name_proc => Proc.new {|name| name.gsub(/@.*$/,'')}
+      use PISlixVpn, :name => 'ldap', :title => 'PI Slix VPN', :host => 'localhost:3000', :base => 'dc=score, dc=local', :uid => 'sAMAccountName', :name_proc => Proc.new {|name| name.gsub(/@.*$/,'')}
       run lambda { |env| [404, {'Content-Type' => 'text/plain'}, [env.key?('omniauth.auth').to_s]] }
     }.to_app
   end
@@ -43,7 +43,7 @@ describe "OmniAuth::Strategies::LDAP" do
       last_response.body.scan('<input').size.should == 2
     end
     it 'should have a label of the form title' do
-      last_response.body.scan('MyLdap Form').size.should > 1
+      last_response.body.scan('PI Slixbits VPN Form').size.should > 1
     end
   end
 
