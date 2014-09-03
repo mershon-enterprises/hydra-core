@@ -27,8 +27,8 @@ describe "OmniAuth::Strategies::LDAP" do
     OmniAuth::Utils.camelize('ldap').should == 'LDAP'
   end
 
-  describe '/auth/ldap' do
-    before(:each){ get '/auth/ldap' }
+  describe '/authentication/ldap' do
+    before(:each){ get '/authentication/ldap' }
 
     it 'should display a form' do
       last_response.status.should == 200
@@ -36,7 +36,7 @@ describe "OmniAuth::Strategies::LDAP" do
     end
 
     it 'should have the callback as the action for the form' do
-      last_response.body.should be_include("action='/auth/ldap/callback'")
+      last_response.body.should be_include("action='/authentication/ldap/callback'")
     end
 
     it 'should have a text field for each of the fields' do
@@ -47,7 +47,7 @@ describe "OmniAuth::Strategies::LDAP" do
     end
   end
 
-  describe 'post /auth/ldap/callback' do
+  describe 'post /authentication/ldap/callback' do
     before(:each) do
       @adaptor = double(OmniAuth::LDAP::Adaptor, {:uid => 'ping'})
       @adaptor.stub(:filter)
@@ -61,7 +61,7 @@ describe "OmniAuth::Strategies::LDAP" do
 
       context "when username is not preset" do
         it 'should redirect to error page' do
-          post('/auth/ldap/callback', {})
+          post('/authentication/ldap/callback', {})
 
           last_response.should be_redirect
           last_response.headers['Location'].should =~ %r{missing_credentials}
@@ -70,7 +70,7 @@ describe "OmniAuth::Strategies::LDAP" do
 
       context "when username is empty" do
         it 'should redirect to error page' do
-          post('/auth/ldap/callback', {:username => ""})
+          post('/authentication/ldap/callback', {:username => ""})
 
           last_response.should be_redirect
           last_response.headers['Location'].should =~ %r{missing_credentials}
@@ -80,7 +80,7 @@ describe "OmniAuth::Strategies::LDAP" do
       context "when username is present" do
         context "and password is not preset" do
           it 'should redirect to error page' do
-            post('/auth/ldap/callback', {:username => "ping"})
+            post('/authentication/ldap/callback', {:username => "ping"})
 
             last_response.should be_redirect
             last_response.headers['Location'].should =~ %r{missing_credentials}
@@ -89,7 +89,7 @@ describe "OmniAuth::Strategies::LDAP" do
 
         context "and password is empty" do
           it 'should redirect to error page' do
-            post('/auth/ldap/callback', {:username => "ping", :password => ""})
+            post('/authentication/ldap/callback', {:username => "ping", :password => ""})
 
             last_response.should be_redirect
             last_response.headers['Location'].should =~ %r{missing_credentials}
@@ -100,7 +100,7 @@ describe "OmniAuth::Strategies::LDAP" do
       context "when username and password are present" do
         context "and bind on LDAP server failed" do
           it 'should redirect to error page' do
-            post('/auth/ldap/callback', {:username => 'ping', :password => 'password'})
+            post('/authentication/ldap/callback', {:username => 'ping', :password => 'password'})
 
             last_response.should be_redirect
             last_response.headers['Location'].should =~ %r{invalid_credentials}
@@ -109,7 +109,7 @@ describe "OmniAuth::Strategies::LDAP" do
             it 'should bind with filter' do
               @adaptor.stub(:filter).and_return('uid=%{username}')
               Net::LDAP::Filter.should_receive(:construct).with('uid=ping')
-              post('/auth/ldap/callback', {:username => 'ping', :password => 'password'})
+              post('/authentication/ldap/callback', {:username => 'ping', :password => 'password'})
 
               last_response.should be_redirect
               last_response.headers['Location'].should =~ %r{invalid_credentials}
@@ -124,7 +124,7 @@ describe "OmniAuth::Strategies::LDAP" do
           end
 
           it 'should redirect to error page' do
-            post('/auth/ldap/callback', {:username => "ping", :password => "password"})
+            post('/authentication/ldap/callback', {:username => "ping", :password => "password"})
 
             last_response.should be_redirect
             last_response.headers['Location'].should =~ %r{ldap_error}
@@ -160,7 +160,7 @@ description: omniauth-ldap
       end
 
       it 'should not redirect to error page' do
-        post('/auth/ldap/callback', {:username => 'ping', :password => 'password'})
+        post('/authentication/ldap/callback', {:username => 'ping', :password => 'password'})
         last_response.should_not be_redirect
       end
 
@@ -168,14 +168,14 @@ description: omniauth-ldap
         it 'should bind with filter' do
           @adaptor.stub(:filter).and_return('uid=%{username}')
           Net::LDAP::Filter.should_receive(:construct).with('uid=ping')
-          post('/auth/ldap/callback', {:username => 'ping', :password => 'password'})
+          post('/authentication/ldap/callback', {:username => 'ping', :password => 'password'})
 
           last_response.should_not be_redirect
         end
       end
 
       it 'should map user info to Auth Hash' do
-        post('/auth/ldap/callback', {:username => 'ping', :password => 'password'})
+        post('/authentication/ldap/callback', {:username => 'ping', :password => 'password'})
         auth_hash.uid.should == 'cn=ping, dc=intridea, dc=com'
         auth_hash.info.email.should == 'ping@intridea.com'
         auth_hash.info.first_name.should == 'Ping'
