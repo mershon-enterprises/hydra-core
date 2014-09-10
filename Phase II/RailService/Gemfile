@@ -1,7 +1,11 @@
 source 'https://rubygems.org'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.5'
+gem 'rails-api'
+
+# Use Grape alongside Rails, target 0.8.0 until 0.9.1 or 0.10.0 released
+gem 'grape', '~> 0.8.0'
+gem 'jbuilder', '~> 2.0'
+
 # Use postgresql as the database for Active Record
 gem 'pg'
 gem 'foreigner' # Used for foreign-key relations
@@ -9,9 +13,6 @@ gem 'foreigner' # Used for foreign-key relations
 # OmniAuth used for LDAP authentication
 gem 'omniauth-ldap'
 gem 'hashie', '~> 3.3.1'
-
-# RocketPants gem for building API
-#gem 'rocket_pants', '~> 1.0'
 
 # Front-end dependencies handled by browser-plugin
 
@@ -38,7 +39,6 @@ group :development, :test do
   gem 'watchr'
 end
 
-gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',                    group: :development
