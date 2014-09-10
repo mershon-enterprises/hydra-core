@@ -23,5 +23,11 @@ module Railservice
 
     # Enable the asset pipeline
     config.assets.enabled = true 
+    # Storing API directory string in local variable 
+    # to keep with style conventions
+    api_dir = 'processinstrumentspwt'
+    config.paths.add File.join('app','api'), 
+      glob: File.join(api_dir, '*.rb')
+    config.autoload_paths += Dir[Rails.root.join('app','api',api_dir)]
   end
 end
