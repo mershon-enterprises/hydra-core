@@ -28,4 +28,8 @@ ActiveRecord::Schema.define(version: 20140827180430) do
     t.datetime "updated_at"
   end
 
+  create_table "test_table", id: false, force: true do |t|
+    t.string "name", limit: 25
+  end
+
 end
