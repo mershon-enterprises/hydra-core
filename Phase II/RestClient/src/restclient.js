@@ -66,6 +66,21 @@
     });
   };
 
+  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
+      callback) {
+    rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/admin-authenticate',
+      params: {
+        email_address: emailAddress,
+        password: password,
+        user_email_address: userEmailAddress
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    });
+  };
+
   exports.listAccessLevels = function(apiToken, callback) {
     rest({
       method: 'GET',
