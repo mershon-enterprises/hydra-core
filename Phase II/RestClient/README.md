@@ -8,7 +8,7 @@ Install the module with: `npm install restclient`
 
 ```javascript
 var restclient = require('restclient');
-restclient.awesome(); // "awesome"
+restclient.uuid(); // "gets a uuid"
 ```
 
 ### In the browser
