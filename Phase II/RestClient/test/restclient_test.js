@@ -565,7 +565,7 @@ exports['listUsers'] = {
     restclient.listUsers(
       apiToken,
       function(statusCode, body) {
-        test.equal(statusCode, 200, 'delete data should succeed');
+        test.equal(statusCode, 200, 'list users should succeed');
 
         var bodyObj = JSON.parse(body);
         checkResponse(test, bodyObj);
