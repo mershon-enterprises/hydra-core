@@ -104,6 +104,51 @@ exports['authenticate'] = {
   }
 };
 
+exports['adminAuthenticate'] = {
+  setUp: function(done) {
+    // setup here
+    done();
+  },
+  'no-args': function(test) {
+    test.expect(2);
+    restclient.adminAuthenticate(
+      null,
+      null,
+      null,
+      function(statusCode, body) {
+        test.equal(statusCode, 401, 'login should fail');
+        test.equal(body, 'Invalid credentials', 'login body text');
+        test.done();
+      });
+  },
+  'admin': function(test) {
+    test.expect(8);
+    restclient.adminAuthenticate(
+      'admin@example.com',
+      'adminpassword',
+      'basicuser@example.com',
+      function(statusCode, body) {
+        test.equal(statusCode, 200, 'login should succeed');
+
+        var bodyObj = JSON.parse(body);
+        checkResponse(test, bodyObj);
+        test.notEqual('email_address' in bodyObj['response'],
+          'login response email address should be stated');
+        test.notEqual('first_name' in bodyObj['response'],
+          'login response first name should be stated');
+        test.ok('last_name' in bodyObj['response'],
+          'login response last name should be stated');
+        test.ok('access' in bodyObj['response'],
+          'login response user access should be stated');
+
+        // log back in as the admin account so the next test passes
+        goodLogin(function() {
+          test.done();
+        });
+      });
+  }
+};
+
 exports['listAccessLevels'] = {
   setUp: function(done) {
     if (apiToken == null)
