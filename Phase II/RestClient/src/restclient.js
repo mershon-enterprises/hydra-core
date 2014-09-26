@@ -30,6 +30,7 @@
 
   exports.Attachment = function(filename, mimeType, contents) {
     return {
+      type: 'attachment',
       filename: filename,
       mime_type: mimeType,
       contents: contents
