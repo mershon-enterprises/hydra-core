@@ -51,6 +51,8 @@
       path: exports.endpointUrl + '/version',
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -64,6 +66,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -79,6 +83,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -91,6 +97,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -103,6 +111,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -115,6 +125,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -127,6 +139,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -139,6 +153,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -151,6 +167,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -163,6 +181,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -209,6 +229,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -221,6 +243,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -233,6 +257,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -245,6 +271,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
@@ -257,6 +285,8 @@
       }
     }).then(function(response) {
       callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
     });
   };
 
