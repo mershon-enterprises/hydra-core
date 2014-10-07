@@ -7,11 +7,10 @@
  * # MainCtrl
  * Controller of the webServiceApp
  */
-angular.module('webServiceApp')
-  .controller('ClientsCtrl', function ($scope) {
+app.controller('ClientsController', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
       'Karma'
     ];
-  });
+});

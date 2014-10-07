@@ -8,7 +8,7 @@
  * Controller of the webServiceApp
  */
 angular.module('webServiceApp')
-  .controller('MainCtrl', function ($scope) {
+  .controller('MainController', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
