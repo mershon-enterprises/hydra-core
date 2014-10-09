@@ -2,16 +2,10 @@
 
 /**
  * @ngdoc function
- * @name webServiceApp.controller:MainCtrl
+ * @name webServiceApp.controller:UsersCtrl
  * @description
- * # MainCtrl
- * Controller of the webServiceApp
+ * # UsersCtrl
+ * Controller of the webServiceApp. Manages user data.
  */
-angular.module('webServiceApp')
-  .controller('UsersController', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+angular.module('webServiceApp').controller('UsersCtrl', function ($scope) {
+});

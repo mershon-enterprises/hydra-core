@@ -2,15 +2,10 @@
 
 /**
  * @ngdoc function
- * @name webServiceApp.controller:MainCtrl
+ * @name webServiceApp.controller:ClientsCtrl
  * @description
- * # MainCtrl
- * Controller of the webServiceApp
+ * # ClientsCtrl
+ * Controller of the webServiceApp. Manages client data.
  */
-app.controller('ClientsController', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-});
+angular.module('webServiceApp').controller('ClientsCtrl', ['$http', function ($scope, $http) {
+}]);

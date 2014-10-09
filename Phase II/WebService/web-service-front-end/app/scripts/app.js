@@ -6,34 +6,32 @@
  * @description
  * # webServiceApp
  *
- * Main module of the application.
+ * Main module of the application. All other modules are injected
+ * into this one through Angular's dependency injector.
  */
-(function(){
-  var app = angular
-    .module('webServiceApp', [
+angular.module('webServiceApp', [
       'ngAnimate',
       'ngCookies',
       'ngResource',
-      'ngRoute',
+      'ngRoute',    // Basic Angular Routing
       'ngSanitize',
       'ngTouch'
     ])
     .config(function ($routeProvider) {
       $routeProvider
         .when('/', {
-          templateUrl: 'views/main.html',
-          controller: 'MainController'
+          templateUrl: 'views/dataset.html',
+          controller: 'DatasetCtrl'
         })
         .when('/clients', {
           templateUrl: 'views/clients.html',
-          controller: 'ClientsController'
+          controller: 'ClientsCtrl'
         })
         .when('/users', {
           templateUrl: 'views/users.html',
-          controller: 'UsersController'
+          controller: 'UsersCtrl'
         })
         .otherwise({
           redirectTo: '/'
         });
     });
-})();
