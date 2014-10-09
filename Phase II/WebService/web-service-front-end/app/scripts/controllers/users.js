@@ -7,5 +7,6 @@
  * # UsersCtrl
  * Controller of the webServiceApp. Manages user data.
  */
-angular.module('webServiceApp').controller('UsersCtrl', function ($scope) {
+angular.module('webServiceApp').controller('UsersCtrl', function () {
+
 });

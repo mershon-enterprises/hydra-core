@@ -16,14 +16,14 @@ angular.module('webServiceApp').controller('LoginCtrl',
   };
 
   $scope.login = function (credentials) {
-    AuthService.login(credentials).then(function (user) {
+    AuthService.authenticate(credentials).then(function (user) {
       $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
       $scope.setCurrentUser(user);
-      console.log("We did it!");
+      console.log('We did it!');
       console.log(user);
     }, function () {
       $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
-      console.log("Login failed.");
+      console.log('Login failed.');
     });
   };
 

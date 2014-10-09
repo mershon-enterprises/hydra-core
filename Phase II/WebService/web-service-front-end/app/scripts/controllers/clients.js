@@ -7,5 +7,6 @@
  * # ClientsCtrl
  * Controller of the webServiceApp. Manages client data.
  */
-angular.module('webServiceApp').controller('ClientsCtrl', ['$http', function ($scope, $http) {
-}]);
+angular.module('webServiceApp').controller('ClientsCtrl', function () {
+
+});

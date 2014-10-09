@@ -7,5 +7,6 @@
  * # DatasetCtrl
  * Controller of the webServiceApp. Manages dataset data.
  */
-angular.module('webServiceApp').controller('DatasetCtrl', ['$http', function ($scope, $http) {
-}]);
+angular.module('webServiceApp').controller('DatasetCtrl', function () {
+
+});
