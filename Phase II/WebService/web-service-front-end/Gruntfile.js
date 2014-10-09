@@ -355,6 +355,10 @@ module.exports = function (grunt) {
         cwd: '<%= yeoman.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      restclient: {
+        dest: 'bower_components/restclient/restclient.js',
+        src: '../../RestClient/dist/restclient.standalone.min.js'
       }
     },
 
@@ -393,6 +397,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'autoprefixer',
+      'copy:restclient',
       'connect:livereload',
       'watch'
     ]);
@@ -414,6 +419,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'wiredep',
+    'copy:restclient',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
