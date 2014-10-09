@@ -34,4 +34,18 @@ angular.module('webServiceApp', [
         .otherwise({
           redirectTo: '/'
         });
+    })
+    .constant('USER_ROLES', {
+      operator: 'operator',
+      office: 'office',
+      admin: 'admin'
+    })
+    .constant('AUTH_EVENTS', {
+      loginSuccess: 'auth-login-success',
+      loginFailed: 'auth-login-failed',
+      logoutSuccess: 'auth-logout-success',
+      sessionTimeout: 'auth-session-timeout',
+      notAuthenticated: 'auth-not-authenticated',
+      notAuthorized: 'auth-not-authorized'
     });
+

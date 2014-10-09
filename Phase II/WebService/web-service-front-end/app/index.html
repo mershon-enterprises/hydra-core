@@ -31,6 +31,19 @@
         </nav>
       </header>
 
+    <form name="loginForm" ng-controller="LoginCtrl"
+        ng-submit="login(credentials)" novalidate>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" ng-model="credentials.username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" ng-model="credentials.password" required>
+
+        <button type="submit">Login</button>
+
+    </form>
+
       <!-- Templates will load here. -->
       <div ng-view=""></div>
 
@@ -57,8 +70,10 @@
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/dataset.js"></script>
+        <script src="scripts/services/auth.js"></script>
         <script src="scripts/controllers/clients.js"></script>
+        <script src="scripts/controllers/dataset.js"></script>
+        <script src="scripts/controllers/login.js"></script>
         <script src="scripts/controllers/users.js"></script>
         <!-- endbuild -->
 </body>
