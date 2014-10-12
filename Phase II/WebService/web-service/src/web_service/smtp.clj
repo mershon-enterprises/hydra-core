@@ -2,10 +2,7 @@
   (:require [postal.core :as postal]
             [environ.core :refer [env]]))
 
-(def server {:host "192.168.138.2"
-             :port 25
-             :user "pwt"
-             :pass "44Red22"})
+(def server (env :server))
 
 (defn send-message
   [email-address subject message]

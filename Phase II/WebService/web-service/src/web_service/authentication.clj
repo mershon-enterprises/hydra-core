@@ -21,11 +21,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def ldap-credentials
-  {:host "192.168.138.12"
-   :bind-dn "pic\\admin"
-   :password "adminpassword"})
-
+(def ldap-credentials (env :ldap-credentials))
 
 (defn- find-user-ldap
   [email-address]

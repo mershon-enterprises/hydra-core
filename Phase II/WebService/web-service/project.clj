@@ -17,4 +17,12 @@
   :ring {:handler web-service.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]}})
+                        [ring-mock "0.1.5"]]
+         :env {:ldap-credentials {
+                    :host "localhost:3389"
+                    :bind-dn "pic\\admin"
+                    :password "adminpassword"}
+               :server {:host "localhost"
+                        :port 2525
+                        :user "pwt"
+                        :pass "44Red22"}}}})
