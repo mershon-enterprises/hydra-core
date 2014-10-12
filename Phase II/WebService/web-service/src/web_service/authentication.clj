@@ -91,7 +91,11 @@
     (try (sql/execute! db [expire-query api-token])
          true
          (catch Exception e
-           (println (.getMessage e))
+           (if (instance? SQLException e)
+             (do
+               (.getCause e)
+               (println (.getNextException e)))
+             (println (.getMessage e)))
            false))))
 
 
@@ -132,7 +136,11 @@
                                        email-address])
                      true
                      (catch Exception e
-                       (println (.getMessage e))
+                       (if (instance? SQLException e)
+                          (do
+                             (.getCause e)
+                             (println (.getNextException e)))
+                          (println (.getMessage e)))
                        false))]
     (if success
       {:token api-token
