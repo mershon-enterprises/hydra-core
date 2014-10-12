@@ -11,7 +11,10 @@
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [crypto.random]
-            [web-service.constants :as constants]))
+            [web-service.constants :as constants]
+            [environ.core :refer [env]]))
+
+(import java.sql.SQLException)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;

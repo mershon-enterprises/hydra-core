@@ -10,8 +10,10 @@
                  [org.clojars.pntblnk/clj-ldap "0.0.9"]
                  [org.clojure/tools.logging "0.3.0"]
                  [com.draines/postal "1.11.1"]
-                 [crypto-password "0.1.3"]]
-  :plugins [[lein-ring "0.8.11"]]
+                 [crypto-password "0.1.3"]
+                 [environ "1.0.0"]]
+  :plugins [[lein-ring "0.8.11"]
+            [lein-environ "1.0.0"]]
   :ring {:handler web-service.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]

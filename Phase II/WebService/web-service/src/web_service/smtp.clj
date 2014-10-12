@@ -1,5 +1,6 @@
 (ns web-service.smtp
-  (:require [postal.core :as postal]))
+  (:require [postal.core :as postal]
+            [environ.core :refer [env]]))
 
 (def server {:host "192.168.138.2"
              :port 25
