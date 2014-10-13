@@ -12,9 +12,12 @@ pom.xml.releaseBackup
 pom.xml.next
 release.properties
 
-# Vim Swapfiles
+# Editor Specific
 *.swo
 *.swp
+*.sublime-project
+*.sublime-workspace
+.brackets.json
 
 # Directories and files created by standard tools that shouldn't be versioned.
 node_modules
