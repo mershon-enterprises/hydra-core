@@ -11,18 +11,17 @@
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [crypto.random]
-            [web-service.constants :as constants]))
+            [web-service.constants :as constants]
+            [environ.core :refer [env]]))
+
+(import java.sql.SQLException)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def ldap-credentials
-  {:host "192.168.138.12"
-   :bind-dn "pic\\admin"
-   :password "adminpassword"})
-
+(def ldap-credentials (env :ldap-credentials))
 
 (defn- find-user-ldap
   [email-address]
@@ -88,7 +87,11 @@
     (try (sql/execute! db [expire-query api-token])
          true
          (catch Exception e
-           (println (.getMessage e))
+           (if (instance? SQLException e)
+             (do
+               (.getCause e)
+               (println (.getNextException e)))
+             (println (.getMessage e)))
            false))))
 
 
@@ -129,7 +132,11 @@
                                        email-address])
                      true
                      (catch Exception e
-                       (println (.getMessage e))
+                       (if (instance? SQLException e)
+                          (do
+                             (.getCause e)
+                             (println (.getNextException e)))
+                          (println (.getMessage e)))
                        false))]
     (if success
       {:token api-token
