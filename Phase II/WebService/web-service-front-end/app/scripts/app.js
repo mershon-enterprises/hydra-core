@@ -1,14 +1,5 @@
 'use strict';
 
-/**
- * @ngdoc overview
- * @name webServiceApp
- * @description
- * # webServiceApp
- *
- * Main module of the application. All other modules are injected
- * into this one through Angular's dependency injector.
- */
 angular.module('webServiceApp', [
       'ngAnimate',
       'ngCookies',
