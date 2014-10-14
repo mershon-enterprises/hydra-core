@@ -21,32 +21,41 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div class="container">
-      <header>
+    <div id="web-service-project-wrapper">
+        <header>
+            Web-Service Application
+        </header>
         <nav>
-          <ul>
-            <li><a ng-href="#">Dataset Search</a></li>
-            <li><a ng-href="#/clients">Clients</a></li>
-            <li><a ng-href="#/users">Users</a></li>
-          </ul>
+            <ul>
+                <li><a ng-href="#">Dataset Search</a></li>
+                <li><a ng-href="#/clients">Clients</a></li>
+                <li><a ng-href="#/users">Users</a></li>
+            </ul>
         </nav>
-      </header>
 
-    <form name="loginForm" ng-controller="LoginCtrl"
-        ng-submit="login(credentials)" novalidate>
+        <form name="loginForm" ng-controller="LoginCtrl"
+            ng-submit="login(credentials)" novalidate>
 
-        <label for="email">Email:</label>
-        <input type="text" id="email" ng-model="credentials.email" required>
+            <label for="email">Email:</label>
+            <input type="text" id="email" ng-model="credentials.email" required>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" ng-model="credentials.password" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" ng-model="credentials.password" required>
 
-        <button type="submit">Login</button>
+            <button type="submit">Login</button>
 
-    </form>
+        </form>
 
-      <!-- Templates will load here. -->
-      <div ng-view=""></div>
+        <!-- Templates will load here. -->
+        <div ng-view=""></div>
+
+        <footer>
+            <img src="images/Slixbits long.png">
+            <ul>
+                <li><i class="fa fa-phone-square"></i> (661) 426-8046<br></li>
+                <li><i class="fa fa-envelope-square"></i> contact@slixbits.com</li>
+            </ul>
+        </footer>
 
     </div>
 
