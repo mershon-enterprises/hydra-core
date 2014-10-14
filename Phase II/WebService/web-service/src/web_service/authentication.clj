@@ -201,19 +201,23 @@
   [email-address password user-email-address]
 
   ; first, just authenticate the domain admin normally
-  (let [admin (authenticate email-address password)]
+  (let [bad-credentials {:body "Invalid credentials"
+                         :status 401}
+        admin (authenticate email-address password)]
     (if admin
       ; now that we know the admin is a valid user, we want to ensure that the
       ; admin is actually a member of the Domain Admins group
       (let [admin-ldap-user (get-user-ldap email-address password)
-            ; there's no substring, wtf
-            is-domain-admin (not= (.indexOf (:groups admin-ldap-user)
-                                            "Domain Admins")
-                                  -1)]
+            groups (:groups admin-ldap-user)
+            ; there's no substring in Clojure, wtf
+            is-domain-admin (and (not (empty? groups))
+                                 (not= (.indexOf groups "Domain Admins") -1))]
         (if is-domain-admin
           (let [ldap-user (find-user-ldap user-email-address)
                 db-user (get-user user-email-address)]
-            (login-and-maybe-create-user user-email-address ldap-user db-user)))))))
+            (login-and-maybe-create-user user-email-address ldap-user db-user))
+          bad-credentials))
+      bad-credentials)))
 
 
 ; guard the specified function from being run unless the API token is valid
