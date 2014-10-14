@@ -14,8 +14,7 @@ angular.module('webServiceApp', [
       'ngCookies',
       'ngResource',
       'ngRoute',    // Basic Angular Routing
-      'ngSanitize',
-      'ngTouch'
+      'ngSanitize'
     ])
     .config(function ($routeProvider) {
       $routeProvider
@@ -48,4 +47,3 @@ angular.module('webServiceApp', [
       notAuthenticated: 'auth-not-authenticated',
       notAuthorized: 'auth-not-authorized'
     });
-

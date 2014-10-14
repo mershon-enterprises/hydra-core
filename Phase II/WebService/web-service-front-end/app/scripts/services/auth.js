@@ -4,7 +4,7 @@ angular.module('webServiceApp').factory('AuthService', function ($http, Session)
   var authService = {};
 
   authService.authenticate = function (credentials) {
-    restclient.authenticate(credentials.username, credentials.password, function(status, response){
+    restclient.authenticate(credentials.email_address, credentials.password, function(status, response){
       Session.create(response.data.id, response.data.user.id, response.data.user.role);
     });
 

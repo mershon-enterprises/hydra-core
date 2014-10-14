@@ -19,11 +19,9 @@ angular.module('webServiceApp').controller('LoginCtrl',
     AuthService.authenticate(credentials).then(function (user) {
       $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
       $scope.setCurrentUser(user);
-      console.log('We did it!');
       console.log(user);
     }, function () {
       $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
-      console.log('Login failed.');
     });
   };
 
