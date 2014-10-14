@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webServiceApp').factory('AuthService',
-  function ($http, $rootScope, AUTH_EVENTS, Session) {
+  function ($rootScope, AUTH_EVENTS, Session) {
 
   var authService = {};
 
@@ -11,7 +11,7 @@ angular.module('webServiceApp').factory('AuthService',
     restclient.authenticate(credentials.email, credentials.password,
       function(status, res){
 
-      if (status == 200) {
+      if (status === 200) {
 
         //Parse out the data from the restclient response.
         var response  = JSON.parse(res);
