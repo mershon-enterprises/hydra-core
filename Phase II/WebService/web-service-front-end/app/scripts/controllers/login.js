@@ -21,17 +21,13 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
   //Listener for a successful login.
   $scope.$on(AUTH_EVENTS.loginSuccess, function() {
-    console.log('Login Success!');
     NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-    //TODO Display To User Auth Succeeded.
   });
 
   //Listener for a failed login.
   $scope.$on(AUTH_EVENTS.loginFailed, function() {
-    console.log('Login Failed!');
     NotificationService.loginFailed('Authentication Successful!', 'Please check your credentials.');
     Session.destroy();
-
   });
 
 });
