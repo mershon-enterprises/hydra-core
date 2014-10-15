@@ -11,14 +11,16 @@
      #'clj-ldap.client/connect (fn [credentials] nil)
      #'clj-ldap.client/get (fn [server dn] account-info)
      #'clj-ldap.client/search! (fn [server dn filter search-fn]
-                                 (search-fn {:sAmAccountName "account-name"
-                                             :dn "lookup-domain-name"}))}
+                                 (if (not (nil? account-info))
+                                   (search-fn {:sAmAccountName (:sAmAccountName account-info)
+                                               :dn "lookup-domain-name"})
+                                   (throw Exception "not found")))}
     #(tests)))
 
 (deftest test-app
 
-  ; test find-user-ldap
-  (testing "find-user-ldap"
+  ; test find-user-ldap with good account
+  (testing "find-user-ldap with good account"
     (mock-ldap
       {:sAMAccountName "username"
        :givenName "first-name"
@@ -32,6 +34,14 @@
          (is (= (:last-name ldap-user) "last-name"))
          (is (= (:email-address ldap-user) "email-address"))
          (is (= (:groups ldap-user) "group1,group2")))))
+
+  ; test find-user-ldap with bad account
+  (testing "find-user-ldap with bad account"
+    (mock-ldap
+      nil
+      #(let [ldap-user (#'web-service.authentication/find-user-ldap "a@b.c")]
+         ; verify the return value of find is nil
+         (is (nil? ldap-user)))))
 
   ; test get-user-ldap with matching password
   (testing "get-user-ldap with good password"
@@ -59,6 +69,4 @@
        :memberOf "group1,group2"}
       #(let [user (#'web-service.authentication/get-user-ldap "a@b.c" "bad-password")]
          ; verify the return value of get-user-ldap is nil
-         (is (nil? user)))))
-
-  )
+         (is (nil? user))))))
