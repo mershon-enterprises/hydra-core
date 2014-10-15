@@ -1,14 +1,5 @@
 'use strict';
 
-/**
- * @ngdoc overview
- * @name webServiceApp
- * @description
- * # webServiceApp
- *
- * Main module of the application. All other modules are injected
- * into this one through Angular's dependency injector.
- */
 angular.module('webServiceApp', [
       'ngAnimate',
       'ngCookies',
@@ -19,15 +10,15 @@ angular.module('webServiceApp', [
     .config(function ($routeProvider) {
       $routeProvider
         .when('/', {
-          templateUrl: 'views/dataset.html',
+          templateUrl: 'templates/dataset.html',
           controller: 'DatasetCtrl'
         })
         .when('/clients', {
-          templateUrl: 'views/clients.html',
+          templateUrl: 'templates/clients.html',
           controller: 'ClientsCtrl'
         })
         .when('/users', {
-          templateUrl: 'views/users.html',
+          templateUrl: 'templates/users.html',
           controller: 'UsersCtrl'
         })
         .otherwise({
@@ -39,11 +30,19 @@ angular.module('webServiceApp', [
       office: 'office',
       admin: 'admin'
     })
-    .constant('AUTH_EVENTS', {
+    .constant('EVENTS', {
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
       sessionTimeout: 'auth-session-timeout',
-      notAuthenticated: 'auth-not-authenticated',
-      notAuthorized: 'auth-not-authorized'
+      notAuthorized: 'auth-not-authorized',
+    })
+    .constant('STATUS_CODES', {
+      ok: '200',
+      movedPermanently: '301',
+      badRequest: '400',
+      notAuthorized: '401',
+      forbidden: '403',
+      notFound: '404',
+      internalServerError: '500'
     });

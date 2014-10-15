@@ -1,12 +1,12 @@
 'use strict';
 
-/**
- * @ngdoc function
- * @name webServiceApp.controller:UsersCtrl
- * @description
- * # UsersCtrl
- * Controller of the webServiceApp. Manages user data.
- */
-angular.module('webServiceApp').controller('UsersCtrl', function () {
+angular.module('webServiceApp').controller('UsersCtrl', function ($scope, RestService, Session) {
+
+    if (Session.exists()) {
+      $scope.accessLevels = RestService.listAccessLevels();
+    }
+    else {
+      $scope.accessLevels = {};
+    }
 
 });
