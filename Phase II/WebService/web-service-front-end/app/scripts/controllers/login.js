@@ -8,7 +8,7 @@
  * Controller of the webServiceApp. Manages dataset data.
  */
 angular.module('webServiceApp').controller('LoginCtrl',
- function ($scope, $rootScope, AUTH_EVENTS, AuthService, NotificationService, Session) {
+ function ($scope, $rootScope, EVENTS, RestService, NotificationService, Session) {
 
   $scope.credentials = {
     email: '',
@@ -16,16 +16,16 @@ angular.module('webServiceApp').controller('LoginCtrl',
   };
 
   $scope.login = function (credentials) {
-    AuthService.authenticate(credentials);
+    RestService.authenticate(credentials);
   };
 
   //Listener for a successful login.
-  $scope.$on(AUTH_EVENTS.loginSuccess, function() {
+  $scope.$on(EVENTS.loginSuccess, function() {
     NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
   });
 
   //Listener for a failed login.
-  $scope.$on(AUTH_EVENTS.loginFailed, function() {
+  $scope.$on(EVENTS.loginFailed, function() {
     NotificationService.loginFailed('Authentication Successful!', 'Please check your credentials.');
     Session.destroy();
   });
