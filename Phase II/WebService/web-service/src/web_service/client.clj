@@ -15,14 +15,14 @@
 (defn get-client
   [client-name]
   (first
-    (sql/query db ["select * from public.client where name=?" client-name])))
+    (sql/query (db) ["select * from public.client where name=?" client-name])))
 
 
 ; get the locations for the specified client
 (defn get-client-locations
   [client-name]
   (sql/query
-    db
+    (db)
     [(str "select distinct cl.description "
           "from public.client_location cl "
           "inner join public.client c "
@@ -74,7 +74,7 @@
         can-access (or (contains? access constants/view-clients)
                        (contains? access constants/manage-clients))]
     (if can-access
-      (response {:response (sql/query db
+      (response {:response (sql/query (db)
                                       ["select * from public.client"]
                                       :row-fn :name)})
       (access-denied constants/view-clients))))
@@ -93,7 +93,7 @@
     (if (contains? access constants/manage-clients)
      (let
        [query "insert into public.client (name) values (?)"
-        success (try (sql/execute! db [query client-name])
+        success (try (sql/execute! (db) [query client-name])
                      true
                      (catch Exception e
                        (println (.getMessage e))
@@ -141,7 +141,7 @@
        [query (str "insert into public.client_location "
                    "(client_id, description) values "
                    "((select id from public.client where name=?), ?)")
-        success (try (sql/execute! db [query client-name description])
+        success (try (sql/execute! (db) [query client-name description])
                      true
                      (catch Exception e
                        (println (.getMessage e))

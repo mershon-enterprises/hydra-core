@@ -26,7 +26,7 @@
                    "values (now(), now(), "
                    "  (select id from public.user where email_address=?)"
                    ")")]
-    (try (sql/execute! db [query email-address])
+    (try (sql/execute! (db) [query email-address])
          true
          (catch Exception e
            (println (.getMessage e))
@@ -48,11 +48,11 @@
                           "set end_date=now(), date_modified=now() "
                           "where id=?")
         get-current (fn []
-                      (first (sql/query db
+                      (first (sql/query (db)
                                         [get-query email-address]
                                         :row-fn :id)))
         update-current (fn [current-id]
-                         (try (sql/execute! db [update-query current-id])
+                         (try (sql/execute! (db) [update-query current-id])
                               (catch Exception e
                                 (.printStackTrace e))))
         current-id (get-current)]
@@ -73,7 +73,7 @@
   (let [query (str "insert into public.user_session_detail "
                    "(attribute, value, session_id) values (?,?,?)")
         session-id (get-current-id email-address)]
-    (try (sql/execute! db [query
+    (try (sql/execute! (db) [query
                            attribute
                            value
                            (get-current-id email-address)])
