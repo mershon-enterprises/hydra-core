@@ -16,7 +16,7 @@
 
   (let
     [query "select * from public.user_access_level where description=?"
-     access-level (first (sql/query db [query description]))]
+     access-level (first (sql/query (db) [query description]))]
     (if access-level
       (response {:response access-level})
       (not-found "Access Level not found"))))
@@ -30,7 +30,6 @@
               constants/session-activity
               constants/session-list-access-levels)
 
-  (response {:response (sql/query db
+  (response {:response (sql/query (db)
                                   ["select * from public.user_access_level"]
-                                  :row-fn :description)})
-  )
+                                  :row-fn :description)}))

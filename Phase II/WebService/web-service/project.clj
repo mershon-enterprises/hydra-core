@@ -11,7 +11,8 @@
                  [org.clojure/tools.logging "0.3.0"]
                  [com.draines/postal "1.11.1"]
                  [crypto-password "0.1.3"]
-                 [environ "1.0.0"]]
+                 [environ "1.0.0"]
+                 [com.mchange/c3p0 "0.9.2.1"]]
   :plugins [[lein-ring "0.8.11"]
             [lein-environ "1.0.0"]]
   :ring {:handler web-service.handler/app}

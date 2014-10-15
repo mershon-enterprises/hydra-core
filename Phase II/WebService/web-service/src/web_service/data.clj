@@ -20,7 +20,7 @@
                    "from public.data_set_attachment "
                    "where data_set_id=? "
                    "and date_deleted is null")]
-    (sql/query db [query data-set-id])))
+    (sql/query (db) [query data-set-id])))
 
 
 (defn- get-primitive-data
@@ -29,7 +29,7 @@
                    "from public.data_set_" type " "
                    "where data_set_id=? "
                    "and date_deleted is null")]
-    (sql/query db [query data-set-id])))
+    (sql/query (db) [query data-set-id])))
 
 
 ; format the specified row from the data_set table
@@ -98,13 +98,13 @@
         query (str data-set-query " and uuid::character varying=?")
         query-own (str query " and u.email_address=?")]
     (if can-access
-      (response {:response (first (sql/query db
+      (response {:response (first (sql/query (db)
                                              [query uuid]
                                              :row-fn format-data-set))})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response {:response (first (sql/query db
+        (response {:response (first (sql/query (db)
                                                [query-own uuid email-address]
                                                :row-fn format-data-set))})
         (access-denied constants/manage-data)))))
@@ -127,7 +127,7 @@
                    "where uuid::character varying=? "
                    "and ds.date_deleted is null")]
     (if can-access
-      (if (sql/execute! db [query email-address uuid])
+      (if (sql/execute! (db) [query email-address uuid])
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
@@ -160,7 +160,7 @@
       (if (empty? json-data)
         (status (response {:response "Cannot record empty data-set"}) 409)
         (try
-          (let [keys (sql/db-do-prepared-return-keys db query [uuid
+          (let [keys (sql/db-do-prepared-return-keys (db) query [uuid
                                                                date-created
                                                                created-by])
                 id (:id keys)]
@@ -175,7 +175,7 @@
                         query (str "insert into public.data_set_attachment "
                                    "(data_set_id, filename, mime_type, contents) "
                                    "values (?,?,?,decode(?, 'base64'))")
-                        success (sql/execute! db [query id filename mime-type
+                        success (sql/execute! (db) [query id filename mime-type
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
@@ -189,7 +189,7 @@
                                      "::timestamp with time zone"
                                      "")
                                    ")")
-                        success (sql/execute! db
+                        success (sql/execute! (db)
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
@@ -221,11 +221,11 @@
         query (str data-set-query "limit 10")
         query-own (str data-set-query "and u.email_address=? limit 10")]
     (if can-access
-      (response {:response (sql/query db [query] :row-fn format-data-set)})
+      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response {:response (sql/query db
+        (response {:response (sql/query (db)
                                         [query-own email-address]
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
@@ -247,13 +247,13 @@
         can-access-own (contains? access constants/view-own-data)
         query-own (str data-set-attachment-query " and u.email_address=?")]
     (if can-access
-      (first (sql/query db
+      (first (sql/query (db)
                         [data-set-attachment-query uuid filename]
                         :row-fn format-attachment))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
       (if can-access-own
-        (first (sql/query db
+        (first (sql/query (db)
                           [query-own uuid filename email-address]
                           :row-fn format-attachment))
         (access-denied constants/manage-data)))))
