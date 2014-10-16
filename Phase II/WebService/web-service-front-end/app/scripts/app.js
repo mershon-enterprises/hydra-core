@@ -4,7 +4,8 @@ angular.module('webServiceApp', [
       'ngAnimate',
       'ngResource',
       'ngRoute',    // Basic Angular Routing
-      'ngSanitize'
+      'ngSanitize',
+      'LocalStorageModule' // Angular Localstorage
     ])
     .config(function ($routeProvider) {
       $routeProvider
