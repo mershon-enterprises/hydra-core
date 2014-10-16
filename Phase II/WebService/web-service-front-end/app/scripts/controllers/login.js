@@ -26,7 +26,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
   //Listener for a failed login.
   $scope.$on(EVENTS.loginFailed, function() {
-    NotificationService.loginFailed('Authentication Successful!', 'Please check your credentials.');
+    NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
     Session.destroy();
   });
 
