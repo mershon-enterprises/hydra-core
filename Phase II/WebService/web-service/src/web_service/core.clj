@@ -3,7 +3,7 @@
   (:require [ring.adapter.jetty :as jetty]))
 
 ; define a configurator function for the jetty web server so we can override the
-; default maximum side of the POST header to be 8MB
+; default maximum size of the POST header to be 8MB
 (defn full-head-avoidance
   [jetty]
   (doseq  [connector (.getConnectors jetty)]
