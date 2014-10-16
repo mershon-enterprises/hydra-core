@@ -6,7 +6,7 @@
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
             [clojure.data.json :as json]
-            [web-service.smtp :as smtp]))
+            [web-service.amqp :as amqp]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -193,10 +193,13 @@
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
-            (smtp/send-message created-by
-                               (str "Data received from " created-by)
-                               "[no text]")
-            (status (data-get email-address uuid) 201))
+            (let [data-saved (data-get email-address uuid)]
+              ; broadcast the dataset to listeners and return it as part of the
+              ; HTTP response
+              (amqp/broadcast "text/json"
+                              ;data-saved
+                              (str "Dataset received from " created-by))
+              (status data-saved 201)))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))
