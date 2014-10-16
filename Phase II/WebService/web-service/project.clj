@@ -11,7 +11,6 @@
                  [org.clojure/data.json "0.2.5"]
                  [org.clojars.pntblnk/clj-ldap "0.0.9"]
                  [org.clojure/tools.logging "0.3.0"]
-                 [com.draines/postal "1.11.1"]
                  [crypto-password "0.1.3"]
                  [environ "1.0.0"]
                  [com.mchange/c3p0 "0.9.2.1"]
