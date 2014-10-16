@@ -39,16 +39,17 @@ angular.module('webServiceApp').factory('RestService',
   };
 
   restService.listAccessLevels = function () {
-    restclient.listAccessLevels(Session.token, function(status, res) {
+
+    restclient.listAccessLevels(Session.getToken(), function(status, res) {
         if (status == STATUS_CODES.ok) {
           var response = JSON.parse(res);
-          console.log(response);
+          Session.updateToken(response.token);
         }
         else {
-          console.log(status);
+          console.log("restclient.listAccessLevels failed with " + status);
         }
     });
-  }
+  };
 
   return restService;
 });

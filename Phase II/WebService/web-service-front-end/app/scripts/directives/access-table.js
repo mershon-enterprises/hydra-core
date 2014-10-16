@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('webServiceApp').directive('accessTable', function() {
     return {
       restrict: 'E',

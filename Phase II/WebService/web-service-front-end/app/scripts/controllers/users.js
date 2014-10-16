@@ -5,8 +5,5 @@ angular.module('webServiceApp').controller('UsersCtrl', function ($scope, RestSe
     if (Session.exists()) {
       $scope.accessLevels = RestService.listAccessLevels();
     }
-    else {
-      $scope.accessLevels = {};
-    }
 
 });

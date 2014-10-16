@@ -1,8 +1,10 @@
+'use strict';
+
 //Session Singleton.
 angular.module('webServiceApp').service('Session', function () {
     this.create = function (tokenExpirationDate, token, email, firstName,
         lastName, permissions) {
-        this.tokenExpirationDate = tokenExpirationDate;
+        this.tokenExpirationDate = Date(tokenExpirationDate);
         this.token = token;
         this.email = email;
         this.firstName = firstName;
@@ -18,13 +20,16 @@ angular.module('webServiceApp').service('Session', function () {
         this.permissions = null;
     };
     this.exists = function () {
-        if (this.token != null) {
+        if (this.token) {
             return true;
         }
         return false;
     };
     this.getToken = function () {
         return this.token;
+    };
+    this.updateToken = function (token) {
+        this.token = token;
     };
     return this;
 });

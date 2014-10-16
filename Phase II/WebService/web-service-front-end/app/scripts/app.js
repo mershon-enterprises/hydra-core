@@ -2,7 +2,6 @@
 
 angular.module('webServiceApp', [
       'ngAnimate',
-      'ngCookies',
       'ngResource',
       'ngRoute',    // Basic Angular Routing
       'ngSanitize'
