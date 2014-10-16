@@ -1,7 +1,7 @@
 'use strict';
 
 //Session Singleton.
-angular.module('webServiceApp').service('Session', function () {
+angular.module('webServiceApp').service('Session', function (localStorageService) {
     this.create = function (tokenExpirationDate, token, email, firstName,
         lastName, permissions) {
         this.tokenExpirationDate = Date(tokenExpirationDate);
@@ -10,6 +10,7 @@ angular.module('webServiceApp').service('Session', function () {
         this.firstName = firstName;
         this.lastName = lastName;
         this.permissions = permissions;
+        this.saveToLocalStorage();
     };
     this.destroy = function () {
         this.tokenExpirationDate = null;
@@ -23,6 +24,10 @@ angular.module('webServiceApp').service('Session', function () {
         if (this.token) {
             return true;
         }
+        else if (localStorageService.get('token')) {
+            this.restoreFromLocalStorage();
+            return true;
+        }
         return false;
     };
     this.getToken = function () {
@@ -30,6 +35,23 @@ angular.module('webServiceApp').service('Session', function () {
     };
     this.updateToken = function (token) {
         this.token = token;
+        localStorageService.set('token', this.token);
     };
+    this.saveToLocalStorage = function () {
+        localStorageService.set('tokenExpirationDate', this.tokenExpirationDate);
+        localStorageService.set('token', this.token);
+        localStorageService.set('email', this.email);
+        localStorageService.set('firstName', this.firstName);
+        localStorageService.set('lastName', this.lastName);
+        localStorageService.set('permissions', this.permissions);
+    }
+    this.restoreFromLocalStorage = function () {
+        this.tokenExpirationDate = localStorageService.get('tokenExpirationDate', this.tokenExpirationDate);
+        this.token = localStorageService.get('token');
+        this.email = localStorageService.get('email');
+        this.firstName = localStorageService.get('firstName');
+        this.lastName = localStorageService.get('lastName');
+        this.permissions = localStorageService.get('permissions');
+    }
     return this;
 });
