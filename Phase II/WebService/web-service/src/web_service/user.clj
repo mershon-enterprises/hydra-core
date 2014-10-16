@@ -54,7 +54,7 @@
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-users)
       (response {:response (sql/query
-                             db
+                             (db)
                              ["select * from public.user"]
                              :row-fn :email_address)})
       (access-denied constants/manage-users))))
@@ -97,9 +97,9 @@
                     "values ("
                     "(select id from public.user where email_address=?), "
                     "(select id from public.user_access_level where description=?))")
-         success (try (sql/execute! db [query
-                                        target-email-address
-                                        access-level])
+         success (try (sql/execute! (db) [query
+                                          target-email-address
+                                          access-level])
                       true
                       (catch Exception e
                         (println (.getMessage e))

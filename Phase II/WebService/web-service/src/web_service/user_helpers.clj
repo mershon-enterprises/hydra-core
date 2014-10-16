@@ -10,7 +10,7 @@
 (defn add-user
   [email-address]
   (let [query "insert into public.user (email_address) values (?)"]
-    (try (sql/execute! db [query email-address])
+    (try (sql/execute! (db) [query email-address])
          true
          (catch Exception e
            (println (.getMessage e))
@@ -22,7 +22,7 @@
   [email-address]
   (first
     (sql/query
-      db
+      (db)
       ["select * from public.user where email_address=?" email-address])))
 
 
@@ -30,7 +30,7 @@
 (defn get-user-access
   [email-address]
   (sql/query
-      db
+      (db)
       [(str "select distinct ual.description "
             "from public.user u "
             "left join public.user_to_user_access_level u2ual "

@@ -84,7 +84,7 @@
   (let [expire-query (str "delete from public.user_api_token "
                           "where expiration_date<now() "
                           "or api_token=crypt(?, api_token)")]
-    (try (sql/execute! db [expire-query api-token])
+    (try (sql/execute! (db) [expire-query api-token])
          true
          (catch Exception e
            (if (instance? SQLException e)
@@ -102,7 +102,7 @@
                    "inner join public.user u on u.id = ut.user_id "
                    "where ut.api_token=crypt(?, ut.api_token) "
                    "and ut.expiration_date > now()")]
-    (first (sql/query db [query api-token]))))
+    (first (sql/query (db) [query api-token]))))
 
 
 ; check the specified API token for validity
@@ -111,7 +111,7 @@
   (let [query (str "select * from public.user_api_token "
                    "where api_token=crypt(?, api_token) "
                    "and expiration_date > now()")]
-    (not (empty? (sql/query db [query api-token])))))
+    (not (empty? (sql/query (db) [query api-token])))))
 
 
 ; create an API token for the user
@@ -126,10 +126,10 @@
                    "(crypt(?, gen_salt('bf', 7)), ?, "
                    "(select id from public.user where email_address=?)"
                    ")")
-        success (try (sql/execute! db [query
-                                       api-token
-                                       expiration-date
-                                       email-address])
+        success (try (sql/execute! (db) [query
+                                         api-token
+                                         expiration-date
+                                         email-address])
                      true
                      (catch Exception e
                        (if (instance? SQLException e)
