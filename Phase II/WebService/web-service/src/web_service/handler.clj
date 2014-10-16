@@ -8,7 +8,11 @@
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
-            [compojure.route :as route]))
+            [compojure.route :as route]
+            [web-service.amqp :as amqp]))
+
+; start the AMQP connection
+(amqp/connect)
 
 ; get the version of the API
 (defn get-version
