@@ -5,7 +5,7 @@
         [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
-            [clojure.data.json :as json]
+            [cheshire.core :refer :all]
             [web-service.amqp :as amqp]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -151,7 +151,7 @@
                    " select id from public.user where email_address=?"
                    "))")
         json-data (try
-                    (json/read-str data :key-fn keyword)
+                    (parse-string data true)
                     (catch Exception e
                       (println (str "Failed to parse 'data' as JSON string"))
                       ; return an empty data-set
