@@ -197,8 +197,7 @@
               ; broadcast the dataset to listeners and return it as part of the
               ; HTTP response
               (amqp/broadcast "text/json"
-                              ;data-saved
-                              (str "Dataset received from " created-by))
+                              (generate-string (:response (:body data-saved))))
               (status data-saved 201)))
           (catch Exception e
             ; TODO -- rollback the transaction
