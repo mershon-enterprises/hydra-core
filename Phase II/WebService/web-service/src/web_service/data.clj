@@ -194,10 +194,12 @@
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
             (let [data-saved (data-get email-address uuid)]
-              ; broadcast the dataset to listeners and return it as part of the
-              ; HTTP response
-              (amqp/broadcast "text/json"
-                              (generate-string (:response (:body data-saved))))
+              ; broadcast the dataset including attachment binary data to
+              ; listeners
+              (let [with-attachments (merge (:response (:body data-saved))
+                                            {:data json-data})]
+                (amqp/broadcast "text/json"
+                                (generate-string with-attachments)))
               (status data-saved 201)))
           (catch Exception e
             ; TODO -- rollback the transaction
