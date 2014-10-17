@@ -11,5 +11,8 @@
 
 (defn -main
   []
+
+  (web-service.handler/init)
+
   (jetty/run-jetty web-service.handler/app {:port 3000
                                             :configurator full-head-avoidance}))
