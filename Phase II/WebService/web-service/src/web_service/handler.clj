@@ -11,9 +11,6 @@
             [compojure.route :as route]
             [web-service.amqp :as amqp]))
 
-; start the AMQP connection
-(amqp/connect)
-
 ; get the version of the API
 (defn get-version
   []
@@ -153,6 +150,16 @@
               (DELETE "/" [] (not-allowed "User delete-all access"))))))))
   (route/resources "/")
   (route/not-found "Not Found"))
+
+(defn init
+  []
+  ; start the AMQP connection
+  (amqp/connect))
+
+(defn destroy
+  []
+  ; shutdown the AMQP connection
+  (amqp/disconnect))
 
 (def app
   (->

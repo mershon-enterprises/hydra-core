@@ -17,7 +17,9 @@
                  [com.novemberain/langohr "3.0.0-rc2"]]
   :plugins [[lein-ring "0.8.11"]
             [lein-environ "1.0.0"]]
-  :ring {:handler web-service.handler/app}
+  :ring {:handler web-service.handler/app
+         :init web-service.handler/init
+         :destroy web-service.handler/destroy}
   :main web-service.core
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
