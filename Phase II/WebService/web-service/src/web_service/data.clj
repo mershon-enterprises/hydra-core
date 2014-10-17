@@ -199,6 +199,7 @@
               (let [with-attachments (merge (:response (:body data-saved))
                                             {:data json-data})]
                 (amqp/broadcast "text/json"
+                                "dataset"
                                 (generate-string with-attachments)))
               (status data-saved 201)))
           (catch Exception e

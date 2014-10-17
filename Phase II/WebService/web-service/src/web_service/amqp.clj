@@ -17,13 +17,12 @@
 ; start a message consumer for the specified channel, topic name, and with the
 ; specified consumer name
 (defn start-consumer
-  [ch topic-name consumer-name]
-  (let [queue-name (format "pi.web-service.%s" consumer-name)
-        handler    (fn [ch {:keys [content-type delivery-tag] :as meta} ^bytes payload]
-                     ; for testing purposes, println the payload
-                     (println (format "[consumer '%s'] received '%s'" consumer-name (String. payload "UTF-8"))))]
-    (lq/declare ch queue-name {:exclusive false :auto-delete true})
-    (lq/bind    ch queue-name topic-name)
+  [ch topic-name queue-name]
+  (let [handler (fn [ch {:keys [content-type delivery-tag] :as meta} ^bytes payload]
+                  ; for testing purposes, println the payload
+                  (println (format "['%s'] received '%s'" queue-name (String. payload "UTF-8"))))]
+    (lq/declare   ch queue-name {:exclusive false :auto-delete true})
+    (lq/bind      ch queue-name ex {:routing-key topic-name})
     (lc/subscribe ch queue-name handler {:auto-ack true})))
 
 
@@ -34,12 +33,14 @@
   (def conn (rmq/connect))
   (def ch (lch/open conn))
 
-  ; declare a fanout exchange that is not persisted across reboots and
+  ; declare a topic exchange that is not persisted across reboots and
   ; auto-deletes messages after all consumers are updated
-  (le/declare ch ex "fanout" {:durable false :auto-delete true})
+  (le/declare ch ex "topic" {:durable false :auto-delete true})
 
   ; queue up a listening message handler for local debugging
-  (start-consumer ch ex "debug"))
+  (start-consumer ch "#" (str ex ".#"))
+  (start-consumer ch "authentication" (str ex ".authentication"))
+  (start-consumer ch "dataset" (str ex ".dataset")))
 
 
 ; disconnect from the rabbitmq server
@@ -53,9 +54,13 @@
   (def conn nil))
 
 ;
-; send the specified payload to the fanout exchange
+; send the specified payload to the fanout exchange, using the specified tag to
+; describe the response
 (defn broadcast
-  [content-type payload]
+  [content-type routing-key payload]
 
   ; send payload to the listeners
-  (lb/publish ch ex "" payload {:content-type content-type}))
+  (lb/publish ch
+              ex
+              routing-key
+              payload {:content-type content-type}))

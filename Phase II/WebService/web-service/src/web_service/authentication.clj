@@ -160,6 +160,7 @@
                       ; log the start of the session in the database
                       (start email-address)
                       (amqp/broadcast "text/plain"
+                                      "authentication"
                                       (str email-address " has logged in"))
 
                       (let [api-token (make-token email-address)]
@@ -172,6 +173,7 @@
         (do
           (add-user email-address)
           (amqp/broadcast "text/plain"
+                          "authentication"
                           (str email-address " has been created as a new user"))
           (handle-user ldap-user)))
       ; invalid user
