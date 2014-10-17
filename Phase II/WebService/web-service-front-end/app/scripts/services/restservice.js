@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, EVENTS, STATUS_CODES, Session) {
+    function ($rootScope, EVENTS, STATUS_CODES, Session, NotificationService) {
 
   var restService = {};
 
@@ -44,14 +44,37 @@ angular.module('webServiceApp').factory('RestService',
         if (status === STATUS_CODES.ok) {
           var response = JSON.parse(res);
           Session.updateToken(response.token);
-          $rootScope.buffer = response.response;
-          $rootScope.$broadcast(EVENTS.dataRetrieved);
+          $rootScope.accessLevelsBuffer = response.response;
+          $rootScope.$broadcast(EVENTS.accessLevelsRetrieved);
         }
         else {
           console.log('restclient.listAccessLevels failed with ' + status);
+          $rootScope.$broadcast(EVENTS.dataLost);
         }
     });
   };
+
+  restService.listClients = function () {
+
+    restclient.listClients(Session.getToken(), function(status, res) {
+        if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          console.log(response);
+          Session.updateToken(response.token);
+          $rootScope.listClientsBuffer = response.response;
+          $rootScope.$broadcast(EVENTS.clientsRetrieved);
+        }
+        else {
+          console.log('restclient.listClients failed with ' + status);
+          $rootScope.$broadcast(EVENTS.dataLost);
+        }
+    });
+  };
+
+  //Listener for a failed data retrieval.
+  $rootScope.$on(EVENTS.dataLost, function() {
+      NotificationService.error('No Data', 'Please try again.');
+  });
 
   return restService;
 });
