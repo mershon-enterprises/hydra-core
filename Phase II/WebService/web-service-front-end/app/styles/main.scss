@@ -174,3 +174,10 @@ footer {
     }
 
 }
+
+.gridStyle {
+    max-width: 60%;
+    height: 300px;
+    display: inline-block;
+    margin: $default-margin;
+}

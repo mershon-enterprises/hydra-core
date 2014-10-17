@@ -9,7 +9,7 @@ angular.module('webServiceApp').factory('RestService',
     restclient.authenticate(credentials.email, credentials.password,
       function(status, res){
 
-      if (status == STATUS_CODES.ok) {
+      if (status === STATUS_CODES.ok) {
 
         //Parse out the data from the restclient response.
         var response  = JSON.parse(res);
@@ -41,12 +41,14 @@ angular.module('webServiceApp').factory('RestService',
   restService.listAccessLevels = function () {
 
     restclient.listAccessLevels(Session.getToken(), function(status, res) {
-        if (status == STATUS_CODES.ok) {
+        if (status === STATUS_CODES.ok) {
           var response = JSON.parse(res);
           Session.updateToken(response.token);
+          $rootScope.buffer = response.response;
+          $rootScope.$broadcast(EVENTS.dataRetrieved);
         }
         else {
-          console.log("restclient.listAccessLevels failed with " + status);
+          console.log('restclient.listAccessLevels failed with ' + status);
         }
     });
   };

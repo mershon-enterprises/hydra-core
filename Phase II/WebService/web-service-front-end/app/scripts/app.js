@@ -5,7 +5,8 @@ angular.module('webServiceApp', [
       'ngResource',
       'ngRoute',    // Basic Angular Routing
       'ngSanitize',
-      'LocalStorageModule' // Angular Localstorage
+      'LocalStorageModule', // Angular Localstorage
+      'ngGrid' // Angular Table Directive
     ])
     .config(function ($routeProvider) {
       $routeProvider
@@ -19,7 +20,8 @@ angular.module('webServiceApp', [
         })
         .when('/users', {
           templateUrl: 'templates/users.html',
-          controller: 'UsersCtrl'
+          controller: 'UsersCtrl',
+          controllerAs: 'users'
         })
         .otherwise({
           redirectTo: '/'
@@ -34,15 +36,17 @@ angular.module('webServiceApp', [
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
+      dataRetrieved: 'data-retrieved',
+      dataLost: 'data-lost',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized',
     })
     .constant('STATUS_CODES', {
-      ok: '200',
-      movedPermanently: '301',
-      badRequest: '400',
-      notAuthorized: '401',
-      forbidden: '403',
-      notFound: '404',
-      internalServerError: '500'
+      ok: 200,
+      movedPermanently: 301,
+      badRequest: 400,
+      notAuthorized: 401,
+      forbidden: 403,
+      notFound: 404,
+      internalServerError: 500
     });

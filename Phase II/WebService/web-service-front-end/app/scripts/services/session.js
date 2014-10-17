@@ -44,7 +44,7 @@ angular.module('webServiceApp').service('Session', function (localStorageService
         localStorageService.set('firstName', this.firstName);
         localStorageService.set('lastName', this.lastName);
         localStorageService.set('permissions', this.permissions);
-    }
+    };
     this.restoreFromLocalStorage = function () {
         this.tokenExpirationDate = localStorageService.get('tokenExpirationDate', this.tokenExpirationDate);
         this.token = localStorageService.get('token');
@@ -52,6 +52,6 @@ angular.module('webServiceApp').service('Session', function (localStorageService
         this.firstName = localStorageService.get('firstName');
         this.lastName = localStorageService.get('lastName');
         this.permissions = localStorageService.get('permissions');
-    }
+    };
     return this;
 });
