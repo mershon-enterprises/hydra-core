@@ -59,13 +59,29 @@ angular.module('webServiceApp').factory('RestService',
     restclient.listClients(Session.getToken(), function(status, res) {
         if (status === STATUS_CODES.ok) {
           var response = JSON.parse(res);
-          console.log(response);
           Session.updateToken(response.token);
           $rootScope.listClientsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.clientsRetrieved);
         }
         else {
           console.log('restclient.listClients failed with ' + status);
+          $rootScope.$broadcast(EVENTS.dataLost);
+        }
+    });
+  };
+
+  restService.listUsers = function () {
+
+    restclient.listUsers(Session.getToken(), function(status, res) {
+        if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          Session.updateToken(response.token);
+          console.log(response);
+          $rootScope.listUsersBuffer = response.response;
+          $rootScope.$broadcast(EVENTS.usersRetrieved);
+        }
+        else {
+          console.log('restclient.listUsers failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
         }
     });

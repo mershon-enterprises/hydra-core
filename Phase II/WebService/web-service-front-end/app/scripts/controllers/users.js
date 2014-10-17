@@ -6,14 +6,15 @@ angular.module('webServiceApp').controller('UsersCtrl', function ($rootScope, $s
 
         var self = this;
 
-        $scope.tableData = [];
+        $scope.tableDataLA = [];
+        $scope.tableDataLU = [];
 
         //Listener for a successful accessLevels retrieval.
         $scope.$on(EVENTS.accessLevelsRetrieved, function() {
           self.accessLevels = $rootScope.accessLevelsBuffer;
 
           $.each(self.accessLevels, function(i, item) {
-            $scope.tableData.push({title: item});
+            $scope.tableDataLA.push({title: item});
           });
 
           //TODO : This piece of code is required to call a resize event on the
@@ -23,12 +24,13 @@ angular.module('webServiceApp').controller('UsersCtrl', function ($rootScope, $s
           $timeout(function(){ w.triggerHandler('resize') });
         });
 
-        //Listener for a successful clients retrieval.
-        $scope.$on(EVENTS.clientsRetrieved, function() {
-          self.accessLevels = $rootScope.accessLevelsBuffer;
 
-          $.each(self.accessLevels, function(i, item) {
-            $scope.tableData.push({title: item});
+        //Listener for a successful accessLevels retrieval.
+        $scope.$on(EVENTS.usersRetrieved, function() {
+          self.users = $rootScope.listUsersBuffer;
+
+          $.each(self.users, function(i, item) {
+            $scope.tableDataLU.push({title: item});
           });
 
           //TODO : This piece of code is required to call a resize event on the
@@ -39,8 +41,10 @@ angular.module('webServiceApp').controller('UsersCtrl', function ($rootScope, $s
         });
 
         RestService.listAccessLevels();
+        RestService.listUsers();
     }
 
-    $scope.gridOptions = { data: 'tableData' };
+    $scope.gridOptionsLA = { data: 'tableDataLA' };
+    $scope.gridOptionsLU = { data: 'tableDataLU' };
 
 });
