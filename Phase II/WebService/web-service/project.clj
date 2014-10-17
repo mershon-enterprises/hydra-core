@@ -15,7 +15,9 @@
                  [environ "1.0.0"]
                  [com.mchange/c3p0 "0.9.2.1"]
                  [com.novemberain/langohr "3.0.0-rc2"]]
-  :plugins [[lein-environ "1.0.0"]]
+  :plugins [[lein-ring "0.8.11"]
+            [lein-environ "1.0.0"]]
+  :ring {:handler web-service.handler/app}
   :main web-service.core
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
