@@ -4,6 +4,14 @@
             [web-service.handler :refer :all]
             [ring.mock.request :as mock]
             [clojure.data.json :as json]))
+            [web-service.amqp :as amqp]))
+
+(defn test-wrapper [tests]
+  (amqp/connect)
+  (tests)
+  (amqp/disconnect))
+
+(use-fixtures :once test-wrapper)
 
 (deftest test-app
 
