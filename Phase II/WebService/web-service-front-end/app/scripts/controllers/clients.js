@@ -28,6 +28,11 @@ angular.module('webServiceApp').controller('ClientsCtrl', function ($rootScope, 
 
             RestService.listClients();
         }
+    else {
+      //If the routeProvider code is working, this should never fire.
+      NotificationService.warning("No session found!", "User is not logged in.");
+      console.log("User was able to access route without session!");
+    }
 
         $scope.gridOptions = { data: 'tableData' };
 

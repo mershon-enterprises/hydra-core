@@ -76,7 +76,6 @@ angular.module('webServiceApp').factory('RestService',
         if (status === STATUS_CODES.ok) {
           var response = JSON.parse(res);
           Session.updateToken(response.token);
-          console.log(response);
           $rootScope.listUsersBuffer = response.response;
           $rootScope.$broadcast(EVENTS.usersRetrieved);
         }
