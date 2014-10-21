@@ -11,17 +11,23 @@ angular.module('webServiceApp', [
     .config(function ($routeProvider) {
       $routeProvider
         .when('/', {
-          templateUrl: 'templates/dataset.html',
-          controller: 'DatasetCtrl'
+          templateUrl: 'templates/home.html',
+          loggedInOnly: false
+        }).when('/datasets', {
+          templateUrl: 'templates/datasets.html',
+          controller: 'DatasetsCtrl',
+          loggedInOnly: true
         })
         .when('/clients', {
           templateUrl: 'templates/clients.html',
-          controller: 'ClientsCtrl'
+          controller: 'ClientsCtrl',
+          loggedInOnly: true
         })
         .when('/users', {
           templateUrl: 'templates/users.html',
           controller: 'UsersCtrl',
-          controllerAs: 'users'
+          controllerAs: 'users',
+          loggedInOnly: true
         })
         .otherwise({
           redirectTo: '/'
