@@ -19,6 +19,12 @@ angular.module('webServiceApp').service('Session', function (localStorageService
         this.firstName = null;
         this.lastName = null;
         this.permissions = null;
+        localStorageService.remove('tokenExpirationDate');
+        localStorageService.remove('token');
+        localStorageService.remove('email');
+        localStorageService.remove('firstName');
+        localStorageService.remove('lastName');
+        localStorageService.remove('permissions');
     };
     this.exists = function () {
         if (this.token) {

@@ -29,25 +29,8 @@
             <header>
                 Web-Service Application
             </header>
-            <nav>
-                <ul>
-                    <li>
-                        <a ng-href="#/datasets">
-                            Dataset Search<i class="fa fa-search"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a ng-href="#/clients">
-                            Clients<i class="fa fa-building"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a ng-href="#/users">
-                            Users<i class="fa fa-users"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+
+            <navbar></navbar>
 
             <form name="loginForm" ng-controller="LoginCtrl"
                 ng-submit="login(credentials)" novalidate>
@@ -107,9 +90,11 @@
         <script src="scripts/services/notification.js"></script>
         <script src="scripts/services/restservice.js"></script>
         <script src="scripts/services/session.js"></script>
+        <script src="scripts/directives/navbar.js"></script>
         <script src="scripts/controllers/clients.js"></script>
         <script src="scripts/controllers/datasets.js"></script>
         <script src="scripts/controllers/login.js"></script>
+        <script src="scripts/controllers/logout.js"></script>
         <script src="scripts/controllers/users.js"></script>
         <!-- endbuild -->
     </body>

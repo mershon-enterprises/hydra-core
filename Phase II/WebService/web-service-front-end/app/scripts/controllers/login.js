@@ -1,12 +1,5 @@
 'use strict';
 
-/**
- * @ngdoc function
- * @name webServiceApp.controller:LoginCtrl
- * @description
- * # LoginCtrl
- * Controller of the webServiceApp. Manages dataset data.
- */
 angular.module('webServiceApp').controller('LoginCtrl',
  function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, Session) {
 
@@ -31,6 +24,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
     //Listener for a successful login.
     $scope.$on(EVENTS.loginSuccess, function() {
         NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
+        window.location.href="/#/datasets";
     });
 
     //Listener for a failed login.

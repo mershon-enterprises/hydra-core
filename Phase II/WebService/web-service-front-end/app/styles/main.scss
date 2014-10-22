@@ -135,7 +135,6 @@ nav {
         color: $off-white;
         display: inline;
         text-decoration: none;
-        padding-right: $default-padding;
         &:hover {
             color: $off-white - $default-hover-offset;
             cursor: pointer;
@@ -145,6 +144,10 @@ nav {
     i {
         padding-left: $default-padding/2;
         padding-right: $default-padding;
+    }
+
+    li {
+        padding-left: $default-padding;
     }
 
 }

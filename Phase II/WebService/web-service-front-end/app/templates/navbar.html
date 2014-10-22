@@ -1,0 +1,24 @@
+<nav>
+    <ul>
+        <li>
+            <a ng-href="#/datasets">
+                Dataset Search<i class="fa fa-search"></i>
+            </a>
+        </li>
+        <li>
+            <a ng-href="#/clients">
+                Clients<i class="fa fa-building"></i>
+            </a>
+        </li>
+        <li>
+            <a ng-href="#/users">
+                Users<i class="fa fa-users"></i>
+            </a>
+        </li>
+        <li ng-show="nav.isLoggedIn" ng-controller="LogoutCtrl">
+            <a ng-click="logout()">
+                Logout<i class="fa fa-sign-out"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
