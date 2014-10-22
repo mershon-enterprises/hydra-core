@@ -86,6 +86,23 @@ angular.module('webServiceApp').factory('RestService',
     });
   };
 
+  restService.listData = function () {
+
+    restclient.listData(Session.getToken(), function(status, res) {
+        if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          console.log(response);
+          Session.updateToken(response.token);
+          $rootScope.listDataBuffer = response.response;
+          $rootScope.$broadcast(EVENTS.dataRetrieved);
+        }
+        else {
+          console.log('restclient.listData failed with ' + status);
+          $rootScope.$broadcast(EVENTS.dataLost);
+        }
+    });
+  };
+
   //Listener for a failed data retrieval.
   $rootScope.$on(EVENTS.dataLost, function() {
       NotificationService.error('No Data', 'Please try again.');
