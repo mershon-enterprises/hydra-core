@@ -21,10 +21,10 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
     //Listens for route changes, verifies someone is logged in. If they are not,
     //redirect to root.
-    $rootScope.$on("$routeChangeStart", function(event, next, current) {
+    $rootScope.$on('$routeChangeStart', function(event, next) {
         if (next.loggedInOnly && !Session.exists()) {
             $location.replace();
-            return $location.path("/");
+            return $location.path('/');
         }
     });
 

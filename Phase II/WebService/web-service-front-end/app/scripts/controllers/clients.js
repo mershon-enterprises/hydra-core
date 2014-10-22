@@ -11,7 +11,6 @@ angular.module('webServiceApp').controller('ClientsCtrl', function
 
     if (Session.exists()) {
 
-        var self = this;
         $scope.tableData = [];
 
         //Listener for a successful clients retrieval.
@@ -26,7 +25,7 @@ angular.module('webServiceApp').controller('ClientsCtrl', function
             //browser and force the datatables to redraw in the view. It is a
             //hack. Replace it.
             var w = angular.element($window);
-            $timeout(function(){ w.triggerHandler('resize') });
+            $timeout(function(){ w.triggerHandler('resize'); });
         });
 
             RestService.listClients();
