@@ -60,6 +60,22 @@ $default-hover-offset: 100;
     box-shadow:         inset 0px 0px 5px rgba(68, 68, 68, 0.75);
 }
 
+@mixin button-style($fontSize) {
+    background-color: $dark-red;
+    font-size: $fontSize;
+    vertical-align: middle;
+    font-weight: bold;
+    cursor: pointer;
+    @include rounded($default-rounding/2, $default-rounding/2, $default-rounding/2, $default-rounding/2);
+    padding: $default-padding*2;
+    color: $off-white;
+    margin: $default-margin/4 $default-margin/4;
+    min-width: 100px;
+    &:hover {
+        background-color: $red;
+    }
+}
+
 //Basic colors, fonts, and alignments.
 body {
     color: $off-black;
@@ -151,6 +167,63 @@ nav {
     }
 
 }
+
+//Forms
+form label {
+    line-height: 2em;
+    font-weight: bold;
+}
+
+form input, form textarea {
+    width: 100%;
+    margin-bottom: $default-margin/2;
+}
+
+form textarea {
+    height: 200px;
+    font-size: 1.3em;
+}
+
+button {
+    @include button-style(1em);
+}
+
+form .save-button {
+    @include button-style(20px);
+}
+
+//Input Fields
+input[type='text'], input[type='email'], input[type='password'], textarea {
+    height: 30px;
+    font-size: 1em;
+    border: 1px solid $off-black;
+    color: $medium-gray;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+    border: 1px solid $medium-gray;
+}
+
+input[type='text']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='email']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='password']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='file'] {
+    margin: $default-margin $default-margin $default-margin*4;
+}
+
 
 //Footer
 footer {
