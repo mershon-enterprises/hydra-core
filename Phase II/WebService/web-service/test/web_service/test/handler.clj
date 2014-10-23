@@ -3,7 +3,15 @@
   (:require [clojure.test :refer :all]
             [web-service.handler :refer :all]
             [ring.mock.request :as mock]
-            [clojure.data.json :as json]))
+            [cheshire.core :refer :all]
+            [web-service.amqp :as amqp]))
+
+(defn test-wrapper [tests]
+  (amqp/connect)
+  (tests)
+  (amqp/disconnect))
+
+(use-fixtures :once test-wrapper)
 
 (deftest test-app
 
@@ -20,8 +28,7 @@
                                          {:email_address "a@b.c"
                                           :password "password"
                                           :user_email_address "email-address"}))
-             json-body (json/read-str (:body response)
-                                      :key-fn keyword)
+             json-body (parse-string (:body response) true)
              content (:response json-body)]
 
          ; verify that the response status is HTTP 200
@@ -95,8 +102,7 @@
                                          "/authenticate"
                                          {:email_address "a@b.c"
                                           :password "password"}))
-             json-body (json/read-str (:body response)
-                                      :key-fn keyword)
+             json-body (parse-string (:body response) true)
              content (:response json-body)]
 
          ; verify that the response status is HTTP 200
@@ -140,8 +146,7 @@
   ; test /version
   (testing "version route"
     (let [response (app (mock/request :get "/version"))
-          json-body (json/read-str (:body response)
-                                   :key-fn keyword)]
+          json-body (parse-string (:body response) true)]
 
       ; verify that the response status is HTTP 200
       (is (= (:status response) 200))

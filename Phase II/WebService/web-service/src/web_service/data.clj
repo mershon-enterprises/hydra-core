@@ -5,8 +5,8 @@
         [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
             [web-service.constants :as constants]
-            [clojure.data.json :as json]
-            [web-service.smtp :as smtp]))
+            [cheshire.core :refer :all]
+            [web-service.amqp :as amqp]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -151,7 +151,7 @@
                    " select id from public.user where email_address=?"
                    "))")
         json-data (try
-                    (json/read-str data :key-fn keyword)
+                    (parse-string data true)
                     (catch Exception e
                       (println (str "Failed to parse 'data' as JSON string"))
                       ; return an empty data-set
@@ -193,10 +193,15 @@
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
-            (smtp/send-message created-by
-                               (str "Data received from " created-by)
-                               "[no text]")
-            (status (data-get email-address uuid) 201))
+            (let [data-saved (data-get email-address uuid)]
+              ; broadcast the dataset including attachment binary data to
+              ; listeners
+              (let [with-attachments (merge (:response (:body data-saved))
+                                            {:data json-data})]
+                (amqp/broadcast "text/json"
+                                "dataset"
+                                (generate-string with-attachments)))
+              (status data-saved 201)))
           (catch Exception e
             ; TODO -- rollback the transaction
             (println (.getMessage e))

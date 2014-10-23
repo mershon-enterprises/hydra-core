@@ -12,6 +12,7 @@
             [clj-time.coerce :as c]
             [crypto.random]
             [web-service.constants :as constants]
+            [web-service.amqp :as amqp]
             [environ.core :refer [env]]))
 
 (import java.sql.SQLException)
@@ -158,6 +159,9 @@
         handle-user (fn [x]
                       ; log the start of the session in the database
                       (start email-address)
+                      (amqp/broadcast "text/plain"
+                                      "authentication"
+                                      (str email-address " has logged in"))
 
                       (let [api-token (make-token email-address)]
                         {:body (merge (format-ldap-user x) api-token)}))]
@@ -168,6 +172,9 @@
         ; otherwise, create the user first
         (do
           (add-user email-address)
+          (amqp/broadcast "text/plain"
+                          "authentication"
+                          (str email-address " has been created as a new user"))
           (handle-user ldap-user)))
       ; invalid user
       bad-credentials)))
