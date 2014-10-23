@@ -44,6 +44,7 @@ angular.module('webServiceApp', [
       logoutSuccess: 'auth-logout-success',
       accessLevelsRetrieved: 'access-levels-retrieved',
       clientsRetrieved: 'clients-retrieved',
+      dataRetrieved: 'data-retrieved',
       usersRetrieved: 'users-retrieved',
       dataLost: 'data-lost',
       sessionTimeout: 'auth-session-timeout',
