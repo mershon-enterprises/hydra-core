@@ -18,6 +18,11 @@ angular.module('webServiceApp', [
           controller: 'DatasetsCtrl',
           loggedInOnly: true
         })
+        .when('/upload', {
+          templateUrl: 'templates/upload.html',
+          controller: 'UploadCtrl',
+          loggedInOnly: true
+        })
         .when('/clients', {
           templateUrl: 'templates/clients.html',
           controller: 'ClientsCtrl',
