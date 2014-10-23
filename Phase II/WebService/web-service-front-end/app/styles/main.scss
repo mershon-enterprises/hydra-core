@@ -76,6 +76,18 @@ $default-hover-offset: 100;
     }
 }
 
+@mixin gray-box($fontSize) {
+    background-color: $dark-gray;
+    color: $off-white;
+    padding: $default-padding;
+    margin: $default-margin;
+    @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
+    button {
+        @include button-style($fontSize);
+    }
+    overflow: auto;
+}
+
 //Basic colors, fonts, and alignments.
 body {
     color: $off-black;
@@ -172,6 +184,7 @@ nav {
 form label {
     line-height: 2em;
     font-weight: bold;
+    float: left;
 }
 
 form input, form textarea {
@@ -184,12 +197,12 @@ form textarea {
     font-size: 1.3em;
 }
 
-button {
+form button {
     @include button-style(1em);
 }
 
-form .save-button {
-    @include button-style(20px);
+form button[type='submit'] {
+    float: right;
 }
 
 //Input Fields
@@ -249,6 +262,37 @@ footer {
         width: 200px;
     }
 
+}
+
+.login-form {
+    @include gray-box(1em);
+}
+
+.login-form {
+    .left-column {
+        width: 35%;
+        display: inline-block;
+        vertical-align: top;
+    }
+    .right-column {
+        width: 55%;
+        padding: $default-padding*5;
+        display: inline-block;
+        vertical-align: top;
+    }
+}
+
+.upload-form {
+    .left-column {
+        width: 35%;
+        display: inline-block;
+        vertical-align: top;
+    }
+    .right-column {
+        width: 55%;
+        display: inline-block;
+        vertical-align: top;
+    }
 }
 
 .upload-link {

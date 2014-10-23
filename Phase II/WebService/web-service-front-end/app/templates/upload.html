@@ -1,35 +1,35 @@
-<div class="dataset-create-edit">
-    <form {{bind-attr class="controllerIdentity"}}>
+<div class="upload-form">
 
     <form name="uploadForm" ng-controller="UploadCtrl"
             ng-submit="upload(inputs)" novalidate>
+        <div class ="left-column">
 
-            <label for="wellName">Well Name</label>
-            <input type="text" id="wellName" ng-model="inputs.wellName" required>
+                <label for="wellName">Well Name</label>
+                <input type="text" id="wellName" ng-model="inputs.wellName" required>
 
-            <label for="wellName">Well Test Date</label>
-            <input type="text" id="wellTestDate" ng-model="inputs.wellTestDate" required>
+                <label for="wellName">Well Test Date</label>
+                <input type="text" id="wellTestDate" ng-model="inputs.wellTestDate" required>
 
-            <label for="wellName">Client Name</label>
-            <input type="text" id="clientName" ng-model="inputs.clientName" required>
+                <label for="wellName">Client Name</label>
+                <input type="text" id="clientName" ng-model="inputs.clientName" required>
 
-            <label for="wellName">Field Name</label>
-            <input type="text" id="fieldName" ng-model="inputs.fieldName">
+                <label for="wellName">Field Name</label>
+                <input type="text" id="fieldName" ng-model="inputs.fieldName">
 
-            <label for="wellName">Lease Name</label>
-            <input type="text" id="leaseName" ng-model="inputs.leaseName">
+                <label for="wellName">Lease Name</label>
+                <input type="text" id="leaseName" ng-model="inputs.leaseName">
 
-            <label for="wellName">Trailer Number</label>
-            <input type="text" id="trailerNumber" ng-model="inputs.trailerNumber">
+                <label for="wellName">Trailer Number</label>
+                <input type="text" id="trailerNumber" ng-model="inputs.trailerNumber">
 
-            <label for="wellName">Well Test Notes</label>
-            <textarea type="text" id="notes" ng-model="inputs.notes" />
+                <label for="wellName">Well Test Notes</label>
+                <textarea type="text" id="notes" ng-model="inputs.notes" />
 
-            <button type="submit">Submit</button>
+                <button type="submit">Submit <i class="fa fa-floppy-o fa-lg"></i></button>
 
-        </form>
+        </div>
 
-        <div class="control-panel">
+        <div class="right-column">
             <button>Attach Water Cut Spreadsheet <i class="fa fa-paperclip fa-lg"></i></button>
             <h4>Attached:</h4>
 
@@ -39,9 +39,6 @@
             <button>Attach Historical Data CSV <i class="fa fa-paperclip fa-lg"></i></button>
             <h4>Attached:</h4>
 
-            <button>Save <i class="fa fa-floppy-o fa-lg"></i></button>
-
         </div>
-
     </form>
 </div>
