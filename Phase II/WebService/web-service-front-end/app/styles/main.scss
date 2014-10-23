@@ -283,15 +283,19 @@ footer {
 }
 
 .upload-form {
+    padding: $default-padding*3;
     .left-column {
-        width: 35%;
+        width: 55%;
         display: inline-block;
         vertical-align: top;
     }
     .right-column {
-        width: 55%;
+        width: 35%;
         display: inline-block;
         vertical-align: top;
+        button {
+            float: none;
+        }
     }
 }
 
