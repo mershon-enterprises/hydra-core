@@ -11,7 +11,7 @@ angular.module('webServiceApp', [
     .config(function ($routeProvider) {
       $routeProvider
         .when('/', {
-          templateUrl: 'templates/home.html',
+          templateUrl: 'templates/login.html',
           loggedInOnly: false
         }).when('/datasets', {
           templateUrl: 'templates/datasets.html',
