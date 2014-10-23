@@ -64,10 +64,3 @@ angular.module('webServiceApp', [
       notFound: 404,
       internalServerError: 500
     });
-
-$(document).ready(function(){
-  $('#email').val('admin@example.com');
-  $('#password').val('adminpassword');
-  $('#email').trigger('input');
-  $('#password').trigger('input');
-});
