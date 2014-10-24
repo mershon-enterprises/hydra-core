@@ -8,6 +8,7 @@
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]))
 
+(import java.sql.SQLException)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -59,6 +60,15 @@
 (def data-set-query
   (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
        "from public.data_set ds "
+       "inner join public.user u "
+       "  on u.id = ds.created_by "
+       "where ds.date_deleted is null "))
+
+(def data-set-with-attachments-query
+  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
+       "  from public.data_set_attachment dsa "
+       "inner join public.data_set ds "
+       "  on ds.id = dsa.data_set_id "
        "inner join public.user u "
        "  on u.id = ds.created_by "
        "where ds.date_deleted is null "))
@@ -235,6 +245,35 @@
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
+; list up to 10 data items in the database, as an HTTP response
+(defn data-list-with-attachments
+  [email-address]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-datasets)
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data))
+        can-access-own (contains? access constants/view-own-data)
+        query data-set-with-attachments-query
+        query-own (str data-set-with-attachments-query "and u.email_address=? ")]
+    (if can-access
+      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
+      ; if the user cannot access all data, try to at least show them their own
+      ; data instead
+      (if can-access-own
+        (response {:response (try (sql/query (db)
+                                        [query-own email-address]
+                                        :row-fn format-data-set)
+                               (catch Exception e
+                                 (if (instance? SQLException e)
+                                   (do (.getCause e)
+                                       (println (.getNextException e)))
+                                   (println (.getMessage e)))
+                                 false))})
+        (access-denied constants/manage-data)))))
 
 ; get the specified attachment to a data set, by date and filename
 (defn data-get-attachment

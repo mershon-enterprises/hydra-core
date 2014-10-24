@@ -121,6 +121,15 @@
               (DELETE "/" [] (not-implemented "Delete data attachment"))))))))
 
   (context
+    "/attachments" []
+      (defroutes document-routes
+        (GET "/" [api_token]
+           (guard-with-user api_token data-list-with-attachments))
+        (PUT "/" [] (not-allowed "Update-all data attachments"))
+        (POST "/" [] (not-allowed "Sumbit-all  data attachemnts"))
+        (DELETE "/" [] (not-allowed "Delete-all data attachments"))))
+
+  (context
     "/users" []
     (defroutes document-routes
       (GET "/" [api_token]
