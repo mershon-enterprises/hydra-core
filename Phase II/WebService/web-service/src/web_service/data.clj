@@ -46,6 +46,14 @@
                    (get-primitive-data "text" (:id row))])})
 
 
+; format the specified row from the data_set_attachement table
+(defn- format-data-set-attachment [row]
+  {:uuid (:uuid row)
+   :date_created (:date_created row)
+   :created_by (:email_address row)
+   :data_set_attachments(flatten [(get-attachment-data (:id row))])})
+
+
 ; format the specified attachment from the data_set_attachment table
 (defn- format-attachment [row]
   (->
@@ -260,13 +268,15 @@
         query data-set-with-attachments-query
         query-own (str data-set-with-attachments-query "and u.email_address=? ")]
     (if can-access
-      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
+      (response {:response (sql/query (db)
+                                      [query]
+                                      :row-fn format-data-set-attachment )})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
         (response {:response (try (sql/query (db)
                                         [query-own email-address]
-                                        :row-fn format-data-set)
+                                        :row-fn format-data-set-attachment )
                                (catch Exception e
                                  (if (instance? SQLException e)
                                    (do (.getCause e)
