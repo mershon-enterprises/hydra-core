@@ -103,6 +103,21 @@ angular.module('webServiceApp').factory('RestService',
     });
   };
 
+  restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
+    console.log(dateCreated + " " + createdByEmailAddress  + " " +  dataItems);
+
+    restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
+        if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          console.log(response);
+        }
+        else {
+          console.log('restclient.submitData failed with ' + status);
+          $rootScope.$broadcast(EVENTS.dataLost);
+        }
+    });
+  };
+
   //Listener for a failed data retrieval.
   $rootScope.$on(EVENTS.dataLost, function() {
       NotificationService.error('No Data', 'Please try again.');

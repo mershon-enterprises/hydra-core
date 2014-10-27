@@ -39,6 +39,9 @@ angular.module('webServiceApp').service('Session', function (localStorageService
     this.getToken = function () {
         return this.token;
     };
+    this.getEmail = function () {
+        return this.email;
+    };
     this.updateToken = function (token) {
         this.token = token;
         localStorageService.set('token', this.token);
