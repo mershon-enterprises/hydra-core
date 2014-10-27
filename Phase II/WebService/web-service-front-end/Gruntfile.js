@@ -358,7 +358,7 @@ module.exports = function (grunt) {
       },
       restclient: {
         dest: 'bower_components/restclient/restclient.js',
-        src: '../../RestClient/dist/restclient.standalone.min.js'
+        src: '../../RestClient/dist/restclient.standalone.js'
       }
     },
 
