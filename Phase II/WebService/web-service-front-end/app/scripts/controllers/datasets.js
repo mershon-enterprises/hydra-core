@@ -35,8 +35,6 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
                 });
 
-                console.log(attachments);
-
                 $.each(attachments, function(i, attachment) {
 
                     $scope.tableData.push($.extend({Date_Created: creationDate} , attachment));
