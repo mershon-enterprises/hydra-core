@@ -114,7 +114,7 @@ angular.module('webServiceApp').factory('RestService',
         else {
           console.log('restclient.submitData failed with ' + status);
         }
-    }
+    });
   }
 
   restService.listDatasetsWithAttachments = function () {
