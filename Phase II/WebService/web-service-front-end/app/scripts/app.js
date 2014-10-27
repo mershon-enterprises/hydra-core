@@ -1,10 +1,7 @@
 'use strict';
 
 angular.module('webServiceApp', [
-      'ngAnimate',
-      'ngResource',
       'ngRoute',    // Basic Angular Routing
-      'ngSanitize',
       'LocalStorageModule', // Angular Localstorage
       'ngGrid' // Angular Table Directive
     ])
