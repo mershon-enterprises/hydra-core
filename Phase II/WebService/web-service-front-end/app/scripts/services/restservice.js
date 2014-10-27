@@ -111,6 +111,22 @@ angular.module('webServiceApp').factory('RestService',
         }
         else {
           console.log('restclient.submitData failed with ' + status);
+        }
+    });
+  }
+
+  restService.listDatasetsWithAttachments = function () {
+
+    restclient.listDatasetsWithAttachments(Session.getToken(), function(status, res) {
+        if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          console.log(response);
+          Session.updateToken(response.token);
+          $rootScope.listDatasetsWithAttachmentsBuffer = response.response;
+          $rootScope.$broadcast(EVENTS.dataRetrieved);
+        }
+        else {
+          console.log('restclient.listDatasetsWithAttachments failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
         }
     });

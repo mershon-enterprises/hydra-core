@@ -12,26 +12,22 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         //Listener for a successful accessLevels retrieval.
         $scope.$on(EVENTS.dataRetrieved, function() {
 
-            self.datasets = $rootScope.listDataBuffer;
+            self.datasets = $rootScope.listDatasetsWithAttachmentsBuffer;
 
             var creationDate = null;
             var attachments = [];
-            var attachmentData = null;
 
             $.each(self.datasets, function(i, item) {
 
                 creationDate = item.date_created;
                 attachments = [];
 
-                $.each(item.data, function(i, dataItem) {
+                $.each(item.data_set_attachments, function(i, dataItem) {
 
-                    if (dataItem.type === 'attachment') {
-                        attachmentData = {
-                            filename : dataItem.filename,
-                            fileSize : dataItem.bytes
-                        }
-                        attachments.push(attachmentData);
-                    }
+                    attachments.push({
+                        filename : dataItem.filename,
+                        fileSize : dataItem.bytes
+                    })
 
                 });
 
@@ -50,7 +46,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
               $timeout(function(){ w.triggerHandler('resize'); });
         });
 
-        RestService.listData();
+        RestService.listDatasetsWithAttachments();
     }
 
 });

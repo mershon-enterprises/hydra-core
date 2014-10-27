@@ -172,6 +172,20 @@
     });
   };
 
+  exports.listDatasetsWithAttachments = function(apiToken, callback) {
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/attachments',
+      params: {
+        api_token: apiToken
+      }
+    }).then(function(response) {
+      callback(response.status.code, response.entity);
+    }, function(error) {
+      callback(400, error);
+    });
+  };
+
   exports.getData = function(apiToken, uuid, callback) {
     rest({
       method: 'GET',
