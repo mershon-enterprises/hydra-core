@@ -41,9 +41,11 @@ angular.module('webServiceApp').factory('RestService',
   restService.listAccessLevels = function () {
 
     restclient.listAccessLevels(Session.getToken(), function(status, res) {
+
+        var response = JSON.parse(res);
+        Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          Session.updateToken(response.token);
           $rootScope.accessLevelsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.accessLevelsRetrieved);
         }
@@ -57,9 +59,11 @@ angular.module('webServiceApp').factory('RestService',
   restService.listClients = function () {
 
     restclient.listClients(Session.getToken(), function(status, res) {
+
+      var response = JSON.parse(res);
+      Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          Session.updateToken(response.token);
           $rootScope.listClientsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.clientsRetrieved);
         }
@@ -73,9 +77,11 @@ angular.module('webServiceApp').factory('RestService',
   restService.listUsers = function () {
 
     restclient.listUsers(Session.getToken(), function(status, res) {
+
+      var response = JSON.parse(res);
+      Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          Session.updateToken(response.token);
           $rootScope.listUsersBuffer = response.response;
           $rootScope.$broadcast(EVENTS.usersRetrieved);
         }
@@ -89,10 +95,11 @@ angular.module('webServiceApp').factory('RestService',
   restService.listData = function () {
 
     restclient.listData(Session.getToken(), function(status, res) {
+
+      var response = JSON.parse(res);
+      Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          console.log(response);
-          Session.updateToken(response.token);
           $rootScope.listDataBuffer = response.response;
           $rootScope.$broadcast(EVENTS.dataRetrieved);
         }
@@ -106,22 +113,26 @@ angular.module('webServiceApp').factory('RestService',
   restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
 
     restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
+
+        var response = JSON.parse(res);
+        Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
         }
         else {
           console.log('restclient.submitData failed with ' + status);
         }
     });
-  }
+  };
 
   restService.listDatasetsWithAttachments = function () {
 
     restclient.listDatasetsWithAttachments(Session.getToken(), function(status, res) {
+
+        var response = JSON.parse(res);
+        Session.updateToken(response.token);
+
         if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          console.log(response);
-          Session.updateToken(response.token);
           $rootScope.listDatasetsWithAttachmentsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.dataRetrieved);
         }

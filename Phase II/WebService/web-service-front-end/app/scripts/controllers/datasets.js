@@ -27,7 +27,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                     attachments.push({
                         filename : dataItem.filename,
                         fileSize : dataItem.bytes
-                    })
+                    });
 
                 });
 

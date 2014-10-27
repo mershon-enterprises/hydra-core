@@ -16,7 +16,8 @@ angular.module('webServiceApp').controller('UploadCtrl', function ($scope, Sessi
 
         var self = this;
 
-        self.dateCreated = Date.now();
+        self.dateCreated = new Date();
+
         self.createdByEmailAddress = null;
         self.dataItems = [];
 
