@@ -12,6 +12,7 @@
   'use strict';
 
   var rest = require('rest');
+  var Promise = require('promise');
 
   exports.endpointUrl = 'http://54.187.61.110:8080';
 
