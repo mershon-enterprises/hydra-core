@@ -12,7 +12,6 @@
   'use strict';
 
   var rest = require('rest');
-  var Promise = require('promise');
 
   exports.endpointUrl = 'http://54.187.61.110:8080';
 
@@ -47,183 +46,113 @@
   };
 
   exports.version = function(callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/version',
-      }).then(
-        function(response) {
-          resolve(callback(response.status.code, response.entity));
-        },
-        function(error) {
-          console.log("I GOT HERE");
-          reject(callback(400, error));
-        }
-      );
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/version',
     });
   };
 
   exports.authenticate = function(emailAddress, password, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'POST',
-        path: exports.endpointUrl + '/authenticate',
-        params: {
-          email_address: emailAddress,
-          password: password
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/authenticate',
+      params: {
+        email_address: emailAddress,
+        password: password
+      }
     });
   };
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
       callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'POST',
-        path: exports.endpointUrl + '/admin-authenticate',
-        params: {
-          email_address: emailAddress,
-          password: password,
-          user_email_address: userEmailAddress
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/admin-authenticate',
+      params: {
+        email_address: emailAddress,
+        password: password,
+        user_email_address: userEmailAddress
+      }
     });
   };
 
   exports.listAccessLevels = function(apiToken, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/access-levels',
-        params: {
-          api_token: apiToken
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/access-levels',
+      params: {
+        api_token: apiToken
         }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        resolve(callback(400, error));
-      });
     });
   };
 
   exports.getAccessLevel = function(apiToken, description, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/access-levels/' + description,
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/access-levels/' + description,
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.listClients = function(apiToken, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/clients',
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        resolve(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/clients',
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.getClient = function(apiToken, name, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/clients/' + name,
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        resolve(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/clients/' + name,
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.listClientLocations = function(apiToken, name, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/clients/' + name + '/locations',
-        params: {
-          api_token: apiToken,
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/clients/' + name + '/locations',
+      params: {
+        api_token: apiToken,
+      }
     });
   };
 
   exports.listData = function(apiToken, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/data',
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data',
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.listDatasetsWithAttachments = function(apiToken, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/attachments',
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/attachments',
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.getData = function(apiToken, uuid, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/data/' + uuid,
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid,
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
@@ -258,86 +187,56 @@
       }
     }
 
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'POST',
-        path: exports.endpointUrl + '/data',
-        params: {
-          api_token: apiToken,
-          uuid: exports.uuid(),
-          date_created: dateCreated.toISOString(),
-          created_by: createdBy,
-          data: JSON.stringify(data)
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/data',
+      params: {
+        api_token: apiToken,
+        uuid: exports.uuid(),
+        date_created: dateCreated.toISOString(),
+        created_by: createdBy,
+        data: JSON.stringify(data)
+      }
     });
   };
 
   exports.deleteData = function(apiToken, uuid, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'DELETE',
-        path: exports.endpointUrl + '/data/' + uuid,
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid,
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.listUsers = function(apiToken, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/users',
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/users',
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.getUser = function(apiToken, emailAddress, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/users/' + emailAddress,
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/users/' + emailAddress,
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
   exports.listUserAccess = function(apiToken, emailAddress, callback) {
-    var promise = new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/users/' + emailAddress + '/access',
-        params: {
-          api_token: apiToken
-        }
-      }).then(function(response) {
-        resolve(callback(response.status.code, response.entity));
-      }, function(error) {
-        reject(callback(400, error));
-      });
+    rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/users/' + emailAddress + '/access',
+      params: {
+        api_token: apiToken
+      }
     });
   };
 
