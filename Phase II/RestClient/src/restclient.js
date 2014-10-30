@@ -60,7 +60,10 @@
         email_address: emailAddress,
         password: password
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
@@ -73,7 +76,10 @@
         password: password,
         user_email_address: userEmailAddress
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listAccessLevels = function(apiToken) {
@@ -83,7 +89,10 @@
       params: {
         api_token: apiToken
         }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.getAccessLevel = function(apiToken, description) {
@@ -93,7 +102,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listClients = function(apiToken) {
@@ -103,7 +115,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.getClient = function(apiToken, name) {
@@ -113,7 +128,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listClientLocations = function(apiToken, name) {
@@ -123,7 +141,10 @@
       params: {
         api_token: apiToken,
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listData = function(apiToken) {
@@ -133,7 +154,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listDatasetsWithAttachments = function(apiToken) {
@@ -143,7 +167,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.getData = function(apiToken, uuid) {
@@ -153,7 +180,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   // every item in data must be Attachment or PrimitiveData
@@ -197,7 +227,10 @@
         created_by: createdBy,
         data: JSON.stringify(data)
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.deleteData = function(apiToken, uuid) {
@@ -207,7 +240,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listUsers = function(apiToken) {
@@ -217,7 +253,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.getUser = function(apiToken, emailAddress) {
@@ -227,7 +266,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
   exports.listUserAccess = function(apiToken, emailAddress) {
@@ -237,7 +279,10 @@
       params: {
         api_token: apiToken
       }
-    });
+    }).then(
+      function(response) { return response.entity; },
+      function(error) { return error; }
+    );
   };
 
 }(typeof exports === 'object' && exports || this));
