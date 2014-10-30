@@ -12,6 +12,7 @@
   'use strict';
 
   var rest = require('rest');
+  var Promise = require('promise');
 
   exports.endpointUrl = 'http://54.187.61.110:8080';
 
@@ -53,17 +54,19 @@
   };
 
   exports.authenticate = function(emailAddress, password) {
-    rest({
-      method: 'POST',
-      path: exports.endpointUrl + '/authenticate',
-      params: {
-        email_address: emailAddress,
-        password: password
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'POST',
+        path: exports.endpointUrl + '/authenticate',
+        params: {
+          email_address: emailAddress,
+          password: password
+        }
+      }).then(
+        function(response) { return resolve(response.entity); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
