@@ -47,9 +47,14 @@
   };
 
   exports.version = function() {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/version',
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/version',
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
     });
   };
 
@@ -71,122 +76,140 @@
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
       callback) {
-    rest({
-      method: 'POST',
-      path: exports.endpointUrl + '/admin-authenticate',
-      params: {
-        email_address: emailAddress,
-        password: password,
-        user_email_address: userEmailAddress
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'POST',
+        path: exports.endpointUrl + '/admin-authenticate',
+        params: {
+          email_address: emailAddress,
+          password: password,
+          user_email_address: userEmailAddress
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listAccessLevels = function(apiToken) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/access-levels',
-      params: {
-        api_token: apiToken
-        }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/access-levels',
+        params: {
+          api_token: apiToken
+          }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.getAccessLevel = function(apiToken, description) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/access-levels/' + description,
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/access-levels/' + description,
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listClients = function(apiToken) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/clients',
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/clients',
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.getClient = function(apiToken, name) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/clients/' + name,
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/clients/' + name,
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listClientLocations = function(apiToken, name) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/clients/' + name + '/locations',
-      params: {
-        api_token: apiToken,
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/clients/' + name + '/locations',
+        params: {
+          api_token: apiToken,
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listData = function(apiToken) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/data',
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/data',
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listDatasetsWithAttachments = function(apiToken) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/attachments',
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/attachments',
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.getData = function(apiToken, uuid) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/data/' + uuid,
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/data/' + uuid,
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   // every item in data must be Attachment or PrimitiveData
@@ -220,72 +243,82 @@
       }
     }
 
-    rest({
-      method: 'POST',
-      path: exports.endpointUrl + '/data',
-      params: {
-        api_token: apiToken,
-        uuid: exports.uuid(),
-        date_created: dateCreated.toISOString(),
-        created_by: createdBy,
-        data: JSON.stringify(data)
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'POST',
+        path: exports.endpointUrl + '/data',
+        params: {
+          api_token: apiToken,
+          uuid: exports.uuid(),
+          date_created: dateCreated.toISOString(),
+          created_by: createdBy,
+          data: JSON.stringify(data)
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.deleteData = function(apiToken, uuid) {
-    rest({
-      method: 'DELETE',
-      path: exports.endpointUrl + '/data/' + uuid,
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'DELETE',
+        path: exports.endpointUrl + '/data/' + uuid,
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listUsers = function(apiToken) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/users',
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/users',
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.getUser = function(apiToken, emailAddress) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/users/' + emailAddress,
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/users/' + emailAddress,
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
   exports.listUserAccess = function(apiToken, emailAddress) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/users/' + emailAddress + '/access',
-      params: {
-        api_token: apiToken
-      }
-    }).then(
-      function(response) { return response.entity; },
-      function(error) { return error; }
-    );
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/users/' + emailAddress + '/access',
+        params: {
+          api_token: apiToken
+        }
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
+    });
   };
 
 }(typeof exports === 'object' && exports || this));
