@@ -63,7 +63,7 @@
           password: password
         }
       }).then(
-        function(response) { return resolve(response.entity); },
+        function(response) { return resolve(response); },
         function(error) { return reject(error); }
       );
     });
