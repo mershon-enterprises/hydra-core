@@ -54,7 +54,7 @@
   };
 
   exports.authenticate = function(emailAddress, password) {
-    return new Promise( function(resolve, reject)
+    return new Promise(function(resolve, reject) {
       rest({
         method: 'POST',
         path: exports.endpointUrl + '/authenticate',
@@ -66,7 +66,7 @@
         function(response) { return resolve(response.entity); },
         function(error) { return reject(error); }
       );
-    );
+    )};
   };
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
