@@ -66,7 +66,7 @@
         function(response) { return resolve(response.entity); },
         function(error) { return reject(error); }
       );
-    )};
+    });
   };
 
   exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
