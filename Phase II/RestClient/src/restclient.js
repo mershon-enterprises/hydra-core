@@ -45,14 +45,14 @@
     };
   };
 
-  exports.version = function(callback) {
+  exports.version = function() {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/version',
     });
   };
 
-  exports.authenticate = function(emailAddress, password, callback) {
+  exports.authenticate = function(emailAddress, password) {
     rest({
       method: 'POST',
       path: exports.endpointUrl + '/authenticate',
@@ -76,7 +76,7 @@
     });
   };
 
-  exports.listAccessLevels = function(apiToken, callback) {
+  exports.listAccessLevels = function(apiToken) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels',
@@ -86,7 +86,7 @@
     });
   };
 
-  exports.getAccessLevel = function(apiToken, description, callback) {
+  exports.getAccessLevel = function(apiToken, description) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels/' + description,
@@ -96,7 +96,7 @@
     });
   };
 
-  exports.listClients = function(apiToken, callback) {
+  exports.listClients = function(apiToken) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients',
@@ -106,7 +106,7 @@
     });
   };
 
-  exports.getClient = function(apiToken, name, callback) {
+  exports.getClient = function(apiToken, name) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name,
@@ -116,7 +116,7 @@
     });
   };
 
-  exports.listClientLocations = function(apiToken, name, callback) {
+  exports.listClientLocations = function(apiToken, name) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name + '/locations',
@@ -126,7 +126,7 @@
     });
   };
 
-  exports.listData = function(apiToken, callback) {
+  exports.listData = function(apiToken) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
@@ -136,7 +136,7 @@
     });
   };
 
-  exports.listDatasetsWithAttachments = function(apiToken, callback) {
+  exports.listDatasetsWithAttachments = function(apiToken) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/attachments',
@@ -146,7 +146,7 @@
     });
   };
 
-  exports.getData = function(apiToken, uuid, callback) {
+  exports.getData = function(apiToken, uuid) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid,
@@ -200,7 +200,7 @@
     });
   };
 
-  exports.deleteData = function(apiToken, uuid, callback) {
+  exports.deleteData = function(apiToken, uuid) {
     rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
@@ -210,7 +210,7 @@
     });
   };
 
-  exports.listUsers = function(apiToken, callback) {
+  exports.listUsers = function(apiToken) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/users',
@@ -220,7 +220,7 @@
     });
   };
 
-  exports.getUser = function(apiToken, emailAddress, callback) {
+  exports.getUser = function(apiToken, emailAddress) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress,
@@ -230,7 +230,7 @@
     });
   };
 
-  exports.listUserAccess = function(apiToken, emailAddress, callback) {
+  exports.listUserAccess = function(apiToken, emailAddress) {
     rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress + '/access',
