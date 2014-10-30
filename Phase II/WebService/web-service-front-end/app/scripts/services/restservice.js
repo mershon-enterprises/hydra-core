@@ -6,36 +6,55 @@ angular.module('webServiceApp').factory('RestService',
   var restService = {};
 
   restService.authenticate = function (credentials) {
-    restclient.authenticate(credentials.email, credentials.password,
-      function(status, res){
+      restclient.authenticate(credentials.email, credentials.password).then(
+        function(data) {
 
-      if (status === STATUS_CODES.ok) {
+          console.log(data);
 
-        //Parse out the data from the restclient response.
-        var response  = JSON.parse(res);
-        var responseBody = response.response;
-        var tokenExpirationDate = response.token_expiration_date;
-        var token = response.token;
-        var email = responseBody.email_address;
-        var firstName = responseBody.first_name;
-        var lastName = responseBody.last_name;
-        var permissions = responseBody.access;
+          if (data.status.code === STATUS_CODES.ok) {
+            //Parse out the data from the restclient response.
+            var response = JSON.parse(data.entity);
+            var responseBody = response.response;
+            var tokenExpirationDate = response.token_expiration_date;
+            var token = response.token;
+            var email = responseBody.email_address;
+            var firstName = responseBody.first_name;
+            var lastName = responseBody.last_name;
+            var permissions = responseBody.access;
 
-        //Populate the Session singleton with the user data.
-        Session.create(tokenExpirationDate, token, email, firstName, lastName,
-          permissions);
+            //Populate the Session singleton with the user data.
+            Session.create(tokenExpirationDate, token, email, firstName, lastName,
+            permissions);
 
-        //Broadcast to any listeners that login was successful.
-        $rootScope.$broadcast(EVENTS.loginSuccess);
+            //Broadcast to any listeners that login was successful.
+            $rootScope.$broadcast(EVENTS.loginSuccess);
 
-      }
+            }
+            else {
+              //Broadcast to any listeners that login has failed.
+              $rootScope.$broadcast(EVENTS.loginFailed);
+            }
+        },
+        function(error) {console.log("Promise failed.");}
+      );
+  };
 
-      else {
-        //Broadcast to any listeners that login has failed.
-        $rootScope.$broadcast(EVENTS.loginFailed);
-      }
+  restService.createCache = function () {
+    this.cache = {
+      accessLevels: null,
+      clients: null,
+      users: null,
+      data: null
+    };
 
-    });
+    this.cache.data = this.listData();
+
+  };
+
+  restService.updateCache = function () {
+
+    this.cache.data = this.listData();
+
   };
 
   restService.listAccessLevels = function () {
@@ -46,12 +65,13 @@ angular.module('webServiceApp').factory('RestService',
         Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
-          $rootScope.accessLevelsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.accessLevelsRetrieved);
+          return response.response;
         }
         else {
           console.log('restclient.listAccessLevels failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
+          return null;
         }
     });
   };
@@ -64,12 +84,13 @@ angular.module('webServiceApp').factory('RestService',
       Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
-          $rootScope.listClientsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.clientsRetrieved);
+          return response.response;
         }
         else {
           console.log('restclient.listClients failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
+          return null;
         }
     });
   };
@@ -82,12 +103,13 @@ angular.module('webServiceApp').factory('RestService',
       Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
-          $rootScope.listUsersBuffer = response.response;
           $rootScope.$broadcast(EVENTS.usersRetrieved);
+          return response.response;
         }
         else {
           console.log('restclient.listUsers failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
+          return null;
         }
     });
   };
@@ -100,27 +122,13 @@ angular.module('webServiceApp').factory('RestService',
       Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
-          $rootScope.listDataBuffer = response.response;
           $rootScope.$broadcast(EVENTS.dataRetrieved);
+          return response.response;
         }
         else {
           console.log('restclient.listData failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
-        }
-    });
-  };
-
-  restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
-
-    restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
-
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
-
-        if (status === STATUS_CODES.ok) {
-        }
-        else {
-          console.log('restclient.submitData failed with ' + status);
+          return null;
         }
     });
   };
@@ -133,12 +141,30 @@ angular.module('webServiceApp').factory('RestService',
         Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
-          $rootScope.listDatasetsWithAttachmentsBuffer = response.response;
           $rootScope.$broadcast(EVENTS.dataRetrieved);
+          return response.response;
         }
         else {
           console.log('restclient.listDatasetsWithAttachments failed with ' + status);
           $rootScope.$broadcast(EVENTS.dataLost);
+          return null;
+        }
+    });
+  };
+
+  restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
+
+    restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
+
+        var response = JSON.parse(res);
+        Session.updateToken(response.token);
+
+        if (status === STATUS_CODES.ok) {
+          NotificationService.success('Dataset Submitted', 'Updating cache...');
+        }
+        else {
+          NotificationService.error('Dataset Submission Failed', 'Please try again.');
+          console.log('restclient.submitData failed with ' + status);
         }
     });
   };

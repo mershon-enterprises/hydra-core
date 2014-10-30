@@ -20,17 +20,6 @@ angular.module('webServiceApp', [
           controller: 'UploadCtrl',
           loggedInOnly: true
         })
-        .when('/clients', {
-          templateUrl: 'templates/clients.html',
-          controller: 'ClientsCtrl',
-          loggedInOnly: true
-        })
-        .when('/users', {
-          templateUrl: 'templates/users.html',
-          controller: 'UsersCtrl',
-          controllerAs: 'users',
-          loggedInOnly: true
-        })
         .otherwise({
           redirectTo: '/'
         });
@@ -51,6 +40,7 @@ angular.module('webServiceApp', [
       dataLost: 'data-lost',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized',
+      cacheUpdated: 'cache-updated'
     })
     .constant('STATUS_CODES', {
       ok: 200,
