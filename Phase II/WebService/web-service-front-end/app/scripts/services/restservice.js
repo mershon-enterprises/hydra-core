@@ -9,8 +9,6 @@ angular.module('webServiceApp').factory('RestService',
       restclient.authenticate(credentials.email, credentials.password).then(
         function(data) {
 
-          console.log(data);
-
           if (data.status.code === STATUS_CODES.ok) {
             //Parse out the data from the restclient response.
             var response = JSON.parse(data.entity);
@@ -26,6 +24,9 @@ angular.module('webServiceApp').factory('RestService',
             Session.create(tokenExpirationDate, token, email, firstName, lastName,
             permissions);
 
+            //Create the cache for this user's data.
+            restService.createCache();
+
             //Broadcast to any listeners that login was successful.
             $rootScope.$broadcast(EVENTS.loginSuccess);
 
@@ -35,46 +36,52 @@ angular.module('webServiceApp').factory('RestService',
               $rootScope.$broadcast(EVENTS.loginFailed);
             }
         },
-        function(error) {console.log("Promise failed.");}
+        function(error) {console.log('Promise failed. ' + error);}
       );
   };
 
-  restService.createCache = function () {
-    this.cache = {
-      accessLevels: null,
-      clients: null,
-      users: null,
-      data: null
+    restService.createCache = function () {
+        this.cache = {
+            accessLevels: null,
+            clients: null,
+            users: null,
+            data: null
+        };
+
+        restService.listAccessLevels();
     };
 
-    this.cache.data = this.listData();
+    restService.updateCacheValue = function (key, data) {
+        this.cache[key] = data;
+        console.log("Cache updated.");
+        console.log(this.cache);
+    };
 
-  };
+    restService.listAccessLevels = function () {
 
-  restService.updateCache = function () {
+        restclient.listAccessLevels(Session.getToken()).then(
 
-    this.cache.data = this.listData();
+            function(data) {
 
-  };
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
 
-  restService.listAccessLevels = function () {
+                if (data.status.code === STATUS_CODES.ok) {
 
-    restclient.listAccessLevels(Session.getToken(), function(status, res) {
+                    var responseBody = response.response;
 
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
+                    restService.updateCacheValue('accessLevels', responseBody);
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.$broadcast(EVENTS.accessLevelsRetrieved);
-          return response.response;
-        }
-        else {
-          console.log('restclient.listAccessLevels failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-          return null;
-        }
-    });
-  };
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {console.log('Promise failed. ' + error);}
+        );
+    };
 
   restService.listClients = function () {
 
