@@ -3,42 +3,42 @@
 angular.module('webServiceApp').factory('RestService',
     function ($rootScope, EVENTS, STATUS_CODES, Session, NotificationService) {
 
-  var restService = {};
+    var restService = {};
 
-  restService.authenticate = function (credentials) {
-      restclient.authenticate(credentials.email, credentials.password).then(
-        function(data) {
+    restService.authenticate = function (credentials) {
+        restclient.authenticate(credentials.email, credentials.password).then(
+            function(data) {
 
-          if (data.status.code === STATUS_CODES.ok) {
-            //Parse out the data from the restclient response.
-            var response = JSON.parse(data.entity);
-            var responseBody = response.response;
-            var tokenExpirationDate = response.token_expiration_date;
-            var token = response.token;
-            var email = responseBody.email_address;
-            var firstName = responseBody.first_name;
-            var lastName = responseBody.last_name;
-            var permissions = responseBody.access;
+                if (data.status.code === STATUS_CODES.ok) {
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    var responseBody = response.response;
+                    var tokenExpirationDate = response.token_expiration_date;
+                    var token = response.token;
+                    var email = responseBody.email_address;
+                    var firstName = responseBody.first_name;
+                    var lastName = responseBody.last_name;
+                    var permissions = responseBody.access;
 
-            //Populate the Session singleton with the user data.
-            Session.create(tokenExpirationDate, token, email, firstName, lastName,
-            permissions);
+                    //Populate the Session singleton with the user data.
+                    Session.create(tokenExpirationDate, token, email, firstName, lastName,
+                    permissions);
 
-            //Create the cache for this user's data.
-            restService.createCache();
+                    //Create the cache for this user's data.
+                    restService.createCache();
 
-            //Broadcast to any listeners that login was successful.
-            $rootScope.$broadcast(EVENTS.loginSuccess);
+                    //Broadcast to any listeners that login was successful.
+                    $rootScope.$broadcast(EVENTS.loginSuccess);
 
-            }
-            else {
-              //Broadcast to any listeners that login has failed.
-              $rootScope.$broadcast(EVENTS.loginFailed);
-            }
-        },
-        function(error) {console.log('Promise failed. ' + error);}
-      );
-  };
+                    }
+                else {
+                    //Broadcast to any listeners that login has failed.
+                    $rootScope.$broadcast(EVENTS.loginFailed);
+                }
+            },
+            function(error) {console.log('Promise failed. ' + error);}
+        );
+    };
 
     restService.createCache = function () {
         this.cache = {
@@ -53,7 +53,7 @@ angular.module('webServiceApp').factory('RestService',
 
     restService.updateCacheValue = function (key, data) {
         this.cache[key] = data;
-        console.log("Cache updated.");
+        console.log('Cache updated.');
         console.log(this.cache);
     };
 
