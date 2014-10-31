@@ -69,8 +69,7 @@
     });
   };
 
-  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
-      callback) {
+  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress) {
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/admin-authenticate',
@@ -163,8 +162,7 @@
   };
 
   // every item in data must be Attachment or PrimitiveData
-  exports.submitData = function(apiToken, dateCreated, createdBy, dataItems,
-      callback) {
+  exports.submitData = function(apiToken, dateCreated, createdBy, dataItems) {
 
     // guard against null date
     if (dateCreated == null)
