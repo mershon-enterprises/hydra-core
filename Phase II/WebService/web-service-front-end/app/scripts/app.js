@@ -33,14 +33,9 @@ angular.module('webServiceApp', [
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
-      accessLevelsRetrieved: 'access-levels-retrieved',
-      clientsRetrieved: 'clients-retrieved',
-      dataRetrieved: 'data-retrieved',
-      usersRetrieved: 'users-retrieved',
       dataLost: 'data-lost',
       sessionTimeout: 'auth-session-timeout',
-      notAuthorized: 'auth-not-authorized',
-      cacheUpdated: 'cache-updated'
+      notAuthorized: 'auth-not-authorized'
     })
     .constant('STATUS_CODES', {
       ok: 200,

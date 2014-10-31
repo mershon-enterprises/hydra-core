@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, EVENTS, STATUS_CODES, Session, NotificationService) {
+    function ($rootScope, $q, EVENTS, STATUS_CODES, Session, NotificationService) {
 
     var restService = {};
 
@@ -25,7 +25,7 @@ angular.module('webServiceApp').factory('RestService',
                     permissions);
 
                     //Create the cache for this user's data.
-                    restService.createCache();
+                    restService.refreshCache();
 
                     //Broadcast to any listeners that login was successful.
                     $rootScope.$broadcast(EVENTS.loginSuccess);
@@ -40,7 +40,7 @@ angular.module('webServiceApp').factory('RestService',
         );
     };
 
-    restService.createCache = function () {
+    restService.refreshCache = function () {
         this.cache = {
             accessLevels: null,
             clients: null,
@@ -48,7 +48,23 @@ angular.module('webServiceApp').factory('RestService',
             data: null
         };
 
-        restService.listAccessLevels();
+        var defer = $q.defer();
+
+        defer.promise.then(function () {
+            restService.listAccessLevels();
+        })
+        .then(function () {
+            restService.listClients();
+        })
+        .then(function () {
+            restService.listUsers();
+        })
+        .then(function () {
+            restService.listData();
+        });
+
+        defer.resolve();
+
     };
 
     restService.updateCacheValue = function (key, data) {
@@ -79,66 +95,94 @@ angular.module('webServiceApp').factory('RestService',
                   $rootScope.$broadcast(EVENTS.dataLost);
                 }
             },
-            function(error) {console.log('Promise failed. ' + error);}
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
         );
     };
 
-  restService.listClients = function () {
+    restService.listClients = function () {
 
-    restclient.listClients(Session.getToken(), function(status, res) {
+        restclient.listClients(Session.getToken()).then(
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+            function(data) {
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.$broadcast(EVENTS.clientsRetrieved);
-          return response.response;
-        }
-        else {
-          console.log('restclient.listClients failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-          return null;
-        }
-    });
-  };
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
 
-  restService.listUsers = function () {
+                if (data.status.code === STATUS_CODES.ok) {
 
-    restclient.listUsers(Session.getToken(), function(status, res) {
+                    var responseBody = response.response;
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+                    restService.updateCacheValue('clients', responseBody);
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.$broadcast(EVENTS.usersRetrieved);
-          return response.response;
-        }
-        else {
-          console.log('restclient.listUsers failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-          return null;
-        }
-    });
-  };
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
 
-  restService.listData = function () {
+    restService.listUsers = function () {
 
-    restclient.listData(Session.getToken(), function(status, res) {
+        restclient.listUsers(Session.getToken()).then(
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+            function(data) {
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.$broadcast(EVENTS.dataRetrieved);
-          return response.response;
-        }
-        else {
-          console.log('restclient.listData failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-          return null;
-        }
-    });
-  };
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+
+                    var responseBody = response.response;
+
+                    restService.updateCacheValue('users', responseBody);
+
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+    restService.listData = function () {
+
+        restclient.listData(Session.getToken()).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+
+                    var responseBody = response.response;
+
+                    restService.updateCacheValue('data', responseBody);
+
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
 
   restService.listDatasetsWithAttachments = function () {
 
