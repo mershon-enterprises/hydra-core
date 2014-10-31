@@ -1,52 +1,74 @@
 'use strict';
 
 angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $window, $timeout, EVENTS, RestService, NotificationService, Session) {
-       if (Session.exists()) {
 
-        var self = this;
+    //If the cache is updated, redraw the page by forcing a window-resize
+    //event.
+    $rootScope.$watch('cache', function() {
+        var w = angular.element($window);
+        $timeout(function(){ w.triggerHandler('resize'); });
+    });
 
-        $scope.tableData = [];
+    if (Session.exists()) {
 
-        $scope.gridOptions = { data: 'tableData' };
+        //Retrieve dataset data from the cache.
+        var rawData = RestService.getCacheValue('data');
 
-        //Listener for a successful accessLevels retrieval.
-        $scope.$on(EVENTS.dataRetrieved, function() {
+        var data = [];
+        var attachments = [];
+        var createdBy = null;
+        var dateCreated = null;
+        var clientName = null;
+        var fieldName = null;
+        var wellName = null;
+        var trailerNumber = null;
 
-            self.datasets = $rootScope.listDatasetsWithAttachmentsBuffer;
-
-            var creationDate = null;
-            var attachments = [];
-
-            $.each(self.datasets, function(i, item) {
-
-                creationDate = item.date_created;
-                attachments = [];
-
-                $.each(item.data_set_attachments, function(i, dataItem) {
-
-                    attachments.push({
-                        filename : dataItem.filename,
-                        fileSize : dataItem.bytes
-                    });
-
-                });
-
-                $.each(attachments, function(i, attachment) {
-
-                    $scope.tableData.push($.extend({Date_Created: creationDate} , attachment));
-
-                });
-
+        //Parse the data fromt the restClient into a format ngTable wants.
+        //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
+        $.each(rawData, function(index, value){
+            createdBy = {created_by: value['created_by']};
+            dateCreated = {date_created: value['date_created']};
+            $.each(value['data'], function(index, value){
+                if(value['type'] === 'attachment') {
+                    attachments.push(value);
+                }
+                else if(value['type'] === 'text') {
+                    if(value['description'] === 'clientName') {
+                        clientName = {client_name: value['value']};
+                    }
+                    else if(value['description'] === 'fieldName') {
+                        fieldName = {field_name: value['value']};
+                    }
+                    else if(value['description'] === 'wellName') {
+                        wellName = {well_name: value['value']};
+                    }
+                    else if(value['description'] === 'trailerNumber') {
+                        trailerNumber = {trailer_number: value['value']};
+                    }
+                }
             });
-
-              //TODO : This piece of code is required to call a resize event on the
-              //browser and force the datatables to redraw in the view. It is a
-              //hack. Replace it.
-              var w = angular.element($window);
-              $timeout(function(){ w.triggerHandler('resize'); });
+            $.each(attachments, function(index, value){
+                data.push($.extend(value, createdBy, dateCreated,
+                    clientName, fieldName, wellName, trailerNumber));
+            });
         });
 
-        RestService.listDatasetsWithAttachments();
+        console.log(data);
+
+        $scope.tableParams = new ngTableParams({
+            page: 1,
+            count: 10
+        },
+        {
+            total: data.length,
+            getData: function($defer, params) {
+                $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            }
+        });
+
     }
 
 });
+
+
+

@@ -73,6 +73,10 @@ angular.module('webServiceApp').factory('RestService',
         console.log($rootScope.cache);
     };
 
+    restService.getCacheValue = function (key) {
+        return $rootScope.cache[key];
+    };
+
     restService.listAccessLevels = function () {
 
         restclient.listAccessLevels(Session.getToken()).then(
