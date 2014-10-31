@@ -41,7 +41,7 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.refreshCache = function () {
-        this.cache = {
+        $rootScope.cache = {
             accessLevels: null,
             clients: null,
             users: null,
@@ -68,9 +68,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.updateCacheValue = function (key, data) {
-        this.cache[key] = data;
+        $rootScope.cache[key] = data;
         console.log('Cache updated.');
-        console.log(this.cache);
+        console.log($rootScope.cache);
     };
 
     restService.listAccessLevels = function () {
