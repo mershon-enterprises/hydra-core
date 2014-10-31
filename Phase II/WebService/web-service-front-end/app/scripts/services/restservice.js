@@ -61,6 +61,7 @@ angular.module('webServiceApp').factory('RestService',
         })
         .then(function () {
             restService.listData();
+            $rootScope.cache.data = restService.parseData($rootScope.cache.data);
         });
 
         defer.resolve();
@@ -215,6 +216,50 @@ angular.module('webServiceApp').factory('RestService',
                 console.log('Promise failed. ' + error);
             }
         );
+    };
+
+    //Parse the data fromt the restClient into a format ngTable wants.
+    //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
+    restService.parseData = function (rawData) {
+
+        var data = [];
+        var attachments = [];
+        var createdBy = null;
+        var dateCreated = null;
+        var clientName = null;
+        var fieldName = null;
+        var wellName = null;
+        var trailerNumber = null;
+
+        $.each(rawData, function(index, value){
+            createdBy = {created_by: value['created_by']};
+            dateCreated = {date_created: value['date_created']};
+            $.each(value['data'], function(index, value){
+                if(value['type'] === 'attachment') {
+                    attachments.push(value);
+                }
+                else if(value['type'] === 'text') {
+                    if(value['description'] === 'clientName') {
+                        clientName = {client_name: value['value']};
+                    }
+                    else if(value['description'] === 'fieldName') {
+                        fieldName = {field_name: value['value']};
+                    }
+                    else if(value['description'] === 'wellName') {
+                        wellName = {well_name: value['value']};
+                    }
+                    else if(value['description'] === 'trailerNumber') {
+                        trailerNumber = {trailer_number: value['value']};
+                    }
+                }
+            });
+            $.each(attachments, function(index, value){
+                data.push($.extend(value, createdBy, dateCreated,
+                    clientName, fieldName, wellName, trailerNumber));
+            });
+        });
+
+        return data;
     };
 
   restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
