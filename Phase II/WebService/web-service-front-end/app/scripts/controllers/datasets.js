@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $window, $timeout, EVENTS, RestService, NotificationService, Session) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $window, $timeout, ngTableParams, RestService, Session) {
 
     //If the cache is updated, redraw the page by forcing a window-resize
     //event.
