@@ -1,13 +1,6 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $window, $timeout, ngTableParams, RestService, Session) {
-
-    //If the cache is updated, redraw the page by forcing a window-resize
-    //event.
-    $rootScope.$watch('cache', function() {
-        var w = angular.element($window);
-        $timeout(function(){ w.triggerHandler('resize'); });
-    });
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $filter, $window, $timeout, ngTableParams, RestService, Session) {
 
     if (Session.exists()) {
 
@@ -16,12 +9,20 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         $scope.tableParams = new ngTableParams({
             page: 1,
-            count: 10
+            count: 10,
+            sorting: {
+                date_created: 'desc'
+            }
         },
         {
             total: data.length,
             getData: function($defer, params) {
-                $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                // use build-in angular filter
+                var orderedData = params.sorting() ?
+                                    $filter('orderBy')(data, params.orderBy()) :
+                                    data;
+
+                $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
             }
         });
 
