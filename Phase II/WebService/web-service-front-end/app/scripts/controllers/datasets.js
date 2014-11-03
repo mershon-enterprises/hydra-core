@@ -8,6 +8,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
 
         $scope.gridOptions = {
             data: 'data',
+            sortInfo : { fields: ['date_created'], directions: ['desc'] },
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
                 {field: 'bytes', displayName: 'Filesize'},
