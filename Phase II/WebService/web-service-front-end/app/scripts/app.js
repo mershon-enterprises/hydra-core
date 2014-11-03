@@ -3,7 +3,7 @@
 angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
       'LocalStorageModule', // Angular Localstorage
-      'ngTable' // Angular Table Directive
+      'ngGrid' // Angular Table Directive
     ])
     .config(function ($routeProvider) {
       $routeProvider

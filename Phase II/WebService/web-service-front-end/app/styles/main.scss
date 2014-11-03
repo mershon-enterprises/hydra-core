@@ -237,7 +237,6 @@ input[type='file'] {
     margin: $default-margin $default-margin $default-margin*4;
 }
 
-
 //Footer
 footer {
 
@@ -305,9 +304,20 @@ footer {
     padding-left: $default-padding;
 }
 
+
+//NG-Grid
 .gridStyle {
-    max-width: 60%;
-    height: 300px;
-    display: inline-block;
     margin: $default-margin;
+}
+
+.ngViewport{
+    height: auto !important;
+}
+
+.ngCanvas, .ngViewport, .ngRow, .ngFooterPanel, .ngTopPanel   {
+    width: 100% !important;
+}
+
+.ngRow {
+    border-bottom:none !important;
 }
