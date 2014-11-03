@@ -2,8 +2,14 @@
 <p><strong>Count per page:</strong> {{tableParams.count()}}</p>
 
 <table ng-table="tableParams" class="table">
-<tr ng-repeat="user in $data">
-    <td data-title="'Name'">{{user.name}}</td>
-    <td data-title="'Age'">{{user.age}}</td>
-</tr>
+    <tr ng-repeat="row in $data">
+        <td data-title="'Filename'">{{row.filename}}</td>
+        <td data-title="'Filesize'">{{row.bytes}}</td>
+        <td data-title="'Client'">{{row.client_name}}</td>
+        <td data-title="'Field'">{{row.field_name}}</td>
+        <td data-title="'Well'">{{row.well_name}}</td>
+        <td data-title="'Trailer'">{{row.trailer_number}}</td>
+        <td data-title="'Creation Date'">{{row.date_created}}</td>
+        <td data-title="'Author'">{{row.created_by}}</td>
+    </tr>
 </table>
