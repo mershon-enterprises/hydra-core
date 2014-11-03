@@ -221,6 +221,7 @@ angular.module('webServiceApp').factory('RestService',
                 data.push($.extend(value, createdBy, dateCreated,
                     clientName, fieldName, wellName, trailerNumber));
             });
+            attachments = [];
         });
 
         return data;
