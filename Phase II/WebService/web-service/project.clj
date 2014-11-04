@@ -21,6 +21,7 @@
                                                         ;   including dates
                  [org.clojure/data.generators "0.1.2"]  ; random data generators
                                                         ;   used for mocking
+                 [org.clojure/data.codec "0.1.0"]       ; base64 codec
                  ]
   :plugins [[lein-ring "0.8.11"]
             [lein-environ "1.0.0"]]

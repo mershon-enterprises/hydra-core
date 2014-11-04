@@ -1,9 +1,8 @@
 (ns dummy.datasets
-  (:use [web-service.db]
-
-        )
-  (:require [clojure.data.generators :as gen])
-  )
+  (:use [cheshire.core]
+        [web-service.data])
+  (:require [clojure.data.generators :as gen]
+            [clojure.data.codec.base64 :as b64]))
 
 (defn- char-range
   [start end]
@@ -38,7 +37,7 @@
   {:type "attachment"
    :filename (str (rand-letters 14) ".csv")
    :mime_type "text/csv"
-   :contents "a,b,c,d,e,f,g"})
+   :contents (String. (b64/encode (.getBytes "a,b,c,d,e,f,g")))})
 
 (defn mock-dataset
   "create a dataset that randomly either has or does not have an attachment"
