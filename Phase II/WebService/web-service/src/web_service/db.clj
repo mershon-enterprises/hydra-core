@@ -3,7 +3,7 @@
   (:import com.mchange.v2.c3p0.ComboPooledDataSource))
 
 (let [db-host "localhost"
-      db-port 11001
+      db-port 5432
       db-name "postgres"
       db-schema "public"]
 
