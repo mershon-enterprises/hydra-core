@@ -51,7 +51,7 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :data_set_attachments(flatten [(get-attachment-data (:id row))])})
+   :attachments (flatten [(get-attachment-data (:id row))])})
 
 
 ; format the specified attachment from the data_set_attachment table
@@ -241,8 +241,13 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query (str data-set-query "limit 10")
-        query-own (str data-set-query "and u.email_address=? limit 10")]
+        query (str data-set-query
+                   "order by ds.date_created desc "
+                   "limit 10")
+        query-own (str data-set-query
+                       "and u.email_address=? "
+                       "order by ds.date_created desc "
+                       "limit 10")]
     (if can-access
       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
@@ -253,7 +258,7 @@
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
-; list up to 10 data items in the database, as an HTTP response
+; list datasets having attachments in the database, as an HTTP response
 (defn data-list-with-attachments
   [email-address]
 
@@ -265,8 +270,11 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query data-set-with-attachments-query
-        query-own (str data-set-with-attachments-query "and u.email_address=? ")]
+        query (str data-set-with-attachments-query
+                   "order by ds.date_created desc")
+        query-own (str data-set-with-attachments-query
+                       "and u.email_address=? "
+                       "order by ds.date_created desc")]
     (if can-access
       (response {:response (sql/query (db)
                                       [query]

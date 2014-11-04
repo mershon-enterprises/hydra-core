@@ -15,8 +15,8 @@
 
   (web-service.handler/init)
 
-  ; mock 20 datasets
-  (dummy.datasets/mock-datasets 20)
+  ; mock 500 datasets
+  (dummy.datasets/mock-datasets 500)
 
   (jetty/run-jetty web-service.handler/app {:port 3000
                                             :configurator full-head-avoidance}))
