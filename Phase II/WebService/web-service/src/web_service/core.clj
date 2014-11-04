@@ -1,6 +1,7 @@
 (ns web-service.core
   (:use [web-service.handler])
-  (:require [ring.adapter.jetty :as jetty]))
+  (:require [ring.adapter.jetty :as jetty]
+            [dummy.datasets]))
 
 ; define a configurator function for the jetty web server so we can override the
 ; default maximum size of the POST header to be 8MB
@@ -13,6 +14,9 @@
   []
 
   (web-service.handler/init)
+
+  ; mock 20 datasets
+  (dummy.datasets/mock-datasets 20)
 
   (jetty/run-jetty web-service.handler/app {:port 3000
                                             :configurator full-head-avoidance}))
