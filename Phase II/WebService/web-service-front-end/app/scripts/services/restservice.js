@@ -168,7 +168,9 @@ angular.module('webServiceApp').factory('RestService',
 
                     var responseBody = response.response;
 
-                    restService.updateCacheValue('data', responseBody);
+                    var parsedData =  restService.parseData(responseBody);
+
+                    restService.updateCacheValue('data', parsedData);
 
                 }
                 else {
@@ -273,7 +275,7 @@ angular.module('webServiceApp').factory('RestService',
             restService.listUsers();
         })
         .then(function () {
-            restService.listData();
+            restService.listDatasetsWithAttachments();
         });
 
         defer.resolve();
