@@ -41,18 +41,27 @@
    :contents "a,b,c,d,e,f,g"})
 
 (defn mock-dataset
+  "create a dataset that randomly either has or does not have an attachment"
   []
-  ; create a dataset randomly either with or without an attachment.
-  ; if an attachment is created, it will be a one-line CSV with some junk data
-  (let [create-attachment (gen/boolean)]
-    (if create-attachment
-      (println "create attachment")
-      (println "don't create")))
-  )
+  (def data [])
+
+  ; maybe create an attachment, maybe not
+  (if (gen/boolean)
+    (def data (conj data (mock-attachment))))
+
+  ; create a random number of data items, up to 10 items
+  (dotimes [n (rand-int 10)]
+    (def data (conj data (mock-data-item))))
+
+  {:email_address "admin@example.com"
+   :uuid (str (java.util.UUID/randomUUID))
+   :date_created (new java.util.Date)
+   :created_by "admin@example.com"
+   :data data})
 
 (defn mock-datasets
+  "create [count] dummy datasets, both with and without attachments"
   [count]
-  ; create [count] datasets with and without attachments
   (dotimes [n count]
     (mock-dataset))
   true)
