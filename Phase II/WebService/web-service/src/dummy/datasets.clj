@@ -5,6 +5,16 @@
   (:require [clojure.data.generators :as gen])
   )
 
+(defn- char-range
+  [start end]
+  (map char (range (int start) (inc (int end)))))
+
+(defn- rand-letters
+  "create a random string of letters, [count] characters long"
+  [count]
+  (gen/string (fn []
+                (gen/rand-nth (char-range \a \z))) count))
+
 (defn mock-data-item
   []
   ; create a random data item in a dataset
