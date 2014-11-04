@@ -16,14 +16,29 @@
                 (gen/rand-nth (char-range \a \z))) count))
 
 (defn mock-data-item
+  "create a random data item to be part of a dataset"
   []
-  ; create a random data item in a dataset
-  )
+  (let [type (rand-nth ["boolean"
+                        "integer"
+                        "real"
+                        "text"])
+        description (rand-letters 16)
+        value (case type
+                "boolean" (gen/boolean)
+                "integer" (rand-int Integer/MAX_VALUE)
+                "real" (gen/double)
+                "text" (rand-letters 255))]
+    {:type type
+     :description description
+     :value value}))
 
 (defn mock-attachment
+  "create an attachment to be part of a dataset"
   []
-  ; create fake attachment data
-  )
+  {:type "attachment"
+   :filename (str (rand-letters 14) ".csv")
+   :mime_type "text/csv"
+   :contents "a,b,c,d,e,f,g"})
 
 (defn mock-dataset
   []
