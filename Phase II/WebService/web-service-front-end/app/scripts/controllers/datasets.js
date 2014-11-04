@@ -4,14 +4,11 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
 
     if (Session.exists()) {
 
+        //Options for ng-grid.
+
         //If any of ng-grid's options are declared seperately like this, it's
         //so we can set up listeners on these specific options or expect them
         //to change like variables.
-        $scope.filterOptions = {
-            filterText: "",
-            useExternalFilter: false
-        };
-
         $scope.totalServerItems = 0;
 
         $scope.pagingOptions = {
@@ -20,7 +17,6 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
             currentPage: 1
         };
 
-        //Options for ng-grid
         //API : https://angular-ui.github.io/ng-grid/
         $scope.gridOptions = {
             data: 'data',
@@ -59,11 +55,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
         $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
 
         //Watchers for when options of ng-grid are change by the user.
-        $scope.$watch('pagingOptions', function (newVal, oldVal) {
-            $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-        }, true);
-
-        $scope.$watch('filterOptions', function (newVal, oldVal) {
+        $scope.$watch('pagingOptions', function () {
             $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
         }, true);
 
