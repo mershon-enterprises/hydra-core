@@ -264,7 +264,7 @@ angular.module('webServiceApp').factory('RestService',
 
         var defer = $q.defer();
 
-        NotificationService.info('Downloading Data', 'Please wait...')
+        NotificationService.info('Downloading Data', 'Please wait...');
         defer.promise.then(function () {
             restService.listAccessLevels();
         })
