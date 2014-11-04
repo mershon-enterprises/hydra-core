@@ -51,7 +51,7 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :data_set_attachments(flatten [(get-attachment-data (:id row))])})
+   :attachments (flatten [(get-attachment-data (:id row))])})
 
 
 ; format the specified attachment from the data_set_attachment table
