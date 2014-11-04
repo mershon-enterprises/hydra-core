@@ -19,6 +19,8 @@
                  [com.novemberain/langohr "3.0.0-rc2"]  ; AMQP rabbitmq library
                  [cheshire "5.3.1"]                     ; json encoding library
                                                         ;   including dates
+                 [org.clojure/data.generators "0.1.2"]  ; random data generators
+                                                        ;   used for mocking
                  ]
   :plugins [[lein-ring "0.8.11"]
             [lein-environ "1.0.0"]]
