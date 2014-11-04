@@ -62,5 +62,11 @@
   "create [count] dummy datasets, both with and without attachments"
   [count]
   (dotimes [n count]
-    (mock-dataset))
+    (let [ds (mock-dataset)]
+      (data-submit
+        (:email_address ds)
+        (:uuid ds)
+        (generate-string (:date_created ds))
+        (:created_by ds)
+        (generate-string (:data ds)))))
   true)
