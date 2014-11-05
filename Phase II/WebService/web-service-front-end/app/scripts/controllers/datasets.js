@@ -11,7 +11,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
         //to change like variables.
 
         $scope.filterOptions = {
-            filterText: "",
+            filterText: '',
             useExternalFilter: false
         };
 
