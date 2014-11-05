@@ -6,6 +6,13 @@ angular.module('webServiceApp').directive('navbar', function() {
         templateUrl: 'templates/navbar.html',
         controller: function ($scope, Session, EVENTS) {
 
+            $('.search').keyup(function() {
+                //Get current value of input field after every key press.
+                var currentValue = $(this).val();
+                $('.ngColMenu').find('input').val(currentValue.toLowerCase());
+                $('.ngColMenu').find('input').trigger('input');
+            });
+
             var self = this;
             self.isLoggedIn = Session.exists();
 

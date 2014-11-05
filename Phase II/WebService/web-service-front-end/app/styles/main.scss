@@ -154,7 +154,7 @@ nav {
     }
 
     background-color: $dark-gray;
-    text-align: right;
+    text-align: center;
     height: 40px;
     line-height: 2.5em;
     color: $off-white;
@@ -172,6 +172,10 @@ nav {
     i {
         padding-left: $default-padding/2;
         padding-right: $default-padding;
+    }
+
+    ul {
+        float: right;
     }
 
     li {
@@ -261,6 +265,10 @@ footer {
         width: 200px;
     }
 
+}
+
+.search {
+    width: 50%;
 }
 
 .login-form {

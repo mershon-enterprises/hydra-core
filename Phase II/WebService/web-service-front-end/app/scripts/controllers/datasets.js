@@ -9,6 +9,12 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($scope, Res
         //If any of ng-grid's options are declared seperately like this, it's
         //so we can set up listeners on these specific options or expect them
         //to change like variables.
+
+        $scope.filterOptions = {
+            filterText: "",
+            useExternalFilter: false
+        };
+
         $scope.totalServerItems = 0;
 
         $scope.pagingOptions = {
