@@ -200,7 +200,7 @@ angular.module('webServiceApp').factory('RestService',
         $.each(rawData, function(index, value){
             createdBy = {created_by: value.created_by};
             dateCreated = {date_created: value.date_created};
-            $.each(value.data, function(index, value){
+            $.each(value.attachments, function(index, value){
                 if(value.type === 'attachment') {
                     attachments.push(value);
                 }
