@@ -37,7 +37,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             showFilter: true,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
-                {field: 'bytes', displayName: 'Filesize'},
+                {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html'},
                 {field: 'client_name', displayName: 'Client'},
                 {field: 'field_name', displayName: 'Field'},
                 {field: 'well_name', displayName: 'Well'},
@@ -61,7 +61,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             var data = RestService.getCacheValue('data');
 
             //Filter the data.
-            var filteredData = []
+            var filteredData = [];
             var rowMatches = false;
             $.each(data, function(rowIndex, row){
                 rowMatches = false;
