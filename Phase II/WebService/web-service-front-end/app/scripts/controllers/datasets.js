@@ -43,7 +43,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 {field: 'well_name', displayName: 'Well'},
                 {field: 'trailer_number', displayName: 'Trailer'},
                 {field: 'created_by', displayName: 'Author'},
-                {field: 'date_created', displayName: 'Creation Date'}
+                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'}
             ]
         };
 
