@@ -35,14 +35,15 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             filterOptions: $scope.filterOptions,
             showColumnMenu: true,
             showFilter: true,
+            enableRowSelection : false,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
-                {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html'},
+                {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html', width: 100},
                 {field: 'client_name', displayName: 'Client'},
                 {field: 'field_name', displayName: 'Field'},
                 {field: 'well_name', displayName: 'Well'},
                 {field: 'trailer_number', displayName: 'Trailer'},
-                {field: 'created_by', displayName: 'Author'},
+                {field: 'created_by', displayName: 'Author', cellTemplate: '/templates/ng-grid-templates/author.html', width: 250},
                 {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'}
             ]
         };
