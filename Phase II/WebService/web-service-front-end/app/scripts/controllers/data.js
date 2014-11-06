@@ -13,6 +13,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
             if (RestService.cacheExists()) {
                 $scope.modalShow = false;
                 $rootScope.$broadcast(EVENTS.cacheReady);
+                $interval.cancel($scope.reload);
             }
             else {
                 $scope.modalShow = true;
@@ -31,7 +32,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
             }
         }
 
-        var reload =
+    $scope.reload =
         $interval(function () {
             if (Session.exists()) {
                 if(!$scope.loading){
