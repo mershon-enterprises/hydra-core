@@ -91,11 +91,11 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         //Watchers for when options of ng-grid are change by the user.
         $scope.$watch('pagingOptions', function () {
             $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
-        });
+        }, true);
 
         $rootScope.$watch('filterText', function () {
             $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
-        });
+        }, true);
 
     }
 
