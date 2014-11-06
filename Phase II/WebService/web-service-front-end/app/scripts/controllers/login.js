@@ -24,7 +24,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
     //Listener for a successful login.
     $scope.$on(EVENTS.loginSuccess, function() {
         NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-        window.location.href='/#/upload';
+        window.location.href='/#/datasets';
     });
 
     //Listener for a failed login.

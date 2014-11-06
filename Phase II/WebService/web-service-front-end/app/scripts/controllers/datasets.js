@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, Session) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
 
     if (Session.exists()) {
 
@@ -62,27 +62,30 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //Get the original data from the cache.
             var data = RestService.getCacheValue('data');
 
-            //Filter the data.
-            var filteredData = [];
-            var rowMatches = false;
-            $.each(data, function(rowIndex, row){
-                rowMatches = false;
-                $.each(row, function(cellIndex, cell) {
-                    if (typeof cell === 'string'){
-                        if(cell.toLowerCase().indexOf(filterText) > -1){
-                            rowMatches = true;
+            if (data != null) {
+
+                //Filter the data.
+                var filteredData = [];
+                var rowMatches = false;
+                $.each(data, function(rowIndex, row){
+                    rowMatches = false;
+                    $.each(row, function(cellIndex, cell) {
+                        if (typeof cell === 'string'){
+                            if(cell.toLowerCase().indexOf(filterText) > -1){
+                                rowMatches = true;
+                            }
                         }
+                    });
+                    if (rowMatches) {
+                        filteredData.push(row);
                     }
                 });
-                if (rowMatches) {
-                    filteredData.push(row);
-                }
-            });
 
-            //Paginate the data.
-            var pagedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
-            $scope.data = pagedData;
-            $scope.totalServerItems = data.length;
+                //Paginate the data.
+                var pagedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+                $scope.data = pagedData;
+                $scope.totalServerItems = data.length;
+            }
 
             //I have no idea what this is. It's in the example for pagination in their API.
             if (!$scope.$$phase) {
@@ -99,9 +102,14 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
         }, true);
 
+        $scope.$on(EVENTS.cacheReady, function() {
+            $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+        });
+
     }
 
 });
 
 
 
+4

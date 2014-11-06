@@ -24,11 +24,11 @@ angular.module('webServiceApp').factory('RestService',
                     Session.create(tokenExpirationDate, token, email, firstName, lastName,
                     permissions);
 
-                    //Broadcast to any listeners that login was successful.
-                    $rootScope.$broadcast(EVENTS.loginSuccess);
-
                     //Create the cache for this user's data.
                     restService.createCache();
+
+                    //Broadcast to any listeners that login was successful.
+                    $rootScope.$broadcast(EVENTS.loginSuccess);
 
                     }
                 else {
@@ -257,14 +257,12 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
-        restService.refreshCache();
     };
 
     restService.refreshCache = function () {
 
         var defer = $q.defer();
 
-        NotificationService.info('Downloading Data', 'Please wait...');
         defer.promise.then(function () {
             restService.listAccessLevels();
         })
@@ -276,11 +274,12 @@ angular.module('webServiceApp').factory('RestService',
         })
         .then(function () {
             restService.listDatasetsWithAttachments();
+        })
+        .then(function () {
+
         });
 
         defer.resolve();
-
-        restService.saveToLocalStorage();
 
     };
 
@@ -315,17 +314,22 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.cacheExists = function () {
-        if(localStorageService.get('data')) {
-            return true;
-        }
-        else {
-            restService.refreshCache();
+        if (Session.exists()) {
             if(localStorageService.get('data')) {
                 return true;
             }
+            else {
+                restService.refreshCache();
+                if(localStorageService.get('data')) {
+                    return true;
+                }
+            }
+            console.log('Could not restore cache.');
+            return false;
         }
-        console.log('Could not restore cache.');
-        return false;
+        else {
+            return false;
+        }
     };
 
     restService.destroyCache = function () {
