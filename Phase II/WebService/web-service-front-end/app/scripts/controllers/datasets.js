@@ -36,6 +36,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             showColumnMenu: true,
             showFilter: true,
             enableRowSelection : false,
+            //groups: ['client_name', 'field_name'],
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
                 {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html', width: 100},
