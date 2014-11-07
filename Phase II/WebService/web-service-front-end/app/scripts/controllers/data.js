@@ -6,7 +6,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
 
         if (Session.exists()) {
 
-            if (!$rootScope.loading && RestService.cacheExists()) {
+            if (RestService.cacheExists()) {
                 $scope.modalShow = false;
                 $rootScope.$broadcast(EVENTS.cacheReady);
                 $interval.cancel($scope.reload);
@@ -19,19 +19,11 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
 
      };
 
-    $scope.$on(EVENTS.loginSuccess, function(event, args) {
-
+    $scope.reload = $interval(function () {
         if (Session.exists()) {
+            console.log("checking for data..." + $rootScope.loading);
             $scope.checkForData();
         }
-
-    });
-
-    $scope.reload = $interval(function () {
-            if (Session.exists()) {
-                console.log("checking for data...");
-                $scope.checkForData();
-            }
-        }, 1000);
+    }, 1000);
 
 });

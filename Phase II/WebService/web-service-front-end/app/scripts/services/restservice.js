@@ -259,12 +259,11 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
+        $rootScope.loading = true;
         restService.refreshCache();
     };
 
     restService.refreshCache = function () {
-
-        $rootScope.loading = true;
 
         var defer = $q.defer();
 
@@ -279,9 +278,6 @@ angular.module('webServiceApp').factory('RestService',
         })
         .then(function () {
             restService.listDatasetsWithAttachments();
-        })
-        .then(function () {
-            $rootScope.loading = false;
         });
 
         defer.resolve();
@@ -323,7 +319,12 @@ angular.module('webServiceApp').factory('RestService',
     restService.cacheExists = function () {
         if (Session.exists()) {
             if(localStorageService.get('data')) {
+                $rootScope.loading = false;
                 return true;
+            }
+            if (!$rootScope.loading) {
+                $rootScope.loading = true;
+                restService.refreshCache();
             }
             return false;
         }
