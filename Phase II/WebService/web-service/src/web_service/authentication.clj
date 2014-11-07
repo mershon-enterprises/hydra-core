@@ -214,7 +214,7 @@
   ; first, just authenticate the domain admin normally
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
-        admin (authenticate email-address password)]
+        admin (authenticate client-uuid email-address password)]
     (if admin
       ; now that we know the admin is a valid user, we want to ensure that the
       ; admin is actually a member of the Domain Admins group
