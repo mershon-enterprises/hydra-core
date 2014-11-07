@@ -12,7 +12,6 @@
   'use strict';
 
   var rest = require('rest');
-  var Promise = require('promise');
 
   exports.endpointUrl = 'http://54.187.61.110:8080';
 
@@ -47,14 +46,9 @@
   };
 
   exports.version = function() {
-    return new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/version',
-      }).then(
-        function(response) { return resolve(response); },
-        function(error) { return reject(error); }
-      );
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/version',
     });
   };
 
