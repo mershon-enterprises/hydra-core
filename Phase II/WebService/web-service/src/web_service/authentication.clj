@@ -102,7 +102,7 @@
   [api-token client-uuid]
   (let [query (str "select u.* from public.user_api_token ut "
                    "inner join public.user u on u.id = ut.user_id "
-                   "where ut.client_uuid=? "
+                   "where ut.client_uuid::character varying=? "
                    "and ut.api_token=crypt(?, ut.api_token) "
                    "and ut.expiration_date > now()")]
     (first (sql/query (db) [query client-uuid api-token]))))
@@ -112,7 +112,7 @@
 (defn is-token-valid
   [api-token client-uuid]
   (let [query (str "select * from public.user_api_token "
-                   "where client_uuid=? "
+                   "where client_uuid::character varying=? "
                    "and api_token=crypt(?, api_token) "
                    "and expiration_date > now()")]
     (not (empty? (sql/query (db) [query client-uuid api-token])))))
@@ -127,7 +127,7 @@
         ; itself, because security
         query (str "insert into public.user_api_token "
                    "(api_token, client_uuid, expiration_date, user_id) values "
-                   "(crypt(?, gen_salt('bf', 7)), ?, "
+                   "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
                    "(select id from public.user where email_address=?)"
                    ")")
         success (try (sql/execute! (db) [query
@@ -139,7 +139,7 @@
                      (catch Exception e
                        (if (instance? SQLException e)
                           (do
-                             (.getCause e)
+                            (println e)
                              (println (.getNextException e)))
                           (println (.getMessage e)))
                        false))]
