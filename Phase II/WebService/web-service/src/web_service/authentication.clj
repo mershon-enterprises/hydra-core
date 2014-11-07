@@ -79,19 +79,19 @@
           401))
 
 
-; expire the specified API token, and any other tokens matching the client-uuid
+; expire API tokens for the specified client uuid, and any other tokens which
+; have passed their expiration date
 (defn expire-tokens
-  [api-token client-uuid]
+  [client-uuid]
   (let [expire-query (str "delete from public.user_api_token "
                           "where expiration_date<now() "
-                          "or client_uuid=? "
-                          "or api_token=crypt(?, api_token)")]
-    (try (sql/execute! (db) [expire-query client-uuid api-token])
+                          "or client_uuid::character varying=?")]
+    (try (sql/execute! (db) [expire-query client-uuid])
          true
          (catch Exception e
            (if (instance? SQLException e)
              (do
-               (.getCause e)
+               (println e)
                (println (.getNextException e)))
              (println (.getMessage e)))
            false))))
@@ -121,6 +121,7 @@
 ; create an API token for the user
 (defn- make-token
   [email-address client-uuid]
+  (expire-tokens client-uuid)
   (let [api-token (str (crypto.random/hex 255))
         expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
         ; we store the hash of the api token to the database, not the token
@@ -239,7 +240,6 @@
     ; included
     (let [user (get-user-by-token api-token client-uuid)
           fn-results (apply fun args)]
-      (expire-tokens api-token client-uuid)
       (let [new-token (if user (make-token (:email_address user) client-uuid))]
         {:status (:status fn-results)
          :headers (:headers fn-results)
