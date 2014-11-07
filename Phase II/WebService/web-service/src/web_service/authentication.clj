@@ -86,7 +86,7 @@
                           "where expiration_date<now() "
                           "or client_uuid=? "
                           "or api_token=crypt(?, api_token)")]
-    (try (sql/execute! (db) [expire-query client_uuid api-token])
+    (try (sql/execute! (db) [expire-query client-uuid api-token])
          true
          (catch Exception e
            (if (instance? SQLException e)
