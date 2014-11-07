@@ -1,11 +1,11 @@
 <nav>
-    <a class="upload-link" ng-href="#/upload">
+    <a ng-show="nav.isLoggedIn" class="upload-link" ng-href="#/upload">
                 Upload New Dataset<i class="fa fa-upload"></i>
     </a>
     <input ng-show="nav.isLoggedIn" placeholder="Search..." type="text" class="search">
     <ul>
         <li>
-            <a ng-href="#/datasets">
+            <a ng-show="nav.isLoggedIn" ng-href="#/datasets">
                 Dataset Search<i class="fa fa-search"></i>
             </a>
         </li>
