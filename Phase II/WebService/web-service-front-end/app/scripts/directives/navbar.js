@@ -4,7 +4,7 @@ angular.module('webServiceApp').directive('navbar', function() {
     return {
         restrict: 'E',
         templateUrl: 'templates/navbar.html',
-        controller: function ($scope, EVENTS) {
+        controller: function ($scope, Session, EVENTS) {
 
             $('.search').keyup(function() {
                 //Get current value of input field after every key press.
@@ -14,7 +14,7 @@ angular.module('webServiceApp').directive('navbar', function() {
             });
 
             var self = this;
-            self.isLoggedIn = false;
+            self.isLoggedIn = Session.exists();
 
             $scope.$on(EVENTS.loginSuccess, function() {
                 self.isLoggedIn = true;
