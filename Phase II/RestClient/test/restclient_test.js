@@ -24,17 +24,26 @@ restclient.endpointUrl = 'http://localhost:3000';
 */
 
 var apiToken = null;
+var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
 var goodLogin = function(callback) {
   restclient.authenticate(
+    clientUUID,
     "admin@example.com",
-    "adminpassword",
-    function(statusCode, body) {
+    "adminpassword"
+  ).then(
+    function(data) {
       // update the api token
-      var bodyObj = JSON.parse(body);
-      apiToken = bodyObj['token'];
+      try {
+        var statusCode = data.status.code;
+        var bodyObj = JSON.parse(data.entity);
+        apiToken = bodyObj['token'];
 
-      callback(statusCode, body);
+        callback(data);
+      } catch (e) {
+        console.log(e.message);
+        console.log("Body was: " + data.entity);
+      }
     });
 };
 var checkResponse = function(test, bodyObj) {
@@ -56,12 +65,18 @@ exports['version'] = {
   },
   'no-args': function(test) {
     test.expect(2);
-    restclient.version(
-      function(statusCode, body) {
+    restclient.version().then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 200, 'get version should succeed');
-        var bodyObj = JSON.parse(body);
-        test.ok('version' in bodyObj,
-          'version should be stated');
+        try {
+          var bodyObj = JSON.parse(data.entity);
+          test.ok('version' in bodyObj,
+            'version should be stated');
+        } catch (e) {
+          console.log(e.message);
+          console.log("Body was: " + data.entity);
+        }
         test.done();
       });
   }
@@ -77,19 +92,23 @@ exports['authenticate'] = {
     restclient.authenticate(
       null,
       null,
-      function(statusCode, body) {
+      null
+    ).then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 401, 'login should fail');
-        test.equal(body, 'Invalid credentials', 'login body text');
+        test.equal(data.entity, 'Invalid credentials', 'login body text');
         test.done();
       });
   },
   'admin': function(test) {
     test.expect(8);
     goodLogin(
-      function(statusCode, body) {
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 200, 'login should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.notEqual('email_address' in bodyObj['response'],
           'login response email address should be stated');
@@ -115,22 +134,28 @@ exports['adminAuthenticate'] = {
       null,
       null,
       null,
-      function(statusCode, body) {
+      null
+    ).then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 401, 'login should fail');
-        test.equal(body, 'Invalid credentials', 'login body text');
+        test.equal(data.entity, 'Invalid credentials', 'login body text');
         test.done();
       });
   },
   'admin': function(test) {
     test.expect(8);
     restclient.adminAuthenticate(
+      clientUUID,
       'admin@example.com',
       'adminpassword',
-      'basicuser@example.com',
-      function(statusCode, body) {
+      'basicuser@example.com'
+    ).then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 200, 'login should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.notEqual('email_address' in bodyObj['response'],
           'login response email address should be stated');
@@ -159,20 +184,27 @@ exports['listAccessLevels'] = {
     test.expect(2);
     restclient.listAccessLevels(
       null,
-      function(statusCode, body) {
+      null
+    ).then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 401, 'access level list should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listAccessLevels(
-      apiToken,
-      function(statusCode, body) {
+      clientUUID,
+      apiToken
+    ).then(
+      function(data) {
+        var statusCode = data.status.code;
         test.equal(statusCode, 200, 'access level list should succeed');
 
-        var bodyObj = JSON.parse(body);
+        console.log(data.entity);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'access level list should be an array');
