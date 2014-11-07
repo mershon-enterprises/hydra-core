@@ -259,8 +259,6 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
-        $rootScope.loading = true;
-        restService.refreshCache();
     };
 
     restService.refreshCache = function () {
@@ -340,6 +338,7 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.remove('clients');
         localStorageService.remove('users');
         localStorageService.remove('data');
+        $rootScope.loading = false;
     };
 
   return restService;
