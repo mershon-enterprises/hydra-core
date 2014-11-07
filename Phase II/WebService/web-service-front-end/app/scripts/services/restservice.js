@@ -5,6 +5,8 @@ angular.module('webServiceApp').factory('RestService',
 
     var restService = {};
 
+    $rootScope.loading = false;
+
     restService.authenticate = function (credentials) {
         restclient.authenticate(credentials.email, credentials.password).then(
             function(data) {
@@ -257,9 +259,12 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
+        restService.refreshCache();
     };
 
     restService.refreshCache = function () {
+
+        $rootScope.loading = true;
 
         var defer = $q.defer();
 
@@ -276,7 +281,7 @@ angular.module('webServiceApp').factory('RestService',
             restService.listDatasetsWithAttachments();
         })
         .then(function () {
-
+            $rootScope.loading = false;
         });
 
         defer.resolve();
@@ -313,23 +318,16 @@ angular.module('webServiceApp').factory('RestService',
         }
     };
 
+    //Returns true if the cache can be accessed from local storage. False
+    //otherwise.
     restService.cacheExists = function () {
         if (Session.exists()) {
             if(localStorageService.get('data')) {
                 return true;
             }
-            else {
-                restService.refreshCache();
-                if(localStorageService.get('data')) {
-                    return true;
-                }
-            }
-            console.log('Could not restore cache.');
             return false;
         }
-        else {
-            return false;
-        }
+        return false;
     };
 
     restService.destroyCache = function () {
