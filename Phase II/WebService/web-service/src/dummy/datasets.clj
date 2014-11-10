@@ -1,8 +1,12 @@
 (ns dummy.datasets
   (:use [cheshire.core]
+        [web-service.db]
         [web-service.data])
-  (:require [clojure.data.generators :as gen]
+  (:require [clojure.java.jdbc :as sql]
+            [clojure.data.generators :as gen]
             [clojure.data.codec.base64 :as b64]))
+
+(import java.sql.SQLException)
 
 (defn- char-range
   [start end]
@@ -62,11 +66,21 @@
   "create [count] dummy datasets, both with and without attachments"
   [count]
   (dotimes [n count]
-    (let [ds (mock-dataset)]
+    (let [ds (mock-dataset)
+          query (str "update public.data_set "
+                     "set client_location_id=? "
+                     "where uuid::character varying=?")]
       (data-submit
         (:email_address ds)
         (:uuid ds)
         (generate-string (:date_created ds))
         (:created_by ds)
-        (generate-string (:data ds)))))
+        (generate-string (:data ds)))
+      (try (sql/execute! (db) [query (+ (rand-int 5) 1) (:uuid ds)])
+        (catch Exception e
+          (if (instance? SQLException e)
+            (do (.getCause e)
+                (println (.getNextException e)))
+            (println (.getMessage e)))
+          false ))))
   true)
