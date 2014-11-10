@@ -206,15 +206,15 @@ angular.module('webServiceApp').factory('RestService',
             createdBy = {created_by: value.created_by};
             uuid = {uuid: value.uuid};
             dateCreated = {date_created: value.date_created};
+            clientName = {client: value.client};
             $.each(value.attachments, function(index, value){
                 if(value.type === 'attachment') {
                     attachments.push(value);
                 }
-                else if(value.type === 'text') {
-                    if(value.description === 'clientName') {
-                        clientName = {client_name: value.value};
-                    }
-                    else if(value.description === 'fieldName') {
+            });
+            $.each(value.primitive_text_data, function(index, value){
+                if(value.type === 'text') {
+                    if(value.description === 'fieldName') {
                         fieldName = {field_name: value.value};
                     }
                     else if(value.description === 'wellName') {
