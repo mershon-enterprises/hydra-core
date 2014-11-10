@@ -51,7 +51,10 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :data_set_attachments(flatten [(get-attachment-data (:id row))])})
+   :location (:location row)
+   :client (:client row)
+   :attachments (flatten [(get-attachment-data (:id row)) ])
+   :primitive_text_data (get-primitive-data "text" (:id row))})
 
 
 ; format the specified attachment from the data_set_attachment table
@@ -73,12 +76,21 @@
        "where ds.date_deleted is null "))
 
 (def data-set-with-attachments-query
-  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
-       "  from public.data_set_attachment dsa "
+  (str "select "
+       "  ds.id, ds.uuid, "
+       "  ds.date_created, "
+       "  u.email_address, "
+       "  cl.description as location, "
+       "  c.name as client "
+       "from public.data_set_attachment dsa "
        "inner join public.data_set ds "
        "  on ds.id = dsa.data_set_id "
        "inner join public.user u "
        "  on u.id = ds.created_by "
+       "left join public.client_location cl "
+       "  on ds.client_location_id = cl.id "
+       "left join public.client c "
+       "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
 
@@ -241,8 +253,13 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query (str data-set-query "limit 10")
-        query-own (str data-set-query "and u.email_address=? limit 10")]
+        query (str data-set-query
+                   "order by ds.date_created desc "
+                   "limit 10")
+        query-own (str data-set-query
+                       "and u.email_address=? "
+                       "order by ds.date_created desc "
+                       "limit 10")]
     (if can-access
       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
@@ -253,7 +270,7 @@
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
-; list up to 10 data items in the database, as an HTTP response
+; list datasets having attachments in the database, as an HTTP response
 (defn data-list-with-attachments
   [email-address]
 
@@ -265,8 +282,11 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query data-set-with-attachments-query
-        query-own (str data-set-with-attachments-query "and u.email_address=? ")]
+        query (str data-set-with-attachments-query
+                   "order by ds.date_created desc")
+        query-own (str data-set-with-attachments-query
+                       "and u.email_address=? "
+                       "order by ds.date_created desc")]
     (if can-access
       (response {:response (sql/query (db)
                                       [query]
@@ -311,3 +331,50 @@
                           [query-own uuid filename email-address]
                           :row-fn format-attachment))
         (access-denied constants/manage-data)))))
+
+; delete the specified data set attachment by dataset uuid and filename
+(defn data-delete-attachment
+  [email-address uuid filename]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-delete-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_attachment "
+                   "set date_deleted=now(), deleted_by="
+                   "(select id from public.user where email_address=?) "
+                   "where data_set_id="
+                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "and filename=? "
+                   "and dsa.date_deleted is null")]
+    (if can-access
+      (if (sql/execute! (db) [query email-address uuid filename])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+; rename the specified data set attachment filename
+(defn data-rename-attachment-filename
+  [email-address uuid filename new-filename]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-rename-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_attachment "
+                   "set filename=? "
+                   "where data_set_id="
+                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (if can-access
+      (if (sql/execute! (db) [query new-filename uuid filename])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))

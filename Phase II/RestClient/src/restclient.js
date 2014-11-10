@@ -12,6 +12,7 @@
   'use strict';
 
   var rest = require('rest');
+  var Promise = require('promise');
 
   exports.endpointUrl = 'http://54.187.61.110:8080';
 
@@ -45,35 +46,31 @@
     };
   };
 
-  exports.version = function(callback) {
-    rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/version',
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
+  exports.version = function() {
+    return new Promise(function(resolve, reject) {
+      rest({
+        method: 'GET',
+        path: exports.endpointUrl + '/version',
+      }).then(
+        function(response) { return resolve(response); },
+        function(error) { return reject(error); }
+      );
     });
   };
 
-  exports.authenticate = function(emailAddress, password, callback) {
-    rest({
+  exports.authenticate = function(emailAddress, password) {
+    return rest({
       method: 'POST',
       path: exports.endpointUrl + '/authenticate',
       params: {
         email_address: emailAddress,
         password: password
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress,
-      callback) {
-    rest({
+  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress) {
+    return rest({
       method: 'POST',
       path: exports.endpointUrl + '/admin-authenticate',
       params: {
@@ -81,128 +78,91 @@
         password: password,
         user_email_address: userEmailAddress
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listAccessLevels = function(apiToken, callback) {
-    rest({
+  exports.listAccessLevels = function(apiToken) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels',
       params: {
         api_token: apiToken
-      }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
+        }
     });
   };
 
-  exports.getAccessLevel = function(apiToken, description, callback) {
-    rest({
+  exports.getAccessLevel = function(apiToken, description) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels/' + description,
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listClients = function(apiToken, callback) {
-    rest({
+  exports.listClients = function(apiToken) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients',
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.getClient = function(apiToken, name, callback) {
-    rest({
+  exports.getClient = function(apiToken, name) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name,
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listClientLocations = function(apiToken, name, callback) {
-    rest({
+  exports.listClientLocations = function(apiToken, name) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name + '/locations',
       params: {
         api_token: apiToken,
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listData = function(apiToken, callback) {
-    rest({
+  exports.listData = function(apiToken) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listDatasetsWithAttachments = function(apiToken, callback) {
-    rest({
+  exports.listDatasetsWithAttachments = function(apiToken) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/attachments',
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.getData = function(apiToken, uuid, callback) {
-    rest({
+  exports.getData = function(apiToken, uuid) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid,
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
   // every item in data must be Attachment or PrimitiveData
-  exports.submitData = function(apiToken, dateCreated, createdBy, dataItems,
-      callback) {
+  exports.submitData = function(apiToken, dateCreated, createdBy, dataItems) {
 
     // guard against null date
     if (dateCreated == null)
@@ -231,7 +191,7 @@
       }
     }
 
-    rest({
+    return rest({
       method: 'POST',
       path: exports.endpointUrl + '/data',
       params: {
@@ -241,66 +201,46 @@
         created_by: createdBy,
         data: JSON.stringify(data)
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.deleteData = function(apiToken, uuid, callback) {
-    rest({
+  exports.deleteData = function(apiToken, uuid) {
+    return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listUsers = function(apiToken, callback) {
-    rest({
+  exports.listUsers = function(apiToken) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users',
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.getUser = function(apiToken, emailAddress, callback) {
-    rest({
+  exports.getUser = function(apiToken, emailAddress) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress,
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
-  exports.listUserAccess = function(apiToken, emailAddress, callback) {
-    rest({
+  exports.listUserAccess = function(apiToken, emailAddress) {
+    return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress + '/access',
       params: {
         api_token: apiToken
       }
-    }).then(function(response) {
-      callback(response.status.code, response.entity);
-    }, function(error) {
-      callback(400, error);
     });
   };
 
