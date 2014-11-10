@@ -51,10 +51,10 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :description (:description row)
-   :name (:name row)
-   :attachments (flatten [(get-attachment-data (:id row))
-                          (get-primitive-data "text" (:id row))])})
+   :location (:location row)
+   :client (:client row)
+   :attachments (flatten [(get-attachment-data (:id row)) ])
+   :primitive_text_data (get-primitive-data "text" (:id row))})
 
 
 ; format the specified attachment from the data_set_attachment table
@@ -80,8 +80,8 @@
        "  ds.id, ds.uuid, "
        "  ds.date_created, "
        "  u.email_address, "
-       "  cl.description, "
-       "  c.name "
+       "  cl.description as location, "
+       "  c.name as client "
        "from public.data_set_attachment dsa "
        "inner join public.data_set ds "
        "  on ds.id = dsa.data_set_id "
