@@ -4,9 +4,41 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
     if (Session.exists()) {
 
+        //jQuery click behavior bindings for ngGrid file controls.
+        $(document).on("click", ".fa-download", function(){
+            //Do download behavior.
+        });
+
+        $(document).on("click", ".fa-cog", function(){
+            $scope.toggleProperties($(this).attr("uuid"));
+        });
+
+
         $scope.showProperties = false;
-        $scope.toggleProperties = function() {
+        $scope.uuid = null;
+
+        $scope.toggleProperties = function(uuid) {
             $scope.showProperties = !$scope.showProperties;
+            $scope.uuid = uuid;
+
+            //Do file properties behavior.
+
+            //Ensure the scope applies after we make a change.
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+        $scope.renameFile = function() {
+
+            //Do rename behavior.
+
+        };
+
+        $scope.deleteFile = function() {
+
+            //Do delete behavior.
+
         };
 
         //Options for ng-grid.
@@ -94,7 +126,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 $scope.totalServerItems = data.length;
             }
 
-            //I have no idea what this is. It's in the example for pagination in their API.
+            //Ensure the scope applies after we make a change.
             if (!$scope.$$phase) {
                 $scope.$apply();
             }

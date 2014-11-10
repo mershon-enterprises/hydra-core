@@ -2,7 +2,11 @@
     <div class='ng-modal-overlay'></div>
     <div class='ng-modal-dialog'>
         <div class='ng-modal-close' ng-click='toggleProperties()'>X</div>
-        <div class='ng-modal-dialog-content'></div>
+        <div class='ng-modal-dialog-content'>
+            <label for="fileName">File Name</label>
+            <input type="text" id="fileName">
+            <button>Delete</button>
+        </div>
     </div>
 </div>
 <div class="gridStyle" ng-grid="gridOptions"></div>

@@ -324,6 +324,8 @@ footer {
 
 .ngCanvas, .ngViewport, .ngRow, .ngFooterPanel, .ngTopPanel   {
     width: 100% !important;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .ngRow {
@@ -332,6 +334,12 @@ footer {
 
 .author {
     font-size: .80em;
+}
+
+.ngCellText {
+    .fa-cog {
+        padding-left: $default-padding/3;
+    }
 }
 
 //Modal
@@ -359,6 +367,9 @@ footer {
     background-color: $off-white;
     box-shadow: 4px 4px 80px $off-black;
     @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
+    button {
+        @include button-style(1em);
+    }
 }
 
 .ng-modal-loading {
@@ -384,3 +395,4 @@ footer {
     display: inline-block;
     font-weight: bold;
 }
+
