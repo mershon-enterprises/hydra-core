@@ -51,6 +51,8 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
+   :description (:description row)
+   :name (:name row)
    :attachments (flatten [(get-attachment-data (:id row))])})
 
 
@@ -73,12 +75,21 @@
        "where ds.date_deleted is null "))
 
 (def data-set-with-attachments-query
-  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
-       "  from public.data_set_attachment dsa "
+  (str "select "
+       "  ds.id, ds.uuid, "
+       "  ds.date_created, "
+       "  u.email_address, "
+       "  cl.description, "
+       "  c.name "
+       "from public.data_set_attachment dsa "
        "inner join public.data_set ds "
        "  on ds.id = dsa.data_set_id "
        "inner join public.user u "
        "  on u.id = ds.created_by "
+       "left join public.client_location cl "
+       "  on ds.client_location_id = cl.id "
+       "left join public.client c "
+       "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
 
