@@ -36,4 +36,6 @@
 (def session-get-dataset "get dataset")
 (def session-get-dataset-attachment "get dataset attachment")
 (def session-delete-dataset "delete dataset")
+(def session-delete-dataset-attachment "delete dataset attachment")
+(def session-rename-dataset-attachment "rename dataset attachment")
 (def session-list-datasets "list datasets")

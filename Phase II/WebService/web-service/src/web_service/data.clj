@@ -331,3 +331,50 @@
                           [query-own uuid filename email-address]
                           :row-fn format-attachment))
         (access-denied constants/manage-data)))))
+
+; delete the specified data set attachment by dataset uuid and filename
+(defn data-delete-attachment
+  [email-address uuid filename]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-delete-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_attachment "
+                   "set date_deleted=now(), deleted_by="
+                   "(select id from public.user where email_address=?) "
+                   "where data_set_id="
+                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "and filename=? "
+                   "and dsa.date_deleted is null")]
+    (if can-access
+      (if (sql/execute! (db) [query email-address uuid filename])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+; rename the specified data set attachment filename
+(defn data-rename-attachment-filename
+  [email-address uuid filename new-filename]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-rename-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_attachment "
+                   "set filename=? "
+                   "where data_set_id="
+                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (if can-access
+      (if (sql/execute! (db) [query new-filename uuid filename])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
