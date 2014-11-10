@@ -32,12 +32,14 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.renameFile = function() {
 
             //Do rename behavior.
+            console.log("Rename clicked! UUID: " + $scope.uuid);
 
         };
 
         $scope.deleteFile = function() {
 
             //Do delete behavior.
+            console.log("Delete clicked! UUID: " + $scope.uuid);
 
         };
 
