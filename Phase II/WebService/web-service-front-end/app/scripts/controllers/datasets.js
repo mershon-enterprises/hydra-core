@@ -46,7 +46,8 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 {field: 'well_name', displayName: 'Well'},
                 {field: 'trailer_number', displayName: 'Trailer'},
                 {field: 'created_by', displayName: 'Author', cellTemplate: '/templates/ng-grid-templates/author.html', width: 250},
-                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'}
+                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'},
+                {field: 'uuid', displayName: '', cellTemplate: '/templates/ng-grid-templates/controls.html', width: 50}
             ]
         };
 

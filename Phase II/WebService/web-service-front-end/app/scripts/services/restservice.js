@@ -190,8 +190,11 @@ angular.module('webServiceApp').factory('RestService',
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
+        console.log(rawData);
+
         var data = [];
         var attachments = [];
+        var uuid = null;
         var createdBy = null;
         var dateCreated = null;
         var clientName = null;
@@ -201,6 +204,7 @@ angular.module('webServiceApp').factory('RestService',
 
         $.each(rawData, function(index, value){
             createdBy = {created_by: value.created_by};
+            uuid = {uuid: value.uuid};
             dateCreated = {date_created: value.date_created};
             $.each(value.attachments, function(index, value){
                 if(value.type === 'attachment') {
@@ -222,11 +226,13 @@ angular.module('webServiceApp').factory('RestService',
                 }
             });
             $.each(attachments, function(index, value){
-                data.push($.extend(value, createdBy, dateCreated,
+                data.push($.extend(value, uuid, createdBy, dateCreated,
                     clientName, fieldName, wellName, trailerNumber));
             });
             attachments = [];
         });
+
+        console.log(data);
 
         return data;
     };
