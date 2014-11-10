@@ -1,52 +1,116 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, $window, $timeout, EVENTS, RestService, NotificationService, Session) {
-       if (Session.exists()) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
 
-        var self = this;
+    if (Session.exists()) {
 
-        $scope.tableData = [];
+        //Options for ng-grid.
 
-        $scope.gridOptions = { data: 'tableData' };
+        //If any of ng-grid's options are declared seperately like this, it's
+        //so we can set up listeners on these specific options or expect them
+        //to change like variables.
 
-        //Listener for a successful accessLevels retrieval.
-        $scope.$on(EVENTS.dataRetrieved, function() {
+        $scope.filterOptions = {
+            filterText: '',
+            useExternalFilter: false
+        };
 
-            self.datasets = $rootScope.listDatasetsWithAttachmentsBuffer;
+        $scope.totalServerItems = 0;
 
-            var creationDate = null;
-            var attachments = [];
+        $scope.pagingOptions = {
+            pageSizes: [25, 50, 100],
+            pageSize: 25,
+            currentPage: 1
+        };
 
-            $.each(self.datasets, function(i, item) {
+        //API : https://angular-ui.github.io/ng-grid/
+        $scope.gridOptions = {
+            data: 'data',
+            sortInfo : { fields: ['date_created'], directions: ['desc'] },
+            enablePaging: true,
+            showFooter: true,
+            showGroupPanel: true,
+            totalServerItems: 'totalServerItems',
+            pagingOptions: $scope.pagingOptions,
+            filterOptions: $scope.filterOptions,
+            //showColumnMenu: true,
+            //showFilter: true,
+            enableRowSelection : false,
+            //groups: ['client_name', 'field_name'],
+            groupsCollapsedByDefault: false,
+            columnDefs: [
+                {field: 'filename', displayName: 'Filename'},
+                {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html', width: 100},
+                {field: 'client_name', displayName: 'Client'},
+                {field: 'field_name', displayName: 'Field'},
+                {field: 'well_name', displayName: 'Well'},
+                {field: 'trailer_number', displayName: 'Trailer'},
+                {field: 'created_by', displayName: 'Author', cellTemplate: '/templates/ng-grid-templates/author.html', width: 250},
+                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'}
+            ]
+        };
 
-                creationDate = item.date_created;
-                attachments = [];
+        //Retrieves data from the cache and then slices it to the requested pagination settings.
+        $scope.getPagedData = function (pageSize, page, filterText) {
 
-                $.each(item.data_set_attachments, function(i, dataItem) {
+            if (filterText) {
+                filterText = filterText.toLowerCase();
+            }
+            else {
+                filterText = '';
+            }
 
-                    attachments.push({
-                        filename : dataItem.filename,
-                        fileSize : dataItem.bytes
+            //Get the original data from the cache.
+            var data = RestService.getCacheValue('data');
+
+            if (data != null) {
+
+                //Filter the data.
+                var filteredData = [];
+                var rowMatches = false;
+                $.each(data, function(rowIndex, row){
+                    rowMatches = false;
+                    $.each(row, function(cellIndex, cell) {
+                        if (typeof cell === 'string'){
+                            if(cell.toLowerCase().indexOf(filterText) > -1){
+                                rowMatches = true;
+                            }
+                        }
                     });
-
+                    if (rowMatches) {
+                        filteredData.push(row);
+                    }
                 });
 
-                $.each(attachments, function(i, attachment) {
+                //Paginate the data.
+                var pagedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+                $scope.data = pagedData;
+                $scope.totalServerItems = data.length;
+            }
 
-                    $scope.tableData.push($.extend({Date_Created: creationDate} , attachment));
+            //I have no idea what this is. It's in the example for pagination in their API.
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
 
-                });
+        //Watchers for when options of ng-grid are change by the user.
+        $scope.$watch('pagingOptions', function () {
+            $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+        }, true);
 
-            });
+        $rootScope.$watch('filterText', function () {
+            $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+        }, true);
 
-              //TODO : This piece of code is required to call a resize event on the
-              //browser and force the datatables to redraw in the view. It is a
-              //hack. Replace it.
-              var w = angular.element($window);
-              $timeout(function(){ w.triggerHandler('resize'); });
+        $scope.$on(EVENTS.cacheReady, function() {
+            $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
         });
 
-        RestService.listDatasetsWithAttachments();
     }
 
 });
+
+
+
+4

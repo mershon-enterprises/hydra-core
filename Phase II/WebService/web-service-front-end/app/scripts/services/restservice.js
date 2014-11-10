@@ -1,114 +1,235 @@
 'use strict';
 
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, EVENTS, STATUS_CODES, Session, NotificationService) {
+    function ($rootScope, $q, EVENTS, STATUS_CODES, Session, NotificationService, localStorageService) {
 
-  var restService = {};
+    var restService = {};
 
-  restService.authenticate = function (credentials) {
-    restclient.authenticate(credentials.email, credentials.password,
-      function(status, res){
+    $rootScope.loading = false;
 
-      if (status === STATUS_CODES.ok) {
+    restService.authenticate = function (credentials) {
+        restclient.authenticate(credentials.email, credentials.password).then(
+            function(data) {
 
-        //Parse out the data from the restclient response.
-        var response  = JSON.parse(res);
-        var responseBody = response.response;
-        var tokenExpirationDate = response.token_expiration_date;
-        var token = response.token;
-        var email = responseBody.email_address;
-        var firstName = responseBody.first_name;
-        var lastName = responseBody.last_name;
-        var permissions = responseBody.access;
+                if (data.status.code === STATUS_CODES.ok) {
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    var responseBody = response.response;
+                    var tokenExpirationDate = response.token_expiration_date;
+                    var token = response.token;
+                    var email = responseBody.email_address;
+                    var firstName = responseBody.first_name;
+                    var lastName = responseBody.last_name;
+                    var permissions = responseBody.access;
 
-        //Populate the Session singleton with the user data.
-        Session.create(tokenExpirationDate, token, email, firstName, lastName,
-          permissions);
+                    //Populate the Session singleton with the user data.
+                    Session.create(tokenExpirationDate, token, email, firstName, lastName,
+                    permissions);
 
-        //Broadcast to any listeners that login was successful.
-        $rootScope.$broadcast(EVENTS.loginSuccess);
+                    //Create the cache for this user's data.
+                    restService.createCache();
 
-      }
+                    //Broadcast to any listeners that login was successful.
+                    $rootScope.$broadcast(EVENTS.loginSuccess);
 
-      else {
-        //Broadcast to any listeners that login has failed.
-        $rootScope.$broadcast(EVENTS.loginFailed);
-      }
+                    }
+                else {
+                    //Broadcast to any listeners that login has failed.
+                    $rootScope.$broadcast(EVENTS.loginFailed);
+                }
+            },
+            function(error) {console.log('Promise failed. ' + error);}
+        );
+    };
 
-    });
-  };
+    restService.listAccessLevels = function () {
 
-  restService.listAccessLevels = function () {
+        restclient.listAccessLevels(Session.getToken()).then(
 
-    restclient.listAccessLevels(Session.getToken(), function(status, res) {
+            function(data) {
 
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.accessLevelsBuffer = response.response;
-          $rootScope.$broadcast(EVENTS.accessLevelsRetrieved);
-        }
-        else {
-          console.log('restclient.listAccessLevels failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-        }
-    });
-  };
+                if (data.status.code === STATUS_CODES.ok) {
 
-  restService.listClients = function () {
+                    var responseBody = response.response;
 
-    restclient.listClients(Session.getToken(), function(status, res) {
+                    restService.updateCacheValue('accessLevels', responseBody);
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.listClientsBuffer = response.response;
-          $rootScope.$broadcast(EVENTS.clientsRetrieved);
-        }
-        else {
-          console.log('restclient.listClients failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-        }
-    });
-  };
+    restService.listClients = function () {
 
-  restService.listUsers = function () {
+        restclient.listClients(Session.getToken()).then(
 
-    restclient.listUsers(Session.getToken(), function(status, res) {
+            function(data) {
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.listUsersBuffer = response.response;
-          $rootScope.$broadcast(EVENTS.usersRetrieved);
-        }
-        else {
-          console.log('restclient.listUsers failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-        }
-    });
-  };
+                if (data.status.code === STATUS_CODES.ok) {
 
-  restService.listData = function () {
+                    var responseBody = response.response;
 
-    restclient.listData(Session.getToken(), function(status, res) {
+                    restService.updateCacheValue('clients', responseBody);
 
-      var response = JSON.parse(res);
-      Session.updateToken(response.token);
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
 
-        if (status === STATUS_CODES.ok) {
-          $rootScope.listDataBuffer = response.response;
-          $rootScope.$broadcast(EVENTS.dataRetrieved);
-        }
-        else {
-          console.log('restclient.listData failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
-        }
-    });
-  };
+    restService.listUsers = function () {
+
+        restclient.listUsers(Session.getToken()).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+
+                    var responseBody = response.response;
+
+                    restService.updateCacheValue('users', responseBody);
+
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+
+    restService.listData = function () {
+
+        restclient.listData(Session.getToken()).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+
+                    var responseBody = response.response;
+
+                    var parsedData =  restService.parseData(responseBody);
+
+                    restService.updateCacheValue('data', parsedData);
+
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+
+    restService.listDatasetsWithAttachments = function () {
+
+        restclient.listDatasetsWithAttachments(Session.getToken()).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+
+                    var responseBody = response.response;
+
+                    var parsedData =  restService.parseData(responseBody);
+
+                    restService.updateCacheValue('data', parsedData);
+
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+
+    //Parse the data from the restClient into a format ngTable wants.
+    //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
+    restService.parseData = function (rawData) {
+
+        var data = [];
+        var attachments = [];
+        var createdBy = null;
+        var dateCreated = null;
+        var clientName = null;
+        var fieldName = null;
+        var wellName = null;
+        var trailerNumber = null;
+
+        $.each(rawData, function(index, value){
+            createdBy = {created_by: value.created_by};
+            dateCreated = {date_created: value.date_created};
+            $.each(value.attachments, function(index, value){
+                if(value.type === 'attachment') {
+                    attachments.push(value);
+                }
+                else if(value.type === 'text') {
+                    if(value.description === 'clientName') {
+                        clientName = {client_name: value.value};
+                    }
+                    else if(value.description === 'fieldName') {
+                        fieldName = {field_name: value.value};
+                    }
+                    else if(value.description === 'wellName') {
+                        wellName = {well_name: value.value};
+                    }
+                    else if(value.description === 'trailerNumber') {
+                        trailerNumber = {trailer_number: value.value};
+                    }
+                }
+            });
+            $.each(attachments, function(index, value){
+                data.push($.extend(value, createdBy, dateCreated,
+                    clientName, fieldName, wellName, trailerNumber));
+            });
+            attachments = [];
+        });
+
+        return data;
+    };
 
   restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
 
@@ -118,27 +239,11 @@ angular.module('webServiceApp').factory('RestService',
         Session.updateToken(response.token);
 
         if (status === STATUS_CODES.ok) {
+          NotificationService.success('Dataset Submitted', 'Updating cache...');
         }
         else {
+          NotificationService.error('Dataset Submission Failed', 'Please try again.');
           console.log('restclient.submitData failed with ' + status);
-        }
-    });
-  };
-
-  restService.listDatasetsWithAttachments = function () {
-
-    restclient.listDatasetsWithAttachments(Session.getToken(), function(status, res) {
-
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
-
-        if (status === STATUS_CODES.ok) {
-          $rootScope.listDatasetsWithAttachmentsBuffer = response.response;
-          $rootScope.$broadcast(EVENTS.dataRetrieved);
-        }
-        else {
-          console.log('restclient.listDatasetsWithAttachments failed with ' + status);
-          $rootScope.$broadcast(EVENTS.dataLost);
         }
     });
   };
@@ -147,6 +252,94 @@ angular.module('webServiceApp').factory('RestService',
   $rootScope.$on(EVENTS.dataLost, function() {
       NotificationService.error('No Data', 'Please try again.');
   });
+
+    //CACHE ====================================================================
+    restService.createCache = function () {
+        localStorageService.set('accessLevels', null);
+        localStorageService.set('clients', null);
+        localStorageService.set('users', null);
+        localStorageService.set('data', null);
+    };
+
+    restService.refreshCache = function () {
+
+        var defer = $q.defer();
+
+        defer.promise.then(function () {
+            restService.listAccessLevels();
+        })
+        .then(function () {
+            restService.listClients();
+        })
+        .then(function () {
+            restService.listUsers();
+        })
+        .then(function () {
+            restService.listDatasetsWithAttachments();
+        });
+
+        defer.resolve();
+
+    };
+
+    restService.updateCacheValue = function (key, data) {
+        if ( key === 'accessLevels') {
+            localStorageService.set('accessLevels', data);
+        }
+        else if ( key === 'clients') {
+            localStorageService.set('clients', data);
+        }
+        else if ( key === 'users') {
+            localStorageService.set('users', data);
+        }
+        else if ( key === 'data') {
+            localStorageService.set('data', data);
+        }
+    };
+
+    restService.getCacheValue = function (key) {
+        if ( key === 'accessLevels') {
+            return localStorageService.get('accessLevels');
+        }
+        else if ( key === 'clients') {
+            return localStorageService.get('clients');
+        }
+        else if ( key === 'users') {
+            return localStorageService.get('users');
+        }
+        else if ( key === 'data') {
+            return localStorageService.get('data');
+        }
+    };
+
+    //Returns true if the cache can be accessed from local storage. False
+    //otherwise.
+    restService.cacheExists = function () {
+        if (Session.exists()) {
+            if(localStorageService.get('data')) {
+                $rootScope.loading = false;
+                return true;
+            }
+            if (!$rootScope.loading) {
+                $rootScope.loading = true;
+                restService.refreshCache();
+            }
+            return false;
+        }
+        return false;
+    };
+
+    restService.destroyCache = function () {
+        localStorageService.set('accessLevels', null);
+        localStorageService.set('clients', null);
+        localStorageService.set('users', null);
+        localStorageService.set('data', null);
+        localStorageService.remove('accessLevels');
+        localStorageService.remove('clients');
+        localStorageService.remove('users');
+        localStorageService.remove('data');
+        $rootScope.loading = false;
+    };
 
   return restService;
 });

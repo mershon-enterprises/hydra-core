@@ -25,7 +25,7 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        <div id="web-service-project-wrapper">
+        <div ng-controller="data" id="web-service-project-wrapper">
             <header>
                 Web-Service Application
             </header>
@@ -42,6 +42,10 @@
                     <li><i class="fa fa-envelope-square"></i> contact@slixbits.com</li>
                 </ul>
             </footer>
+
+            <!-- Loading Modal -->
+            <modal-loading show='modalShow'></modal-loading>
+
 
         </div>
 
@@ -77,13 +81,14 @@
         <script src="scripts/services/notification.js"></script>
         <script src="scripts/services/restservice.js"></script>
         <script src="scripts/services/session.js"></script>
+        <script src="scripts/directives/modal-loading.js"></script>
         <script src="scripts/directives/navbar.js"></script>
-        <script src="scripts/controllers/clients.js"></script>
+        <script src="scripts/filters/filesize.js"></script>
+        <script src="scripts/controllers/data.js"></script>
         <script src="scripts/controllers/datasets.js"></script>
         <script src="scripts/controllers/login.js"></script>
         <script src="scripts/controllers/logout.js"></script>
         <script src="scripts/controllers/upload.js"></script>
-        <script src="scripts/controllers/users.js"></script>
         <!-- endbuild -->
     </body>
 </html>
