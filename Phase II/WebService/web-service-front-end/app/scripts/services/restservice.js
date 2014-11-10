@@ -8,7 +8,8 @@ angular.module('webServiceApp').factory('RestService',
     $rootScope.loading = false;
 
     restService.authenticate = function (credentials) {
-        restclient.authenticate(credentials.email, credentials.password).then(
+        var clientUUID = localStorageService.get('clientUUID');
+        restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
             function(data) {
 
                 if (data.status.code === STATUS_CODES.ok) {
@@ -43,8 +44,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listAccessLevels = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listAccessLevels(Session.getToken()).then(
+        restclient.listAccessLevels(clientUUID, Session.getToken()).then(
 
             function(data) {
 
@@ -71,8 +73,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listClients = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listClients(Session.getToken()).then(
+        restclient.listClients(clientUUID, Session.getToken()).then(
 
             function(data) {
 
@@ -99,8 +102,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listUsers = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listUsers(Session.getToken()).then(
+        restclient.listUsers(clientUUID, Session.getToken()).then(
 
             function(data) {
 
@@ -127,8 +131,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listData = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listData(Session.getToken()).then(
+        restclient.listData(clientUUID, Session.getToken()).then(
 
             function(data) {
 
@@ -157,8 +162,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listDatasetsWithAttachments = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listDatasetsWithAttachments(Session.getToken()).then(
+        restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
 
             function(data) {
 
@@ -232,8 +238,9 @@ angular.module('webServiceApp').factory('RestService',
     };
 
   restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
+    var clientUUID = localStorageService.get('clientUUID');
 
-    restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
+    restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
 
         var response = JSON.parse(res);
         Session.updateToken(response.token);
@@ -259,6 +266,7 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
+        localStorageService.set('clientUUID', restclient.uuid());
     };
 
     restService.refreshCache = function () {
@@ -283,32 +291,34 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.updateCacheValue = function (key, data) {
-        if ( key === 'accessLevels') {
+        if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
         }
-        else if ( key === 'clients') {
+        else if (key === 'clients') {
             localStorageService.set('clients', data);
         }
-        else if ( key === 'users') {
+        else if (key === 'users') {
             localStorageService.set('users', data);
         }
-        else if ( key === 'data') {
+        else if (key === 'data') {
             localStorageService.set('data', data);
         }
     };
 
     restService.getCacheValue = function (key) {
-        if ( key === 'accessLevels') {
+        if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
         }
-        else if ( key === 'clients') {
+        else if (key === 'clients') {
             return localStorageService.get('clients');
         }
-        else if ( key === 'users') {
+        else if (key === 'users') {
             return localStorageService.get('users');
         }
-        else if ( key === 'data') {
+        else if (key === 'data') {
             return localStorageService.get('data');
+        } else if (key === 'clientUUID') {
+            return localStorageService.get('clientUUID');
         }
     };
 
