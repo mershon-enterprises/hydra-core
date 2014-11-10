@@ -4,6 +4,11 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
     if (Session.exists()) {
 
+        $scope.showProperties = false;
+        $scope.toggleProperties = function() {
+            $scope.showProperties = !$scope.showProperties;
+        };
+
         //Options for ng-grid.
 
         //If any of ng-grid's options are declared seperately like this, it's
