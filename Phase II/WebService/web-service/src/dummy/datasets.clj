@@ -35,11 +35,29 @@
      :description description
      :value value}))
 
+(defn mock-data-wellName-for-well-test
+  "create a random data item to be part of a dataset"
+  []
+  {:type "text"
+    :description "wellName"
+    :value (str "Well-" (format "%03d" (rand-int 301)))})
+
+(defn mock-data-trailerName-for-well-test
+  "create a random data item to be part of a dataset"
+  []
+  {:type "text"
+   :description "trailerNumber"
+   :value (str (rand-int 20))})
+
 (defn mock-attachment
   "create an attachment to be part of a dataset"
   []
   {:type "attachment"
-   :filename (str (rand-letters 14) ".csv")
+   :created_by (+ 1 (rand-int 2))
+   :filename (str "20" (+ 12 (rand-int 2))
+                  "-" (format "%02d" (+ 1 (rand-int 12)))
+                  "-" (format "%02d" (+ 1 (rand-int 30)))
+                  ".csv")
    :mime_type "text/csv"
    :contents (String. (b64/encode (.getBytes "a,b,c,d,e,f,g")))})
 
@@ -52,14 +70,19 @@
   (if (gen/boolean)
     (def data (conj data (mock-attachment))))
 
+  ; create a random wellName and trailer number
+  (def data (conj data (mock-data-wellName-for-well-test)))
+  (def data (conj data (mock-data-trailerName-for-well-test)))
+
   ; create a random number of data items, up to 10 items
-  (dotimes [n (rand-int 10)]
-    (def data (conj data (mock-data-item))))
+  ;(dotimes [n (rand-int 10)]
+  ;  (def data (conj data (mock-data-item))))
 
   {:email_address "admin@example.com"
    :uuid (str (java.util.UUID/randomUUID))
    :date_created (new java.util.Date)
-   :created_by "admin@example.com"
+   :created_by (rand-nth ["admin@example.com"
+                          "manager@example.com"])
    :data data})
 
 (defn mock-datasets
@@ -67,16 +90,34 @@
   [count]
   (dotimes [n count]
     (let [ds (mock-dataset)
-          query (str "update public.data_set "
-                     "set client_location_id=? "
-                     "where uuid::character varying=?")]
+          client-location-query (str "update public.data_set "
+                                     "set client_location_id=? "
+                                     "where uuid::character varying=?")
+          attachment-created-by-query (str "update public.data_set_attachment "
+                                "set created_by=("
+                                "  select created_by from public.data_set "
+                                "  where uuid::character varying=?) "
+                                "where data_set_id=("
+                                "  select id from public.data_set "
+                                "  where uuid::character varying=?)")
+          text-created-by-query (str "update public.data_set_text "
+                                "set created_by=("
+                                "  select created_by from public.data_set "
+                                "  where uuid::character varying=?) "
+                                "where data_set_id=("
+                                "  select id from public.data_set "
+                                "  where uuid::character varying=?)")
+          ]
       (data-submit
         (:email_address ds)
         (:uuid ds)
         (generate-string (:date_created ds))
         (:created_by ds)
         (generate-string (:data ds)))
-      (try (sql/execute! (db) [query (+ (rand-int 5) 1) (:uuid ds)])
+      (try
+        (sql/execute! (db) [client-location-query (+ (rand-int 5) 1) (:uuid ds)])
+        (sql/execute! (db) [attachment-created-by-query (:uuid ds) (:uuid ds)])
+        (sql/execute! (db) [text-created-by-query (:uuid ds) (:uuid ds)])
         (catch Exception e
           (if (instance? SQLException e)
             (do (.getCause e)
