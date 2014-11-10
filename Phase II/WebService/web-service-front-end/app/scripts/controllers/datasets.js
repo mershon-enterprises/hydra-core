@@ -75,7 +75,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //showColumnMenu: true,
             //showFilter: true,
             enableRowSelection : false,
-            //groups: ['client_name', 'field_name'],
+            groups: ['client', 'field_name'],
             groupsCollapsedByDefault: false,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
