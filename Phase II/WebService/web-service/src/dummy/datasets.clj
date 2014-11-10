@@ -47,7 +47,7 @@
   []
   {:type "text"
    :description "trailerNumber"
-   :value (str (rand-int 20))})
+   :value (str (+ 1 (rand-int 20)))})
 
 (defn mock-attachment
   "create an attachment to be part of a dataset"
