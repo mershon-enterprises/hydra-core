@@ -436,60 +436,8 @@ exports['listData'] = {
   }
 };
 
-exports['getData'] = {
-  setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
-  },
-  'no-api-token': function(test) {
-    test.expect(2);
-    restclient.getData(
-      null,
-      null,
-      null
-    ).then(
-      function(data) {
-        test.equal(data.status.code, 401, 'get data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
-        test.done();
-      });
-  },
-  // TODO -- implement test for specifying nonexistent data
-  'with-api-token': function(test) {
-    test.expect(11);
-    restclient.getData(
-      clientUUID,
-      apiToken,
-      '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57'
-    ).then(
-      function(data) {
-        test.equal(data.status.code, 200, 'get data should succeed');
-
-        console.log(data.entity);
-        var bodyObj = JSON.parse(data.entity);
-        checkResponse(test, bodyObj);
-        test.ok('uuid' in bodyObj['response'],
-          'data-set uuid should be stated');
-        test.ok('date_created' in bodyObj['response'],
-          'data-set date created should be stated');
-        test.ok('created_by' in bodyObj['response'],
-          'data-set created-by should be stated');
-        test.ok('data' in bodyObj['response'],
-          'data-set data should be stated');
-        test.ok(Array.isArray(bodyObj['response']['data']),
-          'data-set data should be an array');
-        test.ok(bodyObj['response']['data'].length > 0,
-          'at least one data item should exist');
-
-        test.equal(bodyObj['response']['uuid'],
-          '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
-          'testing sentinel data-set uuid should match');
-        test.done();
-      });
-  }
-};
-
+// GOTCHA -- test submitData before getData so we know we have a dataset to
+// validate against
 exports['submitData'] = {
   setUp: function(done) {
     if (apiToken == null)
@@ -614,6 +562,59 @@ exports['submitData'] = {
   }
 };
 
+exports['getData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getData(
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'get data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  // TODO -- implement test for specifying nonexistent data
+  'with-api-token': function(test) {
+    test.expect(11);
+    restclient.getData(
+      clientUUID,
+      apiToken,
+      createdUUID
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'get data should succeed');
+
+        var bodyObj = JSON.parse(data.entity);
+        checkResponse(test, bodyObj);
+        test.ok('uuid' in bodyObj['response'],
+          'data-set uuid should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'data-set date created should be stated');
+        test.ok('created_by' in bodyObj['response'],
+          'data-set created-by should be stated');
+        test.ok('data' in bodyObj['response'],
+          'data-set data should be stated');
+        test.ok(Array.isArray(bodyObj['response']['data']),
+          'data-set data should be an array');
+        test.ok(bodyObj['response']['data'].length > 0,
+          'at least one data item should exist');
+
+        test.equal(bodyObj['response']['uuid'],
+          createdUUID,
+          'testing sentinel data-set uuid should match');
+        test.done();
+      });
+  }
+};
+
 exports['deleteData'] = {
   setUp: function(done) {
     if (apiToken == null)
@@ -673,7 +674,8 @@ exports['listUsers'] = {
     test.expect(7);
     restclient.listUsers(
       clientUUID,
-      apiToken,
+      apiToken
+    ).then(
       function(data) {
         test.equal(data.status.code, 200, 'list users should succeed');
 
