@@ -40,14 +40,21 @@
   []
   {:type "text"
     :description "wellName"
-    :value (str "Well-" (format "%03d" (rand-int 301)))})
+    :value (str "Well-" (format "%02d" (rand-int 21)))})
 
-(defn mock-data-trailerName-for-well-test
+(defn mock-data-trailerNumber-for-well-test
   "create a random data item to be part of a dataset"
   []
   {:type "text"
    :description "trailerNumber"
    :value (str (+ 1 (rand-int 20)))})
+
+(defn mock-data-fieldName-for-well-test
+  "create a random data item to be part of a dataset"
+  []
+  {:type "text"
+   :description "fieldName"
+   :value (rand-nth ["Kern River" "Midway-Sunset" "Wilmington"])})
 
 (defn mock-attachment
   "create an attachment to be part of a dataset"
@@ -70,9 +77,10 @@
   (if (gen/boolean)
     (def data (conj data (mock-attachment))))
 
-  ; create a random wellName and trailer number
+  ; create a random wellName, trailerNumber and fieldName
   (def data (conj data (mock-data-wellName-for-well-test)))
-  (def data (conj data (mock-data-trailerName-for-well-test)))
+  (def data (conj data (mock-data-trailerNumber-for-well-test)))
+  (def data (conj data (mock-data-fieldName-for-well-test)))
 
   ; create a random number of data items, up to 10 items
   ;(dotimes [n (rand-int 10)]
