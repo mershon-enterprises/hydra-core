@@ -53,7 +53,8 @@
    :created_by (:email_address row)
    :description (:description row)
    :name (:name row)
-   :attachments (flatten [(get-attachment-data (:id row))])})
+   :attachments (flatten [(get-attachment-data (:id row))
+                          (get-primitive-data "text" (:id row))])})
 
 
 ; format the specified attachment from the data_set_attachment table
