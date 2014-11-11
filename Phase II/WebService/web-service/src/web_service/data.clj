@@ -376,12 +376,19 @@
         can-access (contains? access constants/manage-data)
         query (str "update public.data_set_attachment "
                    "set filename=? "
-                   "where data_set_id="
-                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "where data_set_id=("
+                   "  select id from public.data_set "
+                   "  where uuid::character varying=?) "
                    "and filename=? "
                    "and date_deleted is null")]
     (if can-access
-      (if (sql/execute! (db) [query new-filename uuid filename])
+      (if (try (sql/execute! (db) [query new-filename uuid filename])
+            (catch Exception e
+              (if (instance? SQLException e)
+                (do (.getCause e)
+                    (println (.getNextException e)))
+                (println (.getMessage e)))
+              false))
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
