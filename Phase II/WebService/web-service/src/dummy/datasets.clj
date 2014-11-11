@@ -86,10 +86,9 @@
   ; create a random number of data items, up to 10 items
   ;(dotimes [n (rand-int 10)]
   ;  (def data (conj data (mock-data-item))))
-
   {:email_address "admin@example.com"
    :uuid (str (java.util.UUID/randomUUID))
-   :date_created (new java.util.Date)
+   :date_created (new java.util.Date (- 1415666522865 (* (rand-int 58639) 1000000)))
    :created_by (rand-nth ["admin@example.com"
                           "manager@example.com"])
    :data data})
