@@ -320,6 +320,28 @@ angular.module('webServiceApp').factory('RestService',
         }
     };
 
+    //Remove a value from the restclient's data cache.
+    restService.removeCacheDataValue = function (uuid) {
+
+        var data = localStorageService.get('data');
+        var matchingIndex = null;
+
+        if(data) {
+            $.each(data, function(index, value){
+                if(value.uuid === uuid) {
+                    matchingIndex = value;
+                }
+            });
+
+            if(matchingIndex) {
+                data.splice(matchingIndex, 1);
+                restService.updateCacheValue('data', data);
+                return true;
+            }
+        }
+        return false;
+    };
+
     //Returns true if the cache can be accessed from local storage. False
     //otherwise.
     restService.cacheExists = function () {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session, NotificationService) {
 
     if (Session.exists()) {
 
@@ -17,11 +17,11 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.showProperties = false;
         $scope.uuid = null;
 
+        //Display a modal window with the file's properties along with the
+        //controls for renaming and deleting that file.
         $scope.toggleProperties = function(uuid) {
             $scope.showProperties = !$scope.showProperties;
             $scope.uuid = uuid;
-
-            //Do file properties behavior.
 
             //Ensure the scope applies after we make a change.
             if (!$scope.$$phase) {
@@ -38,10 +38,17 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         $scope.deleteFile = function() {
 
-            //Do delete behavior.
-            console.log("Delete clicked! UUID: " + $scope.uuid);
+            var cacheDeleted = RestService.removeCacheDataValue($scope.uuid);
 
-        };
+            if(cacheDeleted) {
+                $scope.toggleProperties();
+                $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+                NotificationService.success('Success', 'Attachment Deleted');
+            }
+            else {
+                NotificationService.failure('Could not delete attachment.', 'Please try again.');
+            }
+        }
 
         //Options for ng-grid.
 
