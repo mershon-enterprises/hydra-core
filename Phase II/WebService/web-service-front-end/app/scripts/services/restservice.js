@@ -16,6 +16,7 @@ angular.module('webServiceApp').factory('RestService',
                     //Parse out the data from the restclient response.
                     var response = JSON.parse(data.entity);
                     var responseBody = response.response;
+
                     var tokenExpirationDate = response.token_expiration_date;
                     var token = response.token;
                     var email = responseBody.email_address;
@@ -32,8 +33,7 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Broadcast to any listeners that login was successful.
                     $rootScope.$broadcast(EVENTS.loginSuccess);
-
-                    }
+                }
                 else {
                     //Broadcast to any listeners that login has failed.
                     $rootScope.$broadcast(EVENTS.loginFailed);
@@ -50,11 +50,10 @@ angular.module('webServiceApp').factory('RestService',
 
             function(data) {
 
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -78,12 +77,11 @@ angular.module('webServiceApp').factory('RestService',
         restclient.listClients(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -107,12 +105,11 @@ angular.module('webServiceApp').factory('RestService',
         restclient.listUsers(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -136,12 +133,11 @@ angular.module('webServiceApp').factory('RestService',
         restclient.listData(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -167,12 +163,11 @@ angular.module('webServiceApp').factory('RestService',
         restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -241,11 +236,10 @@ angular.module('webServiceApp').factory('RestService',
     var clientUUID = localStorageService.get('clientUUID');
 
     restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
-
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
-
         if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          Session.updateToken(response.token);
+
           NotificationService.success('Dataset Submitted', 'Updating cache...');
         }
         else {
