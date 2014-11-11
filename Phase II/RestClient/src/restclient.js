@@ -13,7 +13,8 @@
 
   var rest = require('rest');
 
-  exports.endpointUrl = 'http://54.187.61.110:8080';
+  // replaced by grunt-string-replace
+  exports.endpointUrl = 'ENDPOINT_URL';
 
   exports.uuid = (function() {
     // borrowed from http://stackoverflow.com/a/105074/3541792
