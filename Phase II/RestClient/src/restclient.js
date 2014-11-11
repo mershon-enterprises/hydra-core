@@ -141,16 +141,6 @@
     });
   };
 
-  exports.listDatasetsWithAttachments = function(apiToken) {
-    return rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/attachments',
-      params: {
-        api_token: apiToken
-      }
-    });
-  };
-
   exports.getData = function(apiToken, uuid) {
     return rest({
       method: 'GET',
@@ -208,6 +198,26 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
+      params: {
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.listDatasetsWithAttachments = function(apiToken) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/attachments',
+      params: {
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.deleteAttachment = function(apiToken, uuid, filename) {
+    return rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
       params: {
         api_token: apiToken
       }
