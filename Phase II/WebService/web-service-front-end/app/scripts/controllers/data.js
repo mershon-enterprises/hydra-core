@@ -21,7 +21,6 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
 
     $scope.reload = $interval(function () {
         if (Session.exists()) {
-            console.log("checking for data..." + $rootScope.loading);
             $scope.checkForData();
         }
     }, 1000);

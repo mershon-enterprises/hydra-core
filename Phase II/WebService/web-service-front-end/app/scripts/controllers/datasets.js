@@ -5,12 +5,12 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
     if (Session.exists()) {
 
         //jQuery click behavior bindings for ngGrid file controls.
-        $(document).on("click", ".fa-download", function(){
+        $(document).on('click', '.fa-download', function(){
             //Do download behavior.
         });
 
-        $(document).on("click", ".fa-cog", function(){
-            $scope.toggleProperties($(this).attr("uuid"));
+        $(document).on('click', '.fa-cog', function(){
+            $scope.toggleProperties($(this).attr('uuid'));
         });
 
 
@@ -32,7 +32,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.renameFile = function() {
 
             //Do rename behavior.
-            console.log("Rename clicked! UUID: " + $scope.uuid);
+            console.log('Rename clicked! UUID: ' + $scope.uuid);
 
         };
 
@@ -48,7 +48,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             else {
                 NotificationService.failure('Could not delete attachment.', 'Please try again.');
             }
-        }
+        };
 
         //Options for ng-grid.
 
@@ -111,7 +111,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //Get the original data from the cache.
             var data = RestService.getCacheValue('data');
 
-            if (data != null) {
+            if (data !== null) {
 
                 //Filter the data.
                 var filteredData = [];
@@ -158,7 +158,3 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
     }
 
 });
-
-
-
-4
