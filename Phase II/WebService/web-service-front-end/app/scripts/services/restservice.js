@@ -198,6 +198,7 @@ angular.module('webServiceApp').factory('RestService',
         var createdBy = null;
         var dateCreated = null;
         var clientName = null;
+        var location = null;
         var fieldName = null;
         var wellName = null;
         var trailerNumber = null;
@@ -207,6 +208,7 @@ angular.module('webServiceApp').factory('RestService',
             uuid = {uuid: value.uuid};
             dateCreated = {date_created: value.date_created};
             clientName = {client: value.client};
+            location = {location: value.location};
             $.each(value.attachments, function(index, value){
                 if(value.type === 'attachment') {
                     attachments.push(value);
@@ -226,7 +228,7 @@ angular.module('webServiceApp').factory('RestService',
                 }
             });
             $.each(attachments, function(index, value){
-                data.push($.extend(value, uuid, createdBy, dateCreated,
+                data.push($.extend(value, uuid, createdBy, location, dateCreated,
                     clientName, fieldName, wellName, trailerNumber));
             });
             attachments = [];
