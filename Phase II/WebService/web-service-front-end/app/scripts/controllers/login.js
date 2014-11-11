@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webServiceApp').controller('LoginCtrl',
- function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, Session) {
+ function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, localStorageService, Session) {
 
     $scope.credentials = {
         email: '',
