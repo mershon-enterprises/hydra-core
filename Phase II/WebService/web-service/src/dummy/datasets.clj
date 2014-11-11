@@ -88,7 +88,7 @@
   ;  (def data (conj data (mock-data-item))))
   {:email_address "admin@example.com"
    :uuid (str (java.util.UUID/randomUUID))
-   :date_created (new java.util.Date (- 1415666522865 (* (rand-int 58639) 1000000)))
+   :date_created (new java.util.Date (- 1415667697780 (* (+ 1 (rand-int 35600)) 86400000)))
    :created_by (rand-nth ["admin@example.com"
                           "manager@example.com"])
    :data data})
