@@ -3,6 +3,7 @@ begin;
 -- wipe out the database
 truncate table public.user_access_level cascade;
 truncate table public.client cascade;
+truncate table public.client_location cascade;
 truncate table public.data_set cascade;
 truncate table public.user cascade;
 
@@ -27,32 +28,37 @@ insert into public.client (name) values
 ('Occidental Petroleum');
 
 -- set up locations
-insert into public.client_location (client_id, description) values
+insert into public.client_location (id, client_id, description) values
 (
+    1,
     (select id from public.client where name='Aera Energy'),
     'North Midway'
 ),
 (
+    2,
     (select id from public.client where name='Aera Energy'),
     'South Belridge'
 ),
 (
+    3,
     (select id from public.client where name='Chevron'),
     'Cymric'
 ),
 (
+    4,
     (select id from public.client where name='Chevron'),
     'Kern River'
 ),
 (
+    5,
     (select id from public.client where name='Occidental Petroleum'),
     'Lost Hills'
 );
 
 -- set up users
-insert into public.user (email_address) values
-('admin@example.com'),
-('manager@example.com');
+insert into public.user (id, email_address) values
+(1, 'admin@example.com'),
+(2, 'manager@example.com');
 
 -- set up manager access for kevin
 insert into public.user_to_user_access_level (user_id, access_level_id) values

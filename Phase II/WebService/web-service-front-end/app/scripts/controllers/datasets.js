@@ -1,8 +1,54 @@
 'use strict';
 
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session, NotificationService) {
 
     if (Session.exists()) {
+
+        //jQuery click behavior bindings for ngGrid file controls.
+        $(document).on('click', '.fa-download', function(){
+            //Do download behavior.
+        });
+
+        $(document).on('click', '.fa-cog', function(){
+            $scope.toggleProperties($(this).attr('uuid'));
+        });
+
+
+        $scope.showProperties = false;
+        $scope.uuid = null;
+
+        //Display a modal window with the file's properties along with the
+        //controls for renaming and deleting that file.
+        $scope.toggleProperties = function(uuid) {
+            $scope.showProperties = !$scope.showProperties;
+            $scope.uuid = uuid;
+
+            //Ensure the scope applies after we make a change.
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+        $scope.renameFile = function() {
+
+            //Do rename behavior.
+            console.log('Rename clicked! UUID: ' + $scope.uuid);
+
+        };
+
+        $scope.deleteFile = function() {
+
+            var cacheDeleted = RestService.removeCacheDataValue($scope.uuid);
+
+            if(cacheDeleted) {
+                $scope.toggleProperties();
+                $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+                NotificationService.success('Success', 'Attachment Deleted');
+            }
+            else {
+                NotificationService.failure('Could not delete attachment.', 'Please try again.');
+            }
+        };
 
         //Options for ng-grid.
 
@@ -36,17 +82,19 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //showColumnMenu: true,
             //showFilter: true,
             enableRowSelection : false,
-            //groups: ['client_name', 'field_name'],
+            groups: ['client', 'location'],
             groupsCollapsedByDefault: false,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
                 {field: 'bytes', displayName: 'Filesize', cellTemplate: '/templates/ng-grid-templates/filesize.html', width: 100},
-                {field: 'client_name', displayName: 'Client'},
+                {field: 'client', displayName: 'Client'},
+                {field: 'location', displayName: 'Location'},
                 {field: 'field_name', displayName: 'Field'},
                 {field: 'well_name', displayName: 'Well'},
                 {field: 'trailer_number', displayName: 'Trailer'},
                 {field: 'created_by', displayName: 'Author', cellTemplate: '/templates/ng-grid-templates/author.html', width: 250},
-                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'}
+                {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'},
+                {field: 'uuid', displayName: '', cellTemplate: '/templates/ng-grid-templates/controls.html', width: 50}
             ]
         };
 
@@ -63,7 +111,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //Get the original data from the cache.
             var data = RestService.getCacheValue('data');
 
-            if (data != null) {
+            if (data !== null) {
 
                 //Filter the data.
                 var filteredData = [];
@@ -88,7 +136,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 $scope.totalServerItems = data.length;
             }
 
-            //I have no idea what this is. It's in the example for pagination in their API.
+            //Ensure the scope applies after we make a change.
             if (!$scope.$$phase) {
                 $scope.$apply();
             }
@@ -110,7 +158,3 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
     }
 
 });
-
-
-
-4

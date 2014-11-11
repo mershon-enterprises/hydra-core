@@ -191,27 +191,33 @@ angular.module('webServiceApp').factory('RestService',
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
+        console.log(rawData);
+
         var data = [];
         var attachments = [];
+        var uuid = null;
         var createdBy = null;
         var dateCreated = null;
         var clientName = null;
+        var location = null;
         var fieldName = null;
         var wellName = null;
         var trailerNumber = null;
 
         $.each(rawData, function(index, value){
             createdBy = {created_by: value.created_by};
+            uuid = {uuid: value.uuid};
             dateCreated = {date_created: value.date_created};
+            clientName = {client: value.client};
+            location = {location: value.location};
             $.each(value.attachments, function(index, value){
                 if(value.type === 'attachment') {
                     attachments.push(value);
                 }
-                else if(value.type === 'text') {
-                    if(value.description === 'clientName') {
-                        clientName = {client_name: value.value};
-                    }
-                    else if(value.description === 'fieldName') {
+            });
+            $.each(value.primitive_text_data, function(index, value){
+                if(value.type === 'text') {
+                    if(value.description === 'fieldName') {
                         fieldName = {field_name: value.value};
                     }
                     else if(value.description === 'wellName') {
@@ -223,11 +229,13 @@ angular.module('webServiceApp').factory('RestService',
                 }
             });
             $.each(attachments, function(index, value){
-                data.push($.extend(value, createdBy, dateCreated,
+                data.push($.extend(value, uuid, createdBy, location, dateCreated,
                     clientName, fieldName, wellName, trailerNumber));
             });
             attachments = [];
         });
+
+        console.log(data);
 
         return data;
     };
@@ -313,6 +321,28 @@ angular.module('webServiceApp').factory('RestService',
         } else if (key === 'clientUUID') {
             return localStorageService.get('clientUUID');
         }
+    };
+
+    //Remove a value from the restclient's data cache.
+    restService.removeCacheDataValue = function (uuid) {
+
+        var data = localStorageService.get('data');
+        var matchingIndex = null;
+
+        if(data) {
+            $.each(data, function(index, value){
+                if(value.uuid === uuid) {
+                    matchingIndex = value;
+                }
+            });
+
+            if(matchingIndex) {
+                data.splice(matchingIndex, 1);
+                restService.updateCacheValue('data', data);
+                return true;
+            }
+        }
+        return false;
     };
 
     //Returns true if the cache can be accessed from local storage. False
