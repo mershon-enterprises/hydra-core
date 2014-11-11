@@ -38,6 +38,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         $scope.deleteFile = function() {
 
+            RestService.deleteAttachment(Session.getToken(), $scope.uuid, RestService.getFilename($scope.uuid));
             var cacheDeleted = RestService.removeCacheDataValue($scope.uuid);
 
             if(cacheDeleted) {

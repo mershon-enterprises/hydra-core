@@ -257,6 +257,30 @@ angular.module('webServiceApp').factory('RestService',
     });
   };
 
+  restService.deleteAttachment = function (uuid, filename) {
+
+        restclient.deleteAttachment(Session.getToken(), uuid, filename).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+                    console.log(filename + ' deleted.');
+                }
+                else {
+                  //Broadcast to any listeners that data wasn't retrieved.
+                  $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+
   //Listener for a failed data retrieval.
   $rootScope.$on(EVENTS.dataLost, function() {
       NotificationService.error('No Data', 'Please try again.');
@@ -343,6 +367,21 @@ angular.module('webServiceApp').factory('RestService',
             }
         }
         return false;
+    };
+
+    //Retrieve a filename from a given UUID.
+    restService.getFilename = function (uuid) {
+
+        var data = localStorageService.get('data');
+
+        if(data) {
+            $.each(data, function(index, value){
+                if(value.uuid === uuid) {
+                    return value.filename;
+                }
+            });
+        }
+        return null;
     };
 
     //Returns true if the cache can be accessed from local storage. False
