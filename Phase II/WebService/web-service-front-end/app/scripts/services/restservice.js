@@ -266,7 +266,6 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
         localStorageService.set('data', null);
-        localStorageService.set('clientUUID', restclient.uuid());
     };
 
     restService.refreshCache = function () {

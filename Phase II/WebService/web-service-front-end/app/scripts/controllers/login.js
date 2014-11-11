@@ -15,6 +15,11 @@ angular.module('webServiceApp').controller('LoginCtrl',
     //Listens for route changes, verifies someone is logged in. If they are not,
     //redirect to root.
     $rootScope.$on('$routeChangeStart', function(event, next) {
+        // on application launch, if a client UUID doesn't exist, set one
+        if (!localStorageService.get('clientUUID')) {
+            localStorageService.set('clientUUID', restclient.uuid());
+        }
+
         if (next.loggedInOnly && !Session.exists()) {
             $location.replace();
             return $location.path('/');
