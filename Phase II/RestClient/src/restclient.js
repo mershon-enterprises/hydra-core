@@ -12,9 +12,9 @@
   'use strict';
 
   var rest = require('rest');
-  var Promise = require('promise');
 
-  exports.endpointUrl = 'http://54.187.61.110:8080';
+  // replaced by grunt-string-replace
+  exports.endpointUrl = 'ENDPOINT_URL';
 
   exports.uuid = (function() {
     // borrowed from http://stackoverflow.com/a/105074/3541792
@@ -47,33 +47,30 @@
   };
 
   exports.version = function() {
-    return new Promise(function(resolve, reject) {
-      rest({
-        method: 'GET',
-        path: exports.endpointUrl + '/version',
-      }).then(
-        function(response) { return resolve(response); },
-        function(error) { return reject(error); }
-      );
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/version',
     });
   };
 
-  exports.authenticate = function(emailAddress, password) {
+  exports.authenticate = function(clientUUID, emailAddress, password) {
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/authenticate',
       params: {
+        client_uuid: clientUUID,
         email_address: emailAddress,
         password: password
       }
     });
   };
 
-  exports.adminAuthenticate = function(emailAddress, password, userEmailAddress) {
+  exports.adminAuthenticate = function(clientUUID, emailAddress, password, userEmailAddress) {
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/admin-authenticate',
       params: {
+        client_uuid: clientUUID,
         email_address: emailAddress,
         password: password,
         user_email_address: userEmailAddress
@@ -81,78 +78,96 @@
     });
   };
 
-  exports.listAccessLevels = function(apiToken) {
+  exports.listAccessLevels = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
-        }
+      }
     });
   };
 
-  exports.getAccessLevel = function(apiToken, description) {
+  exports.getAccessLevel = function(clientUUID, apiToken, description) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels/' + description,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.listClients = function(apiToken) {
+  exports.listClients = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.getClient = function(apiToken, name) {
+  exports.getClient = function(clientUUID, apiToken, name) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.listClientLocations = function(apiToken, name) {
+  exports.listClientLocations = function(clientUUID, apiToken, name) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name + '/locations',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken,
       }
     });
   };
 
-  exports.listData = function(apiToken) {
+  exports.listData = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.getData = function(apiToken, uuid) {
+  exports.listDatasetsWithAttachments = function(clientUUID, apiToken) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/attachments',
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.getData = function(clientUUID, apiToken, uuid) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
   // every item in data must be Attachment or PrimitiveData
-  exports.submitData = function(apiToken, dateCreated, createdBy, dataItems) {
+  exports.submitData = function(clientUUID, apiToken, dateCreated, createdBy, dataItems) {
 
     // guard against null date
     if (dateCreated == null)
@@ -185,6 +200,7 @@
       method: 'POST',
       path: exports.endpointUrl + '/data',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken,
         uuid: exports.uuid(),
         date_created: dateCreated.toISOString(),
@@ -194,72 +210,68 @@
     });
   };
 
-  exports.deleteData = function(apiToken, uuid) {
+  exports.deleteData = function(clientUUID, apiToken, uuid) {
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.listDatasetsWithAttachments = function(apiToken) {
-    return rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/attachments',
-      params: {
-        api_token: apiToken
-      }
-    });
-  };
-
-  exports.renameAttachment = function(apiToken, uuid, filename, newFilename) {
+  exports.renameAttachment = function(clientUUID, apiToken, uuid, filename, newFilename) {
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken,
         new_filename: newFilename
       }
     });
   };
 
-  exports.deleteAttachment = function(apiToken, uuid, filename) {
+  exports.deleteAttachment = function(clientUUID, apiToken, uuid, filename) {
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.listUsers = function(apiToken) {
+  exports.listUsers = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.getUser = function(apiToken, emailAddress) {
+  exports.getUser = function(clientUUID, apiToken, emailAddress) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress,
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });
   };
 
-  exports.listUserAccess = function(apiToken, emailAddress) {
+  exports.listUserAccess = function(clientUUID, apiToken, emailAddress) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress + '/access',
       params: {
+        client_uuid: clientUUID,
         api_token: apiToken
       }
     });

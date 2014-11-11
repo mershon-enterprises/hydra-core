@@ -8,13 +8,15 @@ angular.module('webServiceApp').factory('RestService',
     $rootScope.loading = false;
 
     restService.authenticate = function (credentials) {
-        restclient.authenticate(credentials.email, credentials.password).then(
+        var clientUUID = localStorageService.get('clientUUID');
+        restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
             function(data) {
 
                 if (data.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
                     var response = JSON.parse(data.entity);
                     var responseBody = response.response;
+
                     var tokenExpirationDate = response.token_expiration_date;
                     var token = response.token;
                     var email = responseBody.email_address;
@@ -31,8 +33,7 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Broadcast to any listeners that login was successful.
                     $rootScope.$broadcast(EVENTS.loginSuccess);
-
-                    }
+                }
                 else {
                     //Broadcast to any listeners that login has failed.
                     $rootScope.$broadcast(EVENTS.loginFailed);
@@ -43,16 +44,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listAccessLevels = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listAccessLevels(Session.getToken()).then(
+        restclient.listAccessLevels(clientUUID, Session.getToken()).then(
 
             function(data) {
 
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -71,16 +72,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listClients = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listClients(Session.getToken()).then(
+        restclient.listClients(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -99,16 +100,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listUsers = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listUsers(Session.getToken()).then(
+        restclient.listUsers(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -127,16 +128,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listData = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listData(Session.getToken()).then(
+        restclient.listData(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -157,16 +158,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listDatasetsWithAttachments = function () {
+        var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listDatasetsWithAttachments(Session.getToken()).then(
+        restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
 
             function(data) {
-
-                //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
-
                 if (data.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var response = JSON.parse(data.entity);
+                    Session.updateToken(response.token);
 
                     var responseBody = response.response;
 
@@ -240,13 +241,13 @@ angular.module('webServiceApp').factory('RestService',
     };
 
   restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
+    var clientUUID = localStorageService.get('clientUUID');
 
-    restclient.submitData(Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
-
-        var response = JSON.parse(res);
-        Session.updateToken(response.token);
-
+    restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
         if (status === STATUS_CODES.ok) {
+          var response = JSON.parse(res);
+          Session.updateToken(response.token);
+
           NotificationService.success('Dataset Submitted', 'Updating cache...');
         }
         else {
@@ -291,32 +292,34 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.updateCacheValue = function (key, data) {
-        if ( key === 'accessLevels') {
+        if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
         }
-        else if ( key === 'clients') {
+        else if (key === 'clients') {
             localStorageService.set('clients', data);
         }
-        else if ( key === 'users') {
+        else if (key === 'users') {
             localStorageService.set('users', data);
         }
-        else if ( key === 'data') {
+        else if (key === 'data') {
             localStorageService.set('data', data);
         }
     };
 
     restService.getCacheValue = function (key) {
-        if ( key === 'accessLevels') {
+        if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
         }
-        else if ( key === 'clients') {
+        else if (key === 'clients') {
             return localStorageService.get('clients');
         }
-        else if ( key === 'users') {
+        else if (key === 'users') {
             return localStorageService.get('users');
         }
-        else if ( key === 'data') {
+        else if (key === 'data') {
             return localStorageService.get('data');
+        } else if (key === 'clientUUID') {
+            return localStorageService.get('clientUUID');
         }
     };
 

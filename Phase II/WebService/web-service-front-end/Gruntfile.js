@@ -365,12 +365,14 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
+        'subgrunt:dev',
         'compass:server'
       ],
       test: [
         'compass'
       ],
       dist: [
+        'subgrunt:dist',
         'compass:dist',
         'imagemin',
         'svgmin'
@@ -382,6 +384,19 @@ module.exports = function (grunt) {
       unit: {
         configFile: 'test/karma.conf.js',
         singleRun: true
+      }
+    },
+
+    // allows registering tasks from other Gruntfiles so that Grunt tasks
+    // for this project can run Grunt tasks in other projects if needed
+    subgrunt: {
+      dev: {
+        // build the restclient plugin
+        '../../RestClient': 'dev'
+      },
+      dist: {
+        // build the restclient plugin
+        '../../RestClient': 'build'
       }
     }
   });
@@ -419,9 +434,9 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'wiredep',
+    'concurrent:dist',
     'copy:restclient',
     'useminPrepare',
-    'concurrent:dist',
     'autoprefixer',
     'concat',
     'ngAnnotate',

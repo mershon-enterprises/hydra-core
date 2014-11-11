@@ -79,18 +79,19 @@
           401))
 
 
-; expire the specified API token
-(defn expire-token
-  [api-token]
+; expire API tokens for the specified client uuid, and any other tokens which
+; have passed their expiration date
+(defn expire-tokens
+  [client-uuid]
   (let [expire-query (str "delete from public.user_api_token "
                           "where expiration_date<now() "
-                          "or api_token=crypt(?, api_token)")]
-    (try (sql/execute! (db) [expire-query api-token])
+                          "or client_uuid::character varying=?")]
+    (try (sql/execute! (db) [expire-query client-uuid])
          true
          (catch Exception e
            (if (instance? SQLException e)
              (do
-               (.getCause e)
+               (println e)
                (println (.getNextException e)))
              (println (.getMessage e)))
            false))))
@@ -98,44 +99,48 @@
 
 ; get the user associated with the specified API token
 (defn get-user-by-token
-  [api-token]
+  [api-token client-uuid]
   (let [query (str "select u.* from public.user_api_token ut "
                    "inner join public.user u on u.id = ut.user_id "
-                   "where ut.api_token=crypt(?, ut.api_token) "
+                   "where ut.client_uuid::character varying=? "
+                   "and ut.api_token=crypt(?, ut.api_token) "
                    "and ut.expiration_date > now()")]
-    (first (sql/query (db) [query api-token]))))
+    (first (sql/query (db) [query client-uuid api-token]))))
 
 
 ; check the specified API token for validity
 (defn is-token-valid
-  [api-token]
+  [api-token client-uuid]
   (let [query (str "select * from public.user_api_token "
-                   "where api_token=crypt(?, api_token) "
+                   "where client_uuid::character varying=? "
+                   "and api_token=crypt(?, api_token) "
                    "and expiration_date > now()")]
-    (not (empty? (sql/query (db) [query api-token])))))
+    (not (empty? (sql/query (db) [query client-uuid api-token])))))
 
 
 ; create an API token for the user
 (defn- make-token
-  [email-address]
+  [email-address client-uuid]
+  (expire-tokens client-uuid)
   (let [api-token (str (crypto.random/hex 255))
         expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
         ; we store the hash of the api token to the database, not the token
         ; itself, because security
         query (str "insert into public.user_api_token "
-                   "(api_token, expiration_date, user_id) values "
-                   "(crypt(?, gen_salt('bf', 7)), ?, "
+                   "(api_token, client_uuid, expiration_date, user_id) values "
+                   "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
                    "(select id from public.user where email_address=?)"
                    ")")
         success (try (sql/execute! (db) [query
                                          api-token
+                                         client-uuid
                                          expiration-date
                                          email-address])
                      true
                      (catch Exception e
                        (if (instance? SQLException e)
                           (do
-                             (.getCause e)
+                            (println e)
                              (println (.getNextException e)))
                           (println (.getMessage e)))
                        false))]
@@ -153,7 +158,7 @@
 
 
 (defn- login-and-maybe-create-user
-  [email-address ldap-user db-user]
+  [client-uuid email-address ldap-user db-user]
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
         handle-user (fn [x]
@@ -163,7 +168,7 @@
                                       "authentication"
                                       (str email-address " has logged in"))
 
-                      (let [api-token (make-token email-address)]
+                      (let [api-token (make-token email-address client-uuid)]
                         {:body (merge (format-ldap-user x) api-token)}))]
     (if ldap-user
       (if db-user
@@ -187,7 +192,7 @@
 
 ; authenticate to the API or error
 (defn authenticate
-  [email-address password]
+  [client-uuid email-address password]
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}]
 
@@ -197,7 +202,7 @@
       ; exists in LDAP, try to verify the user to the databsae
       (let [ldap-user (get-user-ldap email-address password)
             db-user (get-user email-address)]
-        (login-and-maybe-create-user email-address ldap-user db-user))
+        (login-and-maybe-create-user client-uuid email-address ldap-user db-user))
 
       ; no email was specified
       bad-credentials)))
@@ -205,12 +210,12 @@
 
 ; authenticate a user on behalf of a domain admin
 (defn admin-authenticate
-  [email-address password user-email-address]
+  [client-uuid email-address password user-email-address]
 
   ; first, just authenticate the domain admin normally
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
-        admin (authenticate email-address password)]
+        admin (authenticate client-uuid email-address password)]
     (if admin
       ; now that we know the admin is a valid user, we want to ensure that the
       ; admin is actually a member of the Domain Admins group
@@ -222,21 +227,20 @@
         (if is-domain-admin
           (let [ldap-user (find-user-ldap user-email-address)
                 db-user (get-user user-email-address)]
-            (login-and-maybe-create-user user-email-address ldap-user db-user))
+            (login-and-maybe-create-user client-uuid user-email-address ldap-user db-user))
           bad-credentials))
       bad-credentials)))
 
 
 ; guard the specified function from being run unless the API token is valid
 (defn guard
-  [api-token fun & args]
-  (if (is-token-valid api-token)
-    (let [user (get-user-by-token api-token)
-          new-token (if user (make-token (:email_address user)))]
-      ; return a modified result object with the token information
-      ; included
-      (let [fn-results (apply fun args)]
-        (expire-token api-token)
+  [api-token client-uuid fun & args]
+  (if (is-token-valid api-token client-uuid)
+    ; return a modified result object with the token information
+    ; included
+    (let [user (get-user-by-token api-token client-uuid)
+          fn-results (apply fun args)]
+      (let [new-token (if user (make-token (:email_address user) client-uuid))]
         {:status (:status fn-results)
          :headers (:headers fn-results)
          :body (merge (:body fn-results) new-token)}))
@@ -246,9 +250,10 @@
 ; guard the specified function from being run unless the API token is valid, and
 ; pass the user's email to the function as the first parameter
 (defn guard-with-user
-  [api-token fun & args]
+  [api-token client-uuid fun & args]
   (guard api-token
-         (let [user (get-user-by-token api-token)]
+         client-uuid
+         (let [user (get-user-by-token api-token client-uuid)]
            (fn []
              (apply fun (:email_address user) args)))))
 
@@ -258,10 +263,10 @@
 ;
 ; don't invalidate the api token since the body cannot be modified
 (defn guard-file-with-user
-  [api-token fun & args]
-  (if (is-token-valid api-token)
+  [api-token client-uuid fun & args]
+  (if (is-token-valid api-token client-uuid)
     ; unlike guard and guard-with-user, don't invalidate the token or append to
     ; the body
-    (let [user (get-user-by-token api-token)]
+    (let [user (get-user-by-token api-token client-uuid)]
       (apply fun (:email_address user) args))
     (invalid-token)))

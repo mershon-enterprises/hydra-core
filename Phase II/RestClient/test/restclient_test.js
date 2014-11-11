@@ -24,17 +24,25 @@ restclient.endpointUrl = 'http://localhost:3000';
 */
 
 var apiToken = null;
+var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
 var goodLogin = function(callback) {
   restclient.authenticate(
+    clientUUID,
     "admin@example.com",
-    "adminpassword",
-    function(statusCode, body) {
+    "adminpassword"
+  ).then(
+    function(data) {
       // update the api token
-      var bodyObj = JSON.parse(body);
-      apiToken = bodyObj['token'];
+      try {
+        var bodyObj = JSON.parse(data.entity);
+        apiToken = bodyObj['token'];
 
-      callback(statusCode, body);
+        callback(data);
+      } catch (e) {
+        console.log(e.message);
+        console.log("Body was: " + data.entity);
+      }
     });
 };
 var checkResponse = function(test, bodyObj) {
@@ -56,12 +64,17 @@ exports['version'] = {
   },
   'no-args': function(test) {
     test.expect(2);
-    restclient.version(
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'get version should succeed');
-        var bodyObj = JSON.parse(body);
-        test.ok('version' in bodyObj,
-          'version should be stated');
+    restclient.version().then(
+      function(data) {
+        test.equal(data.status.code, 200, 'get version should succeed');
+        try {
+          var bodyObj = JSON.parse(data.entity);
+          test.ok('version' in bodyObj,
+            'version should be stated');
+        } catch (e) {
+          console.log(e.message);
+          console.log("Body was: " + data.entity);
+        }
         test.done();
       });
   }
@@ -77,19 +90,21 @@ exports['authenticate'] = {
     restclient.authenticate(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'login should fail');
-        test.equal(body, 'Invalid credentials', 'login body text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'login should fail');
+        test.equal(data.entity, 'Invalid credentials', 'login body text');
         test.done();
       });
   },
   'admin': function(test) {
     test.expect(8);
     goodLogin(
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'login should succeed');
+      function(data) {
+        test.equal(data.status.code, 200, 'login should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.notEqual('email_address' in bodyObj['response'],
           'login response email address should be stated');
@@ -115,22 +130,26 @@ exports['adminAuthenticate'] = {
       null,
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'login should fail');
-        test.equal(body, 'Invalid credentials', 'login body text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'login should fail');
+        test.equal(data.entity, 'Invalid credentials', 'login body text');
         test.done();
       });
   },
   'admin': function(test) {
     test.expect(8);
     restclient.adminAuthenticate(
+      clientUUID,
       'admin@example.com',
       'adminpassword',
-      'basicuser@example.com',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'login should succeed');
+      'basicuser@example.com'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'login should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.notEqual('email_address' in bodyObj['response'],
           'login response email address should be stated');
@@ -159,20 +178,24 @@ exports['listAccessLevels'] = {
     test.expect(2);
     restclient.listAccessLevels(
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'access level list should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'access level list should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listAccessLevels(
-      apiToken,
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'access level list should succeed');
+      clientUUID,
+      apiToken
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'access level list should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'access level list should be an array');
@@ -197,9 +220,11 @@ exports['getAccessLevel'] = {
     restclient.getAccessLevel(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'access level get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'access level get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
@@ -207,12 +232,14 @@ exports['getAccessLevel'] = {
   'manage-clients': function(test) {
     test.expect(8);
     restclient.getAccessLevel(
+      clientUUID,
       apiToken,
-      'Manage Clients',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'access level get should succeed');
+      'Manage Clients'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'access level get should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok('description' in bodyObj['response'],
           'description should be stated');
@@ -238,20 +265,24 @@ exports['listClients'] = {
     test.expect(2);
     restclient.listClients(
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'client list get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'client list get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listClients(
-      apiToken,
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'client list should succeed');
+      clientUUID,
+      apiToken
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'client list should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'client list should be an array');
@@ -276,9 +307,11 @@ exports['getClient'] = {
     restclient.getClient(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'get client get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'get client get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
@@ -286,12 +319,14 @@ exports['getClient'] = {
   'with-api-token': function(test) {
     test.expect(8);
     restclient.getClient(
+      clientUUID,
       apiToken,
-      'Chevron',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'get client should succeed');
+      'Chevron'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'get client should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok('name' in bodyObj['response'],
           'name should be stated');
@@ -318,21 +353,25 @@ exports['listClientLocations'] = {
     restclient.listClientLocations(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'list client locations get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list client locations get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listClientLocations(
+      clientUUID,
       apiToken,
-      'Chevron',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'client list should succeed');
+      'Chevron'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'client list should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'locations list should be an array');
@@ -356,20 +395,24 @@ exports['listData'] = {
     test.expect(2);
     restclient.listData(
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'list data get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(12);
     restclient.listData(
-      apiToken,
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'list data should succeed');
+      clientUUID,
+      apiToken
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'list data should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'data list should be an array');
@@ -393,55 +436,8 @@ exports['listData'] = {
   }
 };
 
-exports['getData'] = {
-  setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
-  },
-  'no-api-token': function(test) {
-    test.expect(2);
-    restclient.getData(
-      null,
-      null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'get data get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
-        test.done();
-      });
-  },
-  // TODO -- implement test for specifying nonexistent data
-  'with-api-token': function(test) {
-    test.expect(11);
-    restclient.getData(
-      apiToken,
-      '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'get data should succeed');
-
-        var bodyObj = JSON.parse(body);
-        checkResponse(test, bodyObj);
-        test.ok('uuid' in bodyObj['response'],
-          'data-set uuid should be stated');
-        test.ok('date_created' in bodyObj['response'],
-          'data-set date created should be stated');
-        test.ok('created_by' in bodyObj['response'],
-          'data-set created-by should be stated');
-        test.ok('data' in bodyObj['response'],
-          'data-set data should be stated');
-        test.ok(Array.isArray(bodyObj['response']['data']),
-          'data-set data should be an array');
-        test.ok(bodyObj['response']['data'].length > 0,
-          'at least one data item should exist');
-
-        test.equal(bodyObj['response']['uuid'],
-          '7fa1f8f6-498d-4054-9300-4fcd4fa6bb57',
-          'testing sentinel data-set uuid should match');
-        test.done();
-      });
-  }
-};
-
+// GOTCHA -- test submitData before getData so we know we have a dataset to
+// validate against
 exports['submitData'] = {
   setUp: function(done) {
     if (apiToken == null)
@@ -452,12 +448,14 @@ exports['submitData'] = {
     test.expect(2);
     restclient.submitData(
       null,
+      null,
       new Date(),
       null,
-      [restclient.PrimitiveData('boolean', 'placeholder', false)],
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'submit data get should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      [restclient.PrimitiveData('boolean', 'placeholder', false)]
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'submit data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
@@ -465,11 +463,13 @@ exports['submitData'] = {
     test.expect(1);
     test.throws(function() {
       restclient.submitData(
+        clientUUID,
         apiToken,
         null,
         'anyone@anywhere',
-        [],
-        function(statusCode, body) {
+        []
+      ).then(
+        function(data) {
           // doesn't matter, callback shouldn't run
         });
       },
@@ -481,11 +481,13 @@ exports['submitData'] = {
     test.expect(1);
     test.throws(function() {
       restclient.submitData(
+        clientUUID,
         apiToken,
         new Date(),
         'anyone@anywhere',
-        [],
-        function(statusCode, body) {
+        []
+      ).then(
+        function(data) {
           // doesn't matter, callback shouldn't run
         });
       },
@@ -498,11 +500,13 @@ exports['submitData'] = {
     test.expect(1);
     test.throws(function() {
       restclient.submitData(
+        clientUUID,
         apiToken,
         new Date(),
         'anyone@anywhere',
-        [{value: 'ploop'}],
-        function(statusCode, body) {
+        [{value: 'ploop'}]
+      ).then(
+        function(data) {
           // doesn't matter, callback shouldn't run
         });
     },
@@ -514,14 +518,16 @@ exports['submitData'] = {
   'good-data': function(test) {
     test.expect(14);
     restclient.submitData(
+      clientUUID,
       apiToken,
       new Date(),
       'admin@example.com',
-      [{type: 'boolean', description: 'test data', value: true}],
-      function(statusCode, body) {
-        test.equal(statusCode, 201, 'submit data should succeed');
+      [{type: 'boolean', description: 'test data', value: true}]
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 201, 'submit data should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok('uuid' in bodyObj['response'],
           'data-set uuid should be stated');
@@ -556,6 +562,59 @@ exports['submitData'] = {
   }
 };
 
+exports['getData'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getData(
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'get data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  // TODO -- implement test for specifying nonexistent data
+  'with-api-token': function(test) {
+    test.expect(11);
+    restclient.getData(
+      clientUUID,
+      apiToken,
+      createdUUID
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'get data should succeed');
+
+        var bodyObj = JSON.parse(data.entity);
+        checkResponse(test, bodyObj);
+        test.ok('uuid' in bodyObj['response'],
+          'data-set uuid should be stated');
+        test.ok('date_created' in bodyObj['response'],
+          'data-set date created should be stated');
+        test.ok('created_by' in bodyObj['response'],
+          'data-set created-by should be stated');
+        test.ok('data' in bodyObj['response'],
+          'data-set data should be stated');
+        test.ok(Array.isArray(bodyObj['response']['data']),
+          'data-set data should be an array');
+        test.ok(bodyObj['response']['data'].length > 0,
+          'at least one data item should exist');
+
+        test.equal(bodyObj['response']['uuid'],
+          createdUUID,
+          'testing sentinel data-set uuid should match');
+        test.done();
+      });
+  }
+};
+
 exports['deleteData'] = {
   setUp: function(done) {
     if (apiToken == null)
@@ -567,21 +626,25 @@ exports['deleteData'] = {
     restclient.deleteData(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'delete data should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'delete data should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(5);
     restclient.deleteData(
+      clientUUID,
       apiToken,
-      createdUUID,
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'delete data should succeed');
+      createdUUID
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'delete data should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.equal(bodyObj['response'], 'OK', 'success response');
         test.done();
@@ -599,20 +662,24 @@ exports['listUsers'] = {
     test.expect(2);
     restclient.listUsers(
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'list users should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list users should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listUsers(
-      apiToken,
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'list users should succeed');
+      clientUUID,
+      apiToken
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'list users should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'user list should be an array');
@@ -637,21 +704,25 @@ exports['getUser'] = {
     restclient.getUser(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'get user should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'get user should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(8);
     restclient.getUser(
+      clientUUID,
       apiToken,
-      'admin@example.com',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'get user should succeed');
+      'admin@example.com'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'get user should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok('email_address' in bodyObj['response'],
           'email_address should be stated');
@@ -679,21 +750,25 @@ exports['listUserAccess'] = {
     restclient.listUserAccess(
       null,
       null,
-      function(statusCode, body) {
-        test.equal(statusCode, 401, 'list user access should fail');
-        test.equal(body, 'Access Denied: Invalid API Token', 'invalid api token text');
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list user access should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
         test.done();
       });
   },
   'with-api-token': function(test) {
     test.expect(7);
     restclient.listUserAccess(
+      clientUUID,
       apiToken,
-      'admin@example.com',
-      function(statusCode, body) {
-        test.equal(statusCode, 200, 'list user access should succeed');
+      'admin@example.com'
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 200, 'list user access should succeed');
 
-        var bodyObj = JSON.parse(body);
+        var bodyObj = JSON.parse(data.entity);
         checkResponse(test, bodyObj);
         test.ok(Array.isArray(bodyObj['response']),
           'user access list should be an array');
