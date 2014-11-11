@@ -348,7 +348,7 @@ footer {
 
 //Modal
 .ng-modal-overlay {
-    position:absolute;
+    position: absolute;
     z-index: 9999;
     top: 0;
     left: 0;
@@ -363,7 +363,7 @@ footer {
     position: absolute;
     width: 50%;
     height: 300px;
-    top: 50%;
+    top: 250px;
     left: 50%;
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
@@ -374,13 +374,11 @@ footer {
     button {
         @include button-style(1em);
     }
-}
-
-.ng-modal-loading {
     padding: $default-padding;
     text-align: center;
-    vertical-align: middle;
+}
 
+.loading {
     i {
         font-size: 7em;
         display: block;
