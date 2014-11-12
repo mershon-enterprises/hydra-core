@@ -44,12 +44,16 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.listAccessLevels = function () {
+
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
 
         restclient.listAccessLevels(clientUUID, Session.getToken()).then(
 
             function(data) {
 
+                deferred.resolve();
                 if (data.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
                     var response = JSON.parse(data.entity);
@@ -61,22 +65,28 @@ angular.module('webServiceApp').factory('RestService',
 
                 }
                 else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
+                    //Broadcast to any listeners that data wasn't retrieved.
+                    $rootScope.$broadcast(EVENTS.dataLost);
                 }
             },
             function(error) {
+                deferred.reject();
                 console.log('Promise failed. ' + error);
-            }
-        );
+            });
+        return deferred.promise;
     };
 
     restService.listClients = function () {
+
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
 
         restclient.listClients(clientUUID, Session.getToken()).then(
 
             function(data) {
+
+                deferred.resolve();
                 if (data.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
@@ -94,17 +104,23 @@ angular.module('webServiceApp').factory('RestService',
                 }
             },
             function(error) {
+                deferred.reject();
                 console.log('Promise failed. ' + error);
-            }
-        );
+            });
+        return deferred.promise;
     };
 
     restService.listUsers = function () {
+
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
 
         restclient.listUsers(clientUUID, Session.getToken()).then(
 
             function(data) {
+
+                deferred.resolve();
                 if (data.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
@@ -122,17 +138,23 @@ angular.module('webServiceApp').factory('RestService',
                 }
             },
             function(error) {
+                deferred.reject();
                 console.log('Promise failed. ' + error);
-            }
-        );
+            });
+        return deferred.promise;
     };
 
     restService.listData = function () {
+
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
 
         restclient.listData(clientUUID, Session.getToken()).then(
 
             function(data) {
+
+                deferred.resolve();
                 if (data.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
@@ -152,17 +174,23 @@ angular.module('webServiceApp').factory('RestService',
                 }
             },
             function(error) {
+                deferred.reject();
                 console.log('Promise failed. ' + error);
-            }
-        );
+            });
+        return deferred.promise;
     };
 
     restService.listDatasetsWithAttachments = function () {
+
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
 
         restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
 
             function(data) {
+
+                deferred.resolve();
                 if (data.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
@@ -182,9 +210,10 @@ angular.module('webServiceApp').factory('RestService',
                 }
             },
             function(error) {
+                deferred.reject();
                 console.log('Promise failed. ' + error);
-            }
-        );
+            });
+        return deferred.promise;
     };
 
     //Parse the data from the restClient into a format ngTable wants.
@@ -269,8 +298,6 @@ angular.module('webServiceApp').factory('RestService',
 
             function(data) {
 
-                console.log(data);
-
                 //Parse out the data from the restclient response.
                 var response = JSON.parse(data.entity);
                 Session.updateToken(response.token);
@@ -302,25 +329,22 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('data', null);
     };
 
+    //Yo dawg...
     restService.refreshCache = function () {
-
-        var defer = $q.defer();
-
-        defer.promise.then(function () {
-            restService.listAccessLevels();
-        })
-        .then(function () {
-            restService.listClients();
-        })
-        .then(function () {
-            restService.listUsers();
-        })
-        .then(function () {
-            restService.listDatasetsWithAttachments();
-        });
-
-        defer.resolve();
-
+        restService.listAccessLevels().then(
+            function(success) {
+                restService.listClients().then(
+                    function(success) {
+                        restService.listUsers().then(
+                            function(success) {
+                                restService.listDatasetsWithAttachments();
+                            },
+                            function(error) {});
+                    },
+                    function(error) {});
+            },
+            function(error) {}
+        );
     };
 
     restService.updateCacheValue = function (key, data) {
