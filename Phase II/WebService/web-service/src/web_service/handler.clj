@@ -120,13 +120,13 @@
                                          uuid
                                          filename))
               (PUT "/" [api_token client_uuid new_filename]
-                   (guard-file-with-user api_token
+                   (guard-with-user api_token
                                          client_uuid
                                          data-rename-attachment-filename
                                          uuid filename new_filename))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
-                      (guard-file-with-user api_token
+                      (guard-with-user api_token
                                             client_uuid
                                             data-delete-attachment
                                             uuid filename))))))))
