@@ -15,7 +15,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
             RestService.createCache();
             $scope.checkForData();
         }
-    }
+    };
 
     $scope.checkForData = function () {
         if (Session.exists()) {
