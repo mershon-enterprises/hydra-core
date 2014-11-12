@@ -41,7 +41,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
-            var re = new RegExp('[a-z_\-\s0-9\.]+\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
+            var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
             var cacheValueRenamed = null;
 
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
