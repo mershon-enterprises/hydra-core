@@ -73,6 +73,7 @@ angular.module('webServiceApp').factory('RestService',
                 deferred.reject();
                 console.log('Promise failed. ' + error);
             });
+
         return deferred.promise;
     };
 
@@ -107,6 +108,7 @@ angular.module('webServiceApp').factory('RestService',
                 deferred.reject();
                 console.log('Promise failed. ' + error);
             });
+
         return deferred.promise;
     };
 
@@ -141,6 +143,7 @@ angular.module('webServiceApp').factory('RestService',
                 deferred.reject();
                 console.log('Promise failed. ' + error);
             });
+
         return deferred.promise;
     };
 
@@ -220,8 +223,6 @@ angular.module('webServiceApp').factory('RestService',
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
-        console.log(rawData);
-
         var data = [];
         var attachments = [];
         var uuid = null;
@@ -266,31 +267,30 @@ angular.module('webServiceApp').factory('RestService',
             attachments = [];
         });
 
-        console.log(data);
-
         return data;
     };
 
-  restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
-    var clientUUID = localStorageService.get('clientUUID');
+    restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
 
-    restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
-        if (status === STATUS_CODES.ok) {
-          var response = JSON.parse(res);
-          Session.updateToken(response.token);
+        var clientUUID = localStorageService.get('clientUUID');
 
-          NotificationService.success('Dataset Submitted', 'Updating cache...');
-        }
-        else {
-          NotificationService.error('Dataset Submission Failed', 'Please try again.');
-          console.log('restclient.submitData failed with ' + status);
-        }
-    });
-  };
+        restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
+            if (status === STATUS_CODES.ok) {
+                var response = JSON.parse(res);
+                Session.updateToken(response.token);
 
-  restService.deleteAttachment = function (ukey) {
-    var clientUUID = localStorageService.get('clientUUID');
+                NotificationService.success('Dataset Submitted', 'Updating cache...');
+            }
+            else {
+                NotificationService.error('Dataset Submission Failed', 'Please try again.');
+                console.log('restclient.submitData failed with ' + status);
+            }
+        });
+    };
 
+    restService.deleteAttachment = function (ukey) {
+
+        var clientUUID = localStorageService.get('clientUUID');
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
 
@@ -316,10 +316,10 @@ angular.module('webServiceApp').factory('RestService',
         );
     };
 
-  //Listener for a failed data retrieval.
-  $rootScope.$on(EVENTS.dataLost, function() {
-      NotificationService.error('No Data', 'Please try again.');
-  });
+    //Listener for a failed data retrieval.
+    $rootScope.$on(EVENTS.dataLost, function() {
+        NotificationService.error('No Data', 'Please try again.');
+    });
 
 //CACHE ========================================================================
 
