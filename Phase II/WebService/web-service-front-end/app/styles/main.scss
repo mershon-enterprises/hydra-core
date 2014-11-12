@@ -380,8 +380,9 @@ footer {
 
 .loading {
     i {
-        font-size: 7em;
+        font-size: 5em;
         display: block;
+        padding: $default-padding;
     }
 
     font-size: 2em;
