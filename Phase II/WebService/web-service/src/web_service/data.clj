@@ -16,7 +16,7 @@
 
 (defn- get-attachment-data
   [data-set-id]
-  (let [query (str "select 'attachment' as type, id, filename, "
+  (let [query (str "select 'attachment' as type, filename, "
                    "  octet_length(contents) as bytes "
                    "from public.data_set_attachment "
                    "where data_set_id=? "
