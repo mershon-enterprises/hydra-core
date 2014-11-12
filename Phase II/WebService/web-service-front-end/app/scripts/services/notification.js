@@ -6,8 +6,6 @@ angular.module('webServiceApp').service('NotificationService',
 
     var notificationService = {};
 
-    //Authenticate against the restclient. Create a new session if the restclient
-    //returns status 200, and return false otherwise.
     notificationService.loginSuccess = function (title, message) {
 
         $.iGrowl({

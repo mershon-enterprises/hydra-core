@@ -1,5 +1,10 @@
 'use strict';
 
+//Data Controller
+
+//Ensures that the application has data to work with by invoking the
+//RestService. Blocks user input until data is ready. Broadcasts when data is
+//ready for use so the application can reload its views.
 angular.module('webServiceApp').controller('data', function ($rootScope, $scope, $interval, Session, RestService, EVENTS) {
 
     $scope.checkForData = function () {
@@ -24,13 +29,13 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
                 }
             },
             function (error) {
-                console.log('Cache could not be restored.')
+                console.log('Cache could not be restored.');
             });
         }
     };
 
-    //Check is the cache is empty every second. Will only be active\ once the
-    //controller comes into scope.
+    //Check is the cache is empty every second. Will only be active once the
+    //controller comes into scope. Ex. page refresh...
     $scope.reload = $interval(function () {
         if (Session.exists()) {
             $scope.checkForData();

@@ -1,7 +1,13 @@
 'use strict';
 
+//Dataset Controller
+
+//Handles the display of dataset attachment data from the restclient in a
+//tabular interface for the user. Provides custom controls to be performed
+//by the user on the attachments in a 'file browser' format.
 angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session, NotificationService) {
 
+    //If the user is logged in...
     if (Session.exists()) {
 
         //jQuery click behavior bindings for ngGrid file controls.
@@ -17,8 +23,10 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.showProperties = false;
         $scope.ukey = null;
 
-        //Display a modal window with the file's properties along with the
-        //controls for renaming and deleting that file.
+        //Toggle the modal properties dialog that contains the controls for
+        //renaming and deleting that file. While the modal is active, the
+        //'unique key' for the row that was selected will be in scope.
+        //ukey = 'filename' + '\n' + 'uuid'
         $scope.toggleProperties = function(ukey) {
             $scope.showProperties = !$scope.showProperties;
             $scope.ukey = ukey;
@@ -29,6 +37,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             }
         };
 
+        //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
             //Do rename behavior.
@@ -36,8 +45,10 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         };
 
+        //Delet the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
 
+            //TODO Redo as Promise?
             RestService.deleteAttachment($scope.ukey);
             var cacheDeleted = RestService.removeCacheDataValue($scope.ukey);
 

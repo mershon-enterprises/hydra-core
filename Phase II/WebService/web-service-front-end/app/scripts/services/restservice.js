@@ -1,14 +1,19 @@
 'use strict';
 
+//RestService Factory
+
+//Acts as an angular wrapper for Restclient calls.
 angular.module('webServiceApp').factory('RestService',
     function ($rootScope, $q, EVENTS, STATUS_CODES, Session, NotificationService, localStorageService) {
 
     var restService = {};
 
-    $rootScope.loading = false;
-
+    //Both calls Restclient.authenticate and creates the user's session upon
+    //successful login.
     restService.authenticate = function (credentials) {
+
         var clientUUID = localStorageService.get('clientUUID');
+
         restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
             function(data) {
 
@@ -219,7 +224,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    //Parse the data from the restClient into a format ngTable wants.
+    //Parse the data from the restClient into a format ngGrid wants.
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
@@ -270,6 +275,7 @@ angular.module('webServiceApp').factory('RestService',
         return data;
     };
 
+    //TODO - Broken.
     restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
 
         var clientUUID = localStorageService.get('clientUUID');
@@ -288,6 +294,8 @@ angular.module('webServiceApp').factory('RestService',
         });
     };
 
+    //Delete an attachment on the server.
+    //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {
 
         var clientUUID = localStorageService.get('clientUUID');

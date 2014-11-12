@@ -1,5 +1,10 @@
 'use strict';
 
+//Navbar Directive
+
+//Controls the display of various UI elements depending on if user is logged
+//in or not. Also feeds input from search box to ngGrid's filtering tools.
+//Allows Nav Bar to be declared as an element in the markup.
 angular.module('webServiceApp').directive('navbar', function() {
     return {
         restrict: 'E',
