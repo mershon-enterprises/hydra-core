@@ -329,22 +329,15 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('data', null);
     };
 
-    //Yo dawg...
     restService.refreshCache = function () {
-        restService.listAccessLevels().then(
-            function(success) {
-                restService.listClients().then(
-                    function(success) {
-                        restService.listUsers().then(
-                            function(success) {
-                                restService.listDatasetsWithAttachments();
-                            },
-                            function(error) {});
-                    },
-                    function(error) {});
-            },
-            function(error) {}
-        );
+        //A promise that resolves if all promises objects in the
+        //array resolve with success.
+        return $q.all([
+            restService.listAccessLevels(),
+            restService.listClients(),
+            restService.listUsers(),
+            restService.listDatasetsWithAttachments()
+        ]);
     };
 
     restService.updateCacheValue = function (key, data) {
@@ -407,18 +400,24 @@ angular.module('webServiceApp').factory('RestService',
     //Returns true if the cache can be accessed from local storage. False
     //otherwise.
     restService.cacheExists = function () {
+
+        var deferred = $q.defer();
+
         if (Session.exists()) {
             if(localStorageService.get('data')) {
-                $rootScope.loading = false;
-                return true;
+                deferred.resolve(true);
             }
-            if (!$rootScope.loading) {
-                $rootScope.loading = true;
-                restService.refreshCache();
-            }
-            return false;
+            restService.refreshCache().then(
+                function(success) {
+                    deferred.resolve(true);
+                },
+                function(error) {
+                    deferred.reject(false);
+                }
+            );
         }
-        return false;
+
+        return deferred.promise;
     };
 
     restService.destroyCache = function () {

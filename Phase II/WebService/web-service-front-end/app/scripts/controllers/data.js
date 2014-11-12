@@ -4,21 +4,33 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
 
     $scope.checkForData = function () {
 
+        //If there is a session...
         if (Session.exists()) {
 
-            if (RestService.cacheExists()) {
-                $scope.modalShow = false;
-                $rootScope.$broadcast(EVENTS.cacheReady);
-                $interval.cancel($scope.reload);
-            }
-            else {
-                $scope.modalShow = true;
-            }
+            //Block user input with the loading modal.
+            $scope.modalShow = true;
 
+            //Ask the restservice if the cache is ready. It returns a promise
+            //due to the rest service making api calls if it discovers it
+            //isn't ready.
+            RestService.cacheExists().then(function (success) {
+                if(success){
+                    $scope.modalShow = false;
+                    //broadcast to any listeners that the cache is populated
+                    //prompts refresh of table data.
+                    $rootScope.$broadcast(EVENTS.cacheReady);
+                    //stop checking every second for new data.
+                    $interval.cancel($scope.reload);
+                }
+            },
+            function (error) {
+                console.log('Cache could not be restored.')
+            });
         }
+    };
 
-     };
-
+    //Check is the cache is empty every second. Will only be active\ once the
+    //controller comes into scope.
     $scope.reload = $interval(function () {
         if (Session.exists()) {
             $scope.checkForData();
