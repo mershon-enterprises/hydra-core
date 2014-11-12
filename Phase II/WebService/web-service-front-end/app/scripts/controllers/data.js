@@ -7,9 +7,17 @@
 //ready for use so the application can reload its views.
 angular.module('webServiceApp').controller('data', function ($rootScope, $scope, $interval, Session, RestService, EVENTS) {
 
-    $scope.checkForData = function () {
+    //Wipes the cache and then runs checkForData, which will discover the
+    //cache is empty and refresh it.
+    $scope.refreshData = function () {
+        if (Session.exists()) {
+            RestService.destroyCache();
+            RestService.createCache();
+            $scope.checkForData();
+        }
+    }
 
-        //If there is a session...
+    $scope.checkForData = function () {
         if (Session.exists()) {
 
             //Block user input with the loading modal.
@@ -37,9 +45,12 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
     //Check is the cache is empty every second. Will only be active once the
     //controller comes into scope. Ex. page refresh...
     $scope.reload = $interval(function () {
-        if (Session.exists()) {
-            $scope.checkForData();
-        }
+        $scope.checkForData();
     }, 1000);
+
+    //Listener for a request to refresh the cache.
+    $scope.$on(EVENTS.cacheRefresh, function() {
+        $scope.refreshData();
+    });
 
 });

@@ -126,6 +126,11 @@ body {
     position: relative;
 }
 
+a:link {color: $off-white; text-decoration: none;}
+a:active {color: $off-white; text-decoration: none;}
+a:visited {color: $off-white; text-decoration: none;}
+a:hover {color: $off-white - $default-hover-offset; text-decoration: none;}
+
 //Lists
 ul {
     list-style: none;
@@ -159,16 +164,6 @@ nav {
     line-height: 2.5em;
     color: $off-white;
 
-    a {
-        color: $off-white;
-        display: inline;
-        text-decoration: none;
-        &:hover {
-            color: $off-white - $default-hover-offset;
-            cursor: pointer;
-        }
-    }
-
     i {
         padding-left: $default-padding/2;
         padding-right: $default-padding;
@@ -180,7 +175,15 @@ nav {
 
     li {
         padding-left: $default-padding;
+        color: $off-white;
+        display: inline;
+        text-decoration: none;
+        &:hover {
+            color: $off-white - $default-hover-offset;
+            cursor: pointer;
+        }
     }
+
 
 }
 

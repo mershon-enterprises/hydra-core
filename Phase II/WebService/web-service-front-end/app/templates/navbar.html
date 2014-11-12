@@ -4,8 +4,11 @@
     </a>
     <input ng-show="nav.isLoggedIn" placeholder="Search..." type="text" class="search">
     <ul>
-        <li>
-            <a ng-show="nav.isLoggedIn" ng-href="#/datasets">
+        <li ng-show="nav.isLoggedIn">
+            Sync Data<i class="fa fa-refresh sync"></i>
+        </li>
+        <li ng-show="nav.isLoggedIn">
+            <a ng-href="#/datasets">
                 Dataset Search<i class="fa fa-search"></i>
             </a>
         </li>
