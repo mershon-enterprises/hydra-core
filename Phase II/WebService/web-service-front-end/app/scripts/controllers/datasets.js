@@ -22,6 +22,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         $scope.showProperties = false;
         $scope.ukey = null;
+        $scope.newFilename = null;
 
         //Toggle the modal properties dialog that contains the controls for
         //renaming and deleting that file. While the modal is active, the
@@ -40,8 +41,20 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
-            //Do rename behavior.
-            console.log('Rename clicked! ukey: ' + $scope.ukey);
+            var re = new RegExp('[a-z_\-\s0-9\.]+\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
+
+            if($scope.newFilename !== '' && $scope.newFilename !== null) {
+                if(re.test($scope.newFilename)) {
+                    RestService.renameAttachment($scope.ukey, $scope.newFilename);
+                    NotificationService.success('Success', 'Attachment Renamed');
+                }
+                else {
+                    NotificationService.error('Invalid filename.', 'Please try again.');
+                }
+            }
+            else {
+                NotificationService.error('Could not rename attachment.', 'Filename cannot be blank.');
+            }
 
         };
 

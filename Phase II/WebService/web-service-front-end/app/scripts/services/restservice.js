@@ -324,6 +324,36 @@ angular.module('webServiceApp').factory('RestService',
         );
     };
 
+    //Rename an attachment on the server.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.renameAttachment = function (ukey, newFilename) {
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.renameAttachment(clientUUID, Session.getToken(), uuid, filename, newFilename).then(
+
+            function(data) {
+
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
+
+                if (data.status.code === STATUS_CODES.ok) {
+                    console.log(filename + ' renamed to ' + newFilename);
+                }
+                else {
+                    //Broadcast to any listeners that data wasn't retrieved.
+                    $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                console.log('Promise failed. ' + error);
+            }
+        );
+    };
+
     //Listener for a failed data retrieval.
     $rootScope.$on(EVENTS.dataLost, function() {
         NotificationService.error('No Data', 'Please try again.');
