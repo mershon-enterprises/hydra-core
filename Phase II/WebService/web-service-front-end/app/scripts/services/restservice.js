@@ -203,6 +203,7 @@ angular.module('webServiceApp').factory('RestService',
         var fieldName = null;
         var wellName = null;
         var trailerNumber = null;
+        var uniqueKey = null;
 
         $.each(rawData, function(index, value){
             createdBy = {created_by: value.created_by};
@@ -229,8 +230,9 @@ angular.module('webServiceApp').factory('RestService',
                 }
             });
             $.each(attachments, function(index, value){
+                uniqueKey = {unique_key: value.filename + '\n' + uuid.uuid};
                 data.push($.extend(value, uuid, createdBy, location, dateCreated,
-                    clientName, fieldName, wellName, trailerNumber));
+                    clientName, fieldName, wellName, trailerNumber, uniqueKey));
             });
             attachments = [];
         });
@@ -257,11 +259,17 @@ angular.module('webServiceApp').factory('RestService',
     });
   };
 
-  restService.deleteAttachment = function (uuid, filename) {
+  restService.deleteAttachment = function (ukey) {
+    var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.deleteAttachment(Session.getToken(), uuid, filename).then(
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.deleteAttachment(clientUUID, Session.getToken(), uuid, filename).then(
 
             function(data) {
+
+                console.log(data);
 
                 //Parse out the data from the restclient response.
                 var response = JSON.parse(data.entity);
@@ -348,14 +356,17 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     //Remove a value from the restclient's data cache.
-    restService.removeCacheDataValue = function (uuid) {
+    restService.removeCacheDataValue = function (ukey) {
+
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
 
         var data = localStorageService.get('data');
         var matchingIndex = null;
 
         if(data) {
             $.each(data, function(index, value){
-                if(value.uuid === uuid) {
+                if((value.uuid === uuid) && (value.filename === filename)) {
                     matchingIndex = value;
                 }
             });
@@ -367,21 +378,6 @@ angular.module('webServiceApp').factory('RestService',
             }
         }
         return false;
-    };
-
-    //Retrieve a filename from a given UUID.
-    restService.getFilename = function (uuid) {
-
-        var data = localStorageService.get('data');
-
-        if(data) {
-            $.each(data, function(index, value){
-                if(value.uuid === uuid) {
-                    return value.filename;
-                }
-            });
-        }
-        return null;
     };
 
     //Returns true if the cache can be accessed from local storage. False

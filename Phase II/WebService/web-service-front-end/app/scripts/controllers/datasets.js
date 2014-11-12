@@ -10,18 +10,18 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         });
 
         $(document).on('click', '.fa-cog', function(){
-            $scope.toggleProperties($(this).attr('uuid'));
+            $scope.toggleProperties($(this).attr('ukey'));
         });
 
 
         $scope.showProperties = false;
-        $scope.uuid = null;
+        $scope.ukey = null;
 
         //Display a modal window with the file's properties along with the
         //controls for renaming and deleting that file.
-        $scope.toggleProperties = function(uuid) {
+        $scope.toggleProperties = function(ukey) {
             $scope.showProperties = !$scope.showProperties;
-            $scope.uuid = uuid;
+            $scope.ukey = ukey;
 
             //Ensure the scope applies after we make a change.
             if (!$scope.$$phase) {
@@ -32,14 +32,14 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.renameFile = function() {
 
             //Do rename behavior.
-            console.log('Rename clicked! UUID: ' + $scope.uuid);
+            console.log('Rename clicked! ukey: ' + $scope.ukey);
 
         };
 
         $scope.deleteFile = function() {
 
-            RestService.deleteAttachment(Session.getToken(), $scope.uuid, RestService.getFilename($scope.uuid));
-            var cacheDeleted = RestService.removeCacheDataValue($scope.uuid);
+            RestService.deleteAttachment($scope.ukey);
+            var cacheDeleted = RestService.removeCacheDataValue($scope.ukey);
 
             if(cacheDeleted) {
                 $scope.toggleProperties();
@@ -47,7 +47,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 NotificationService.success('Success', 'Attachment Deleted');
             }
             else {
-                NotificationService.failure('Could not delete attachment.', 'Please try again.');
+                NotificationService.error('Could not delete attachment.', 'Please try again.');
             }
         };
 
@@ -95,7 +95,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                 {field: 'trailer_number', displayName: 'Trailer'},
                 {field: 'created_by', displayName: 'Author', cellTemplate: '/templates/ng-grid-templates/author.html', width: 250},
                 {field: 'date_created', displayName: 'Creation Date', cellTemplate: '/templates/ng-grid-templates/date.html'},
-                {field: 'uuid', displayName: '', cellTemplate: '/templates/ng-grid-templates/controls.html', width: 50}
+                {field: 'unique_key', displayName: '', cellTemplate: '/templates/ng-grid-templates/controls.html', width: 50}
             ]
         };
 
