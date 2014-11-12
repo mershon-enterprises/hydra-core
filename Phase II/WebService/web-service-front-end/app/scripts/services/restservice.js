@@ -321,7 +321,9 @@ angular.module('webServiceApp').factory('RestService',
       NotificationService.error('No Data', 'Please try again.');
   });
 
-    //CACHE ====================================================================
+//CACHE ========================================================================
+
+    //Create the cache keys in localstorage.
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
@@ -329,9 +331,12 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('data', null);
     };
 
+    //Invoke all restservice methods to repopulate the cache with new values
+    //from the restAPI. Returns a promise.
     restService.refreshCache = function () {
         //A promise that resolves if all promises objects in the
-        //array resolve with success.
+        //array resolve with success. Rejects with the error of the first
+        //promise to reject.
         return $q.all([
             restService.listAccessLevels(),
             restService.listClients(),
@@ -340,6 +345,7 @@ angular.module('webServiceApp').factory('RestService',
         ]);
     };
 
+    //Updates a cache value in localstorage with a given key.
     restService.updateCacheValue = function (key, data) {
         if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
@@ -355,6 +361,7 @@ angular.module('webServiceApp').factory('RestService',
         }
     };
 
+    //Returns a cache value from localstorage with a given key.
     restService.getCacheValue = function (key) {
         if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
@@ -367,12 +374,15 @@ angular.module('webServiceApp').factory('RestService',
         }
         else if (key === 'data') {
             return localStorageService.get('data');
-        } else if (key === 'clientUUID') {
+        }
+        else if (key === 'clientUUID') {
             return localStorageService.get('clientUUID');
         }
     };
 
-    //Remove a value from the restclient's data cache.
+    //Remove a value from the restclient's data cache with a matching filename
+    //and uuid.
+    //ukey = 'filename' + '\n' + 'uuid'
     restService.removeCacheDataValue = function (ukey) {
 
         var filename = ukey.split('\n')[0];
@@ -426,6 +436,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Destroy the cache values and their keys from local storage.
     restService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
@@ -435,7 +446,6 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.remove('clients');
         localStorageService.remove('users');
         localStorageService.remove('data');
-        $rootScope.loading = false;
     };
 
   return restService;
