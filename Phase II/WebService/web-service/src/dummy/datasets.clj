@@ -74,9 +74,9 @@
   (def data [])
 
   ; maybe create an attachment, maybe not
-  (dotimes [n 3]
-    (if (gen/boolean)
-      (def data (conj data (mock-attachment)))))
+  (if (gen/boolean) (def data (conj data (mock-attachment))))
+  (if (gen/boolean) (def data (conj data (mock-attachment))))
+  (if (gen/boolean) (def data (conj data (mock-attachment))))
 
   ; create a random wellName, trailerNumber and fieldName
   (def data (conj data (mock-data-wellName-for-well-test)))
