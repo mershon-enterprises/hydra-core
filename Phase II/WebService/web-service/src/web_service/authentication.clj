@@ -79,24 +79,6 @@
           401))
 
 
-; expire API tokens for the specified client uuid, and any other tokens which
-; have passed their expiration date
-(defn expire-tokens
-  [client-uuid]
-  (let [expire-query (str "delete from public.user_api_token "
-                          "where expiration_date<now() "
-                          "or client_uuid::character varying=?")]
-    (try (sql/execute! (db) [expire-query client-uuid])
-         true
-         (catch Exception e
-           (if (instance? SQLException e)
-             (do
-               (println e)
-               (println (.getNextException e)))
-             (println (.getMessage e)))
-           false))))
-
-
 ; get the user associated with the specified API token
 (defn get-user-by-token
   [api-token client-uuid]
@@ -121,32 +103,51 @@
 ; create an API token for the user
 (defn- make-token
   [email-address client-uuid]
-  (expire-tokens client-uuid)
-  (let [api-token (str (crypto.random/hex 255))
-        expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
-        ; we store the hash of the api token to the database, not the token
-        ; itself, because security
-        query (str "insert into public.user_api_token "
-                   "(api_token, client_uuid, expiration_date, user_id) values "
-                   "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
-                   "(select id from public.user where email_address=?)"
-                   ")")
-        success (try (sql/execute! (db) [query
-                                         api-token
-                                         client-uuid
-                                         expiration-date
-                                         email-address])
-                     true
-                     (catch Exception e
-                       (if (instance? SQLException e)
-                          (do
-                            (println e)
-                             (println (.getNextException e)))
-                          (println (.getMessage e)))
-                       false))]
-    (if success
-      {:token api-token
-       :token_expiration_date expiration-date})))
+  (let [conn (db)]
+    (sql/with-db-transaction
+      [conn db-spec]
+      (do
+        ; expire API tokens for the specified client uuid, and any other tokens
+        ; which have passed their expiration date
+        (let [expire-query (str "delete from public.user_api_token "
+                                "where expiration_date<now() "
+                                "or client_uuid::character varying=?")]
+          (try (sql/execute! conn [expire-query client-uuid])
+               true
+               (catch Exception e
+                 (if (instance? SQLException e)
+                   (do
+                     (println e)
+                     (println (.getNextException e)))
+                   (println (.getMessage e)))
+                 false)))
+
+        ; create a new token
+        (let [api-token (str (crypto.random/hex 255))
+              expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
+              ; we store the hash of the api token to the database, not the
+              ; token itself, because security
+              query (str "insert into public.user_api_token "
+                         "(api_token, client_uuid, expiration_date, user_id) values "
+                         "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
+                         "(select id from public.user where email_address=?)"
+                         ")")
+              success (try (sql/execute! conn [query
+                                               api-token
+                                               client-uuid
+                                               expiration-date
+                                               email-address])
+                           true
+                           (catch Exception e
+                             (if (instance? SQLException e)
+                               (do
+                                 (println e)
+                                 (println (.getNextException e)))
+                               (println (.getMessage e)))
+                             false))]
+          (if success
+            {:token api-token
+             :token_expiration_date expiration-date}))))))
 
 
 (defn- format-ldap-user
