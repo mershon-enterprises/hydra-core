@@ -432,12 +432,40 @@ angular.module('webServiceApp').factory('RestService',
         if(data) {
             $.each(data, function(index, value){
                 if((value.uuid === uuid) && (value.filename === filename)) {
-                    matchingIndex = value;
+                    matchingIndex = index;
                 }
             });
 
             if(matchingIndex) {
                 data.splice(matchingIndex, 1);
+                restService.updateCacheValue('data', data);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //Rename a value from the restclient's data cache with a matching filename
+    //and uuid.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.renameCacheDataValue = function (ukey, newFilename) {
+
+        console.log(ukey, newFilename);
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        var data = localStorageService.get('data');
+        var matchingIndex = null;
+
+        if(data) {
+            $.each(data, function(index, value){
+                if((value.uuid === uuid) && (value.filename === filename)) {
+                    matchingIndex = index;
+                }
+            });
+
+            if(matchingIndex) {
+                data[matchingIndex].filename = newFilename;
                 restService.updateCacheValue('data', data);
                 return true;
             }

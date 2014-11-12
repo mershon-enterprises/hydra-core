@@ -42,11 +42,18 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $scope.renameFile = function() {
 
             var re = new RegExp('[a-z_\-\s0-9\.]+\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
+            var cacheValueRenamed = null;
 
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
                 if(re.test($scope.newFilename)) {
                     RestService.renameAttachment($scope.ukey, $scope.newFilename);
-                    NotificationService.success('Success', 'Attachment Renamed');
+                    cacheValueRenamed = RestService.renameCacheDataValue($scope.ukey, $scope.newFilename);
+                    if(cacheValueRenamed) {
+                        $scope.toggleProperties();
+                        $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
+                        $scope.newFilename = null;
+                        NotificationService.success('Success', 'Attachment Renamed');
+                    }
                 }
                 else {
                     NotificationService.error('Invalid filename.', 'Please try again.');
@@ -58,14 +65,14 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         };
 
-        //Delet the file from cache and server whose ukey is in scope.
+        //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
 
             //TODO Redo as Promise?
             RestService.deleteAttachment($scope.ukey);
-            var cacheDeleted = RestService.removeCacheDataValue($scope.ukey);
+            var cacheValueDeleted = RestService.removeCacheDataValue($scope.ukey);
 
-            if(cacheDeleted) {
+            if(cacheValueDeleted) {
                 $scope.toggleProperties();
                 $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
                 NotificationService.success('Success', 'Attachment Deleted');
