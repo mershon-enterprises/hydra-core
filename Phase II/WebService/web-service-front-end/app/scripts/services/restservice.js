@@ -450,7 +450,6 @@ angular.module('webServiceApp').factory('RestService',
     //ukey = 'filename' + '\n' + 'uuid'
     restService.renameCacheDataValue = function (ukey, newFilename) {
 
-        console.log(ukey, newFilename);
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
 
