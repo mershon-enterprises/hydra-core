@@ -397,26 +397,32 @@ angular.module('webServiceApp').factory('RestService',
         return false;
     };
 
-    //Returns true if the cache can be accessed from local storage. False
-    //otherwise.
+    //Check if data is available in the cache. Refresh it if not.
     restService.cacheExists = function () {
 
         var deferred = $q.defer();
 
+        //If you have a session...
         if (Session.exists()) {
+            //And there is already data in the cache...
             if(localStorageService.get('data')) {
+                //Data controller may tell the table to update.
                 deferred.resolve(true);
             }
-            restService.refreshCache().then(
-                function(success) {
-                    deferred.resolve(true);
-                },
-                function(error) {
-                    deferred.reject(false);
-                }
-            );
+            //Otherwise, refresh the cache...
+            else {
+                restService.refreshCache().then(
+                    function(success) {
+                        //Data controller may tell the table to update.
+                        deferred.resolve(true);
+                    },
+                    function(error) {
+                        //Data controller may not tell the table to update.
+                        deferred.reject(false);
+                    }
+                );
+            }
         }
-
         return deferred.promise;
     };
 
