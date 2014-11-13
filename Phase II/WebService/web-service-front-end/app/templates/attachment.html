@@ -1,16 +1,34 @@
-<div class="fileProperties">
-    <ul>
-        <li>
-            <label for="fileName">File Name</label>
-            <input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}">
-        </li>
-        <li>Author: {{createdBy}}</li>
-        <li>Creation Date: {{dateCreated | date : 'short'}}</li>
-    </ul>
+<div class="attachmentView">
+    <div class="fileProperties">
+        <ul>
+            <li>
+                <label for="fileName"><span>File Name</span></label>
+                <input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}">
+                <button ng-click="renameFile(newFilename)">Rename</button>
+            </li>
+            <li><span>Author:</span> {{createdBy}}</li>
+            <li><span>Creation Date:</span> {{dateCreated | date : 'short'}}</li>
+        </ul>
 
-    <button ng-click="renameFile(newFilename)">Rename</button>
-    <button ng-click="deleteFile()">Delete</button>
-    <button ng-click="back()">Back</button>
-</div>
-<div class="tags">
+    </div>
+    <div class="tags">
+        <table>
+            <tr><th>Tag Name</th><th>Tag Value</th><th>Add/Remove</th></tr>
+            <tr ng-repeat="tag in tags">
+                <td>{{tag.description}}</td>
+                <td>{{tag.value}}</td>
+                <td><i class="fa fa-minus"></i></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td><i class="fa fa-plus"></i></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="controlls">
+        <button class="deleteButton" ng-click="deleteFile()">Delete</button>
+        <button class="backButton" ng-click="back()">Back</button>
+    </div>
 </div>

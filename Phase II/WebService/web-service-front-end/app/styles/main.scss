@@ -187,6 +187,25 @@ nav {
 
 }
 
+table {
+    border-collapse: collapse;
+    border: 2px solid $off-black;
+    color: $off-black;
+}
+
+td {
+    border: 1px solid $off-black;
+    padding: $default-padding;
+}
+
+tr:nth-child(even) {
+    background-color: $light-gray;
+}
+
+tr:nth-child(odd) {
+    background-color: $light-gray + 20;
+}
+
 //Forms
 form label {
     line-height: 2em;
@@ -399,8 +418,29 @@ footer {
     font-weight: bold;
 }
 
-.fileProperties {
-    button {
-        @include button-style(1em);
+.attachmentView {
+    @include gray-box(1em);
+    padding: $default-padding * 2 $default-padding * 4 !important;
+    .deleteButton {
+        float: left;
+    }
+    .backButton {
+        float: right;
+    }
+    table {
+        width: 70%;
+        margin: 0 auto;
+    }
+    ul {
+        margin-left: 10%;
+        width: 50%;
+    }
+    li {
+        text-align: center;
+        line-height: 3em;
+    }
+    span {
+        font-size: 1.5em;
+        float: left;
     }
 }
