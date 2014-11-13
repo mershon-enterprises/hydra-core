@@ -33,6 +33,7 @@ angular.module('webServiceApp', [
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
+      cacheRefresh: 'cache-refresh',
       cacheReady: 'cache-ready',
       dataLost: 'data-lost',
       sessionTimeout: 'auth-session-timeout',
