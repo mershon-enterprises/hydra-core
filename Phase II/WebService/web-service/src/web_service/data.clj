@@ -33,6 +33,14 @@
     (sql/query (db) [query data-set-id])))
 
 
+; format the specified row from the data_set_attachment info display
+(defn- format-data-attachment-info [row]
+  {:filename (:filename row)
+   :date_created (:date_created row)
+   :created_by (:email_address row)
+   :primitive_text_data ((get-primitive-data "text" (:data_set_id row)))})
+
+
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
   {:uuid (:uuid row)
@@ -74,6 +82,13 @@
        "inner join public.user u "
        "  on u.id = ds.created_by "
        "where ds.date_deleted is null "))
+
+(def data-set-attachment-info-query
+  (str "select dsa.filename, dsa.date_created, u.email_address, dsa.data_set_id "
+       "from public.data_set_attachment dsa "
+       "inner join public.data_set ds on dsa.data_set_id = ds.id "
+       "where ds.uuid::character varying=? "
+       "and dsa.filename =? "))
 
 (def data-set-with-attachments-query
   (str "select "
@@ -304,6 +319,42 @@
                                    (println (.getMessage e)))
                                  false))})
         (access-denied constants/manage-data)))))
+
+
+; get data_set_attachment info
+(defn get-attachment-info
+  [email-address uuid filename]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-datasets)
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data))
+        can-access-own (contains? access constants/view-own-data)
+        query data-set-attachment-info-query
+        query-own (str data-set-attachment-info-query "and u.email_address=? ")]
+    (try (if can-access
+           (response {:response (sql/query
+                                  (db)
+                                  [query uuid filename]
+                                  :row-fn format-data-attachment-info)})
+           ; if the user cannot access all data, try to at least show them their
+           ; own data instead
+           (if can-access-own
+             (response {:response (sql/query
+                                    (db)
+                                    [query-own email-address]
+                                    :row-fn format-data-attachment-info)})
+             (access-denied constants/manage-data)))
+      (catch Exception e
+        (if (instance? SQLException e)
+          (do (.getCause e)
+              (println (.getNextException e)))
+          (println (.getMessage e)))
+        false))))
+
 
 ; get the specified attachment to a data set, by date and filename
 (defn data-get-attachment
