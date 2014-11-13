@@ -374,9 +374,6 @@ footer {
     background-color: $off-white;
     box-shadow: 4px 4px 80px $off-black;
     @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
-    button {
-        @include button-style(1em);
-    }
     padding: $default-padding;
     text-align: center;
 }
@@ -402,3 +399,8 @@ footer {
     font-weight: bold;
 }
 
+.fileProperties {
+    button {
+        @include button-style(1em);
+    }
+}
