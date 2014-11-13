@@ -294,7 +294,7 @@ angular.module('webServiceApp').factory('RestService',
         });
     };
 
-    //Delete an attachment on the server.
+    //Get an attachment file data from the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.getAttachment = function (ukey) {
 
@@ -325,7 +325,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    //Delete an attachment on the server.
+    //Get the URL where an attachment is hosted on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.getAttachmentURL = function (ukey) {
 
