@@ -166,6 +166,10 @@
     });
   };
 
+  exports.getAttachmentURL = function(clientUUID, apiToken, uuid, filename) {
+    return exports.endpointURL + '/data/' + uuid + '/' + filename + '?client_uuid='+clientUUID + '&api_token='+apiToken;
+  };
+
   exports.getAttachmentInfo = function(clientUUID, apiToken, uuid, filename) {
     return rest({
       method: 'GET',
