@@ -12,7 +12,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         //jQuery click behavior bindings for ngGrid file controls.
         $(document).on('click', '.fa-download', function(){
-            RestService.getAttachment($(this).attr('ukey')).then(
+            RestService.getAttachmentURL($(this).attr('ukey')).then(
                 function(success){
                     if(success !== null && success !== EVENTS.data_lost) {
                         window.location.href = success;
