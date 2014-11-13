@@ -15,7 +15,8 @@ angular.module('webServiceApp').controller('AttachmentCtrl', function ($rootScop
             $location.path('/datasets');
         }
 
-        $scope.fileData = RestService.getAttachmentInfo($rootScope.ukey);
+        RestService.getAttachmentInfo($rootScope.ukey).then(function(success){console.log(success); $scope.fileData = success;}, function (error){});
+
 
         $scope.back = function () {
             $location.path('/datasets');

@@ -349,6 +349,37 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Get the info about a specific attachment.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.getAttachmentInfo = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.getAttachmentInfo(clientUUID, Session.getToken(), uuid, filename).then(
+            function(data) {
+
+                console.log(data);
+
+                if (data.status.code === STATUS_CODES.ok) {
+                    deferred.resolve(data);
+                }
+                else {
+                    //Broadcast to any listeners that data wasn't retrieved.
+                    deferred.resolve(EVENTS.dataLost);
+                    $rootScope.$broadcast(EVENTS.dataLost);
+                }
+            },
+            function(error) {
+                deferred.reject();
+                console.log('Promise failed. ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Delete an attachment on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {
