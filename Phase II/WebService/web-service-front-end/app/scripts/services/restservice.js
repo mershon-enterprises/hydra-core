@@ -460,15 +460,30 @@ angular.module('webServiceApp').factory('RestService',
     //Invoke all restservice methods to repopulate the cache with new values
     //from the restAPI. Returns a promise.
     restService.refreshCache = function () {
-        //A promise that resolves if all promises objects in the
-        //array resolve with success. Rejects with the error of the first
-        //promise to reject.
-        return $q.all([
-            restService.listAccessLevels(),
-            restService.listClients(),
-            restService.listUsers(),
-            restService.listDatasetsWithAttachments()
-        ]);
+        var deferred = $q.defer();
+
+        restService.listAccessLevels().then(
+            function(success) {
+                restService.listClients().then(
+                    function(success) {
+                        restService.listUsers().then(
+                            function(success) {
+                                restService.listDatasetsWithAttachments();
+                                deferred.resolve(true);
+                            },
+                            function(error) {
+                                deferred.reject(false);
+                            });
+                    },
+                    function(error) {
+                        deferred.reject(false);
+                    });
+            },
+            function(error) {
+                deferred.reject(false);
+            });
+
+        return deferred.promise;
     };
 
     //Updates a cache value in localstorage with a given key.
