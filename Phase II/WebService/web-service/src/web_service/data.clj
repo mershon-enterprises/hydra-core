@@ -38,7 +38,7 @@
   {:filename (:filename row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :primitive_text_data ((get-primitive-data "text" (:data_set_id row)))})
+   :primitive_text_data (get-primitive-data "text" (:data_set_id row))})
 
 
 ; format the specified row from the data_set table
@@ -87,6 +87,7 @@
   (str "select dsa.filename, dsa.date_created, u.email_address, dsa.data_set_id "
        "from public.data_set_attachment dsa "
        "inner join public.data_set ds on dsa.data_set_id = ds.id "
+       "inner join public.user as u on u.id = dsa.created_by "
        "where ds.uuid::character varying=? "
        "and dsa.filename =? "))
 
@@ -335,7 +336,7 @@
         can-access-own (contains? access constants/view-own-data)
         query data-set-attachment-info-query
         query-own (str data-set-attachment-info-query "and u.email_address=? ")]
-    (try (if can-access
+    (if can-access
            (response {:response (sql/query
                                   (db)
                                   [query uuid filename]
@@ -347,13 +348,7 @@
                                     (db)
                                     [query-own email-address]
                                     :row-fn format-data-attachment-info)})
-             (access-denied constants/manage-data)))
-      (catch Exception e
-        (if (instance? SQLException e)
-          (do (.getCause e)
-              (println (.getNextException e)))
-          (println (.getMessage e)))
-        false))))
+             (access-denied constants/manage-data)))))
 
 
 ; get the specified attachment to a data set, by date and filename

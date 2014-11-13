@@ -119,6 +119,12 @@
                                          data-get-attachment
                                          uuid
                                          filename))
+              (GET "/info" [api_token client_uuid]
+                   (guard-with-user api_token
+                                         client_uuid
+                                         get-attachment-info
+                                         uuid
+                                         filename))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                          client_uuid
