@@ -193,7 +193,7 @@
   };
 
   // every item in data must be Attachment or PrimitiveData
-  exports.submitData = function(clientUUID, apiToken, dateCreated, createdBy, dataItems) {
+  exports.submitAttachment = function(clientUUID, apiToken, dateCreated, createdBy, dataItems) {
 
     // guard against null date
     if (dateCreated == null)
