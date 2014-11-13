@@ -4,7 +4,7 @@
 
 //Display attachment details to the user and provide controls for the attachments
 //name and tags, as well as delete functionality.
-angular.module('webServiceApp').controller('AttachmentCtrl', function ($rootScope, $location, $scope, RestService, NotificationService, Session) {
+angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($rootScope, $location, $scope, RestService, NotificationService, Session) {
 
     //If the user is logged in...
     if (Session.exists()) {
@@ -17,7 +17,6 @@ angular.module('webServiceApp').controller('AttachmentCtrl', function ($rootScop
         else {
             RestService.getAttachmentInfo($rootScope.ukey).then(
             function(success) {
-                console.log(success);
                 $scope.filename = success.filename;
                 $scope.dateCreated = success.date_created;
                 $scope.createdBy = success.created_by;

@@ -26,7 +26,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
 
         $(document).on('click', '.fa-cog', function(){
             $rootScope.ukey = $(this).attr('ukey');
-            window.location.href = '#/attachment';
+            window.location.href = '#/attachment_details';
         });
 
         //Options for ng-grid.

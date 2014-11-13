@@ -15,9 +15,9 @@ angular.module('webServiceApp', [
           controller: 'DatasetsCtrl',
           loggedInOnly: true
         })
-        .when('/attachment', {
-          templateUrl: 'templates/attachment.html',
-          controller: 'AttachmentCtrl',
+        .when('/attachment_details', {
+          templateUrl: 'templates/attachment_details.html',
+          controller: 'AttachmentDetailsCtrl',
           loggedInOnly: true
         })
         .when('/upload', {
