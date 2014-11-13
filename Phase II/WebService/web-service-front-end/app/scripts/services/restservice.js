@@ -35,9 +35,14 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Create the cache for this user's data.
                     restService.createCache();
+                    $rootScope.$apply(function() {
+                        //Broadcast to any listeners that the cache should be
+                        //refreshed.
+                        $rootScope.$broadcast(EVENTS.cacheRefresh);
 
-                    //Broadcast to any listeners that login was successful.
-                    $rootScope.$broadcast(EVENTS.loginSuccess);
+                        //Broadcast to any listeners that login was successful.
+                        $rootScope.$broadcast(EVENTS.loginSuccess);
+                    });
                 }
                 else {
                     //Broadcast to any listeners that login has failed.
@@ -459,17 +464,29 @@ angular.module('webServiceApp').factory('RestService',
 
     //Invoke all restservice methods to repopulate the cache with new values
     //from the restAPI. Returns a promise.
+    var refreshing = false;
     restService.refreshCache = function () {
         var deferred = $q.defer();
 
+        if (refreshing) {
+            deferred.resolve(true);
+            return deferred.promise;
+        }
+
+        refreshing = true;
         restService.listAccessLevels().then(
             function(success) {
                 restService.listClients().then(
                     function(success) {
                         restService.listUsers().then(
                             function(success) {
-                                restService.listDatasetsWithAttachments();
-                                deferred.resolve(true);
+                                restService.listDatasetsWithAttachments().then(
+                                    function(success) {
+                                        deferred.resolve(true);
+                                    },
+                                    function(error) {
+                                        deferred.reject(false);
+                                    });
                             },
                             function(error) {
                                 deferred.reject(false);
@@ -483,6 +500,7 @@ angular.module('webServiceApp').factory('RestService',
                 deferred.reject(false);
             });
 
+        refreshing = false;
         return deferred.promise;
     };
 
