@@ -11,6 +11,9 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
     if (Session.exists()) {
 
         //jQuery click behavior bindings for ngGrid file controls.
+
+        $rootScope.ukey = null;
+
         $(document).on('click', '.fa-download', function(){
             RestService.getAttachmentURL($(this).attr('ukey')).then(
                 function(success){
