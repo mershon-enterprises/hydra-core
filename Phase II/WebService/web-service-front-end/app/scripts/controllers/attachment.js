@@ -14,9 +14,17 @@ angular.module('webServiceApp').controller('AttachmentCtrl', function ($rootScop
         if (!$rootScope.ukey) {
             $location.path('/datasets');
         }
-
-        RestService.getAttachmentInfo($rootScope.ukey).then(function(success){console.log(success); $scope.fileData = success;}, function (error){});
-
+        else {
+            RestService.getAttachmentInfo($rootScope.ukey).then(
+            function(success) {
+                console.log(success);
+                $scope.filename = success.filename;
+                $scope.dateCreated = success.date_created;
+                $scope.createdBy = success.created_by;
+                $scope.tags = success.primitive_text_data;
+            },
+            function (error) {});
+        }
 
         $scope.back = function () {
             $location.path('/datasets');

@@ -362,10 +362,12 @@ angular.module('webServiceApp').factory('RestService',
         restclient.getAttachmentInfo(clientUUID, Session.getToken(), uuid, filename).then(
             function(data) {
 
-                console.log(data);
+                //Parse out the data from the restclient response.
+                var response = JSON.parse(data.entity);
+                Session.updateToken(response.token);
 
                 if (data.status.code === STATUS_CODES.ok) {
-                    deferred.resolve(data);
+                    deferred.resolve(response.response[0]);
                 }
                 else {
                     //Broadcast to any listeners that data wasn't retrieved.
