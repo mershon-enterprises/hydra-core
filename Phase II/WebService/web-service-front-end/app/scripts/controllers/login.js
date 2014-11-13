@@ -7,6 +7,12 @@
 angular.module('webServiceApp').controller('LoginCtrl',
  function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, localStorageService, Session) {
 
+    //If they are at the login route and already have a valid session, send them
+    //to where they need to be.
+    if(Session.exists()) {
+        $location.path('/datasets');
+    }
+
     //Will be populated by user on login view.
     $scope.credentials = {
         email: '',
