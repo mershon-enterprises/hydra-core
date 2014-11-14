@@ -213,6 +213,7 @@
               (let [type (:type data-element)]
                 ; treat attachments and primitive data differently
                 (if (= type "attachment")
+                  ;TODO replace with data-submit-attachment
                   (let [filename (:filename data-element)
                         mime-type (:mime_type data-element)
                         contents (:contents data-element)
@@ -223,6 +224,7 @@
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
+                  ;TODO replace with data-submit-primitve
                   (let [type (:type data-element)
                         description (:description data-element)
                         value (:value data-element)
@@ -254,6 +256,35 @@
             (status (response {:response "Failure"}) 409))))
       (access-denied constants/create-data))))
 
+(defn data-submit-attachment
+  [data-element data-set-id]
+  (let [filename (:filename data-element)
+        mime-type (:mime_type data-element)
+          contents (:contents data-element)
+          query (str "insert into public.data_set_attachment "
+                     "(data_set_id, filename, mime_type, contents) "
+                     "values (?,?,?,decode(?, 'base64'))")
+          success (sql/execute! (db) [query data-set-id filename mime-type
+                                    contents])]
+      (if (not success)
+        (throw Exception "Failed to insert new attachment!"))))
+
+(defn data-submit-primitive
+  [data-element data-set-id]
+  (let [type (:type data-element)
+        description (:description data-element)
+          value (:value data-element)
+          query (str "insert into public.data_set_" type " "
+                     "(data_set_id, description, value) values "
+                     "(?,?,?"
+                     (if (= type "date") ; cast dates correctly
+                       "::timestamp with time zone"
+                       "")
+                     ")")
+          success (sql/execute! (db)
+                                [query data_set_id description value])]
+      (if (not success)
+        (throw Exception "Failed to insert new primitive data!"))))
 
 ; list up to 10 data items in the database, as an HTTP response
 (defn data-list
