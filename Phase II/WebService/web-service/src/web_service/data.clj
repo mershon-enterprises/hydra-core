@@ -282,7 +282,7 @@
                        "")
                      ")")
           success (sql/execute! (db)
-                                [query data_set_id description value])]
+                                [query data-set-id description value])]
       (if (not success)
         (throw Exception "Failed to insert new primitive data!"))))
 
