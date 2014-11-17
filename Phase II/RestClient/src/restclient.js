@@ -16,7 +16,7 @@
   // replaced by grunt-string-replace
   exports.endpointUrl = 'ENDPOINT_URL';
 
-  exports.uuid = function() {
+  exports.uuid = (function() {
     return new Promise(function(resolve, reject) {
       // borrowed from http://stackoverflow.com/a/105074/3541792
       function s4() {
@@ -29,7 +29,7 @@
           s4() + '-' + s4() + s4() + s4();
       };
     });
-  };
+  });
 
   exports.Attachment = function(filename, mimeType, contents) {
     return {
