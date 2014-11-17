@@ -83,10 +83,6 @@ angular.module('webServiceApp').factory('RestService',
                     restService.updateCacheValue('accessLevels', responseBody);
 
                 }
-                else {
-                    //Broadcast to any listeners that data wasn't retrieved.
-                    $rootScope.$broadcast(EVENTS.dataLost);
-                }
             },
             function(error) {
                 deferred.reject();
@@ -118,10 +114,6 @@ angular.module('webServiceApp').factory('RestService',
                     restService.updateCacheValue('clients', responseBody);
 
                 }
-                else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
-                }
             },
             function(error) {
                 deferred.reject();
@@ -152,10 +144,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     restService.updateCacheValue('users', responseBody);
 
-                }
-                else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
                 }
             },
             function(error) {
@@ -190,10 +178,6 @@ angular.module('webServiceApp').factory('RestService',
                     restService.updateCacheValue('data', parsedData);
 
                 }
-                else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
-                }
             },
             function(error) {
                 deferred.reject();
@@ -225,10 +209,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     restService.updateCacheValue('data', parsedData);
 
-                }
-                else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
                 }
             },
             function(error) {
@@ -321,15 +301,11 @@ angular.module('webServiceApp').factory('RestService',
         restclient.getAttachment(clientUUID, Session.getToken(), uuid, filename).then(
 
             function(data) {
-
-
                 if (data.status.code === STATUS_CODES.ok) {
                     deferred.resolve(data.raw.responseURL);
                 }
                 else {
-                    //Broadcast to any listeners that data wasn't retrieved.
-                    deferred.resolve(EVENTS.dataLost);
-                    $rootScope.$broadcast(EVENTS.dataLost);
+                    deferred.reject();
                 }
             },
             function(error) {
@@ -355,11 +331,8 @@ angular.module('webServiceApp').factory('RestService',
             deferred.resolve(response);
         }
         else {
-            //Broadcast to any listeners that data wasn't retrieved.
             deferred.reject();
-            $rootScope.$broadcast(EVENTS.dataLost);
         }
-
         return deferred.promise;
     };
 
@@ -384,9 +357,7 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve(response.response[0]);
                 }
                 else {
-                    //Broadcast to any listeners that data wasn't retrieved.
-                    deferred.resolve(EVENTS.dataLost);
-                    $rootScope.$broadcast(EVENTS.dataLost);
+                    deferred.reject();
                 }
             },
             function(error) {
@@ -415,10 +386,6 @@ angular.module('webServiceApp').factory('RestService',
                 if (data.status.code === STATUS_CODES.ok) {
                     console.log(filename + ' deleted.');
                 }
-                else {
-                  //Broadcast to any listeners that data wasn't retrieved.
-                  $rootScope.$broadcast(EVENTS.dataLost);
-                }
             },
             function(error) {
                 console.log('Promise failed. ' + error);
@@ -445,21 +412,13 @@ angular.module('webServiceApp').factory('RestService',
                 if (data.status.code === STATUS_CODES.ok) {
                     console.log(filename + ' renamed to ' + newFilename);
                 }
-                else {
-                    //Broadcast to any listeners that data wasn't retrieved.
-                    $rootScope.$broadcast(EVENTS.dataLost);
-                }
+
             },
             function(error) {
                 console.log('Promise failed. ' + error);
             }
         );
     };
-
-    //Listener for a failed data retrieval.
-    $rootScope.$on(EVENTS.dataLost, function() {
-        NotificationService.error('No Data', 'Please try again.');
-    });
 
 //CACHE ========================================================================
 
