@@ -12,7 +12,9 @@ angular.module('webServiceApp').factory('RestService',
     //successful login.
     restService.authenticate = function (credentials) {
 
-        var clientUUID = localStorageService.get('clientUUID');
+        //Generate a unique ID for this client.
+        var clientUUID = restclient.uuid();
+        localStorageService.set('clientUUID', clientUUID);
 
         restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
             function(data) {
