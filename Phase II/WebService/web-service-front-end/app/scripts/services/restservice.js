@@ -8,13 +8,20 @@ angular.module('webServiceApp').factory('RestService',
 
     var restService = {};
 
+    restService.updateClientUUID = function () {
+        //Generate a unique ID for this client if one doesn't exist.
+        if(!localStorageService.get('clientUUID')) {
+            localStorageService.set('clientUUID', restclient.uuid());
+        }
+    };
+
     //Both calls Restclient.authenticate and creates the user's session upon
     //successful login.
     restService.authenticate = function (credentials) {
 
-        //Generate a unique ID for this client.
-        var clientUUID = restclient.uuid();
-        localStorageService.set('clientUUID', clientUUID);
+        restService.updateClientUUID();
+
+        var clientUUID = localStorageService.get('clientUUID');
 
         restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
             function(data) {
