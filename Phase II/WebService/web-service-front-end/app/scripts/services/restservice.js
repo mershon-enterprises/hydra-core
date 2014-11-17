@@ -44,22 +44,20 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Create the cache for this user's data.
                     restService.createCache();
+
                     $rootScope.$apply(function() {
                         //Broadcast to any listeners that the cache should be
                         //refreshed.
                         $rootScope.$broadcast(EVENTS.cacheRefresh);
-
-                        //Broadcast to any listeners that login was successful.
-                        $rootScope.$broadcast(EVENTS.loginSuccess);
                     });
                 }
-                else {
-                    //Broadcast to any listeners that login has failed.
-                    $rootScope.$broadcast(EVENTS.loginFailed);
-                }
             },
-            function(error) {console.log('Promise failed. ' + error);}
+            function(error) {
+                deferred.resolve(success);
+                console.log('Promise failed. ' + error);
+            }
         );
+        return deferred.promise;
     };
 
     restService.listAccessLevels = function () {

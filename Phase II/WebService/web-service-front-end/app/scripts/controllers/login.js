@@ -21,7 +21,17 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
     //Call RestService with given credentials.
     $scope.login = function (credentials) {
-      RestService.authenticate(credentials);
+        RestService.authenticate(credentials).then(
+        function(success) {
+            $rootScope.$broadcast(EVENTS.loginSuccess);
+            NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
+            window.location.href='/#/datasets';
+        },
+        function(error) {
+            $rootScope.$broadcast(EVENTS.loginFailed);
+            NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
+            Session.destroy();
+        });
     };
 
     //Listens for route changes. If someone is not logged in and where they
@@ -39,18 +49,6 @@ angular.module('webServiceApp').controller('LoginCtrl',
             $location.replace();
             return $location.path('/');
         }
-    });
-
-    //Listener for a successful login.
-    $scope.$on(EVENTS.loginSuccess, function() {
-        NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-        window.location.href='/#/datasets';
-    });
-
-    //Listener for a failed login.
-    $scope.$on(EVENTS.loginFailed, function() {
-        NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
-        Session.destroy();
     });
 
 });
