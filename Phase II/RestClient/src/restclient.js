@@ -17,15 +17,17 @@
   exports.endpointUrl = 'ENDPOINT_URL';
 
   exports.uuid = (function() {
-    // borrowed from http://stackoverflow.com/a/105074/3541792
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-    return function() {
-      return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
+    return new Promise(function(resolve, reject) {
+      // borrowed from http://stackoverflow.com/a/105074/3541792
+      function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+      }
+      return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+      };
     };
   })();
 
