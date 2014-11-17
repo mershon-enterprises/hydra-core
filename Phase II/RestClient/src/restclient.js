@@ -28,7 +28,7 @@
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
           s4() + '-' + s4() + s4() + s4();
       };
-    };
+    });
   })();
 
   exports.Attachment = function(filename, mimeType, contents) {
