@@ -116,25 +116,25 @@
               (GET "/" [api_token client_uuid]
                    (guard-file-with-user api_token
                                          client_uuid
-                                         data-get-attachment
+                                         data-set-attachment-get
                                          uuid
                                          filename))
               (GET "/info" [api_token client_uuid]
                    (guard-with-user api_token
                                          client_uuid
-                                         get-attachment-info
+                                         data-set-attachment-info-get
                                          uuid
                                          filename))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                          client_uuid
-                                         data-rename-attachment-filename
+                                         data-set-attachment-filename-put
                                          uuid filename new_filename))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
                                             client_uuid
-                                            data-delete-attachment
+                                            data-set-attachment-delete
                                             uuid filename))))))))
 
   (context

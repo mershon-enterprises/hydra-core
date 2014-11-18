@@ -295,7 +295,7 @@
         (access-denied constants/manage-data)))))
 
 ; get data_set_attachment info
-(defn get-attachment-info
+(defn data-set-attachment-info-get
   [email-address uuid filename]
 
   ; log the activity in the session
@@ -324,7 +324,7 @@
 
 
 ; get the specified attachment to a data set, by date and filename
-(defn data-get-attachment
+(defn data-set-attachment-get
   [email-address uuid filename]
 
   ; log the activity in the session
@@ -351,7 +351,7 @@
         (access-denied constants/manage-data)))))
 
 ; delete the specified data set attachment by dataset uuid and filename
-(defn data-delete-attachment
+(defn data-set-attachment-delete
   [email-address uuid filename]
   ;TODO check if uuid and filename exits otherwise throw exception
 
@@ -382,7 +382,7 @@
       (access-denied constants/manage-data))))
 
 ; rename the specified data set attachment filename
-(defn data-rename-attachment-filename
+(defn data-set-attachment-filename-put
   [email-address uuid filename new-filename]
 
   ; log the activity in the session
