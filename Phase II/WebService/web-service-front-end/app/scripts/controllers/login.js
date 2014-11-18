@@ -25,7 +25,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
         function(success) {
             $rootScope.$broadcast(EVENTS.loginSuccess);
             NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-            window.location.href='/#/datasets';
+            $location.path('/datasets');
         },
         function(error) {
             $rootScope.$broadcast(EVENTS.loginFailed);
@@ -46,8 +46,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
         //logged in...
         if (next.loggedInOnly && !Session.exists()) {
             //Back to the root route you go.
-            $location.replace();
-            return $location.path('/');
+            return $location.path('/').replace();
         }
     });
 
