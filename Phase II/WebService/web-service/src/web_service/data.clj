@@ -159,7 +159,7 @@
 
 
 ; submit data
-(defn data-submit
+(defn data-set-submit
   [email-address uuid date-created created-by data]
 
   ; log the activity in the session
@@ -194,7 +194,7 @@
               (let [type (:type data-element)]
                 ; treat attachments and primitive data differently
                 (if (= type "attachment")
-                  ;TODO replace with data-submit-attachment
+                  ;TODO replace with data-set-attachment-submit
                   (let [filename (:filename data-element)
                         mime-type (:mime_type data-element)
                         contents (:contents data-element)
@@ -205,7 +205,7 @@
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
-                  ;TODO replace with data-submit-primitve
+                  ;TODO replace with data-set-primitive-submit
                   (let [type (:type data-element)
                         description (:description data-element)
                         value (:value data-element)
@@ -237,7 +237,7 @@
             (status (response {:response "Failure"}) 409))))
       (access-denied constants/create-data))))
 
-(defn data-submit-attachment
+(defn data-set-attachment-submit
   [data-element data-set-id]
   (let [filename (:filename data-element)
         mime-type (:mime_type data-element)
@@ -250,7 +250,7 @@
       (if (not success)
         (throw Exception "Failed to insert new attachment!"))))
 
-(defn data-submit-primitive
+(defn data-set-primitive-submit
   [data-element data-set-id]
   (let [type (:type data-element)
         description (:description data-element)
@@ -314,9 +314,7 @@
                        "and u.email_address=? "
                        "order by ds.date_created desc")]
     (if can-access
-      (response {:response (sql/query (db)
-                                      [query]
-                                      :row-fn format-data-set  )})
+      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own

@@ -88,7 +88,7 @@
       (POST "/" [api_token client_uuid uuid date_created created_by data]
             (guard-with-user api_token
                              client_uuid
-                             data-submit
+                             data-set-submit
                              uuid
                              date_created
                              created_by
@@ -103,7 +103,7 @@
           (POST "/" [api_token client_uuid date_created created_by data]
                 (guard-with-user api_token
                                  client_uuid
-                                 data-submit
+                                 data-set-submit
                                  uuid
                                  date_created
                                  created_by
