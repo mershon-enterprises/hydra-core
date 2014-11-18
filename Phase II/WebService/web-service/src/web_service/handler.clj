@@ -98,7 +98,7 @@
         "/:uuid" [uuid]
         (defroutes document-routes
           (GET "/" [api_token client_uuid]
-               (guard-with-user api_token client_uuid data-get uuid))
+               (guard-with-user api_token client_uuid data-set-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
           (POST "/" [api_token client_uuid date_created created_by data]
                 (guard-with-user api_token

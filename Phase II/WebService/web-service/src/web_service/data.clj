@@ -108,8 +108,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-; get the specified data set by date
-(defn data-get
+; get the specified data_set set by date
+(defn data-set-get
   [email-address uuid]
 
   ; log the activity in the session
@@ -220,7 +220,7 @@
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
-            (let [data-saved (data-get email-address uuid)]
+            (let [data-saved (data-set-get email-address uuid)]
               ; broadcast the dataset including attachment binary data to
               ; listeners
               (let [with-attachments (merge (:response (:body data-saved))
