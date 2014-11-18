@@ -83,7 +83,7 @@
        "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
-(def data-set-attachment-query
+(def attachment-query
   (str "select "
        "  a.filename, "
        "  a.date_created, "
@@ -306,8 +306,8 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query data-set-attachment-query
-        query-own (str data-set-attachment-query "and u.email_address=? ")]
+        query attachment-query
+        query-own (str attachment-query "and u.email_address=? ")]
     (if can-access
            (response {:response (sql/query
                                   (db)
@@ -337,10 +337,10 @@
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/manage-attachments))
         can-access-own (contains? access constants/view-own-data)
-        query-own (str data-set-attachment-query " and u.email_address=?")]
+        query-own (str attachment-query " and u.email_address=?")]
     (if can-access
       (first (sql/query (db)
-                        [data-set-attachment-query uuid filename]
+                        [attachment-query uuid filename]
                         :row-fn format-attachment))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
