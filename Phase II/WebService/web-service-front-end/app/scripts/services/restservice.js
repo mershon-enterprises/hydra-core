@@ -2,62 +2,87 @@
 
 //RestService Factory
 
-//Acts as an angular wrapper for Restclient calls.
+//Acts as an angular wrapper for Restclient calls
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, $q, EVENTS, STATUS_CODES, Session, NotificationService, localStorageService) {
+    function ($rootScope, $q, EVENTS, STATUS_CODES, Session,
+                                    NotificationService, localStorageService) {
 
     var restService = {};
 
     restService.updateClientUUID = function () {
-        //Generate a unique ID for this client if one doesn't exist.
+        //Generate a unique ID for this client if one doesn't exist
         if(!localStorageService.get('clientUUID')) {
             localStorageService.set('clientUUID', restclient.uuid());
         }
     };
 
     //Both calls Restclient.authenticate and creates the user's session upon
-    //successful login.
+    //successful login
     restService.authenticate = function (credentials) {
 
+        //Create promise wrapper
+        var deferred = $q.defer();
+
+        //Generate client UUID if it does not exist
         restService.updateClientUUID();
 
+        //Grab that UUID
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
-            function(data) {
+        restclient.authenticate(clientUUID, credentials.email,
+        credentials.password).then(
+            function(response) {
 
-                if (data.status.code === STATUS_CODES.ok) {
-                    //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    var responseBody = response.response;
+                if (response.status.code === STATUS_CODES.ok) {
+                    //Parse out the data we want.
+                    var jsonResponse = JSON.parse(response.entity);
+
+                    var responseBody = jsonResponse.response;
+                    var token = jsonResponse.token;
 
                     var tokenExpirationDate = response.token_expiration_date;
-                    var token = response.token;
                     var email = responseBody.email_address;
                     var firstName = responseBody.first_name;
                     var lastName = responseBody.last_name;
                     var permissions = responseBody.access;
 
-                    //Populate the Session singleton with the user data.
-                    Session.create(tokenExpirationDate, token, email, firstName, lastName,
-                    permissions);
+                    //Populate the Session singleton with the user data
+                    Session.create(tokenExpirationDate, token, email, firstName,
+                    lastName, permissions);
 
-                    //Create the cache for this user's data.
+                    //Create the cache for this user's data
                     restService.createCache();
 
                     $rootScope.$apply(function() {
                         //Broadcast to any listeners that the cache should be
-                        //refreshed.
+                        //refreshed
                         $rootScope.$broadcast(EVENTS.cacheRefresh);
                     });
+
+                    //Mark that we have received data
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.authenticate succeeded');
+                    console.log('Session created for ' + firstName + ' ' +
+                        lastName);
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.authenticate promise succeeded. ' +
+                        'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.resolve(success);
-                console.log('Promise failed. ' + error);
+                //Mark that we have not received data and log.
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.authenticate promise failed: ' + error);
             }
         );
+
+        //Return promise wrapper.
         return deferred.promise;
+
     };
 
     restService.listAccessLevels = function () {

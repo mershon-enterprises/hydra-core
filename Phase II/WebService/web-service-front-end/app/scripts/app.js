@@ -40,6 +40,9 @@ angular.module('webServiceApp', [
       logoutSuccess: 'auth-logout-success',
       cacheRefresh: 'cache-refresh',
       cacheReady: 'cache-ready',
+      promiseSuccess: 'promise-success',
+      promiseFailed: 'promise-failed',
+      badStatus: 'bad-status',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized'
     })
