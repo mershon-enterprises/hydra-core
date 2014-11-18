@@ -61,7 +61,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
 
-            //TODO Redo as Promise?
             RestService.deleteAttachment($scope.ukey);
             var cacheValueDeleted = RestService.removeCacheDataValue($scope.ukey);
 
