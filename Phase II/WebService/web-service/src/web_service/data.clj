@@ -91,16 +91,14 @@
        "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
-(def data-set-attachment-info-query
-  (str "select dsa.filename, dsa.date_created, u.email_address, dsa.data_set_id "
-       "from public.data_set_attachment dsa "
-       "inner join public.data_set ds on dsa.data_set_id = ds.id "
-       "inner join public.user as u on u.id = dsa.created_by "
-       "where ds.uuid::character varying=? "
-       "and dsa.filename =? "))
-
 (def data-set-attachment-query
-  (str "select a.filename, a.mime_type, a.contents, "
+  (str "select "
+       "  a.filename, "
+       "  a.date_created, "
+       "  u.email_address, "
+       "  a.data_set_id "
+       "  a.mime_type, "
+       "  a.contents, "
        "  octet_length(a.contents) as bytes "
        "from public.data_set_attachment a "
        "inner join public.data_set ds "
@@ -354,8 +352,8 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query data-set-attachment-info-query
-        query-own (str data-set-attachment-info-query "and u.email_address=? ")]
+        query data-set-attachment-query
+        query-own (str data-set-attachment-query "and u.email_address=? ")]
     (if can-access
            (response {:response (sql/query
                                   (db)
