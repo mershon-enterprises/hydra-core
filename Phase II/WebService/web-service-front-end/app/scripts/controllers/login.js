@@ -26,11 +26,13 @@ angular.module('webServiceApp').controller('LoginCtrl',
             $rootScope.$broadcast(EVENTS.loginSuccess);
             NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
             $location.path('/datasets');
+            console.log(success);
         },
         function(error) {
             $rootScope.$broadcast(EVENTS.loginFailed);
             NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
             Session.destroy();
+            console.log(error);
         });
     };
 

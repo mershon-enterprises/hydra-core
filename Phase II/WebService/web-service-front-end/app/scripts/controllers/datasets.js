@@ -5,7 +5,7 @@
 //Handles the display of dataset attachment data from the restclient in a
 //tabular interface for the user. Provides custom controls to be performed
 //by the user on the attachments in a 'file browser' format.
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session, NotificationService) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
 
     //If the user is logged in...
     if (Session.exists()) {
@@ -21,7 +21,10 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
                         window.location.href = success[1];
                     }
                 },
-                function(error){});
+                function(error){
+                    console.log('DatasetsCtrl promise error.');
+                    console.log(error);
+                });
         });
 
         $(document).on('click', '.fa-cog', function(){

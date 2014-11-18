@@ -24,7 +24,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     $scope.tags = success[1].primitive_text_data;
                 }
             },
-            function (error) {});
+            function (error) {
+                console.log('AttachmentDetailsCtrl promise error.');
+                console.log(error);
+            });
         }
 
         $scope.back = function () {

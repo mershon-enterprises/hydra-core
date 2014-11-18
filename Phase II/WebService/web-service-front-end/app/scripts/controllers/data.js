@@ -38,6 +38,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
             },
             function (error) {
                 console.log('Cache could not be restored.');
+                console.log(error);
             });
         }
     };

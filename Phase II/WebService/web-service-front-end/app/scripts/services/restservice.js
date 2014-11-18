@@ -66,9 +66,9 @@ angular.module('webServiceApp').factory('RestService',
                 else {
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, success.status.code]);
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.authenticate promise succeeded. ' +
-                        'But with bad status code : ' + success.status.code);
+                        'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
@@ -109,8 +109,7 @@ angular.module('webServiceApp').factory('RestService',
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.listAccessLevels promise succeeded '
-                     + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.listAccessLevels promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
@@ -228,8 +227,7 @@ angular.module('webServiceApp').factory('RestService',
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.listDatasetsWithAttachments promise succeeded '
-                        + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.listDatasetsWithAttachments promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
@@ -307,8 +305,8 @@ angular.module('webServiceApp').factory('RestService',
             console.log('restclient.getAttachmentURL succeeded');
         }
         else {
-            deferred.reject([EVENTS.promiseFailed, error]);
-            console.log('restclient.getAttachmentURL promise failed: ' + error);
+            deferred.reject([EVENTS.promiseFailed]);
+            console.log('restclient.getAttachmentURL promise failed');
         }
 
         return deferred.promise;
@@ -339,8 +337,7 @@ angular.module('webServiceApp').factory('RestService',
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.getAttachmentInfo promise succeeded '
-                        + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
@@ -370,15 +367,10 @@ angular.module('webServiceApp').factory('RestService',
                     console.log(filename + ' deleted');
                 }
                 else {
-                    //If we did get data, but a bad status code, then the
-                    //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.deleteAttachment promise succeeded '
-                    + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.deleteAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.deleteAttachment promise failed: ' + error);
             }
         );
@@ -404,16 +396,11 @@ angular.module('webServiceApp').factory('RestService',
                     console.log(filename + ' renamed to ' + newFilename);
                 }
                 else {
-                    //If we did get data, but a bad status code, then the
-                    //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.renameAttachment promise succeeded '
-                    + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.renameAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
 
             },
             function(error) {
-                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.renameAttachment promise failed: ' + error);
             }
         );
@@ -442,28 +429,28 @@ angular.module('webServiceApp').factory('RestService',
 
         refreshing = true;
         restService.listAccessLevels().then(
-            function(success) {
+            function() {
                 restService.listClients().then(
-                    function(success) {
+                    function() {
                         restService.listUsers().then(
-                            function(success) {
+                            function() {
                                 restService.listDatasetsWithAttachments().then(
-                                    function(success) {
+                                    function() {
                                         deferred.resolve(true);
                                     },
-                                    function(error) {
+                                    function() {
                                         deferred.reject(false);
                                     });
                             },
-                            function(error) {
+                            function() {
                                 deferred.reject(false);
                             });
                     },
-                    function(error) {
+                    function() {
                         deferred.reject(false);
                     });
             },
-            function(error) {
+            function() {
                 deferred.reject(false);
             });
 
@@ -575,11 +562,11 @@ angular.module('webServiceApp').factory('RestService',
             //Otherwise, refresh the cache...
             else {
                 restService.refreshCache().then(
-                    function(success) {
+                    function() {
                         //Data controller may tell the table to update.
                         deferred.resolve(true);
                     },
-                    function(error) {
+                    function() {
                         //Data controller may not tell the table to update.
                         deferred.reject(false);
                     }
