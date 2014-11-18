@@ -75,27 +75,11 @@
                                        (:filename row)
                                        "'"))))
 
-
 (def data-set-query
-  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
-       "from public.data_set ds "
-       "inner join public.user u "
-       "  on u.id = ds.created_by "
-       "where ds.date_deleted is null "))
-
-(def data-set-attachment-info-query
-  (str "select dsa.filename, dsa.date_created, u.email_address, dsa.data_set_id "
-       "from public.data_set_attachment dsa "
-       "inner join public.data_set ds on dsa.data_set_id = ds.id "
-       "inner join public.user as u on u.id = dsa.created_by "
-       "where ds.uuid::character varying=? "
-       "and dsa.filename =? "))
-
-(def data-set-with-attachments-query
   (str "select "
-       "  ds.id, ds.uuid, "
-       "  ds.date_created, "
-       "  u.email_address, "
+       "  ds.id, "
+       "  ds.uuid, "
+       "  ds.date_created, u.email_address, "
        "  cl.description as location, "
        "  c.name as client "
        "from public.data_set ds "
@@ -107,6 +91,13 @@
        "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
+(def data-set-attachment-info-query
+  (str "select dsa.filename, dsa.date_created, u.email_address, dsa.data_set_id "
+       "from public.data_set_attachment dsa "
+       "inner join public.data_set ds on dsa.data_set_id = ds.id "
+       "inner join public.user as u on u.id = dsa.created_by "
+       "where ds.uuid::character varying=? "
+       "and dsa.filename =? "))
 
 (def data-set-attachment-query
   (str "select a.filename, a.mime_type, a.contents, "
@@ -327,9 +318,9 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query (str data-set-with-attachments-query
+        query (str data-set-query
                    "order by ds.date_created desc")
-        query-own (str data-set-with-attachments-query
+        query-own (str data-set-query
                        "and u.email_address=? "
                        "order by ds.date_created desc")]
     (if can-access
