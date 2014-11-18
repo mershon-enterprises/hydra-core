@@ -3,9 +3,8 @@
             <div class="leftColumn">
                 <ul>
                     <li>
-                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}">
+                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}"> <button ng-click="renameFile(newFilename)">Rename</button>
                     </li>
-                    <li><button ng-click="renameFile(newFilename)">Rename</button></li>
                 </ul>
             </div>
             <div class="rightColumn">
@@ -16,7 +15,6 @@
             </div>
     </div>
     <div class="tags">
-        <span>Tags</span>
         <table>
             <tr><th>Tag Name</th><th>Tag Value</th><th>Add/Remove</th></tr>
             <tr ng-repeat="tag in tags">
