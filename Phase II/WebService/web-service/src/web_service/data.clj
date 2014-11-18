@@ -267,8 +267,8 @@
       (if (not success)
         (throw Exception "Failed to insert new primitive data!"))))
 
-; list up to 10 data items in the database, as an HTTP response
-(defn data-list
+; list up data_sets in the database, as an HTTP response
+(defn data-set-list
   [email-address]
 
   ; log the activity in the session
@@ -280,12 +280,10 @@
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-query
-                   "order by ds.date_created desc "
-                   "limit 10")
+                   "order by ds.date_created desc ")
         query-own (str data-set-query
                        "and u.email_address=? "
-                       "order by ds.date_created desc "
-                       "limit 10")]
+                       "order by ds.date_created desc ")]
     (if can-access
       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
@@ -295,40 +293,6 @@
                                         [query-own email-address]
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
-
-; list datasets having attachments in the database, as an HTTP response
-(defn data-list-with-attachments
-  [email-address]
-
-  ; log the activity in the session
-  (log-detail email-address
-              constants/session-activity
-              constants/session-list-datasets)
-
-  (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data))
-        can-access-own (contains? access constants/view-own-data)
-        query (str data-set-query
-                   "order by ds.date_created desc")
-        query-own (str data-set-query
-                       "and u.email_address=? "
-                       "order by ds.date_created desc")]
-    (if can-access
-      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
-      ; if the user cannot access all data, try to at least show them their own
-      ; data instead
-      (if can-access-own
-        (response {:response (try (sql/query (db)
-                                        [query-own email-address]
-                                        :row-fn format-data-set  )
-                               (catch Exception e
-                                 (if (instance? SQLException e)
-                                   (do (.getCause e)
-                                       (println (.getNextException e)))
-                                   (println (.getMessage e)))
-                                 false))})
-        (access-denied constants/manage-data)))))
-
 
 ; get data_set_attachment info
 (defn get-attachment-info
