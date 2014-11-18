@@ -382,7 +382,7 @@
       (access-denied constants/manage-data))))
 
 ; rename the specified data set attachment filename
-(defn data-set-attachment-filename-put
+(defn data-set-attachment-filename-rename
   [email-address uuid filename new-filename]
 
   ; log the activity in the session
