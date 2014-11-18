@@ -38,7 +38,7 @@
   {:filename (:filename row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :primitive_text_data (get-primitive-data "text" (:data_set_id row))})
+   :data (get-primitive-data "text" (:data_set_id row))})
 
 
 ; format the specified row from the data_set table
@@ -46,24 +46,14 @@
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
+   :location (:location row)
+   :client (:client row)
    :data (flatten [(get-attachment-data (:id row))
                    (get-primitive-data "boolean" (:id row))
                    (get-primitive-data "date" (:id row))
                    (get-primitive-data "integer" (:id row))
                    (get-primitive-data "real" (:id row))
                    (get-primitive-data "text" (:id row))])})
-
-
-; format the specified row from the data_set_attachement table
-(defn- format-data-set-attachment [row]
-  {:uuid (:uuid row)
-   :date_created (:date_created row)
-   :created_by (:email_address row)
-   :location (:location row)
-   :client (:client row)
-   :attachments (flatten [(get-attachment-data (:id row)) ])
-   :primitive_text_data (get-primitive-data "text" (:id row))})
-
 
 ; format the specified attachment from the data_set_attachment table
 (defn- format-attachment [row]
@@ -324,13 +314,13 @@
     (if can-access
       (response {:response (sql/query (db)
                                       [query]
-                                      :row-fn format-data-set-attachment )})
+                                      :row-fn format-data-set  )})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
         (response {:response (try (sql/query (db)
                                         [query-own email-address]
-                                        :row-fn format-data-set-attachment )
+                                        :row-fn format-data-set  )
                                (catch Exception e
                                  (if (instance? SQLException e)
                                    (do (.getCause e)

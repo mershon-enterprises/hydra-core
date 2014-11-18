@@ -259,13 +259,11 @@ angular.module('webServiceApp').factory('RestService',
             dateCreated = {date_created: value.date_created};
             clientName = {client: value.client};
             location = {location: value.location};
-            $.each(value.attachments, function(index, value){
+            $.each(value.data, function(index, value){
                 if(value.type === 'attachment') {
                     attachments.push(value);
                 }
-            });
-            $.each(value.primitive_text_data, function(index, value){
-                if(value.type === 'text') {
+                else if(value.type === 'text') {
                     if(value.description === 'fieldName') {
                         fieldName = {field_name: value.value};
                     }
