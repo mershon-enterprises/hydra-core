@@ -33,13 +33,6 @@
     (sql/query (db) [query data-set-id])))
 
 
-; format the specified row from the data_set_attachment info display
-(defn- format-data-attachment-info [row]
-  {:filename (:filename row)
-   :date_created (:date_created row)
-   :created_by (:email_address row)
-   :data (get-primitive-data "text" (:data_set_id row))})
-
 
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
@@ -55,7 +48,16 @@
                    (get-primitive-data "real" (:id row))
                    (get-primitive-data "text" (:id row))])})
 
-; format the specified attachment from the data_set_attachment table
+
+; format the specified row from the data_set_attachment info display
+(defn- format-attachment-info [row]
+  {:filename (:filename row)
+   :date_created (:date_created row)
+   :created_by (:email_address row)
+   :data (get-primitive-data "text" (:data_set_id row))})
+
+
+; format the specified attachment from the data_set_attachment download
 (defn- format-attachment [row]
   (->
     {:body (java.io.ByteArrayInputStream. (:contents row))}
@@ -348,14 +350,14 @@
            (response {:response (sql/query
                                   (db)
                                   [query uuid filename]
-                                  :row-fn format-data-attachment-info)})
+                                  :row-fn format-attachment-info)})
            ; if the user cannot access all data, try to at least show them their
            ; own data instead
            (if can-access-own
              (response {:response (sql/query
                                     (db)
                                     [query-own email-address]
-                                    :row-fn format-data-attachment-info)})
+                                    :row-fn format-attachment-info)})
              (access-denied constants/manage-data)))))
 
 
