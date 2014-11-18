@@ -16,8 +16,7 @@ angular.module('webServiceApp').factory('RestService',
         }
     };
 
-    //Both calls Restclient.authenticate and creates the user's session upon
-    //successful login
+    //Authenticates user, creates their session and creates the cache.
     restService.authenticate = function (credentials) {
 
         //Create promise wrapper
