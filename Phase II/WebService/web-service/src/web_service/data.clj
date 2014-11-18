@@ -88,7 +88,7 @@
        "  a.filename, "
        "  a.date_created, "
        "  u.email_address, "
-       "  a.data_set_id "
+       "  a.data_set_id, "
        "  a.mime_type, "
        "  a.contents, "
        "  octet_length(a.contents) as bytes "
