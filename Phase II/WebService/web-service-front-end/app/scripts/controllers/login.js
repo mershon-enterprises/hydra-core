@@ -26,7 +26,6 @@ angular.module('webServiceApp').controller('LoginCtrl',
             $rootScope.$broadcast(EVENTS.loginSuccess);
             NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
             $location.path('/datasets');
-            console.log(success);
         },
         function(error) {
             $rootScope.$broadcast(EVENTS.loginFailed);
@@ -53,4 +52,3 @@ angular.module('webServiceApp').controller('LoginCtrl',
     });
 
 });
-
