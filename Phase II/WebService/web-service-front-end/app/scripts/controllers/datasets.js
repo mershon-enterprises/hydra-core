@@ -17,8 +17,8 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
         $(document).on('click', '.fa-download', function(){
             RestService.getAttachmentURL($(this).attr('ukey')).then(
                 function(success){
-                    if(success !== null && success !== EVENTS.data_lost) {
-                        window.location.href = success;
+                    if(success[0] === EVENTS.promiseSuccess) {
+                        window.location.href = success[1];
                     }
                 },
                 function(error){});

@@ -4,8 +4,7 @@
 
 //Acts as an angular wrapper for Restclient calls
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, $q, EVENTS, STATUS_CODES, Session,
-                                    NotificationService, localStorageService) {
+    function ($rootScope, $q, EVENTS, STATUS_CODES, Session, localStorageService) {
 
     var restService = {};
 
@@ -67,9 +66,9 @@ angular.module('webServiceApp').factory('RestService',
                 else {
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    deferred.reject([EVENTS.badStatus, success.status.code]);
                     console.log('restclient.authenticate promise succeeded. ' +
-                        'But with bad status code : ' + response.status.code);
+                        'But with bad status code : ' + success.status.code);
                 }
             },
             function(error) {
@@ -92,23 +91,31 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.listAccessLevels(clientUUID, Session.getToken()).then(
 
-            function(data) {
+            function(response) {
 
-                deferred.resolve();
-                if (data.status.code === STATUS_CODES.ok) {
+                if (response.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    Session.updateToken(response.token);
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
 
-                    var responseBody = response.response;
+                    var responseBody = jsonResponse.response;
 
                     restService.updateCacheValue('accessLevels', responseBody);
 
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.listAccessLevels succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.listAccessLevels promise succeeded '
+                     + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.listAccessLevels promise failed: ' + error);
             });
 
         return deferred.promise;
@@ -122,24 +129,32 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.listClients(clientUUID, Session.getToken()).then(
 
-            function(data) {
+            function(response) {
 
-                deferred.resolve();
-                if (data.status.code === STATUS_CODES.ok) {
+                if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    Session.updateToken(response.token);
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
 
-                    var responseBody = response.response;
+                    var responseBody = jsonResponse.response;
 
                     restService.updateCacheValue('clients', responseBody);
 
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.listClients succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.listClients promise succeeded ' +
+                        'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.listClients promise failed: ' + error);
             });
 
         return deferred.promise;
@@ -153,58 +168,34 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.listUsers(clientUUID, Session.getToken()).then(
 
-            function(data) {
+            function(response) {
 
-                deferred.resolve();
-                if (data.status.code === STATUS_CODES.ok) {
+                if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    Session.updateToken(response.token);
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
 
-                    var responseBody = response.response;
+                    var responseBody = jsonResponse.response;
 
                     restService.updateCacheValue('users', responseBody);
 
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.listUsers succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.listUsers promise succeeded ' +
+                        'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.listUsers promise failed: ' + error);
             });
 
-        return deferred.promise;
-    };
-
-    restService.listData = function () {
-
-        var deferred = $q.defer();
-
-        var clientUUID = localStorageService.get('clientUUID');
-
-        restclient.listData(clientUUID, Session.getToken()).then(
-
-            function(data) {
-
-                deferred.resolve();
-                if (data.status.code === STATUS_CODES.ok) {
-
-                    //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    Session.updateToken(response.token);
-
-                    var responseBody = response.response;
-
-                    var parsedData =  restService.parseData(responseBody);
-
-                    restService.updateCacheValue('data', parsedData);
-
-                }
-            },
-            function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
-            });
         return deferred.promise;
     };
 
@@ -216,26 +207,34 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
 
-            function(data) {
+            function(response) {
 
-                deferred.resolve();
-                if (data.status.code === STATUS_CODES.ok) {
+                if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var response = JSON.parse(data.entity);
-                    Session.updateToken(response.token);
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
 
-                    var responseBody = response.response;
+                    var responseBody = jsonResponse.response;
 
                     var parsedData =  restService.parseData(responseBody);
 
                     restService.updateCacheValue('data', parsedData);
 
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.listDatasetsWithAttachments succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.listDatasetsWithAttachments promise succeeded '
+                        + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.listDatasetsWithAttachments promise failed: ' + error);
             });
         return deferred.promise;
     };
@@ -291,52 +290,6 @@ angular.module('webServiceApp').factory('RestService',
         return data;
     };
 
-    //TODO - Broken.
-    restService.submitData = function (dateCreated, createdByEmailAddress, dataItems) {
-
-        var clientUUID = localStorageService.get('clientUUID');
-
-        restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdByEmailAddress, dataItems, function(status, res) {
-            if (status === STATUS_CODES.ok) {
-                var response = JSON.parse(res);
-                Session.updateToken(response.token);
-
-                NotificationService.success('Dataset Submitted', 'Updating cache...');
-            }
-            else {
-                NotificationService.error('Dataset Submission Failed', 'Please try again.');
-                console.log('restclient.submitData failed with ' + status);
-            }
-        });
-    };
-
-    //Get an attachment file data from the server.
-    //ukey = 'filename' + '\n' + 'uuid'
-    restService.getAttachment = function (ukey) {
-
-        var deferred = $q.defer();
-
-        var clientUUID = localStorageService.get('clientUUID');
-        var filename = ukey.split('\n')[0];
-        var uuid = ukey.split('\n')[1];
-
-        restclient.getAttachment(clientUUID, Session.getToken(), uuid, filename).then(
-
-            function(data) {
-                if (data.status.code === STATUS_CODES.ok) {
-                    deferred.resolve(data.raw.responseURL);
-                }
-                else {
-                    deferred.reject();
-                }
-            },
-            function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
-            });
-        return deferred.promise;
-    };
-
     //Get the URL where an attachment is hosted on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.getAttachmentURL = function (ukey) {
@@ -350,11 +303,14 @@ angular.module('webServiceApp').factory('RestService',
         var response = restclient.getAttachmentURL(clientUUID, Session.getToken(), uuid, filename);
 
         if (response) {
-            deferred.resolve(response);
+            deferred.resolve([EVENTS.promiseSuccess, response]);
+            console.log('restclient.getAttachmentURL succeeded');
         }
         else {
-            deferred.reject();
+            deferred.reject([EVENTS.promiseFailed, error]);
+            console.log('restclient.getAttachmentURL promise failed: ' + error);
         }
+
         return deferred.promise;
     };
 
@@ -369,22 +325,27 @@ angular.module('webServiceApp').factory('RestService',
         var uuid = ukey.split('\n')[1];
 
         restclient.getAttachmentInfo(clientUUID, Session.getToken(), uuid, filename).then(
-            function(data) {
+            function(response) {
 
                 //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
 
-                if (data.status.code === STATUS_CODES.ok) {
-                    deferred.resolve(response.response[0]);
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess, jsonResponse.response[0]]);
+                    console.log('restclient.getAttachmentInfo succeeded');
                 }
                 else {
-                    deferred.reject();
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.getAttachmentInfo promise succeeded '
+                        + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                deferred.reject();
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentInfo promise failed: ' + error);
             });
         return deferred.promise;
     };
@@ -399,18 +360,26 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.deleteAttachment(clientUUID, Session.getToken(), uuid, filename).then(
 
-            function(data) {
+            function(response) {
 
                 //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
 
-                if (data.status.code === STATUS_CODES.ok) {
-                    console.log(filename + ' deleted.');
+                if (response.status.code === STATUS_CODES.ok) {
+                    console.log(filename + ' deleted');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.deleteAttachment promise succeeded '
+                    + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.deleteAttachment promise failed: ' + error);
             }
         );
     };
@@ -425,19 +394,27 @@ angular.module('webServiceApp').factory('RestService',
 
         restclient.renameAttachment(clientUUID, Session.getToken(), uuid, filename, newFilename).then(
 
-            function(data) {
+            function(response) {
 
                 //Parse out the data from the restclient response.
-                var response = JSON.parse(data.entity);
-                Session.updateToken(response.token);
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
 
-                if (data.status.code === STATUS_CODES.ok) {
+                if (response.status.code === STATUS_CODES.ok) {
                     console.log(filename + ' renamed to ' + newFilename);
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.renameAttachment promise succeeded '
+                    + 'But with bad status code : ' + response.status.code);
                 }
 
             },
             function(error) {
-                console.log('Promise failed. ' + error);
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.renameAttachment promise failed: ' + error);
             }
         );
     };
