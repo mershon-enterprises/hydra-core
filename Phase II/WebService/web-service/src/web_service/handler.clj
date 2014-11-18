@@ -109,7 +109,7 @@
                                  created_by
                                  data))
           (DELETE "/" [api_token client_uuid]
-                  (guard-with-user api_token client_uuid data-delete uuid))
+                  (guard-with-user api_token client_uuid data-set-delete uuid))
           (context
             "/:filename" [filename]
             (defroutes document-routes

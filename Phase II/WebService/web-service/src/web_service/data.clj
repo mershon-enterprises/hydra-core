@@ -135,8 +135,8 @@
         (access-denied constants/manage-data)))))
 
 
-; delete the specified data set by date
-(defn data-delete
+; delete the specified data_set by date
+(defn data-set-delete
   [email-address uuid]
 
   ; log the activity in the session
