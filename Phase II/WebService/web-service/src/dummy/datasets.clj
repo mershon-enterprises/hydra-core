@@ -118,7 +118,7 @@
                                 "  select id from public.data_set "
                                 "  where uuid::character varying=?)")
           ]
-      (data-submit
+      (data-set-submit
         (:email_address ds)
         (:uuid ds)
         (generate-string (:date_created ds))
