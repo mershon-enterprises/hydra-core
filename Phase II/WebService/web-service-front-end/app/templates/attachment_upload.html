@@ -3,14 +3,14 @@
             <div class="leftColumn">
                 <ul>
                     <li>
-                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}">
+                        <span>File Name:</span><input type="text" ng-model="filename" placeholder="{{filename}}">
                     </li>
                     <li><span>Author:</span>{{createdBy}}</li>
                     <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
                 </ul>
             </div>
             <div class="rightColumn">
-                    <button ng-click="upload()">Upload</button>
+                    <input type="file">
             </div>
     </div>
     <div class="tags">
@@ -19,12 +19,12 @@
             <tr ng-repeat="tag in tags">
                 <td>{{tag.description}}</td>
                 <td>{{tag.value}}</td>
-                <td><i class="fa fa-minus"></i></td>
+                <td><i class="fa fa-minus" ng-click="removeRow(tag.description)"></i></td>
             </tr>
             <tr>
-                <td></td>
-                <td></td>
-                <td><i class="fa fa-plus"></i></td>
+                <td><input type="text" name="description" ng-model="description"></td>
+                <td><input type="text" name="value" ng-model="value"></td>
+                <td><i class="fa fa-plus" ng-click="addRow(description, value)"></i></td>
             </tr>
         </table>
     </div>

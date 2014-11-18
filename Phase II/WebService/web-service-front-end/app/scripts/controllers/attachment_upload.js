@@ -10,12 +10,36 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
     //If the user is logged in...
     if (Session.exists()) {
 
-        $scope.back = function () {
-            $location.path('/datasets');
-        };
-
+        $scope.filename = '';
         $scope.createdBy = Session.getEmail();
         $scope.dateCreated = Date.now();
+        $scope.tags = [];
+
+        $scope.addRow = function(description, value) {
+            var duplicateFlag = false;
+            $.each($scope.tags, function(index, value) {
+                    if (value.description) {
+                        if (value.description === description) {
+                            duplicateFlag = true;
+                        }
+                    }
+            });
+            if (!duplicateFlag) {
+                $scope.tags.push({'description' : description, 'value' : value});
+            }
+        };
+
+        $scope.removeRow = function(description) {
+            var newTags = [];
+            $.each($scope.tags, function(index, value) {
+                    if (value.description) {
+                        if (value.description !== description) {
+                            newTags.push(value);
+                        }
+                    }
+            });
+            $scope.tags = newTags;
+        };
 
         $scope.upload = function () {
             //File attachment logic.
@@ -23,6 +47,10 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
 
         $scope.save = function () {
             //Restservice call.
+        };
+
+        $scope.back = function () {
+            $location.path('/datasets');
         };
 
     }
