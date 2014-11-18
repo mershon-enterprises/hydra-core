@@ -426,26 +426,31 @@ footer {
         span {
             display: block;
             font-size: 1.5em;
-            float: left;
             padding-right: $default-padding;
         }
         li {
             line-height: 4em;
             vertical-align: top;
+            text-align: left;
+            &>* {
+                display: inline-block;
+            }
         }
     }
     .leftColumn {
+        width: 50%;
         display: inline-block;
         margin-right: $default-margin*5;
     }
     .rightColumn {
+        vertical-align: top;
         display: inline-block;
         margin-left: $default-margin*5;
     }
-    .deleteButton {
+    .leftButton {
         float: left;
     }
-    .backButton {
+    .rightButton {
         float: right;
     }
     .tags {

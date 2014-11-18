@@ -345,6 +345,32 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    restService.submitData = function(dateCreated, createdBy, dataItems) {
+        
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+
+        restclient.submitData(clientUUID, apiToken, dateCreated, createdBy, dataItems).then(
+            function(response) {
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.submitData succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentInfo promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Delete an attachment on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {
