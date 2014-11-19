@@ -64,7 +64,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //showColumnMenu: true,
             //showFilter: true,
             enableRowSelection : false,
-            groups: ['client', 'location'],
+            //groups: ['client', 'location'],
             groupsCollapsedByDefault: false,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},
