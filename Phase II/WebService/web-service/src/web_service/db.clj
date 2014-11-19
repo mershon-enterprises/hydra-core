@@ -1,19 +1,22 @@
 (ns web-service.db
-  (:require [clojure.java.jdbc :as sql])
+  (:require [clojure.java.jdbc :as sql]
+            [environ.core :refer [env]])
   (:import com.mchange.v2.c3p0.ComboPooledDataSource))
 
-(let [db-host "localhost"
-      db-port 5432
-      db-name "postgres"
-      db-schema "public"]
+(def db-credentials (env :database-credentials))
 
-  (def db-spec {:classname "org.postgresql.Driver"
+(let [db-host   (:db-host db-credentials)
+      db-port   (:db-port db-credentials)
+      db-name   (:db-name db-credentials)
+      db-schema (:db-schema db-credentials)]
+
+  (def db-spec {:classname   "org.postgresql.Driver"
                 :subprotocol "postgresql"
-                :subname  (str "//" db-host ":" db-port "/" db-name)
+                :subname     (str "//" db-host ":" db-port "/" db-name)
                 ; Any additional keys are passed to the driver
                 ; as driver-specific properties.
-                :user "postgres"
-                :password "password"})
+                :user        (:db-user db-credentials)
+                :password    (:db-password db-credentials)})
 
   (defn pool
     [spec]

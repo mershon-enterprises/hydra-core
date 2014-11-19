@@ -29,10 +29,19 @@
          :init web-service.handler/init
          :destroy web-service.handler/destroy}
   :main web-service.core
-  :profiles
-  {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]
-         :env {:ldap-credentials {
-                    :host "localhost:3389"
-                    :bind-dn "pic\\admin"
-                    :password "adminpassword"}}}})
+  :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
+                                  [ring-mock "0.1.5"]]
+                   :env {:database-credentials {:host     "localhost"
+                                                :port     5432
+                                                :db-name  "postgres"
+                                                :schema   "public"
+                                                :user     "postgres"
+                                                :password "password"}
+                         :ldap-credentials {:host         "localhost:3389"
+                                            :bind-dn      "pic\\admin"
+                                            :password     "adminpassword"}
+                         :rabbitmq-credentials {:host     "localhost"
+                                                :port     5672
+                                                :username "guest"
+                                                :password "guest"
+                                                :vhost    "/"}}}})
