@@ -16,6 +16,12 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
         $scope.tags = [];
         $scope.file = null;
 
+        $scope.$watch('file', function (newVal) {
+            if($scope.file) {
+                $scope.filename = $scope.file.name;
+            }
+        });
+
         $scope.addRow = function(description, value) {
             var duplicateFlag = false;
             $.each($scope.tags, function(index, value) {

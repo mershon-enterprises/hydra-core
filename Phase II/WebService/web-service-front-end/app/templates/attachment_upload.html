@@ -3,7 +3,7 @@
             <div class="leftColumn">
                 <ul>
                     <li>
-                        <span>File Name:</span><input type="text" value="{{file.name}}">
+                        <span>File Name:</span><input id="fileNameInput" type="text" ng-model="filename">
                     </li>
                     <li><span>Author:</span>{{createdBy}}</li>
                     <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
