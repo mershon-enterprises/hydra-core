@@ -3,14 +3,17 @@
             <div class="leftColumn">
                 <ul>
                     <li>
-                        <span>File Name:</span><input type="text" ng-model="filename" placeholder="{{filename}}">
+                        <span>File Name:</span><input type="text" value="{{file.name}}">
                     </li>
                     <li><span>Author:</span>{{createdBy}}</li>
                     <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
                 </ul>
             </div>
             <div class="rightColumn">
-                    <input type="file">
+                <ul>
+                    <li><span>Attachment:</span><input type="file" file-model='file'></li>
+                </ul>
+
             </div>
     </div>
     <div class="tags">
@@ -31,6 +34,6 @@
 
     <div class="controlls">
         <button class="leftButton" ng-click="back()">Back</button>
-        <button class="rightButton" ng-click="save()">Save</button>
+        <button ng-if="file" class="rightButton" ng-click="save()">Save</button>
     </div>
 </div>

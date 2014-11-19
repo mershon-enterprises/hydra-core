@@ -49,6 +49,7 @@ angular.module('webServiceApp', [
     })
     .constant('STATUS_CODES', {
       ok: 200,
+      created: 201,
       movedPermanently: 301,
       badRequest: 400,
       notAuthorized: 401,

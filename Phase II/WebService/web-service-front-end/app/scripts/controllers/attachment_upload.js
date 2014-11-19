@@ -5,15 +5,16 @@
 //Collects all required data from the user to be submitted to the Restclient.
 //Performs client-side verification of input and extraction of file properties
 //from attachments.
-angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($scope, $location, $upload, Session) {
+angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($scope, $location, Session, RestService, EVENTS, NotificationService) {
 
     //If the user is logged in...
     if (Session.exists()) {
 
         $scope.filename = '';
         $scope.createdBy = Session.getEmail();
-        $scope.dateCreated = Date.now();
+        $scope.dateCreated = new Date;
         $scope.tags = [];
+        $scope.file = null;
 
         $scope.addRow = function(description, value) {
             var duplicateFlag = false;
@@ -41,12 +42,49 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             $scope.tags = newTags;
         };
 
-        $scope.upload = function () {
-            //File attachment logic.
-        };
-
         $scope.save = function () {
-            //Restservice call.
+
+            //If there is a file to save...
+            if ($scope.file) {
+
+                //Make a new dataItems array that contains the tags as
+                //restclient.PrimitiveData objects without modifying $scope.tags
+                var dataItems = [];
+                $.each($scope.tags, function(index, value) {
+                    dataItems.push(restclient.PrimitiveData('text', value.description, value.value));
+                });
+
+                //Create the attachment as restclient.Attachment object.
+                var attachment = restclient.Attachment(
+                    $scope.filename,
+                    $scope.file.type,
+                    window.btoa($scope.file)
+                );
+
+                //Add it to dataItems.
+                dataItems.push(attachment);
+
+                //Invoke the restservice to submit the dataset and attachment.
+                RestService.submitData(
+                    $scope.dateCreated,
+                    $scope.createdBy,
+                    dataItems
+                ).then(
+                function(success)
+                {
+                    if (success[0] === EVENTS.promiseSuccess) {
+                        NotificationService.success('File: ' + $scope.file.name, 'Submitted Successfully!');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Server unreachable.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                });
+            }
         };
 
         $scope.back = function () {

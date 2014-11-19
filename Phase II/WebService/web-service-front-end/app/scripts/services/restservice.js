@@ -346,14 +346,19 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     restService.submitData = function(dateCreated, createdBy, dataItems) {
-        
+
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.submitData(clientUUID, apiToken, dateCreated, createdBy, dataItems).then(
+        restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdBy, dataItems).then(
             function(response) {
-                if (response.status.code === STATUS_CODES.ok) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok || response.status.code === STATUS_CODES.created) {
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log('restclient.submitData succeeded');
                 }
