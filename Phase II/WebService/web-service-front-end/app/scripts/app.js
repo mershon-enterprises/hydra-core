@@ -4,7 +4,7 @@ angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
       'LocalStorageModule', // Angular Localstorage
       'ngGrid', // Angular Table Directive
-      'angularFileUpload'
+      'file-model'
     ])
     .config(function ($routeProvider) {
       $routeProvider
