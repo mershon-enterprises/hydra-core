@@ -25,8 +25,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                 }
             },
             function (error) {
-                console.log('AttachmentDetailsCtrl promise error.');
-                console.log(error);
+                if(error[0] === EVENTS.promiseFailed]) {
+                    NotificationService.error('Critical error.', 'Please contact support.');
+                }
             });
         }
 
