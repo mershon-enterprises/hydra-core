@@ -12,16 +12,33 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
 
         $scope.filename = '';
         $scope.createdBy = Session.getEmail();
-        $scope.dateCreated = new Date;
+        $scope.dateCreated = new Date();
         $scope.tags = [];
         $scope.file = null;
+        $scope.fileData = null;
 
-        $scope.$watch('file', function (newVal) {
+        //Watch for new file attachment.
+        $scope.$watch('file', function () {
             if($scope.file) {
+                //If a new file is attached, set the filename stored in scope
+                //to the file's filename. The user will then be allowed to
+                //change the filename in an input box if they choose.
                 $scope.filename = $scope.file.name;
+
+                //Read file's binary data.
+                //http://www.html5rocks.com/en/tutorials/file/dndfiles/
+                var reader = new FileReader();
+                // Closure to capture the file information.
+                reader.onload = (function(theFile) {
+                    return function(e) {
+                        $scope.fileData = e.target.result;
+                    };
+                })($scope.file);
+                reader.readAsBinaryString($scope.file);
             }
         });
 
+        //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
             var duplicateFlag = false;
             $.each($scope.tags, function(index, value) {
@@ -36,6 +53,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
+        //Removes all rows that match the provided tag description.
         $scope.removeRow = function(description) {
             var newTags = [];
             $.each($scope.tags, function(index, value) {
@@ -48,7 +66,22 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             $scope.tags = newTags;
         };
 
+        //Creates a new dataset via RestService.submitData() and prompts user
+        //of success or failure.
         $scope.save = function () {
+
+            //Verify filename is good to go.
+            var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
+
+            if($scope.filename === '' || $scope.filename === null) {
+                NotificationService.error('Could not save attachment.', 'Filename cannot be blank.');
+                return;
+            }
+
+            if(!re.test($scope.filename)) {
+                NotificationService.error('Invalid filename.', 'Please try again.');
+                return;
+            }
 
             //If there is a file to save...
             if ($scope.file) {
@@ -64,7 +97,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 var attachment = restclient.Attachment(
                     $scope.filename,
                     $scope.file.type,
-                    window.btoa($scope.file)
+                    window.btoa($scope.fileData)
                 );
 
                 //Add it to dataItems.
@@ -93,6 +126,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
+        //Back button to return to the datasets view.
         $scope.back = function () {
             $location.path('/datasets');
         };
