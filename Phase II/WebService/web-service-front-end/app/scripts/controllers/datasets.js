@@ -5,82 +5,32 @@
 //Handles the display of dataset attachment data from the restclient in a
 //tabular interface for the user. Provides custom controls to be performed
 //by the user on the attachments in a 'file browser' format.
-angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session, NotificationService) {
+angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope, $scope, RestService, EVENTS, Session) {
 
     //If the user is logged in...
     if (Session.exists()) {
 
         //jQuery click behavior bindings for ngGrid file controls.
+
+        $rootScope.ukey = null;
+
         $(document).on('click', '.fa-download', function(){
-            //Do download behavior.
+            RestService.getAttachmentURL($(this).attr('ukey')).then(
+                function(success){
+                    if(success[0] === EVENTS.promiseSuccess) {
+                        window.location.href = success[1];
+                    }
+                },
+                function(error){
+                    console.log('DatasetsCtrl promise error.');
+                    console.log(error);
+                });
         });
 
         $(document).on('click', '.fa-cog', function(){
-            $scope.toggleProperties($(this).attr('ukey'));
+            $rootScope.ukey = $(this).attr('ukey');
+            window.location.href = '#/attachment_details';
         });
-
-
-        $scope.showProperties = false;
-        $scope.ukey = null;
-        $scope.newFilename = null;
-
-        //Toggle the modal properties dialog that contains the controls for
-        //renaming and deleting that file. While the modal is active, the
-        //'unique key' for the row that was selected will be in scope.
-        //ukey = 'filename' + '\n' + 'uuid'
-        $scope.toggleProperties = function(ukey) {
-            $scope.showProperties = !$scope.showProperties;
-            $scope.ukey = ukey;
-
-            //Ensure the scope applies after we make a change.
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        };
-
-        //Rename the file whose ukey is in scope.
-        $scope.renameFile = function() {
-
-            var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
-            var cacheValueRenamed = null;
-
-            if($scope.newFilename !== '' && $scope.newFilename !== null) {
-                if(re.test($scope.newFilename)) {
-                    RestService.renameAttachment($scope.ukey, $scope.newFilename);
-                    cacheValueRenamed = RestService.renameCacheDataValue($scope.ukey, $scope.newFilename);
-                    if(cacheValueRenamed) {
-                        $scope.toggleProperties();
-                        $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
-                        $scope.newFilename = null;
-                        NotificationService.success('Success', 'Attachment Renamed');
-                    }
-                }
-                else {
-                    NotificationService.error('Invalid filename.', 'Please try again.');
-                }
-            }
-            else {
-                NotificationService.error('Could not rename attachment.', 'Filename cannot be blank.');
-            }
-
-        };
-
-        //Delete the file from cache and server whose ukey is in scope.
-        $scope.deleteFile = function() {
-
-            //TODO Redo as Promise?
-            RestService.deleteAttachment($scope.ukey);
-            var cacheValueDeleted = RestService.removeCacheDataValue($scope.ukey);
-
-            if(cacheValueDeleted) {
-                $scope.toggleProperties();
-                $scope.getPagedData($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $rootScope.filterText);
-                NotificationService.success('Success', 'Attachment Deleted');
-            }
-            else {
-                NotificationService.error('Could not delete attachment.', 'Please try again.');
-            }
-        };
 
         //Options for ng-grid.
 
@@ -114,7 +64,7 @@ angular.module('webServiceApp').controller('DatasetsCtrl', function ($rootScope,
             //showColumnMenu: true,
             //showFilter: true,
             enableRowSelection : false,
-            groups: ['client', 'location'],
+            //groups: ['client', 'location'],
             groupsCollapsedByDefault: false,
             columnDefs: [
                 {field: 'filename', displayName: 'Filename'},

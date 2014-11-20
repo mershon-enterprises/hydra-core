@@ -1,4 +1,4 @@
-(defproject web-service "0.2.0-SNAPSHOT"
+(defproject web-service "0.3.0-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "slixbits.com"
   :dependencies [[org.clojure/clojure "1.6.0"]
@@ -29,10 +29,28 @@
          :init web-service.handler/init
          :destroy web-service.handler/destroy}
   :main web-service.core
-  :profiles
-  {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]
-         :env {:ldap-credentials {
-                    :host "localhost:3389"
-                    :bind-dn "pic\\admin"
-                    :password "adminpassword"}}}})
+  :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
+                                  [ring-mock "0.1.5"]]
+                   :env {:db-host           "localhost"
+                         :db-port           5432
+                         :db-name           "postgres"
+                         :db-user           "postgres"
+                         :db-password       "password"
+                         :ldap-host         "localhost:3389"
+                         :ldap-bind-dn      "pic\\admin"
+                         :ldap-password     "adminpassword"
+                         :rabbitmq-host     "localhost"
+                         :rabbitmq-username "guest"
+                         :rabbitmq-password "guest"}}
+             :test {:env
+                    {:db-host           "localhost"
+                     :db-port           5432
+                     :db-name           "postgres"
+                     :db-user           "postgres"
+                     :db-password       "password"
+                     :ldap-host         "testHost"
+                     :ldap-bind-dn      "testUser"
+                     :ldap-password     "testPassword"
+                     :rabbitmq-host     "localhost"
+                     :rabbitmq-username "guest"
+                     :rabbitmq-password "guest"}}})

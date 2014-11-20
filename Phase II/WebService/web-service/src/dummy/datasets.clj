@@ -66,7 +66,9 @@
                   "-" (format "%02d" (+ 1 (rand-int 30)))
                   ".csv")
    :mime_type "text/csv"
-   :contents (String. (b64/encode (.getBytes "a,b,c,d,e,f,g")))})
+   :contents (String. (b64/encode (.getBytes (str
+                                               "id,first_name,last_name,email,country,ip_address\n"
+                                               "1,Janet,Turner,jturner0@pcworld.com,China,239.119.160.8"))))})
 
 (defn mock-dataset
   "create a dataset that randomly either has or does not have an attachment"
@@ -116,7 +118,7 @@
                                 "  select id from public.data_set "
                                 "  where uuid::character varying=?)")
           ]
-      (data-submit
+      (data-set-submit
         (:email_address ds)
         (:uuid ds)
         (generate-string (:date_created ds))

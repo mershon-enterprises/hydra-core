@@ -7,6 +7,12 @@
 angular.module('webServiceApp').controller('LoginCtrl',
  function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, localStorageService, Session) {
 
+    //If they are at the login route and already have a valid session, send them
+    //to where they need to be.
+    if(Session.exists()) {
+        $location.path('/datasets');
+    }
+
     //Will be populated by user on login view.
     $scope.credentials = {
         email: '',
@@ -15,37 +21,34 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
     //Call RestService with given credentials.
     $scope.login = function (credentials) {
-      RestService.authenticate(credentials);
+        RestService.authenticate(credentials).then(
+        function(success) {
+            $rootScope.$broadcast(EVENTS.loginSuccess);
+            NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
+            $location.path('/datasets');
+        },
+        function(error) {
+            $rootScope.$broadcast(EVENTS.loginFailed);
+            NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
+            Session.destroy();
+            console.log(error);
+        });
     };
 
     //Listens for route changes. If someone is not logged in and where they
     //are going required login, redirect to root route. (Login)
     $rootScope.$on('$routeChangeStart', function(event, next) {
-        // on application launch, if a client UUID doesn't exist, set one
-        if (!localStorageService.get('clientUUID')) {
-            localStorageService.set('clientUUID', restclient.uuid());
-        }
+
+        //Check on every route change if the clientUUID is present. If it's
+        //missing, reset it.
+        RestService.updateClientUUID();
 
         //If the route you are going is marked as loggedInOnly and you are not
         //logged in...
         if (next.loggedInOnly && !Session.exists()) {
             //Back to the root route you go.
-            $location.replace();
-            return $location.path('/');
+            return $location.path('/').replace();
         }
     });
 
-    //Listener for a successful login.
-    $scope.$on(EVENTS.loginSuccess, function() {
-        NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-        window.location.href='/#/datasets';
-    });
-
-    //Listener for a failed login.
-    $scope.$on(EVENTS.loginFailed, function() {
-        NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
-        Session.destroy();
-    });
-
 });
-

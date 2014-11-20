@@ -22,7 +22,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def ldap-credentials (env :ldap-credentials))
+(def ldap-credentials {:host     (env :ldap-host)
+                       :bind-dn  (env :ldap-bind-dn)
+                       :password (env :ldap-password)})
 
 (defn- find-user-ldap
   [email-address]

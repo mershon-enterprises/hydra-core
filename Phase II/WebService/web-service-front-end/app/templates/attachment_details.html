@@ -1,0 +1,37 @@
+<div class="tagView">
+    <div class="fileProperties">
+            <div class="leftColumn">
+                <ul>
+                    <li>
+                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}"> <button ng-click="renameFile(newFilename)">Rename</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="rightColumn">
+                <ul>
+                    <li><span>Author:</span>{{createdBy}}</li>
+                    <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
+                </ul>
+            </div>
+    </div>
+    <div class="tags">
+        <table>
+            <tr><th>Tag Name</th><th>Tag Value</th><th>Add/Remove</th></tr>
+            <tr ng-repeat="tag in tags">
+                <td>{{tag.description}}</td>
+                <td>{{tag.value}}</td>
+                <td><i class="fa fa-minus"></i></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td><i class="fa fa-plus"></i></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="controlls">
+        <button class="leftButton" ng-click="back()">Back</button>
+        <button class="rightButton" ng-click="deleteFile()">Delete</button>
+    </div>
+</div>

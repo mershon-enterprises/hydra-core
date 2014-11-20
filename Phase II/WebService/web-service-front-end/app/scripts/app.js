@@ -3,7 +3,8 @@
 angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
       'LocalStorageModule', // Angular Localstorage
-      'ngGrid' // Angular Table Directive
+      'ngGrid', // Angular Table Directive
+      'file-model'
     ])
     .config(function ($routeProvider) {
       $routeProvider
@@ -15,9 +16,14 @@ angular.module('webServiceApp', [
           controller: 'DatasetsCtrl',
           loggedInOnly: true
         })
-        .when('/upload', {
-          templateUrl: 'templates/upload.html',
-          controller: 'UploadCtrl',
+        .when('/attachment_details', {
+          templateUrl: 'templates/attachment_details.html',
+          controller: 'AttachmentDetailsCtrl',
+          loggedInOnly: true
+        })
+        .when('/attachment_upload', {
+          templateUrl: 'templates/attachment_upload.html',
+          controller: 'AttachmentUploadCtrl',
           loggedInOnly: true
         })
         .otherwise({
@@ -35,12 +41,15 @@ angular.module('webServiceApp', [
       logoutSuccess: 'auth-logout-success',
       cacheRefresh: 'cache-refresh',
       cacheReady: 'cache-ready',
-      dataLost: 'data-lost',
+      promiseSuccess: 'promise-success',
+      promiseFailed: 'promise-failed',
+      badStatus: 'bad-status',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized'
     })
     .constant('STATUS_CODES', {
       ok: 200,
+      created: 201,
       movedPermanently: 301,
       badRequest: 400,
       notAuthorized: 401,

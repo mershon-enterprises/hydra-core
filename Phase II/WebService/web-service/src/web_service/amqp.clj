@@ -4,7 +4,12 @@
             [langohr.exchange  :as le]
             [langohr.queue     :as lq]
             [langohr.consumers :as lc]
-            [langohr.basic     :as lb]))
+            [langohr.basic     :as lb]
+            [environ.core :refer [env]]))
+
+(def rabbitmq-credentials {:host (env :rabbitmq-host)
+                           :username (env :rabbitmq-username)
+                           :password (env :rabbitmq-password)})
 
 ; dynamic variables for connection and channel
 (def ^:dynamic conn nil)
@@ -30,7 +35,7 @@
 ; "pi.web-service"
 (defn connect
   []
-  (def conn (rmq/connect))
+  (def conn (rmq/connect rabbitmq-credentials))
   (def ch (lch/open conn))
 
   ; declare a topic exchange that is not persisted across reboots and

@@ -33,11 +33,14 @@
     (sql/query (db) [query data-set-id])))
 
 
+
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
   {:uuid (:uuid row)
    :date_created (:date_created row)
    :created_by (:email_address row)
+   :location (:location row)
+   :client (:client row)
    :data (flatten [(get-attachment-data (:id row))
                    (get-primitive-data "boolean" (:id row))
                    (get-primitive-data "date" (:id row))
@@ -46,18 +49,15 @@
                    (get-primitive-data "text" (:id row))])})
 
 
-; format the specified row from the data_set_attachement table
-(defn- format-data-set-attachment [row]
-  {:uuid (:uuid row)
+; format the specified row from the data_set_attachment info display
+(defn- format-attachment-info [row]
+  {:filename (:filename row)
    :date_created (:date_created row)
    :created_by (:email_address row)
-   :location (:location row)
-   :client (:client row)
-   :attachments (flatten [(get-attachment-data (:id row)) ])
-   :primitive_text_data (get-primitive-data "text" (:id row))})
+   :data (get-primitive-data "text" (:data_set_id row))})
 
 
-; format the specified attachment from the data_set_attachment table
+; format the specified attachment from the data_set_attachment download
 (defn- format-attachment [row]
   (->
     {:body (java.io.ByteArrayInputStream. (:contents row))}
@@ -67,24 +67,14 @@
                                        (:filename row)
                                        "'"))))
 
-
 (def data-set-query
-  (str "select ds.id, ds.uuid, ds.date_created, u.email_address "
-       "from public.data_set ds "
-       "inner join public.user u "
-       "  on u.id = ds.created_by "
-       "where ds.date_deleted is null "))
-
-(def data-set-with-attachments-query
   (str "select "
-       "  ds.id, ds.uuid, "
-       "  ds.date_created, "
-       "  u.email_address, "
+       "  ds.id, "
+       "  ds.uuid, "
+       "  ds.date_created, u.email_address, "
        "  cl.description as location, "
        "  c.name as client "
-       "from public.data_set_attachment dsa "
-       "inner join public.data_set ds "
-       "  on ds.id = dsa.data_set_id "
+       "from public.data_set ds "
        "inner join public.user u "
        "  on u.id = ds.created_by "
        "left join public.client_location cl "
@@ -93,9 +83,14 @@
        "  on c.id = cl.client_id "
        "where ds.date_deleted is null "))
 
-
 (def data-set-attachment-query
-  (str "select a.filename, a.mime_type, a.contents, "
+  (str "select "
+       "  a.filename, "
+       "  a.date_created, "
+       "  u.email_address, "
+       "  a.data_set_id, "
+       "  a.mime_type, "
+       "  a.contents, "
        "  octet_length(a.contents) as bytes "
        "from public.data_set_attachment a "
        "inner join public.data_set ds "
@@ -113,8 +108,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-; get the specified data set by date
-(defn data-get
+; get the specified data_set set by date
+(defn data-set-get
   [email-address uuid]
 
   ; log the activity in the session
@@ -140,8 +135,8 @@
         (access-denied constants/manage-data)))))
 
 
-; delete the specified data set by date
-(defn data-delete
+; delete the specified data_set by date
+(defn data-set-delete
   [email-address uuid]
 
   ; log the activity in the session
@@ -164,7 +159,7 @@
 
 
 ; submit data
-(defn data-submit
+(defn data-set-submit
   [email-address uuid date-created created-by data]
 
   ; log the activity in the session
@@ -199,6 +194,7 @@
               (let [type (:type data-element)]
                 ; treat attachments and primitive data differently
                 (if (= type "attachment")
+                  ;TODO replace with data-set-attachment-submit
                   (let [filename (:filename data-element)
                         mime-type (:mime_type data-element)
                         contents (:contents data-element)
@@ -209,6 +205,7 @@
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
+                  ;TODO replace with data-set-primitive-submit
                   (let [type (:type data-element)
                         description (:description data-element)
                         value (:value data-element)
@@ -223,7 +220,7 @@
                                               [query id description value])]
                     (if (not success)
                       (throw Exception "Failed to insert new child row!"))))))
-            (let [data-saved (data-get email-address uuid)]
+            (let [data-saved (data-set-get email-address uuid)]
               ; broadcast the dataset including attachment binary data to
               ; listeners
               (let [with-attachments (merge (:response (:body data-saved))
@@ -240,9 +237,38 @@
             (status (response {:response "Failure"}) 409))))
       (access-denied constants/create-data))))
 
+(defn data-set-attachment-submit
+  [data-element data-set-id]
+  (let [filename (:filename data-element)
+        mime-type (:mime_type data-element)
+          contents (:contents data-element)
+          query (str "insert into public.data_set_attachment "
+                     "(data_set_id, filename, mime_type, contents) "
+                     "values (?,?,?,decode(?, 'base64'))")
+          success (sql/execute! (db) [query data-set-id filename mime-type
+                                    contents])]
+      (if (not success)
+        (throw Exception "Failed to insert new attachment!"))))
 
-; list up to 10 data items in the database, as an HTTP response
-(defn data-list
+(defn data-set-primitive-submit
+  [data-element data-set-id]
+  (let [type (:type data-element)
+        description (:description data-element)
+          value (:value data-element)
+          query (str "insert into public.data_set_" type " "
+                     "(data_set_id, description, value) values "
+                     "(?,?,?"
+                     (if (= type "date") ; cast dates correctly
+                       "::timestamp with time zone"
+                       "")
+                     ")")
+          success (sql/execute! (db)
+                                [query data-set-id description value])]
+      (if (not success)
+        (throw Exception "Failed to insert new primitive data!"))))
+
+; list up data_sets in the database, as an HTTP response
+(defn data-set-list
   [email-address]
 
   ; log the activity in the session
@@ -254,12 +280,10 @@
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-query
-                   "order by ds.date_created desc "
-                   "limit 10")
+                   "order by ds.date_created desc ")
         query-own (str data-set-query
                        "and u.email_address=? "
-                       "order by ds.date_created desc "
-                       "limit 10")]
+                       "order by ds.date_created desc ")]
     (if can-access
       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
       ; if the user cannot access all data, try to at least show them their own
@@ -270,9 +294,9 @@
                                         :row-fn format-data-set)})
         (access-denied constants/manage-data)))))
 
-; list datasets having attachments in the database, as an HTTP response
-(defn data-list-with-attachments
-  [email-address]
+; get data_set_attachment info
+(defn data-set-attachment-info-get
+  [email-address uuid filename]
 
   ; log the activity in the session
   (log-detail email-address
@@ -282,31 +306,25 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query (str data-set-with-attachments-query
-                   "order by ds.date_created desc")
-        query-own (str data-set-with-attachments-query
-                       "and u.email_address=? "
-                       "order by ds.date_created desc")]
+        query data-set-attachment-query
+        query-own (str data-set-attachment-query "and u.email_address=? ")]
     (if can-access
-      (response {:response (sql/query (db)
-                                      [query]
-                                      :row-fn format-data-set-attachment )})
-      ; if the user cannot access all data, try to at least show them their own
-      ; data instead
-      (if can-access-own
-        (response {:response (try (sql/query (db)
-                                        [query-own email-address]
-                                        :row-fn format-data-set-attachment )
-                               (catch Exception e
-                                 (if (instance? SQLException e)
-                                   (do (.getCause e)
-                                       (println (.getNextException e)))
-                                   (println (.getMessage e)))
-                                 false))})
-        (access-denied constants/manage-data)))))
+           (response {:response (sql/query
+                                  (db)
+                                  [query uuid filename]
+                                  :row-fn format-attachment-info)})
+           ; if the user cannot access all data, try to at least show them their
+           ; own data instead
+           (if can-access-own
+             (response {:response (sql/query
+                                    (db)
+                                    [query-own email-address]
+                                    :row-fn format-attachment-info)})
+             (access-denied constants/manage-data)))))
+
 
 ; get the specified attachment to a data set, by date and filename
-(defn data-get-attachment
+(defn data-set-attachment-get
   [email-address uuid filename]
 
   ; log the activity in the session
@@ -333,7 +351,7 @@
         (access-denied constants/manage-data)))))
 
 ; delete the specified data set attachment by dataset uuid and filename
-(defn data-delete-attachment
+(defn data-set-attachment-delete
   [email-address uuid filename]
   ;TODO check if uuid and filename exits otherwise throw exception
 
@@ -364,7 +382,7 @@
       (access-denied constants/manage-data))))
 
 ; rename the specified data set attachment filename
-(defn data-rename-attachment-filename
+(defn data-set-attachment-filename-rename
   [email-address uuid filename new-filename]
 
   ; log the activity in the session

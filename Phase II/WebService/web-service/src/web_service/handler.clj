@@ -27,6 +27,7 @@
           405))
 
 (defroutes app-routes
+  (GET "/" [] (redirect "/index.html"))
   (POST "/admin-authenticate" [client_uuid email_address password user_email_address]
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
@@ -83,12 +84,12 @@
     "/data" []
     (defroutes document-routes
       (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid data-list))
+           (guard-with-user api_token client_uuid data-set-list))
       (PUT "/" [] (not-allowed "Update-all data"))
       (POST "/" [api_token client_uuid uuid date_created created_by data]
             (guard-with-user api_token
                              client_uuid
-                             data-submit
+                             data-set-submit
                              uuid
                              date_created
                              created_by
@@ -98,44 +99,50 @@
         "/:uuid" [uuid]
         (defroutes document-routes
           (GET "/" [api_token client_uuid]
-               (guard-with-user api_token client_uuid data-get uuid))
+               (guard-with-user api_token client_uuid data-set-get uuid))
           (PUT "/" [] (not-implemented "Update data"))
           (POST "/" [api_token client_uuid date_created created_by data]
                 (guard-with-user api_token
                                  client_uuid
-                                 data-submit
+                                 data-set-submit
                                  uuid
                                  date_created
                                  created_by
                                  data))
           (DELETE "/" [api_token client_uuid]
-                  (guard-with-user api_token client_uuid data-delete uuid))
+                  (guard-with-user api_token client_uuid data-set-delete uuid))
           (context
             "/:filename" [filename]
             (defroutes document-routes
               (GET "/" [api_token client_uuid]
                    (guard-file-with-user api_token
                                          client_uuid
-                                         data-get-attachment
+                                         data-set-attachment-get
+                                         uuid
+                                         filename))
+              (GET "/info" [api_token client_uuid]
+                   (guard-with-user api_token
+                                         client_uuid
+                                         data-set-attachment-info-get
                                          uuid
                                          filename))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                          client_uuid
-                                         data-rename-attachment-filename
+                                         data-set-attachment-filename-rename
                                          uuid filename new_filename))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
                                             client_uuid
-                                            data-delete-attachment
+                                            data-set-attachment-delete
                                             uuid filename))))))))
 
   (context
     "/attachments" []
       (defroutes document-routes
         (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid data-list-with-attachments))
+           (guard-with-user api_token client_uuid data-set-list))
         (PUT "/" [] (not-allowed "Update-all data attachments"))
         (POST "/" [] (not-allowed "Sumbit-all  data attachemnts"))
         (DELETE "/" [] (not-allowed "Delete-all data attachments"))))

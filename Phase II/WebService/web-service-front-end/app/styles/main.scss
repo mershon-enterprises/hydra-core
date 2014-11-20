@@ -187,6 +187,25 @@ nav {
 
 }
 
+table {
+    border-collapse: collapse;
+    border: 2px solid $off-black;
+    color: $off-black;
+}
+
+td {
+    border: 1px solid $off-black;
+    padding: $default-padding;
+}
+
+tr:nth-child(even) {
+    background-color: $light-gray;
+}
+
+tr:nth-child(odd) {
+    background-color: $light-gray + 20;
+}
+
 //Forms
 form label {
     line-height: 2em;
@@ -374,9 +393,6 @@ footer {
     background-color: $off-white;
     box-shadow: 4px 4px 80px $off-black;
     @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
-    button {
-        @include button-style(1em);
-    }
     padding: $default-padding;
     text-align: center;
 }
@@ -402,3 +418,53 @@ footer {
     font-weight: bold;
 }
 
+.tagView {
+    @include gray-box(1em);
+    padding: $default-padding * 2 $default-padding * 4 !important;
+    .fileProperties {
+        width: 100%;
+        span {
+            display: block;
+            font-size: 1.5em;
+            padding-right: $default-padding;
+        }
+        li {
+            line-height: 4em;
+            vertical-align: top;
+            text-align: left;
+            &>* {
+                display: inline-block;
+            }
+        }
+    }
+    .leftColumn {
+        width: 50%;
+        display: inline-block;
+        margin-right: $default-margin*5;
+    }
+    .rightColumn {
+        vertical-align: top;
+        display: inline-block;
+        margin-left: $default-margin*5;
+    }
+    .leftButton {
+        float: left;
+    }
+    .rightButton {
+        float: right;
+    }
+    .tags {
+        text-align: left;
+        width: 100%;
+        table {
+            text-align: center;
+            margin: $default-margin auto;
+            width: 90%;
+        }
+        i {
+            cursor: pointer;
+        }
+    }
+
+
+}
