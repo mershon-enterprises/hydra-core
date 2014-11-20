@@ -77,16 +77,18 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
-            var duplicateFlag = false;
-            $.each($scope.tags, function(index, value) {
-                    if (value.description) {
-                        if (value.description === description) {
-                            duplicateFlag = true;
+            if (description && value) {
+                var duplicateFlag = false;
+                $.each($scope.tags, function(index, value) {
+                        if (value.description) {
+                            if (value.description === description) {
+                                duplicateFlag = true;
+                            }
                         }
-                    }
-            });
-            if (!duplicateFlag) {
-                $scope.tags.push({'description' : description, 'value' : value});
+                });
+                if (!duplicateFlag) {
+                    $scope.tags.push({'description' : description, 'value' : value});
+                }
             }
         };
 
