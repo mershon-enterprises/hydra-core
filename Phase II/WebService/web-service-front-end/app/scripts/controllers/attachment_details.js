@@ -90,6 +90,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     $scope.tags.push({'description' : description, 'value' : value});
                 }
             }
+            else {
+                NotificationService.error('Invalid Tag.', 'Tag name and value cannot be blank.');
+            }
         };
 
         //Removes all rows that match the provided tag description.

@@ -53,6 +53,9 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                     $scope.tags.push({'description' : description, 'value' : value});
                 }
             }
+            else {
+                NotificationService.error('Invalid Tag.', 'Both description and value cannot be blank.');
+            }
         };
 
         //Removes all rows that match the provided tag description.
