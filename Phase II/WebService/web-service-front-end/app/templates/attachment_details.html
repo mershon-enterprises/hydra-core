@@ -20,12 +20,12 @@
             <tr ng-repeat="tag in tags">
                 <td>{{tag.description}}</td>
                 <td>{{tag.value}}</td>
-                <td><i class="fa fa-minus"></i></td>
+                <td><i class="fa fa-minus" ng-click="removeRow(tag.description)"></i></td>
             </tr>
             <tr>
-                <td></td>
-                <td></td>
-                <td><i class="fa fa-plus"></i></td>
+                <td><input type="text" name="description" ng-model="description"></td>
+                <td><input type="text" name="value" ng-model="value"></td>
+                <td><i class="fa fa-plus" ng-click="addRow(description, value)"></i></td>
             </tr>
         </table>
     </div>

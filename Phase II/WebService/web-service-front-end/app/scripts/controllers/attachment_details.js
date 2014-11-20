@@ -9,6 +9,11 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
     //If the user is logged in...
     if (Session.exists()) {
 
+        $scope.filename = null;
+        $scope.dateCreated = null;
+        $scope.createdBy = null;
+        $scope.tags = [];
+
         //The user should not be visiting this view unless sent from the
         //datasets controller. rootscope.ukey will be populated if they were.
         if (!$rootScope.ukey) {
@@ -30,10 +35,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                 }
             });
         }
-
-        $scope.back = function () {
-            $location.path('/datasets');
-        };
 
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
@@ -72,6 +73,39 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
             else {
                 NotificationService.error('Could not delete attachment.', 'Please try again.');
             }
+        };
+
+        //Adds a tag row to the tag table. Prevents adding duplicate values.
+        $scope.addRow = function(description, value) {
+            var duplicateFlag = false;
+            $.each($scope.tags, function(index, value) {
+                    if (value.description) {
+                        if (value.description === description) {
+                            duplicateFlag = true;
+                        }
+                    }
+            });
+            if (!duplicateFlag) {
+                $scope.tags.push({'description' : description, 'value' : value});
+            }
+        };
+
+        //Removes all rows that match the provided tag description.
+        $scope.removeRow = function(description) {
+            var newTags = [];
+            $.each($scope.tags, function(index, value) {
+                    if (value.description) {
+                        if (value.description !== description) {
+                            newTags.push(value);
+                        }
+                    }
+            });
+            $scope.tags = newTags;
+        };
+
+        //Back button to return to the datasets view.
+        $scope.back = function () {
+            $location.path('/datasets');
         };
 
     }
