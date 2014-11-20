@@ -51,7 +51,7 @@ module.exports = function (grunt) {
           replacements: [
             {
               pattern: 'ENDPOINT_URL',
-              replacement: 'http://54.187.61.110:8080'
+              replacement: 'http://hydra-production.elasticbeanstalk.com/'
             }
           ]
         }
