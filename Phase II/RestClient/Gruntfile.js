@@ -4,6 +4,7 @@ module.exports = function (grunt) {
   // Load all grunt tasks
   require('load-grunt-tasks')(grunt);
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-string-replace');
   // Show elapsed time at the end.
   require('time-grunt')(grunt);
 
@@ -25,6 +26,34 @@ module.exports = function (grunt) {
           bundleOptions: {
             standalone: '<%= pkg.name %>'
           }
+        }
+      }
+    },
+    'string-replace': {
+      dev: {
+        files: {
+          'dist/': 'dist/<%= pkg.name%>.standalone.js'
+        },
+        options: {
+          replacements: [
+            {
+              pattern: 'ENDPOINT_URL',
+              replacement: 'http://localhost:3000'
+            }
+          ]
+        }
+      },
+      dist: {
+        files: {
+          'dist/': 'dist/<%= pkg.name%>.standalone.js'
+        },
+        options: {
+          replacements: [
+            {
+              pattern: 'ENDPOINT_URL',
+              replacement: 'http://hydra-production.elasticbeanstalk.com/'
+            }
+          ]
         }
       }
     },
@@ -78,7 +107,8 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('dist', ['browserify', 'uglify:dist']);
+  grunt.registerTask('dev', ['browserify', 'string-replace:dev']);
+  grunt.registerTask('dist', ['browserify', 'string-replace:dist', 'uglify:dist']);
   grunt.registerTask('build', ['dist']);
   grunt.registerTask('test', ['nodeunit']);
   grunt.registerTask('default', ['jshint', 'test', 'build']);

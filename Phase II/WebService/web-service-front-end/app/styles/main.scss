@@ -1,0 +1,470 @@
+// bower:scss
+// endbower
+
+// Fonts
+@import url(http://fonts.googleapis.com/css?family=Lato);
+
+// Color Palette
+$light-gray: #E0E0E0;
+$medium-gray: #444444;
+$dark-gray: #222222;
+$off-white: #F0F0F0;
+$off-black: #0F0F0F;
+$light-red: #DD2C29;
+$red: #DC1E30;
+$dark-red: #660000;
+$dark-green: #006600;
+$dark-blue: #000066;
+$yellow: #ADAD00;
+
+//Defaults
+$default-padding: 10px;
+$default-margin: 20px;
+$default-rounding: 20px;
+$default-hover-offset: 100;
+
+//Mixins
+@mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
+    -webkit-border-radius: $topleft $topright $bottomright $bottomleft;
+    -moz-border-radius: $topleft $topright $bottomright $bottomleft;
+    border-radius: $topleft $topright $bottomright $bottomleft;
+}
+
+@mixin top-left-shadow() {
+    -webkit-box-shadow: -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+    -moz-box-shadow:    -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+    box-shadow:         -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+}
+
+@mixin top-right-shadow() {
+    -webkit-box-shadow: 4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+    -moz-box-shadow:    4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+    box-shadow:         4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+}
+
+@mixin bottom-left-shadow() {
+    -webkit-box-shadow: 4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+    -moz-box-shadow:    4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+    box-shadow:         4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+}
+
+@mixin bottom-right-shadow() {
+    -webkit-box-shadow: -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+    -moz-box-shadow:    -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+    box-shadow:         -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+}
+
+@mixin inset-shadow() {
+    -webkit-box-shadow: inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+    -moz-box-shadow:    inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+    box-shadow:         inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+}
+
+@mixin button-style($fontSize) {
+    background-color: $dark-red;
+    font-size: $fontSize;
+    vertical-align: middle;
+    font-weight: bold;
+    cursor: pointer;
+    @include rounded($default-rounding/2, $default-rounding/2, $default-rounding/2, $default-rounding/2);
+    padding: $default-padding*2;
+    color: $off-white;
+    margin: $default-margin/4 $default-margin/4;
+    min-width: 100px;
+    &:hover {
+        background-color: $red;
+    }
+}
+
+@mixin gray-box($fontSize) {
+    background-color: $dark-gray;
+    color: $off-white;
+    padding: $default-padding;
+    margin: $default-margin;
+    @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
+    button {
+        @include button-style($fontSize);
+    }
+    overflow: auto;
+}
+
+//Basic colors, fonts, and alignments.
+body {
+    color: $off-black;
+    background-color: $medium-gray;
+    font-family: 'Lato', sans-serif;
+    text-rendering: geometricPrecision;
+    text-align: center;
+}
+
+// Changes all elements to use the border-box property, allowing for much
+// more predictable behavior when declaring width.
+*, *:before, *:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+ }
+
+//Get rid of all borders we didn't ask for.
+* {
+     border: none;
+}
+
+//Get rid of all hover-outlines we didn't ask for.
+*:focus {
+    outline: none;
+}
+
+//Wrapper for primary content area.
+#web-service-project-wrapper {
+    width: 75%;
+    min-width: 1024px;
+    background-color: $off-white;
+    margin: $default-margin auto;
+    @include rounded($default-rounding*1.2, $default-rounding*1.2, $default-rounding, $default-rounding);
+    @include inset-shadow();
+    position: relative;
+}
+
+a:link {color: $off-white; text-decoration: none;}
+a:active {color: $off-white; text-decoration: none;}
+a:visited {color: $off-white; text-decoration: none;}
+a:hover {color: $off-white - $default-hover-offset; text-decoration: none;}
+
+//Lists
+ul {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+}
+
+//Header
+header {
+
+    background-color: $dark-red;
+    color: $off-white;
+    line-height: 2em;
+    font-size: 2em;
+    @include rounded($default-rounding, $default-rounding, 0, 0);
+    @include top-left-shadow();
+    @include top-right-shadow();
+
+ }
+
+//Navbar
+nav {
+
+    * {
+        display: inline-block;
+    }
+
+    background-color: $dark-gray;
+    text-align: center;
+    height: 40px;
+    line-height: 2.5em;
+    color: $off-white;
+
+    i {
+        padding-left: $default-padding/2;
+        padding-right: $default-padding;
+    }
+
+    ul {
+        float: right;
+    }
+
+    li {
+        padding-left: $default-padding;
+        color: $off-white;
+        display: inline;
+        text-decoration: none;
+        &:hover {
+            color: $off-white - $default-hover-offset;
+            cursor: pointer;
+        }
+    }
+
+
+}
+
+table {
+    border-collapse: collapse;
+    border: 2px solid $off-black;
+    color: $off-black;
+}
+
+td {
+    border: 1px solid $off-black;
+    padding: $default-padding;
+}
+
+tr:nth-child(even) {
+    background-color: $light-gray;
+}
+
+tr:nth-child(odd) {
+    background-color: $light-gray + 20;
+}
+
+//Forms
+form label {
+    line-height: 2em;
+    font-weight: bold;
+    float: left;
+}
+
+form input, form textarea {
+    width: 100%;
+    margin-bottom: $default-margin/2;
+}
+
+form textarea {
+    height: 200px;
+    font-size: 1.3em;
+}
+
+form button {
+    @include button-style(1em);
+}
+
+form button[type='submit'] {
+    float: right;
+}
+
+//Input Fields
+input[type='text'], input[type='email'], input[type='password'], textarea {
+    height: 30px;
+    font-size: 1em;
+    border: 1px solid $off-black;
+    color: $medium-gray;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+    border: 1px solid $medium-gray;
+}
+
+input[type='text']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='email']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='password']:focus, textarea:focus {
+    border: 1px solid $light-red;
+    box-shadow: 0 0 5px $light-red;
+}
+
+input[type='file'] {
+    margin: $default-margin $default-margin $default-margin*4;
+}
+
+//Footer
+footer {
+
+    background-color: $dark-gray;
+    color: $off-white;
+    @include rounded(0, 0, $default-rounding, $default-rounding);
+    @include bottom-left-shadow();
+    @include bottom-right-shadow();
+    vertical-align: middle;
+
+    img, ul {
+        display: inline-block;
+        vertical-align: middle;
+        margin: $default-margin/2;
+    }
+
+    ul li {
+        text-align: left;
+    }
+
+    img {
+        width: 200px;
+    }
+
+}
+
+.search {
+    width: 50%;
+}
+
+.login-form {
+    @include gray-box(1em);
+}
+
+.login-form {
+    .left-column {
+        width: 35%;
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 15em;
+    }
+    .right-column {
+        width: 55%;
+        padding: $default-padding*5;
+        display: inline-block;
+        vertical-align: top;
+    }
+}
+
+.upload-form {
+    padding: $default-padding*3;
+    .left-column {
+        width: 55%;
+        display: inline-block;
+        vertical-align: top;
+    }
+    .right-column {
+        width: 35%;
+        display: inline-block;
+        vertical-align: top;
+        button {
+            float: none;
+        }
+    }
+}
+
+.upload-link {
+    float: left;
+    padding-left: $default-padding;
+}
+
+
+//NG-Grid
+.gridStyle {
+    margin: $default-margin;
+}
+
+.ngViewport{
+    height: auto !important;
+}
+
+.ngCanvas, .ngViewport, .ngRow, .ngFooterPanel, .ngTopPanel   {
+    width: 100% !important;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.ngRow {
+    border-bottom:none !important;
+}
+
+.author {
+    font-size: .80em;
+}
+
+.ngCellText {
+    i {
+        cursor: pointer;
+    }
+
+    .fa-cog {
+        padding-left: $default-padding/3;
+    }
+}
+
+//Modal
+.ng-modal-overlay {
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: $off-black;
+    opacity: 0.8;
+}
+
+.ng-modal-dialog {
+    z-index: 10000;
+    position: absolute;
+    width: 50%;
+    height: 300px;
+    top: 250px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    background-color: $off-white;
+    box-shadow: 4px 4px 80px $off-black;
+    @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
+    padding: $default-padding;
+    text-align: center;
+}
+
+.loading {
+    i {
+        font-size: 5em;
+        display: block;
+        padding: $default-padding;
+    }
+
+    font-size: 2em;
+}
+
+.ng-modal-close {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    padding: $default-padding;
+    cursor: pointer;
+    font-size: 120%;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.tagView {
+    @include gray-box(1em);
+    padding: $default-padding * 2 $default-padding * 4 !important;
+    .fileProperties {
+        width: 100%;
+        span {
+            display: block;
+            font-size: 1.5em;
+            padding-right: $default-padding;
+        }
+        li {
+            line-height: 4em;
+            vertical-align: top;
+            text-align: left;
+            &>* {
+                display: inline-block;
+            }
+        }
+    }
+    .leftColumn {
+        width: 50%;
+        display: inline-block;
+        margin-right: $default-margin*5;
+    }
+    .rightColumn {
+        vertical-align: top;
+        display: inline-block;
+        margin-left: $default-margin*5;
+    }
+    .leftButton {
+        float: left;
+    }
+    .rightButton {
+        float: right;
+    }
+    .tags {
+        text-align: left;
+        width: 100%;
+        table {
+            text-align: center;
+            margin: $default-margin auto;
+            width: 90%;
+        }
+        i {
+            cursor: pointer;
+        }
+    }
+
+
+}

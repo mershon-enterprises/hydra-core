@@ -1,0 +1,96 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css(.) styles/vendor.css -->
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.css" />
+        <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
+        <link rel="stylesheet" href="bower_components/igrowl/dist/css/igrowl.css" />
+        <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
+        <!-- endbower -->
+        <link rel="stylesheet" href="bower_components/igrowl/dist/css/fonts/linecons.css" />
+        <!-- endbuild -->
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+    </head>
+    <body ng-app="webServiceApp">
+        <!--[if lt IE 7]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div ng-controller="data" id="web-service-project-wrapper">
+            <header>
+                Web-Service Application
+            </header>
+
+            <navbar></navbar>
+
+            <!-- Templates will load here. -->
+            <div ng-view=""></div>
+
+            <footer>
+                <img src="images/Slixbits long.png">
+                <ul>
+                    <li><i class="fa fa-phone-square"></i> (661) 426-8046<br></li>
+                    <li><i class="fa fa-envelope-square"></i> contact@slixbits.com</li>
+                </ul>
+            </footer>
+
+            <!-- Loading Modal -->
+            <modal-loading show='modalShow'></modal-loading>
+
+
+        </div>
+
+        <!-- build:js(.) scripts/oldieshim.js -->
+        <!--[if lt IE 9]>
+        <script src="bower_components/es5-shim/es5-shim.js"></script>
+        <script src="bower_components/json3/lib/json3.js"></script>
+        <![endif]-->
+        <!-- endbuild -->
+
+        <!-- build:js(.) scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/angular/angular.js"></script>
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+        <script src="bower_components/angular-animate/angular-animate.js"></script>
+        <script src="bower_components/angular-route/angular-route.js"></script>
+        <script src="bower_components/igrowl/dist/js/igrowl.js"></script>
+        <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+        <script src="bower_components/ng-grid/build/ng-grid.js"></script>
+        <script src="bower_components/angular-file-model/angular-file-model.js"></script>
+        <!-- endbower -->
+        <!--
+        The restclient library is a special case. It resides in a different
+        folder in this repo (/Phase II/RestClient/src/restclient.js) and is
+        copied into the project by the bowercopy Grunt task.
+        -->
+        <script src="bower_components/restclient/restclient.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/services/notification.js"></script>
+        <script src="scripts/services/restservice.js"></script>
+        <script src="scripts/services/session.js"></script>
+        <script src="scripts/directives/modal-loading.js"></script>
+        <script src="scripts/directives/navbar.js"></script>
+        <script src="scripts/filters/filesize.js"></script>
+        <script src="scripts/controllers/attachment_details.js"></script>
+        <script src="scripts/controllers/attachment_upload.js"></script>
+        <script src="scripts/controllers/data.js"></script>
+        <script src="scripts/controllers/datasets.js"></script>
+        <script src="scripts/controllers/login.js"></script>
+        <script src="scripts/controllers/logout.js"></script>
+        <!-- endbuild -->
+    </body>
+</html>

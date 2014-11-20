@@ -673,4 +673,4 @@ Getting Started
 --
 1. Install [leiningen](http://leiningen.org/) and make sure the `lein` command
    is on your system path
-1. Run the command `lein ring server`
+1. Run the command `lein run`
