@@ -3,18 +3,16 @@
             [environ.core :refer [env]])
   (:import com.mchange.v2.c3p0.ComboPooledDataSource))
 
-(def db-credentials (env :database-credentials))
-
 (def db-spec {:classname   "org.postgresql.Driver"
               :subprotocol "postgresql"
               :subname     (str "//"
-                                (:host db-credentials) ":"
-                                (:port db-credentials) "/"
-                                (:db-name db-credentials))
+                                (env :db-host) ":"
+                                (env :db-port) "/"
+                                (env :db-name))
               ; Any additional keys are passed to the driver
               ; as driver-specific properties.
-              :user        (:user db-credentials)
-              :password    (:password db-credentials)})
+              :user        (env :db-user)
+              :password    (env :db-password)})
 
 (defn pool
   [spec]

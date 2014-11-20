@@ -7,7 +7,9 @@
             [langohr.basic     :as lb]
             [environ.core :refer [env]]))
 
-(def rabbitmq-credentials (env :rabbitmq-credentials))
+(def rabbitmq-credentials {:host (env :rabbitmq-host)
+                           :username (env :rabbitmq-username)
+                           :password (env :rabbitmq-password)})
 
 ; dynamic variables for connection and channel
 (def ^:dynamic conn nil)
