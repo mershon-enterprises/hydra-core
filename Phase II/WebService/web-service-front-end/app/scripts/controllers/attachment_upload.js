@@ -12,16 +12,20 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
 
         $scope.filename = '';
         $scope.createdBy = Session.getEmail();
-        $scope.dateCreated = new Date;
+        $scope.dateCreated = new Date();
         $scope.tags = [];
         $scope.file = null;
 
-        $scope.$watch('file', function (newVal) {
+        //If a new file is attached, set the filename stored in scope to that
+        //file's filename. The user will then be allowed to change the filename
+        //in an input box if they choose.
+        $scope.$watch('file', function () {
             if($scope.file) {
                 $scope.filename = $scope.file.name;
             }
         });
 
+        //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
             var duplicateFlag = false;
             $.each($scope.tags, function(index, value) {
@@ -36,6 +40,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
+        //Removes all rows that match the provided tag description.
         $scope.removeRow = function(description) {
             var newTags = [];
             $.each($scope.tags, function(index, value) {
@@ -48,6 +53,8 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             $scope.tags = newTags;
         };
 
+        //Creates a new dataset via RestService.submitData() and prompts user
+        //of success or failure.
         $scope.save = function () {
 
             //If there is a file to save...
@@ -93,6 +100,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
+        //Back button to return to the datasets view.
         $scope.back = function () {
             $location.path('/datasets');
         };
