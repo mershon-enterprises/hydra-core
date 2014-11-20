@@ -15,13 +15,26 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
         $scope.dateCreated = new Date();
         $scope.tags = [];
         $scope.file = null;
+        $scope.fileData = null;
 
-        //If a new file is attached, set the filename stored in scope to that
-        //file's filename. The user will then be allowed to change the filename
-        //in an input box if they choose.
+        //Watch for new file attachment.
         $scope.$watch('file', function () {
             if($scope.file) {
+                //If a new file is attached, set the filename stored in scope
+                //to the file's filename. The user will then be allowed to
+                //change the filename in an input box if they choose.
                 $scope.filename = $scope.file.name;
+
+                //Read file's binary data.
+                //http://www.html5rocks.com/en/tutorials/file/dndfiles/
+                var reader = new FileReader();
+                // Closure to capture the file information.
+                reader.onload = (function(theFile) {
+                    return function(e) {
+                        $scope.fileData = e.target.result;
+                    };
+                })($scope.file);
+                reader.readAsBinaryString($scope.file);
             }
         });
 
@@ -57,7 +70,6 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
         //of success or failure.
         $scope.save = function () {
 
-
             //Verify filename is good to go.
             var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
 
@@ -85,7 +97,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 var attachment = restclient.Attachment(
                     $scope.filename,
                     $scope.file.type,
-                    window.btoa($scope.file)
+                    window.btoa($scope.fileData)
                 );
 
                 //Add it to dataItems.
