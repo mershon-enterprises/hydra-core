@@ -7,13 +7,12 @@
                     </li>
                     <li><span>Author:</span>{{createdBy}}</li>
                     <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
+                    <li ng-if="file"><span>Size:</span>{{file.size | filesize}}</li>
+                    <li ng-if="file"><span>Last Modified:</span>{{file.lastModifiedDate | date : 'short'}}</li>
                 </ul>
             </div>
             <div class="rightColumn">
-                <ul>
-                    <li><span>Attachment:</span><input type="file" file-model='file'></li>
-                </ul>
-
+                    <span>Attachment:</span><input id="fileAttachmentInput" type="file" file-model='file'>
             </div>
     </div>
     <div class="tags">
