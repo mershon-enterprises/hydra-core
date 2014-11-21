@@ -239,21 +239,31 @@
 
 (defn data-set-attachment-submit
   [email-address data-set-uuid data-element]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-add-dataset-attachment
+                   " to dataset(" data-set-uuid ")"))
+
   (let [filename (:filename data-element)
         mime-type (:mime_type data-element)
-          contents (:contents data-element)
-          query (str "insert into public.data_set_attachment "
-                     "(data_set_id, filename, mime_type, contents) "
-                     "values ("
-                     "(select id from data_set where uuid::character varying=?)"
-                     ",?,?,decode(?, 'base64'))")
-          success (sql/execute! (db) [query data-set-uuid filename mime-type
+        contents (:contents data-element)
+        query (str "insert into public.data_set_attachment "
+                   "(data_set_id, filename, mime_type, contents) "
+                   "values ("
+                   "(select id from data_set where uuid::character varying=?)"
+                   ",?,?,decode(?, 'base64'))")
+        success (sql/execute! (db) [query data-set-uuid filename mime-type
                                     contents])]
-      (if (not success)
-        (throw Exception "Failed to insert new attachment!"))))
+    (if (not success)
+      (throw Exception "Failed to insert new attachment!"))))
 
 (defn data-set-primitive-submit
   [email-address data-set-uuid type description value]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-add-dataset-primitive
+                   "(" type ") to dataset(" data-set-uuid ")"))
+
   (let [query (str "insert into public.data_set_" type " ( "
                    "  data_set_id, created_by, description, value) "
                    "values( "
@@ -281,6 +291,11 @@
 
 (defn data-set-primitive-delete
   [email-address data-set-uuid type description]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-delete-dataset-primitive
+                   "(" type ") from dataset(" data-set-uuid ")"))
+
   (let [query (str "update public.data_set_" type " "
                    "set "
                    "  date_deleted=now(), "
