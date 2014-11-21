@@ -272,6 +272,35 @@
     });
   };
 
+  exports.submitTag = function(clientUUID, apiToken, uuid, type, description, value) {
+    return rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        type: type,
+        description: description,
+        value: value
+      }
+    });
+  };
+
+  exports.deleteTag = function(clientUUID, apiToken, uuid, type, description) {
+    return rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        type: type,
+        description: description
+      }
+    });
+  };
+
+
+
   exports.listUsers = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
