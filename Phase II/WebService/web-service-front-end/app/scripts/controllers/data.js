@@ -36,7 +36,7 @@ angular.module('webServiceApp').controller('data', function ($rootScope, $scope,
                     $interval.cancel($scope.reload);
                 }
             },
-            function (error) {
+            function () {
                 console.log('Cache could not be restored.');
             });
         }

@@ -29,7 +29,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 //http://www.html5rocks.com/en/tutorials/file/dndfiles/
                 var reader = new FileReader();
                 // Closure to capture the file information.
-                reader.onload = (function(theFile) {
+                reader.onload = (function() {
                     return function(e) {
                         $scope.fileData = e.target.result;
                     };
