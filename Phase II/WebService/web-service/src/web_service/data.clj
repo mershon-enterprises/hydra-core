@@ -253,19 +253,20 @@
         (throw Exception "Failed to insert new attachment!"))))
 
 (defn data-set-primitive-submit
-  [data-element data-set-id]
+  [data-element data-set-uuid]
   (let [type (:type data-element)
         description (:description data-element)
           value (:value data-element)
           query (str "insert into public.data_set_" type " "
-                     "(data_set_id, description, value) values "
-                     "(?,?,?"
+                     "(data_set_id, description, value) values("
+                     "(select id from data_set where uuid::character varying=?)"
+                     ",?,?"
                      (if (= type "date") ; cast dates correctly
                        "::timestamp with time zone"
                        "")
                      ")")
           success (sql/execute! (db)
-                                [query data-set-id description value])]
+                                [query data-set-uuid description value])]
       (if (not success)
         (throw Exception "Failed to insert new primitive data!"))))
 
