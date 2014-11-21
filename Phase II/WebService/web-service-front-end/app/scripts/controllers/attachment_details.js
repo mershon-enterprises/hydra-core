@@ -88,11 +88,33 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                 });
                 if (!duplicateFlag) {
                     $scope.tags.push({'description' : description, 'value' : value});
+
+                    RestService.submitTag($scope.ukey, 'text', description, value).then(
+                    function(success) {
+                        if (success[0] === EVENTS.promiseSuccess) {
+                            NotificationService.success('Success', 'Tag Added.');
+                        }
+                    },
+                    function(error) {
+                        if (error[0] === EVENTS.promiseFailed) {
+                            NotificationService.error('Critical error.', 'Please contact support.');
+                        }
+                        else if (error[0] === EVENTS.badStatus) {
+                            NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                        }
+                    });
                 }
+                else {
+                    NotificationService.error('Invalid Tag.', 'Tag cannot be a duplicate of another.');
+                }
+
             }
             else {
                 NotificationService.error('Invalid Tag.', 'Tag name and value cannot be blank.');
             }
+
+
+
         };
 
         //Removes all rows that match the provided tag description.
@@ -106,6 +128,21 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     }
             });
             $scope.tags = newTags;
+
+            RestService.deleteTag($scope.ukey, 'text', description).then(
+                function(success) {
+                    if (success[0] === EVENTS.promiseSuccess) {
+                        NotificationService.success('Success', 'Tag Removed.');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                    }
+            });
         };
 
         //Back button to return to the datasets view.

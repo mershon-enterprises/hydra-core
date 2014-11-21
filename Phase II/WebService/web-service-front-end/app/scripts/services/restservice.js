@@ -409,6 +409,8 @@ angular.module('webServiceApp').factory('RestService',
     //ukey = 'filename' + '\n' + 'uuid'
     restService.renameAttachment = function (ukey, newFilename) {
 
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
@@ -425,14 +427,84 @@ angular.module('webServiceApp').factory('RestService',
                     console.log(filename + ' renamed to ' + newFilename);
                 }
                 else {
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.renameAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
 
             },
             function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.renameAttachment promise failed: ' + error);
             }
         );
+    };
+
+    //Add a tag to a dataset.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.submitTag = function (ukey, type, description, value) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var uuid = ukey.split('\n')[1];
+
+        restclient.submitTag(clientUUID, Session.getToken(), uuid, type, description, value).then(
+
+            function(response) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log(description + ':' + value + ' added to ' + ukey);
+                }
+                else {
+                    console.log('restclient.submitTag promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+
+            },
+            function(error) {
+                console.log('restclient.submitTag promise failed: ' + error);
+            }
+        );
+
+        return deferred.promise;
+    };
+
+    //Remove a tag from a dataset.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.deleteTag = function (ukey, type, description) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var uuid = ukey.split('\n')[1];
+
+        restclient.deleteTag(clientUUID, Session.getToken(), uuid, type, description).then(
+
+            function(response) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log(description + ' removed from ' + ukey);
+                }
+                else {
+                    console.log('restclient.deleteTag promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+
+            },
+            function(error) {
+                console.log('restclient.deleteTag promise failed: ' + error);
+            }
+        );
+
+        return deferred.promise;
     };
 
 //CACHE ========================================================================
