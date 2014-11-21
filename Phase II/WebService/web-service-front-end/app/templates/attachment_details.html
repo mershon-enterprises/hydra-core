@@ -3,7 +3,18 @@
             <div class="leftColumn">
                 <ul>
                     <li>
-                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}"> <button ng-click="renameFile(newFilename)">Rename</button>
+                        <span>File Name:</span>
+                        <input
+                            type="text"
+                            id="fileName"
+                            ng-model="newFilename"
+                            placeholder="{{filename}}">
+                        <button
+                            ng-click="renameFile(newFilename)"
+                            confirmed-click="renameFile(newFilename)"
+                            ng-confirm-click="Are you sure?"
+                            >Rename
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -20,7 +31,13 @@
             <tr ng-repeat="tag in tags">
                 <td>{{tag.description}}</td>
                 <td>{{tag.value}}</td>
-                <td><i class="fa fa-minus" ng-click="removeRow(tag.description)"></i></td>
+                <td>
+                    <i
+                        class="fa fa-minus"
+                        confirmed-click="removeRow(tag.description)"
+                        ng-confirm-click="Remove the {{tag.description}} tag?">
+                    </i>
+                </td>
             </tr>
             <tr>
                 <td><input type="text" name="description" ng-model="description"></td>
@@ -32,6 +49,10 @@
 
     <div class="controlls">
         <button class="leftButton" ng-click="back()">Back</button>
-        <button class="rightButton" ng-click="deleteFile()">Delete</button>
+        <button class="rightButton"
+                confirmed-click="deleteFile()"
+                ng-confirm-click="Are you sure?"
+                >Delete
+        </button>
     </div>
 </div>
