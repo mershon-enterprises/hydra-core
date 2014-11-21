@@ -380,6 +380,8 @@ angular.module('webServiceApp').factory('RestService',
     //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {
 
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
@@ -393,16 +395,20 @@ angular.module('webServiceApp').factory('RestService',
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' deleted');
                 }
                 else {
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.deleteAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.deleteAttachment promise failed: ' + error);
-            }
-        );
+            });
+
+        return deferred.promise;
     };
 
     //Rename an attachment on the server.
@@ -603,20 +609,17 @@ angular.module('webServiceApp').factory('RestService',
         var uuid = ukey.split('\n')[1];
 
         var data = localStorageService.get('data');
-        var matchingIndex = null;
+        var newData = [];
 
         if(data) {
             $.each(data, function(index, value){
-                if((value.uuid === uuid) && (value.filename === filename)) {
-                    matchingIndex = index;
+                if((value.uuid !== uuid) && (value.filename !== filename)) {
+                    newData.push(value);
                 }
             });
 
-            if(matchingIndex) {
-                data.splice(matchingIndex, 1);
-                restService.updateCacheValue('data', data);
-                return true;
-            }
+            restService.updateCacheValue('data', newData);
+            return true;
         }
         return false;
     };

@@ -63,16 +63,26 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
 
-            RestService.deleteAttachment($scope.ukey);
-            var cacheValueDeleted = RestService.removeCacheDataValue($scope.ukey);
-
-            if(cacheValueDeleted) {
-                NotificationService.success('Success', 'Attachment Deleted');
-                $location.path('/datasets');
-            }
-            else {
-                NotificationService.error('Could not delete attachment.', 'Please try again.');
-            }
+            RestService.deleteAttachment($scope.ukey).then(
+                function(success) {
+                        if (success[0] === EVENTS.promiseSuccess) {
+                            if(RestService.removeCacheDataValue($scope.ukey)) {
+                                NotificationService.success('Success', 'Attachment Deleted');
+                                $location.path('/datasets');
+                            }
+                            else {
+                                console.log('Attachment deleted from server but not cache!');
+                            }
+                        }
+                    },
+                    function(error) {
+                        if (error[0] === EVENTS.promiseFailed) {
+                            NotificationService.error('Critical error.', 'Please contact support.');
+                        }
+                        else if (error[0] === EVENTS.badStatus) {
+                            NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                        }
+                    });
         };
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.
@@ -112,9 +122,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
             else {
                 NotificationService.error('Invalid Tag.', 'Tag name and value cannot be blank.');
             }
-
-
-
         };
 
         //Removes all rows that match the provided tag description.
