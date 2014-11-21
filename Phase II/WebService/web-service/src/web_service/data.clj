@@ -238,14 +238,16 @@
       (access-denied constants/create-data))))
 
 (defn data-set-attachment-submit
-  [data-element data-set-id]
+  [data-element data-set-uuid]
   (let [filename (:filename data-element)
         mime-type (:mime_type data-element)
           contents (:contents data-element)
           query (str "insert into public.data_set_attachment "
                      "(data_set_id, filename, mime_type, contents) "
-                     "values (?,?,?,decode(?, 'base64'))")
-          success (sql/execute! (db) [query data-set-id filename mime-type
+                     "values ("
+                     "(select id from data_set where uuid::character varying=?)"
+                     ",?,?,decode(?, 'base64'))")
+          success (sql/execute! (db) [query data-set-uuid filename mime-type
                                     contents])]
       (if (not success)
         (throw Exception "Failed to insert new attachment!"))))
