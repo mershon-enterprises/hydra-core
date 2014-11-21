@@ -111,6 +111,23 @@
                                  data))
           (DELETE "/" [api_token client_uuid]
                   (guard-with-user api_token client_uuid data-set-delete uuid))
+          (POST "/submit-tag" [api_token client_uuid type description value]
+                (guard-with-user
+                  api_token
+                  client_uuid
+                  data-set-primitive-submit
+                  uuid
+                  type
+                  description
+                  value))
+          (DELETE "/delete-tag" [api_token client_uuid type description]
+                  (guard-with-user
+                    api_token
+                    client_uuid
+                    data-set-primitive-delete
+                    uuid
+                    type
+                    description))
           (context
             "/:filename" [filename]
             (defroutes document-routes

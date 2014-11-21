@@ -144,43 +144,6 @@
     });
   };
 
-  exports.listDatasetsWithAttachments = function(clientUUID, apiToken) {
-    return rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/attachments',
-      params: {
-        client_uuid: clientUUID,
-        api_token: apiToken
-      }
-    });
-  };
-
-  exports.getAttachment = function(clientUUID, apiToken, uuid, filename) {
-    return rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      params: {
-        client_uuid: clientUUID,
-        api_token: apiToken
-      }
-    });
-  };
-
-  exports.getAttachmentURL = function(clientUUID, apiToken, uuid, filename) {
-    return exports.endpointUrl + '/data/' + uuid + '/' + filename + '?client_uuid='+clientUUID + '&api_token='+apiToken;
-  };
-
-  exports.getAttachmentInfo = function(clientUUID, apiToken, uuid, filename) {
-    return rest({
-      method: 'GET',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/info",
-      params: {
-        client_uuid: clientUUID,
-        api_token: apiToken
-      }
-    });
-  };
-
   exports.getData = function(clientUUID, apiToken, uuid) {
     return rest({
       method: 'GET',
@@ -247,6 +210,45 @@
     });
   };
 
+  //TODO Duplicate, returns same as listData(). change references to
+  //listDatasetsWithAttachments to listData() and rename to listAttachments 
+  exports.listDatasetsWithAttachments = function(clientUUID, apiToken) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/attachments',
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.getAttachment = function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.getAttachmentURL = function(clientUUID, apiToken, uuid, filename) {
+    return exports.endpointUrl + '/data/' + uuid + '/' + filename + '?client_uuid='+clientUUID + '&api_token='+apiToken;
+  };
+
+  exports.getAttachmentInfo = function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/info",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
   exports.renameAttachment = function(clientUUID, apiToken, uuid, filename, newFilename) {
     return rest({
       method: 'PUT',
@@ -269,6 +271,35 @@
       }
     });
   };
+
+  exports.submitTag = function(clientUUID, apiToken, uuid, type, description, value) {
+    return rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        type: type,
+        description: description,
+        value: value
+      }
+    });
+  };
+
+  exports.deleteTag = function(clientUUID, apiToken, uuid, type, description) {
+    return rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        type: type,
+        description: description
+      }
+    });
+  };
+
+
 
   exports.listUsers = function(clientUUID, apiToken) {
     return rest({

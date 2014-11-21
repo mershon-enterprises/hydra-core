@@ -194,7 +194,6 @@
               (let [type (:type data-element)]
                 ; treat attachments and primitive data differently
                 (if (= type "attachment")
-                  ;TODO replace with data-set-attachment-submit
                   (let [filename (:filename data-element)
                         mime-type (:mime_type data-element)
                         contents (:contents data-element)
@@ -205,7 +204,6 @@
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
-                  ;TODO replace with data-set-primitive-submit
                   (let [type (:type data-element)
                         description (:description data-element)
                         value (:value data-element)
@@ -238,34 +236,97 @@
       (access-denied constants/create-data))))
 
 (defn data-set-attachment-submit
-  [data-element data-set-id]
-  (let [filename (:filename data-element)
+  [email-address data-set-uuid data-element]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-add-dataset-attachment
+                   " to dataset(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        filename (:filename data-element)
         mime-type (:mime_type data-element)
-          contents (:contents data-element)
-          query (str "insert into public.data_set_attachment "
-                     "(data_set_id, filename, mime_type, contents) "
-                     "values (?,?,?,decode(?, 'base64'))")
-          success (sql/execute! (db) [query data-set-id filename mime-type
-                                    contents])]
-      (if (not success)
-        (throw Exception "Failed to insert new attachment!"))))
+        contents (:contents data-element)
+        query (str "insert into public.data_set_attachment "
+                   "(data_set_id, filename, mime_type, contents) "
+                   "values ("
+                   "(select id from data_set where uuid::character varying=?)"
+                   ",?,?,decode(?, 'base64'))")]
+    (if can-access
+      (if (sql/execute! (db) [query data-set-uuid filename mime-type contents])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
 
 (defn data-set-primitive-submit
-  [data-element data-set-id]
-  (let [type (:type data-element)
-        description (:description data-element)
-          value (:value data-element)
-          query (str "insert into public.data_set_" type " "
-                     "(data_set_id, description, value) values "
-                     "(?,?,?"
-                     (if (= type "date") ; cast dates correctly
-                       "::timestamp with time zone"
-                       "")
-                     ")")
-          success (sql/execute! (db)
-                                [query data-set-id description value])]
-      (if (not success)
-        (throw Exception "Failed to insert new primitive data!"))))
+  [email-address data-set-uuid type description value]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-add-dataset-primitive
+                   "(" type ") to dataset(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "insert into public.data_set_" type " ( "
+                   "  data_set_id, created_by, description, value) "
+                   "values( "
+                   "  (select id from data_set where uuid::character varying=?), "
+                   "  (select id from public.user where email_address=?), "
+                   "  ?,? "
+                   (if (= type "date") ; cast dates correctly
+                     "::timestamp with time zone"
+                     "")
+                   ")")]
+    (if can-access
+      (if (sql/execute! (db)
+                        [query data-set-uuid email-address description value])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+(defn data-set-primitive-update
+  [email-address data-set-uuid type description value]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-update-dataset-primitive
+                   "(" type ") from dataset(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update into public.data_set_" type " "
+                   "set value=? "
+                   "where data_set_id= "
+                   "  (select id from data_set where uuid::character varying=?) "
+                   "and description=?")]
+
+    (if can-access
+      (if (sql/execute! (db) [query value data-set-uuid description])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+(defn data-set-primitive-delete
+  [email-address data-set-uuid type description]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-delete-dataset-primitive
+                   "(" type ") from dataset(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_" type " "
+                   "set "
+                   "  date_deleted=now(), "
+                   "  deleted_by=( "
+                   "    select id from public.user where email_address=?) "
+                   "where data_set_id=( "
+                   "  select id from data_set where uuid::character varying=?) "
+                   "and description=?")]
+    (if can-access
+      (if (sql/execute! (db) [query email-address data-set-uuid description])
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
 
 ; list up data_sets in the database, as an HTTP response
 (defn data-set-list
