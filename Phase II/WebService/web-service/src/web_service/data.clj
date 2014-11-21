@@ -238,7 +238,7 @@
       (access-denied constants/create-data))))
 
 (defn data-set-attachment-submit
-  [data-element data-set-uuid]
+  [email-address data-set-uuid data-element]
   (let [filename (:filename data-element)
         mime-type (:mime_type data-element)
           contents (:contents data-element)
@@ -253,51 +253,45 @@
         (throw Exception "Failed to insert new attachment!"))))
 
 (defn data-set-primitive-submit
-  [data-element data-set-uuid]
-  (let [type (:type data-element)
-        description (:description data-element)
-          value (:value data-element)
-          query (str "insert into public.data_set_" type " "
-                     "(data_set_id, description, value) values("
-                     "(select id from data_set where uuid::character varying=?)"
-                     ",?,?"
-                     (if (= type "date") ; cast dates correctly
-                       "::timestamp with time zone"
-                       "")
-                     ")")
-          success (sql/execute! (db)
-                                [query data-set-uuid description value])]
-      (if (not success)
-        (throw Exception "Failed to insert new primitive data!"))))
+  [email-address data-set-uuid type description value]
+  (let [query (str "insert into public.data_set_" type " ( "
+                   "  data_set_id, created_by, description, value) "
+                   "values( "
+                   "  (select id from data_set where uuid::character varying=?), "
+                   "  (select id from public.user where email_address=?), "
+                   "  ?,? "
+                   (if (= type "date") ; cast dates correctly
+                     "::timestamp with time zone"
+                     "")
+                   ")")
+        success (sql/execute! (db) [query data-set-uuid email-address description value])]
+    (if (not success)
+      (throw Exception "Failed to insert new primitive data!"))))
 
 (defn data-set-primitive-update
-  [data-element data-set-uuid]
-  (let [type (:type data-element)
-        description (:description data-element)
-          value (:value data-element)
-          query (str "update into public.data_set_" type " "
-                     "set value=? "
-                     "where data_set_id= "
-                     "  (select id from data_set where uuid::character varying=?) "
-                     "and description=?")
-          success (sql/execute! (db)
-                                [query value data-set-uuid description])]
-      (if (not success)
-        (throw Exception "Failed to update primitive data!"))))
+  [email-address data-set-uuid type description value]
+  (let [query (str "update into public.data_set_" type " "
+                   "set value=? "
+                   "where data_set_id= "
+                   "  (select id from data_set where uuid::character varying=?) "
+                   "and description=?")
+        success (sql/execute! (db) [query value data-set-uuid description])]
+    (if (not success)
+      (throw Exception "Failed to update primitive data!"))))
 
 (defn data-set-primitive-delete
-  [data-element data-set-uuid]
-  (let [type (:type data-element)
-        description (:description data-element)
-          value (:value data-element)
-          query (str "delete from public.data_set_" type " "
-                     "where data_set_id= "
-                     "  (select id from data_set where uuid::character varying=?) "
-                     "and description=?")
-          success (sql/execute! (db)
-                                [query value data-set-uuid description])]
-      (if (not success)
-        (throw Exception "Failed to delete primitive data!"))))
+  [email-address data-set-uuid type description]
+  (let [query (str "update public.data_set_" type " "
+                   "set "
+                   "  date_deleted=now(), "
+                   "  deleted_by=( "
+                   "    select id from public.user where email_address=?) "
+                   "where data_set_id=( "
+                   "  select id from data_set where uuid::character varying=?) "
+                   "and description=?")
+        success (sql/execute! (db) [query email-address data-set-uuid description])]
+    (if (not success)
+      (throw Exception "Failed to delete primitive data!"))))
 
 ; list up data_sets in the database, as an HTTP response
 (defn data-set-list

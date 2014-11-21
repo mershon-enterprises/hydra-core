@@ -112,6 +112,28 @@
           (DELETE "/" [api_token client_uuid]
                   (guard-with-user api_token client_uuid data-set-delete uuid))
           (context
+            "/tag" []
+            (defroutes document-routes
+              (GET "/" [] (not-allowed "Get data set primitive"))
+              (PUT "/" [] (not-allowed "Update data set primitive"))
+              (POST "/" [api_token client_uuid type description value]
+                    (guard-with-user
+                      api_token
+                      client_uuid
+                      data-set-primitive-submit
+                      uuid
+                      type
+                      description
+                      value))
+              (DELETE "/" [api_token client_uuid type description]
+                      (guard-with-user
+                        api_token
+                        client_uuid
+                        data-set-primitive-delete
+                        uuid
+                        type
+                        description))))
+          (context
             "/:filename" [filename]
             (defroutes document-routes
               (GET "/" [api_token client_uuid]
