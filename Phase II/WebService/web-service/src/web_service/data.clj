@@ -270,6 +270,35 @@
       (if (not success)
         (throw Exception "Failed to insert new primitive data!"))))
 
+(defn data-set-primitive-update
+  [data-element data-set-uuid]
+  (let [type (:type data-element)
+        description (:description data-element)
+          value (:value data-element)
+          query (str "update into public.data_set_" type " "
+                     "set value=? "
+                     "where data_set_id= "
+                     "  (select id from data_set where uuid::character varying=?) "
+                     "and description=?")
+          success (sql/execute! (db)
+                                [query value data-set-uuid description])]
+      (if (not success)
+        (throw Exception "Failed to update primitive data!"))))
+
+(defn data-set-primitive-delete
+  [data-element data-set-uuid]
+  (let [type (:type data-element)
+        description (:description data-element)
+          value (:value data-element)
+          query (str "delete from public.data_set_" type " "
+                     "where data_set_id= "
+                     "  (select id from data_set where uuid::character varying=?) "
+                     "and description=?")
+          success (sql/execute! (db)
+                                [query value data-set-uuid description])]
+      (if (not success)
+        (throw Exception "Failed to delete primitive data!"))))
+
 ; list up data_sets in the database, as an HTTP response
 (defn data-set-list
   [email-address]
