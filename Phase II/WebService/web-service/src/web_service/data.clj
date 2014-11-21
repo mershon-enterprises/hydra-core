@@ -194,7 +194,6 @@
               (let [type (:type data-element)]
                 ; treat attachments and primitive data differently
                 (if (= type "attachment")
-                  ;TODO replace with data-set-attachment-submit
                   (let [filename (:filename data-element)
                         mime-type (:mime_type data-element)
                         contents (:contents data-element)
@@ -205,7 +204,6 @@
                                                   contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
-                  ;TODO replace with data-set-primitive-submit
                   (let [type (:type data-element)
                         description (:description data-element)
                         value (:value data-element)
@@ -280,6 +278,11 @@
 
 (defn data-set-primitive-update
   [email-address data-set-uuid type description value]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-update-dataset-primitive
+                   "(" type ") from dataset(" data-set-uuid ")"))
+
   (let [query (str "update into public.data_set_" type " "
                    "set value=? "
                    "where data_set_id= "

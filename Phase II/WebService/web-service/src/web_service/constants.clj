@@ -42,4 +42,5 @@
 (def session-delete-dataset-attachment "delete dataset attachment")
 (def session-delete-dataset-attachment "delete dataset attachment")
 (def session-add-dataset-primitive "add dataset primitive")
+(def session-update-dataset-primitive "update dataset primitive")
 (def session-delete-dataset-primitive "delete dataset primitive")
