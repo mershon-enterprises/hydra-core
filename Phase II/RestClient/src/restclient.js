@@ -275,7 +275,7 @@
   exports.submitTag = function(clientUUID, apiToken, uuid, type, description, value) {
     return rest({
       method: 'POST',
-      path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
+      path: exports.endpointUrl + '/data/' + uuid + "/submit-tag",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
