@@ -24,17 +24,17 @@
                 well-test-data))
         required-strings)
       ; expect at least 2 CSV file attachments
-      (>= (count (filter identity (map (fn [{type :type mime-type :mime_type}]
-                                         (and (= "attachment" type)
-                                              (= "text/csv" mime-type)))
-                                       well-test-data)))
+      (>= (count (filter (fn [{type :type mime-type :mime_type}]
+                           (and (= "attachment" type)
+                                (= "text/csv" mime-type)))
+                         well-test-data))
          2)
       ; expect at least 1 Excel file attachment
       (>=
-        (count (filter identity (map (fn [{type :type mime-type :mime_type}]
-                                       (and (= "attachment" type)
-                                            (= "application/vnd.ms-excel" mime-type)))
-                                     well-test-data)))
+        (count (filter (fn [{type :type mime-type :mime_type}]
+                         (and (= "attachment" type)
+                              (= "application/vnd.ms-excel" mime-type)))
+                       well-test-data))
         1))))
 
 (defn identify
