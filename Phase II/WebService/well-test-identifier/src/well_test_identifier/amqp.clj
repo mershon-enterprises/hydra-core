@@ -36,17 +36,13 @@
   [ch topic-name queue-name]
   (let [handler (fn [ch {:keys [content-type delivery-tag] :as meta} ^bytes payload]
                   ; have the identifier try to identify a well test
-                  (if (and (= "topic-name" "dataset")
+                  (if (and (= topic-name "dataset")
                            (ident/identify (String. payload "UTF-8")))
                     ; if the dataset is identified as a well test, rebroadcast
                     ; the data on the well-test routing key
                     (broadcast "text/json"
                                "well-test"
-                               payload))
-
-                  ; DEBUG -- print well tests
-                  (if (and (= "topic-name" "well-test"))
-                    (println (String. payload "UTF-8"))))]
+                               payload)))]
     (lq/declare   ch queue-name {:exclusive false :auto-delete true})
     (lq/bind      ch queue-name ex {:routing-key topic-name})
     (lc/subscribe ch queue-name handler {:auto-ack true})))
@@ -64,9 +60,8 @@
   (le/declare ch ex "topic" {:durable false :auto-delete true})
 
   ; queue up a listening message handler for local debugging
-  (start-consumer ch "#" (str ex ".#"))
-  (start-consumer ch "dataset" (str ex ".dataset"))
-  (start-consumer ch "well-test" (str ex ".well-test")) )
+  (start-consumer ch "dataset" (str ex ".dataset.identifier"))
+  (start-consumer ch "well-test" (str ex ".well-test.identifier")))
 
 
 ; disconnect from the rabbitmq server

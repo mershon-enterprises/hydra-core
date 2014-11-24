@@ -6,35 +6,57 @@
 (defn- is-a-well-test
   "Checks for wellName, trailerNumber,  clientName, fieldName, and at least 3
   attachments"
-  [{well-test-data :data}] ; we only care about the data in the well test
+  [{uuid :uuid
+    well-test-data :data}]
+  (println (format "Checking if dataset %s is a well test" uuid))
 
   ; we require well name, trailer number, client name, and field name to
   ; consider this a well test
-  (let [required-strings ["wellName" "trailerNumber" "clientName" "fieldName"]]
-    (and
-      ; expect one string value of each required description
-      (every?
-        (fn [required-string]
-          ; destructure the properties out of the data-item
-          (some (fn [{type :type description :description value :value}]
-                  (and (= "string" type)
-                       (= required-string description)
-                       (and (not (nil? value))
-                            (not (empty? value)))))
-                well-test-data))
-        required-strings)
+  (let [required-keys ["wellName" "trailerNumber" "clientName" "fieldName"]]
+    ; expect one text value of each required description
+    (if (not (every?
+               (fn [required-key]
+                 ; destructure the properties out of the data-item
+                 (some (fn [{type :type
+                             description :description
+                             value :value}]
+                         (and (= "text" type)
+                              (= required-key description)
+                              (and (not (nil? value))
+                                   (not (empty? value)))))
+                       well-test-data))
+               required-keys))
+      (do
+        (println "Missing one or more required key.")
+        (println (str "Keys were: "
+                      (println (filter (fn [ds-item]
+                                         (= "text" (:type ds-item)))
+                                       well-test-data))))
+        false)
+
       ; expect at least 2 CSV file attachments
-      (>= (count (filter (fn [{type :type mime-type :mime_type}]
-                           (and (= "attachment" type)
-                                (= "text/csv" mime-type)))
-                         well-test-data))
-         2)
-      ; expect at least 1 Excel file attachment
-      (>= (count (filter (fn [{type :type mime-type :mime_type}]
-                           (and (= "attachment" type)
-                                (= "application/vnd.ms-excel" mime-type)))
-                         well-test-data))
-          1))))
+      (if (not (>= (count (filter (fn [{type :type mime-type :mime_type}]
+                                    (and (= "attachment" type)
+                                         (= "text/csv" mime-type)))
+                                  well-test-data))
+                   2))
+        (do
+          (println "Need at least 1 CSV attachments")
+          false)
+        ; expect at least 1 Excel file attachment
+        (if (not (>= (count (filter (fn [{type :type mime-type :mime_type}]
+                                      (and (= "attachment" type)
+                                           (= "application/vnd.ms-excel" mime-type)))
+                                    well-test-data))
+                     1))
+          (do
+            (println "Need at least 1 Excel attachment")
+            false)
+
+          ; if all 3 criteria are matched, this is a well test
+          (do
+            (println (format "Dataset %s is a well test" uuid))
+            true))))))
 
 (defn identify
   [well-test-json]
