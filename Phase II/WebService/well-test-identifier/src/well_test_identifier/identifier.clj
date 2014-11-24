@@ -29,9 +29,9 @@
       (do
         (println "Missing one or more required key.")
         (println (str "Keys were: "
-                      (println (filter (fn [ds-item]
-                                         (= "text" (:type ds-item)))
-                                       well-test-data))))
+                      (string/join "," (filter (fn [ds-item]
+                                                 (= "text" (:type ds-item)))
+                                               well-test-data))))
         false)
 
       ; expect at least 2 CSV file attachments
