@@ -30,12 +30,11 @@
                          well-test-data))
          2)
       ; expect at least 1 Excel file attachment
-      (>=
-        (count (filter (fn [{type :type mime-type :mime_type}]
-                         (and (= "attachment" type)
-                              (= "application/vnd.ms-excel" mime-type)))
-                       well-test-data))
-        1))))
+      (>= (count (filter (fn [{type :type mime-type :mime_type}]
+                           (and (= "attachment" type)
+                                (= "application/vnd.ms-excel" mime-type)))
+                         well-test-data))
+          1))))
 
 (defn identify
   [well-test-json]
