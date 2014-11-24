@@ -43,9 +43,9 @@
   (le/declare ch ex "topic" {:durable false :auto-delete true})
 
   ; queue up a listening message handler for local debugging
-  (start-consumer ch "#" (str ex ".#"))
-  (start-consumer ch "authentication" (str ex ".authentication"))
-  (start-consumer ch "dataset" (str ex ".dataset")))
+  (start-consumer ch "#" (str ex ".#.core"))
+  (start-consumer ch "authentication" (str ex ".authentication.core"))
+  (start-consumer ch "dataset" (str ex ".dataset.core")))
 
 
 ; disconnect from the rabbitmq server
