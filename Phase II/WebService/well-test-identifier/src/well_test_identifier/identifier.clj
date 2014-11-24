@@ -40,17 +40,14 @@
   [well-test-json]
   (let [well-test-data (parse-string well-test-json true)]
     (if (is-a-well-test well-test-data)
-      (println "is a well test")
-      (println "is not a well test")
+      (do
+        ; TODO - identify the client name and field name values in the dataset, and
+        ; use them to populate their respective tables associated to the dataset
 
-      ; TODO - identify the client name and field name values in the dataset, and
-      ; use them to populate their respective tables associated to the dataset
+        ; TODO - bundle together attachments as a zip file and email out to
+        ; pwt@slixbits.com
 
-      ; TODO - bundle together attachments as a zip file and email out to
-      ; pwt@slixbits.com
-
-      ; TODO - fire another AMQP event containing the original data plus a flag
-      ; notifying that this is a well test, to trigger downstream reporting
-    )
-
-    ))
+        ; return true to fire another AMQP event with the original data, but on
+        ; the well-test routing key, to trigger downstream reporting
+        true)
+      false)))

@@ -19,13 +19,34 @@
 ; define the exchange name
 (def ex "pi.web-service")
 
+; send the specified payload to the fanout exchange, using the specified tag to
+; describe the response
+(defn broadcast
+  [content-type routing-key payload]
+
+  ; send payload to the listeners
+  (lb/publish ch
+              ex
+              routing-key
+              payload {:content-type content-type}))
+
 ; start a message consumer for the specified channel, topic name, and with the
 ; specified consumer name
 (defn start-consumer
   [ch topic-name queue-name]
   (let [handler (fn [ch {:keys [content-type delivery-tag] :as meta} ^bytes payload]
                   ; have the identifier try to identify a well test
-                  (ident/identify (String. payload "UTF-8")))]
+                  (if (and (= "topic-name" "dataset")
+                           (ident/identify (String. payload "UTF-8")))
+                    ; if the dataset is identified as a well test, rebroadcast
+                    ; the data on the well-test routing key
+                    (broadcast "text/json"
+                               "well-test"
+                               payload))
+
+                  ; DEBUG -- print well tests
+                  (if (and (= "topic-name" "well-test"))
+                    (println (String. payload "UTF-8"))))]
     (lq/declare   ch queue-name {:exclusive false :auto-delete true})
     (lq/bind      ch queue-name ex {:routing-key topic-name})
     (lc/subscribe ch queue-name handler {:auto-ack true})))
@@ -44,7 +65,8 @@
 
   ; queue up a listening message handler for local debugging
   (start-consumer ch "#" (str ex ".#"))
-  (start-consumer ch "dataset" (str ex ".dataset")))
+  (start-consumer ch "dataset" (str ex ".dataset"))
+  (start-consumer ch "well-test" (str ex ".well-test")) )
 
 
 ; disconnect from the rabbitmq server
@@ -56,15 +78,3 @@
   ; null out the channel and connection
   (def ch nil)
   (def conn nil))
-
-;
-; send the specified payload to the fanout exchange, using the specified tag to
-; describe the response
-(defn broadcast
-  [content-type routing-key payload]
-
-  ; send payload to the listeners
-  (lb/publish ch
-              ex
-              routing-key
-              payload {:content-type content-type}))
