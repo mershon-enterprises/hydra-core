@@ -359,6 +359,15 @@ module.exports = function (grunt) {
           cwd: 'bower_components/igrowl/dist/fonts',
           dest: '<%= yeoman.dist %>/fonts',
           src: '{,*/}*'
+        },
+        {
+          expand: true,
+          cwd: '../../data-gatherer/plugin-config-files/chrome',
+          dest: '<%= yeoman.dist %>/plugins/chrome/data-gatherer',
+          src: [
+            'dist.crx',
+            'updates.xml'
+          ]
         }]
       },
       styles: {
