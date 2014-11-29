@@ -152,22 +152,25 @@
                                 "   where email_address=?) "
                                 "where uuid::character varying=? "
                                 "and ds.date_deleted is null")
-        delete-primitives-and-attachments-query (str
+        delete-associations-query (str
                                     "set date_deleted=now(), deleted_by="
                                     "  (select id from public.user "
                                     "   where email_address=?) "
                                     "where data_set_id="
                                     "  (select id from public.data_set "
                                     "   where uuid::character varying=? ) "
-                                    "and date_deleted is null" )]
+                                    "and date_deleted is null" )
+        delete-data-set-success (sql/execute!
+                                  (db)
+                                  [delete-data-set-query email-address uuid])
+        delete-associations-success
+        (every? (fn [type]
+                  (sql/execute! (db) [(str "update public.data_set_" type " "
+                                           delete-associations-query)
+                                      email-address uuid]))
+                ["attachment" "boolean" "date" "integer" "real" "text"])]
     (if can-access
-      (if
-        (do
-          (sql/execute! (db) [delete-data-set-query email-address uuid])
-          (doseq [type ["attachment" "boolean" "date" "integer" "real" "text"]]
-            (sql/execute! (db) [(str "update public.data_set_" type " "
-                                     delete-primitives-and-attachments-query)
-                                email-address uuid])))
+      (if (and delete-data-set-success delete-associations-success)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
