@@ -1,5 +1,6 @@
 (ns well-test-identifier.identifier
-  (:require [cheshire.core :refer :all]))
+  (:require [clojure.string :as string]
+            [cheshire.core :refer :all]))
 
 
 
