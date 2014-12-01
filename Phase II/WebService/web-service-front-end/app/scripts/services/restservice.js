@@ -198,13 +198,13 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    restService.listDatasetsWithAttachments = function () {
+    restService.listData = function () {
 
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
+        restclient.listData(clientUUID, Session.getToken()).then(
 
             function(response) {
 
@@ -221,18 +221,18 @@ angular.module('webServiceApp').factory('RestService',
                     restService.updateCacheValue('data', parsedData);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listDatasetsWithAttachments succeeded');
+                    console.log('restclient.listData succeeded');
                 }
                 else {
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.listDatasetsWithAttachments promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.listData promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.listDatasetsWithAttachments promise failed: ' + error);
+                console.log('restclient.listData promise failed: ' + error);
             });
         return deferred.promise;
     };
@@ -541,7 +541,7 @@ angular.module('webServiceApp').factory('RestService',
                     function() {
                         restService.listUsers().then(
                             function() {
-                                restService.listDatasetsWithAttachments().then(
+                                restService.listData().then(
                                     function() {
                                         deferred.resolve(true);
                                     },
