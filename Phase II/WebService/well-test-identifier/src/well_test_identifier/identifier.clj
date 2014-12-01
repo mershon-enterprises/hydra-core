@@ -1,4 +1,5 @@
 (ns well-test-identifier.identifier
+  (:use [well-test-identifier.zip])
   (:require [clojure.string :as string]
             [cheshire.core :refer :all]))
 
@@ -69,6 +70,7 @@
 
         ; TODO - bundle together attachments as a zip file and email out to
         ; pwt@slixbits.com
+        (zip-well-test well-test-data)
 
         ; return true to fire another AMQP event with the original data, but on
         ; the well-test routing key, to trigger downstream reporting
