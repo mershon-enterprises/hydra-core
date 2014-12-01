@@ -359,6 +359,15 @@ module.exports = function (grunt) {
           cwd: 'bower_components/igrowl/dist/fonts',
           dest: '<%= yeoman.dist %>/fonts',
           src: '{,*/}*'
+        },
+        {
+          expand: true,
+          cwd: '../../data-gatherer/plugin-config-files/chrome',
+          dest: '<%= yeoman.dist %>/plugins/chrome/data-gatherer',
+          src: [
+            'dist.crx',
+            'updates.xml'
+          ]
         }]
       },
       styles: {
@@ -375,6 +384,12 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up the build process
     concurrent: {
+      dev: [
+        'subgrunt:dev',
+        'compass:dist',
+        'imagemin',
+        'svgmin'
+      ],
       server: [
         'subgrunt:dev',
         'compass:server'
@@ -440,6 +455,24 @@ module.exports = function (grunt) {
     'autoprefixer',
     'connect:test',
     'karma'
+  ]);
+
+  grunt.registerTask('dev', [
+    'clean:dist',
+    'wiredep',
+    'concurrent:dev',
+    'copy:restclient',
+    'useminPrepare',
+    'autoprefixer',
+    'concat',
+    'ngAnnotate',
+    'copy:dist',
+    'cdnify',
+    'cssmin',
+    'uglify',
+    'filerev',
+    'usemin',
+    'htmlmin'
   ]);
 
   grunt.registerTask('build', [
