@@ -5,7 +5,7 @@ angular.module('webServiceApp', [
       'LocalStorageModule', // Angular Localstorage
       'file-model'
     ])
-    .config(function ($routeProvider) {
+    .config(function ($routeProvider, localStorageServiceProvider) {
       $routeProvider
         .when('/', {
           templateUrl: 'templates/login.html',
@@ -28,6 +28,8 @@ angular.module('webServiceApp', [
         .otherwise({
           redirectTo: '/'
         });
+
+      localStorageServiceProvider.setPrefix('hydra');
     })
     .constant('USER_ROLES', {
       operator: 'operator',
