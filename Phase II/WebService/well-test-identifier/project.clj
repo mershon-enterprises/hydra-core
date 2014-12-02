@@ -14,6 +14,7 @@
                  ]
   :plugins [[lein-environ "1.0.0"]]
   :main well-test-identifier.core
+  :aot [well-test-identifier.core]
   :profiles {:dev {:env {:rabbitmq-host      "localhost"
                          :rabbitmq-username  "guest"
                          :rabbitmq-password  "guest"
