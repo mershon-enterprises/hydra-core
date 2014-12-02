@@ -71,7 +71,8 @@
   (str "select "
        "  ds.id, "
        "  ds.uuid, "
-       "  ds.date_created, u.email_address, "
+       "  ds.date_created as date_created, "
+       "  u.email_address as email_address, "
        "  cl.description as location, "
        "  c.name as client "
        "from public.data_set ds "
@@ -330,30 +331,72 @@
 
 ; list up data_sets in the database, as an HTTP response
 (defn data-set-list
-  [email-address]
+  ([email-address]
 
-  ; log the activity in the session
-  (log-detail email-address
-              constants/session-activity
-              constants/session-list-datasets)
+   ; log the activity in the session
+   (log-detail email-address
+               constants/session-activity
+               constants/session-list-datasets)
 
-  (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data))
-        can-access-own (contains? access constants/view-own-data)
-        query (str data-set-query
+   (let [access (set (get-user-access email-address))
+         can-access (or (contains? access constants/manage-data))
+         can-access-own (contains? access constants/view-own-data)
+         query (str data-set-query
                    "order by ds.date_created desc ")
-        query-own (str data-set-query
-                       "and u.email_address=? "
-                       "order by ds.date_created desc ")]
-    (if can-access
-      (response {:response (sql/query (db) [query] :row-fn format-data-set)})
-      ; if the user cannot access all data, try to at least show them their own
-      ; data instead
-      (if can-access-own
-        (response {:response (sql/query (db)
-                                        [query-own email-address]
-                                        :row-fn format-data-set)})
-        (access-denied constants/manage-data)))))
+         query-own (str data-set-query
+                        "and u.email_address=? "
+                        "order by ds.date_created desc ")]
+     (if can-access
+       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
+       ; if the user cannot access all data, try to at least show them their own
+       ; data instead
+       (if can-access-own
+         (response {:response (sql/query (db)
+                                         [query-own email-address]
+                                         :row-fn format-data-set)})
+         (access-denied constants/manage-data)))))
+  ([email-address search-query]
+   ; log the activity in the session
+   (log-detail email-address
+               constants/session-activity
+               constants/session-list-datasets)
+
+   (let [access (set (get-user-access email-address))
+         can-access (or (contains? access constants/manage-data))
+         can-access-own (contains? access constants/view-own-data)
+
+         orderBy
+         (if (:orderBy search-query)
+           (str "ORDER BY " (:order_by search-query)
+                (if (:order search-query)
+                  (str (:order search-query) " ")
+                  "DESC "))
+           " ")
+
+         limit
+         (if (:limit search-query)
+           (str "LIMIT " (:limit search-query) " ") " ")
+
+         offset
+         (if (:offset search-query)
+           (str "OFFSET" (:offset search-query) " ") " ")
+
+         query (str data-set-query
+                   "order by ds.date_created desc ")
+         query-own (str data-set-query
+                        "and u.email_address=? "
+                        orderBy
+                        limit
+                        offset)]
+     (if can-access
+       (response {:response (sql/query (db) [query] :row-fn format-data-set)})
+       ; if the user cannot access all data, try to at least show them their own
+       ; data instead
+       (if can-access-own
+         (response {:response (sql/query (db)
+                                         [query-own email-address]
+                                         :row-fn format-data-set)})
+         (access-denied constants/manage-data))))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
