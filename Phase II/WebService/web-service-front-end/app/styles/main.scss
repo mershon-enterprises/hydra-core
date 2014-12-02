@@ -69,7 +69,6 @@ $default-hover-offset: 100;
     @include rounded($default-rounding/2, $default-rounding/2, $default-rounding/2, $default-rounding/2);
     padding: $default-padding*2;
     color: $off-white;
-    margin: $default-margin/4 $default-margin/4;
     min-width: 100px;
     &:hover {
         background-color: $red;
@@ -298,18 +297,14 @@ footer {
 }
 
 .login-form {
-    .left-column {
         width: 35%;
-        display: inline-block;
-        vertical-align: middle;
-        font-size: 15em;
-    }
-    .right-column {
-        width: 55%;
         padding: $default-padding*5;
         display: inline-block;
         vertical-align: top;
-    }
+
+        button {
+            margin-top: $default-margin*2;
+        }
 }
 
 .upload-form {
