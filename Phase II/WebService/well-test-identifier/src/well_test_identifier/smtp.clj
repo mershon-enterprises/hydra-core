@@ -4,7 +4,7 @@
             [environ.core :refer [env]]))
 
 (def server {:host (env :smtp-host)
-             :port (env :smtp-port)
+             :port (int (env :smtp-port))
              :user (env :smtp-username)
              :pass (env :smtp-password)})
 
