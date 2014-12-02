@@ -86,9 +86,9 @@
 
 (def data-set-attachment-query
   (str "select "
-       "  a.filename, "
-       "  a.date_created, "
-       "  u.email_address, "
+       "  a.filename as filename, "
+       "  a.date_created as date_created, "
+       "  u.email_address as email_address, "
        "  a.data_set_id, "
        "  a.mime_type, "
        "  a.contents, "
