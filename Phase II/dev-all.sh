@@ -15,4 +15,4 @@ grunt dev
 
 # Build the back-end and bundle everything
 cd "$dir/WebService/web-service"
-lein ring server
+lein run
