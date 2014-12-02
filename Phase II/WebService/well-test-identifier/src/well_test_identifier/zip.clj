@@ -1,6 +1,7 @@
 (ns well-test-identifier.zip
   (:require [clojure.java.io :as io]
-            [cheshire.core :refer :all])
+            [cheshire.core :refer :all]
+            [clojure.data.codec.base64 :as b64])
   (:import java.util.zip.ZipEntry
            java.util.zip.ZipOutputStream))
 
@@ -19,19 +20,22 @@
     date-created   :date_created
     created-by     :created_by
     well-test-data :data}]
-  (with-open [file (io/output-stream "foo.zip")
-              zip  (ZipOutputStream. file)
-              wrt  (io/writer zip)]
-    (binding [*out* wrt]
-      (doto zip
-        (with-entry "foo.txt"
-          (println well-test-data))
-        )))
-  )
 
-;to zip a file you an io copy
-;
-;(with-open [output (ZipOutputStream. (io/output-stream "foo.zip"))
-;            input  (io/input-stream "foo")]
-;              (with-entry output "foo"
-;                  (io/copy input output)))
+  (let [zip-filename "REPORT.zip"
+        attachments (into [] (filter (fn [{type :type mime-type :mime_type}]
+                                       (= "attachment" type))
+                                     well-test-data))]
+
+
+    ; sample filename "141125 CHEV LH ANTUNEZ REPORT.zip"
+    (println (str "\nCreating zip file '" zip-filename "':"))
+    (with-open [file (io/output-stream zip-filename)
+                zip  (ZipOutputStream. file)
+                wrt  (io/writer zip)]
+      (doseq [f attachments]
+        (let [binary (b64/decode (.getBytes (:contents f) "UTF-8"))
+              binary-stream (io/input-stream binary)]
+          (println (str "- Attaching " (:filename f)))
+          (binding [*out* wrt]
+            (with-entry zip (:filename f)
+              (io/copy binary-stream zip))))))))

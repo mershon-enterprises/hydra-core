@@ -7,6 +7,7 @@
                                                         ;   including dates
                  [environ "1.0.0"]                      ; environment-based
                                                         ;   configuration
+                 [org.clojure/data.codec "0.1.0"]       ; base64 codec
                  ]
   :plugins [[lein-environ "1.0.0"]]
   :main well-test-identifier.core
