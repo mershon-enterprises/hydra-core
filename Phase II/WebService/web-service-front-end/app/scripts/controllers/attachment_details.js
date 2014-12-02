@@ -1,6 +1,6 @@
 'use strict';
 
-//Attachment Controller
+//Attachment Details Controller
 
 //Display attachment details to the user and provide controls for the attachments
 //name and tags, as well as delete functionality.
@@ -15,9 +15,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         $scope.tags = [];
 
         //The user should not be visiting this view unless sent from the
-        //datasets controller. rootscope.ukey will be populated if they were.
+        //attachment explorer controller. rootscope.ukey will be populated if
+        //they were.
         if (!$rootScope.ukey) {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         }
         else {
             RestService.getAttachmentInfo($rootScope.ukey).then(
@@ -68,7 +69,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                         if (success[0] === EVENTS.promiseSuccess) {
                             if(RestService.removeCacheDataValue($scope.ukey)) {
                                 NotificationService.success('Success', 'Attachment Deleted');
-                                $location.path('/datasets');
+                                $location.path('/attachment_explorer');
                             }
                             else {
                                 console.log('Attachment deleted from server but not cache!');
@@ -152,9 +153,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
             });
         };
 
-        //Back button to return to the datasets view.
+        //Back button to return to the attachment explorer view.
         $scope.back = function () {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         };
 
     }

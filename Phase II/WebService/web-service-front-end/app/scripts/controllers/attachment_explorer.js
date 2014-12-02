@@ -22,7 +22,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                     }
                 },
                 function(error){
-                    console.log('DatasetsCtrl promise error.');
+                    console.log('AttachmentExplorerCtrl promise error.');
                     console.log(error);
                 });
         });
