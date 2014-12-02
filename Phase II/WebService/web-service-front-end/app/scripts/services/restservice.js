@@ -520,7 +520,7 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
-        localStorageService.set('data', null);
+        restService.refreshCache();
     };
 
     //Invoke all restservice methods to repopulate the cache with new values
@@ -541,13 +541,7 @@ angular.module('webServiceApp').factory('RestService',
                     function() {
                         restService.listUsers().then(
                             function() {
-                                restService.listData().then(
-                                    function() {
-                                        deferred.resolve(true);
-                                    },
-                                    function() {
-                                        deferred.reject(false);
-                                    });
+                                deferred.resolve(true);
                             },
                             function() {
                                 deferred.reject(false);
@@ -576,9 +570,6 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'users') {
             localStorageService.set('users', data);
         }
-        else if (key === 'data') {
-            localStorageService.set('data', data);
-        }
     };
 
     //Returns a cache value from localstorage with a given key.
@@ -592,92 +583,9 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'users') {
             return localStorageService.get('users');
         }
-        else if (key === 'data') {
-            return localStorageService.get('data');
-        }
         else if (key === 'clientUUID') {
             return localStorageService.get('clientUUID');
         }
-    };
-
-    //Remove a value from the restclient's data cache with a matching filename
-    //and uuid.
-    //ukey = 'filename' + '\n' + 'uuid'
-    restService.removeCacheDataValue = function (ukey) {
-
-        var filename = ukey.split('\n')[0];
-        var uuid = ukey.split('\n')[1];
-
-        var data = localStorageService.get('data');
-        var newData = [];
-
-        if(data) {
-            $.each(data, function(index, value){
-                if((value.uuid !== uuid) && (value.filename !== filename)) {
-                    newData.push(value);
-                }
-            });
-
-            restService.updateCacheValue('data', newData);
-            return true;
-        }
-        return false;
-    };
-
-    //Rename a value from the restclient's data cache with a matching filename
-    //and uuid.
-    //ukey = 'filename' + '\n' + 'uuid'
-    restService.renameCacheDataValue = function (ukey, newFilename) {
-
-        var filename = ukey.split('\n')[0];
-        var uuid = ukey.split('\n')[1];
-
-        var data = localStorageService.get('data');
-        var matchingIndex = null;
-
-        if(data) {
-            $.each(data, function(index, value){
-                if((value.uuid === uuid) && (value.filename === filename)) {
-                    matchingIndex = index;
-                }
-            });
-
-            if(matchingIndex) {
-                data[matchingIndex].filename = newFilename;
-                restService.updateCacheValue('data', data);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    //Check if data is available in the cache. Refresh it if not.
-    restService.cacheExists = function () {
-
-        var deferred = $q.defer();
-
-        //If you have a session...
-        if (Session.exists()) {
-            //And there is already data in the cache...
-            if(localStorageService.get('data')) {
-                //Data controller may tell the table to update.
-                deferred.resolve(true);
-            }
-            //Otherwise, refresh the cache...
-            else {
-                restService.refreshCache().then(
-                    function() {
-                        //Data controller may tell the table to update.
-                        deferred.resolve(true);
-                    },
-                    function() {
-                        //Data controller may not tell the table to update.
-                        deferred.reject(false);
-                    }
-                );
-            }
-        }
-        return deferred.promise;
     };
 
     //Destroy the cache values and their keys from local storage.
@@ -685,11 +593,9 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
-        localStorageService.set('data', null);
         localStorageService.remove('accessLevels');
         localStorageService.remove('clients');
         localStorageService.remove('users');
-        localStorageService.remove('data');
     };
 
   return restService;
