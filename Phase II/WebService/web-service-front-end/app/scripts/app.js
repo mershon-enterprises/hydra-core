@@ -11,9 +11,9 @@ angular.module('webServiceApp', [
         .when('/', {
           templateUrl: 'templates/login.html',
           loggedInOnly: false
-        }).when('/datasets', {
-          templateUrl: 'templates/datasets.html',
-          controller: 'DatasetsCtrl',
+        }).when('/attachment_explorer', {
+          templateUrl: 'templates/attachment_explorer.html',
+          controller: 'AttachmentExplorerCtrl',
           loggedInOnly: true
         })
         .when('/attachment_details', {

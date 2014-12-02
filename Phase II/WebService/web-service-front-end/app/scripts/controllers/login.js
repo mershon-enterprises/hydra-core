@@ -10,7 +10,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
     //If they are at the login route and already have a valid session, send them
     //to where they need to be.
     if(Session.exists()) {
-        $location.path('/datasets');
+        $location.path('/attachment_explorer');
     }
 
     //Will be populated by user on login view.
@@ -26,7 +26,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
             if (success[0] === EVENTS.promiseSuccess) {
                 $rootScope.$broadcast(EVENTS.loginSuccess);
                 NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-                $location.path('/datasets');
+                $location.path('/attachment_explorer');
             }
         },
         function(error) {
