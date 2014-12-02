@@ -2,6 +2,7 @@
   :description "Well Test Identifier"
   :url "slixbits.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [compojure "1.1.8"]
                  [com.novemberain/langohr "3.0.0-rc2"]  ; AMQP rabbitmq library
                  [cheshire "5.3.1"]                     ; json encoding library
                                                         ;   including dates
@@ -12,9 +13,12 @@
                                                         ;   formatters
                  [com.draines/postal "1.11.1"]          ; smtp email library
                  ]
-  :plugins [[lein-environ "1.0.0"]]
+  :plugins [[lein-ring "0.8.11"]
+            [lein-environ "1.0.0"]]
+  :ring {:handler well-test-identifier.handler/app
+         :init well-test-identifier.handler/init
+         :destroy well-test-identifier.handler/destroy}
   :main well-test-identifier.core
-  :aot [well-test-identifier.core]
   :profiles {:dev {:env {:rabbitmq-host      "localhost"
                          :rabbitmq-username  "guest"
                          :rabbitmq-password  "guest"

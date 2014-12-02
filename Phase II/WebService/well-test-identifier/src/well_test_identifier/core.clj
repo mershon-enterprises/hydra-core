@@ -1,6 +1,5 @@
 (ns well-test-identifier.core
-  (:use [well-test-identifier.amqp])
-  (:gen-class))
+  (:use [well-test-identifier.amqp]))
 
 (defn -main
   []
