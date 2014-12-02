@@ -2,8 +2,7 @@
   (:use [ring.util.response]
         [web-service.db]
         [web-service.session]
-        [web-service.user-helpers]
-        [clojure.string :only (join split)])
+        [web-service.user-helpers])
   (:require [compojure.core :refer :all]
             [clj-ldap.client :as ldap]
             [clojure.tools.logging :as log]
