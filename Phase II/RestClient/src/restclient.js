@@ -133,13 +133,14 @@
     });
   };
 
-  exports.listData = function(clientUUID, apiToken) {
+  exports.listData = function(clientUUID, apiToken, searchQuery) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
       params: {
         client_uuid: clientUUID,
-        api_token: apiToken
+        api_token: apiToken,
+        search_query: searchQuery
       }
     });
   };
