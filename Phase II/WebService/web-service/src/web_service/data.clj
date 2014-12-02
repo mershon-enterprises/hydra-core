@@ -99,9 +99,7 @@
        "inner join public.user u "
        "  on u.id = ds.created_by "
        "where a.date_deleted is null "
-       "and ds.date_deleted is null "
-       "and uuid::character varying=? "
-       "and a.filename=? "))
+       "and ds.date_deleted is null "))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -411,7 +409,10 @@
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
         query data-set-attachment-query
-        query-own (str data-set-attachment-query "and u.email_address=? ")]
+        query-own (str data-set-attachment-query
+                       "and u.email_address=? "
+                       "and uuid::character varying=? "
+                       "and a.filename=? ")]
     (if can-access
            (response {:response (sql/query
                                   (db)
@@ -441,7 +442,10 @@
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/manage-attachments))
         can-access-own (contains? access constants/view-own-data)
-        query-own (str data-set-attachment-query " and u.email_address=?")]
+        query-own (str data-set-attachment-query
+                       "and u.email_address=? "
+                       "and uuid::character varying=? "
+                       "and a.filename=? ")]
     (if can-access
       (first (sql/query (db)
                         [data-set-attachment-query uuid filename]
