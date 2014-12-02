@@ -355,7 +355,7 @@
                                          [query-own email-address]
                                          :row-fn format-data-set)})
          (access-denied constants/manage-data)))))
-  ([email-address search-query]
+  ([email-address search-params]
    ; log the activity in the session
    (log-detail email-address
                constants/session-activity
@@ -366,20 +366,20 @@
          can-access-own (contains? access constants/view-own-data)
 
          orderBy
-         (if (:orderBy search-query)
-           (str "ORDER BY " (:order_by search-query)
-                (if (:order search-query)
-                  (str (:order search-query) " ")
+         (if (:orderBy search-params)
+           (str "ORDER BY " (:order_by search-params)
+                (if (:order search-params)
+                  (str (:order search-params) " ")
                   "DESC "))
            " ")
 
          limit
-         (if (:limit search-query)
-           (str "LIMIT " (:limit search-query) " ") " ")
+         (if (:limit search-params)
+           (str "LIMIT " (:limit search-params) " ") " ")
 
          offset
-         (if (:offset search-query)
-           (str "OFFSET" (:offset search-query) " ") " ")
+         (if (:offset search-params)
+           (str "OFFSET" (:offset search-params) " ") " ")
 
          query (str data-set-query
                    "order by ds.date_created desc ")
