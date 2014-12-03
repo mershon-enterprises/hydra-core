@@ -144,18 +144,36 @@
   (log-detail email-address
               constants/session-activity
               (str constants/session-delete-dataset " " uuid))
-
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
-        query (str "update public.data_set ds "
-                   "set date_deleted=now(), deleted_by="
-                   "(select id from public.user where email_address=?) "
-                   "where uuid::character varying=? "
-                   "and ds.date_deleted is null")]
+        delete-data-set-query (str
+                                "update public.data_set ds "
+                                "set date_deleted=now(), deleted_by="
+                                "  (select id from public.user "
+                                "   where email_address=?) "
+                                "where uuid::character varying=? "
+                                "and ds.date_deleted is null")
+        delete-associations-query (str
+                                    "set date_deleted=now(), deleted_by="
+                                    "  (select id from public.user "
+                                    "   where email_address=?) "
+                                    "where data_set_id="
+                                    "  (select id from public.data_set "
+                                    "   where uuid::character varying=? ) "
+                                    "and date_deleted is null" )]
     (if can-access
-      (if (sql/execute! (db) [query email-address uuid])
-        (status (response {:response "OK"}) 200 )
-        (status (response {:response "Failure"}) 409))
+      (let [delete-data-set-success
+            (sql/execute! (db) [delete-data-set-query email-address uuid])
+
+            delete-associations-success
+            (every? (fn [type]
+                      (sql/execute! (db) [(str "update public.data_set_" type " "
+                                               delete-associations-query)
+                                          email-address uuid]))
+                    ["attachment" "boolean" "date" "integer" "real" "text"])] 
+        (if (and delete-data-set-success delete-associations-success)
+          (status (response {:response "OK"}) 200 )
+          (status (response {:response "Failure"}) 409)))
       (access-denied constants/manage-data))))
 
 
