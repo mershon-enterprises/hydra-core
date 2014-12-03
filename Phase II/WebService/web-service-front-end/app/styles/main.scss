@@ -330,30 +330,22 @@ footer {
 }
 
 
-//NG-Grid
-.gridStyle {
-    margin: $default-margin;
-}
+//File Explorer
+.file-explorer {
 
-.ngViewport{
-    height: auto !important;
-}
+    margin: $default-margin auto;
 
-.ngCanvas, .ngViewport, .ngRow, .ngFooterPanel, .ngTopPanel   {
-    width: 100% !important;
-    overflow-y: hidden;
-    overflow-x: hidden;
-}
+    width: 90%;
 
-.ngRow {
-    border-bottom:none !important;
-}
+    .author {
+        font-size: .8em;
+    }
 
-.author {
-    font-size: .80em;
-}
+    th {
+        background-color: $dark-gray;
+        color: $off-white;
+    }
 
-.ngCellText {
     i {
         cursor: pointer;
     }
@@ -363,6 +355,7 @@ footer {
     }
 }
 
+//File upload and file details view.
 .tagView {
     @include gray-box(1em);
     padding: $default-padding * 2 $default-padding * 4 !important;

@@ -1,0 +1,19 @@
+<table class="file-explorer">
+    <tr>
+        <th>Filename</th>
+        <th>File Size</th>
+        <th>Author</th>
+        <th>Creation Date</th>
+        <th></th>
+    </tr>
+    <tr ng-repeat=" row in data">
+        <td>{{row.filename}}</td>
+        <td>{{row.bytes | filesize}}</td>
+        <td class="author">{{row.created_by}}</td>
+        <td>{{row.date_created | date : 'short'}}</td>
+        <td>
+            <i class="fa fa-download" ukey={{row.unique_key}}></i>
+            <i class="fa fa-cog" ukey={{row.unique_key}}></i>
+        </td>
+    </tr>
+</table>

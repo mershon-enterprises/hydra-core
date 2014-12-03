@@ -198,13 +198,13 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    restService.listData = function () {
+    restService.listData = function (paramsMap) {
 
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listData(clientUUID, Session.getToken()).then(
+        restclient.listData(clientUUID, Session.getToken(), paramsMap).then(
 
             function(response) {
 
@@ -218,9 +218,7 @@ angular.module('webServiceApp').factory('RestService',
 
                     var parsedData =  restService.parseData(responseBody);
 
-                    restService.updateCacheValue('data', parsedData);
-
-                    deferred.resolve([EVENTS.promiseSuccess]);
+                    deferred.resolve([EVENTS.promiseSuccess, parsedData]);
                     console.log('restclient.listData succeeded');
                 }
                 else {
