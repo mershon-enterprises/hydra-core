@@ -138,7 +138,9 @@
         can-access (contains? access constants/manage-data)
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-query " and uuid::character varying=?")
-        query-own (str query " and u.email_address=?")]
+        query-own (str data-set-query
+                       " and uuid::character varying=?"
+                       " and u.email_address=?")]
     (if can-access
       (response {:response (first (sql/query (db)
                                              [query uuid]
@@ -429,7 +431,10 @@
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
                    "and a.filename=? ")
-        query-own (str query "and u.email_address=? ")]
+        query-own (str data-set-attachment-query
+                       "and uuid::character varying=? "
+                       "and a.filename=? "
+                       "and u.email_address=? ")]
     (if can-access
            (response {:response (sql/query
                                   (db)
@@ -440,7 +445,7 @@
            (if can-access-own
              (response {:response (sql/query
                                     (db)
-                                    [query-own email-address]
+                                    [query-own uuid filename email-address]
                                     :row-fn format-attachment-info)})
              (access-denied constants/manage-data)))))
 
@@ -462,7 +467,10 @@
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
                    "and a.filename=? ")
-        query-own (str query "and a.filename=? ")]
+        query-own (str data-set-attachment-query
+                       "and uuid::character varying=? "
+                       "and a.filename=? "
+                       "and u.email_address=? ")]
     (if can-access
       (first (sql/query (db)
                         [query uuid filename]
