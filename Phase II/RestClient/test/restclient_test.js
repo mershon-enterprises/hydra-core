@@ -812,8 +812,6 @@ exports['listAttachments'] = {
        order: "desc" }
     ).then(
       function(data) {
-        console.log(data);
-
         test.equal(data.status.code, 200, 'list data should succeed');
 
         var bodyObj = JSON.parse(data.entity);
