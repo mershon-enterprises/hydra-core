@@ -10,6 +10,16 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
     //If the user is logged in...
     if (Session.exists()) {
 
+        $scope.data = null;
+
+        $scope.paramsMap = {
+            stringQuery: '',
+            order: 'desc',
+            offset: '',
+            limit: '',
+            order_by: 'data_created'
+        };
+
         //Bindings for the controls in each row.
         $(document).on('click', '.fa-download', function(){
             RestService.getAttachmentURL($(this).attr('ukey')).then(
@@ -29,26 +39,36 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             window.location.href = '#/attachment_details';
         });
 
-        $scope.data = null;
-        $scope.paramsMap = {
-            stringQuery: 'cheese',
-            order: 'desc',
-            offset: '10',
-            limit: '25',
-            order_by: 'data_created'
-        }
-
-        RestService.listData($scope.paramsMap).then(
+        //Retrieve data from the restservice, with query parameters specified
+        //in $scope.paramsMap.
+        $scope.getData = function () {
+            RestService.listData($scope.paramsMap).then(
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
+                    console.log($scope.data);
                 }
-                console.log($scope.data);
             },
             function (error) {
                 console.log('AttachmentExplorerCtrl promise error.');
                 console.log(error);
             });
+
+            //Sort the data.
+            $scope.sortData();
+        };
+
+        //Sort the data into containers based on client/field combinations.
+        $scope.sortData = function () {
+            if ($scope.data) {
+                $.each($scope.data, function(index, value) {
+
+                });
+            }
+        };
+
+        $scope.getData();
+
     }
 
 });

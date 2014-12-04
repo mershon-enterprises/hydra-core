@@ -198,13 +198,13 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    restService.listData = function (paramsMap) {
+    restService.listData = function (searchParams) {
 
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listData(clientUUID, Session.getToken(), paramsMap).then(
+        restclient.listData(clientUUID, Session.getToken(), searchParams).then(
 
             function(response) {
 
