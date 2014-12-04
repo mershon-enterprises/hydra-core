@@ -3,6 +3,7 @@
             [cheshire.core :refer :all]
             [clj-time.format :as f]
             [clojure.java.io :as io]
+            [clojure.data.codec.base64 :as b64]
             [well-test-identifier.amqp :as amqp]
             [well-test-identifier.smtp :as smtp]
             [well-test-identifier.zip :as zip]))
@@ -19,18 +20,18 @@
   ; consider this a well test
   (let [required-keys ["wellName" "trailerNumber" "clientName" "fieldName"]]
     ; expect one text value of each required description
-    (if (not (every?
-               (fn [required-key]
-                 ; destructure the properties out of the data-item
-                 (some (fn [{type :type
-                             description :description
-                             value :value}]
-                         (and (= "text" type)
-                              (= required-key description)
-                              (and (not (nil? value))
-                                   (not (empty? value)))))
-                       well-test-data))
-               required-keys))
+    (if (not-every?
+             (fn [required-key]
+               ; destructure the properties out of the data-item
+               (some (fn [{type :type
+                           description :description
+                           value :value}]
+                       (and (= "text" type)
+                            (= required-key description)
+                            (and (not (nil? value))
+                                 (not-empty value))))
+                     well-test-data))
+             required-keys)
       (do
         (println "Missing one or more required key.")
         (println (str "Keys were: "
@@ -121,12 +122,49 @@
                                      lease
                                      username])))))
 
+(defn find-file-index-cut-by-weight
+  [well-test-data]
+  ; there can only be one water cut-by-weight spreadsheet per test
+  (.indexOf well-test-data
+            (first (filter (fn [{type :type mime-type :mime_type}]
+                             (and (= "attachment" type)
+                                  (= "application/vnd.ms-excel" mime-type)))
+                           well-test-data))))
+
+(defn find-file-indicies-well-report
+  [well-test-data]
+  ; there can be multiple well reports per test, and they are identified as
+  ; being CSV files containing the string "Well Test ID" in the first line
+  ; somewhere
+  (map (fn [x] (.indexOf x well-test-data))
+       (filter (fn [{type :type
+                     filename :filename
+                     mime-type :mime_type
+                     contents :contents}]
+                 (if (and (= "attachment" type)
+                          (= "text/csv" mime-type))
+                   (let [contents-decoded (b64/decode (.getBytes contents "UTF-8"))
+                         contents-abbrv (.substring contents-decoded
+                                                    0 (Math/min (.length contents-decoded)
+                                                                1000))]
+                     (println (format "Attachment '%s' abbrv: %s"
+                                      filename
+                                      contents-abbrv))
+                     (not= -1 (.indexOf contents-abbrv "Well Test ID"))))
+
+                 )
+               well-test-data)
+       )
+  )
+
 (defn identify
   [well-test-json]
   (let [data-set (parse-string well-test-json true)]
     (if (is-a-well-test data-set)
-      (let [well-test-data (:data data-set)
-            base-name (build-base-name data-set)]
+      (let [well-test-data       (:data data-set)
+            base-name            (build-base-name data-set)
+            index-cbw            (find-file-index-cut-by-weight well-test-data)
+            indicies-well-report (find-file-indicies-well-report well-test-data)]
         ; TODO - identify the client name and field name values in the dataset,
         ; and use them to populate their respective tables associated to the
         ; dataset
@@ -141,6 +179,14 @@
         ;
         ; Historical  - 110127 Chev   KR    275H Lyons Hist.csv
         ;               yyMMdd CLIENT FIELD WELL LEASE 'Hist'.csv
+        (println (format "Indicies of Well Reports are [%s]"
+                         (string/join "," indicies-well-report)))
+        (println (format "Filenames of Well Reports are [%s]"
+                         (string/join ","
+                                      (map
+                                        (fn [x] (format "'%s'"
+                                                        (:filename (nth well-test-data x))))
+                                        indicies-well-report))))
         (println "Invoking RPC call to rename attachment...")
         (amqp/invoke
           "text/json"
@@ -163,7 +209,7 @@
                                               well-test-data)))]
               (smtp/send-well-test (str "Red Lion Well Test - " base-name)
                                    (if (and (not (nil? test-notes))
-                                            (not (empty? test-notes)))
+                                            (not-empty test-notes))
                                      test-notes
                                      "<h2>No test notes provided.</h2>")
                                    zip-filename)
