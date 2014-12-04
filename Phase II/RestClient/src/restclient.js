@@ -217,7 +217,7 @@
       path: exports.endpointUrl + '/attachments',
       params: {
         client_uuid: clientUUID,
-        api_token: apiToken
+        api_token: apiToken,
         search_params: searchParams
       }
     });
