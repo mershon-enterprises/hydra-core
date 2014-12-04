@@ -418,6 +418,68 @@
                                          :row-fn format-data-set)})
          (access-denied constants/manage-data))))))
 
+(defn data-set-attachment-list
+  [email-address search-params]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-list-datasets)
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data))
+        can-access-own (contains? access constants/view-own-data)
+
+        search-string (:searchString search-params)
+        search-string-query
+        (if (search-string)
+          (str "and ( dsa.filename ilike '%" search-string "%' "
+               "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+               "or u.email_address ilike '%" search-string "%' "
+               "or cl.description ilike '%" search-string "%' "
+               "or c.name ilike '%" search-string "%' "
+               "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+               "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+               ") ")
+          " ")
+
+        order (:order search-params)
+        order-by-query (if (:orderBy search-params)
+                        (str "order by " (:order_by search-params)
+                             (if (order)
+                               (str order " ")
+                               "desc"))
+                        "order by dsa.date_created desc ")
+
+        limit-query (if (:limit search-params)
+                      (str "limit" (:limit search-params) " ")
+                      " ")
+
+        offset-query (if (:offset search-params)
+                       (str "offset" (:offset search-params) " ")
+                       " ")
+
+        query (str data-set-attachment-query
+                   search-string-query
+                   order-by-query
+                   limit-query
+                   offset-query)
+        query-own (str data-set-attachment-query
+                       "and u.email_address=? "
+                       search-string-query
+                       order-by-query
+                       limit-query
+                       offset-query)]
+    (if can-access
+      (response {:response (sql/query (db) [query] :row-fn format-data-set-attachment)})
+      ; if the user cannot access all data, try to at least show them their own
+      ; data instead
+      (if can-access-own
+        (response {:response (sql/query (db)
+                                        [query-own email-address]
+                                        :row-fn format-data-set-attachment)})
+        (access-denied constants/manage-data)))))
+
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
   [email-address uuid filename]
