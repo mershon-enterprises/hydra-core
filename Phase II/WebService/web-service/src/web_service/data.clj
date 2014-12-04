@@ -58,7 +58,7 @@
 
 
 ; format the specified attachment from the data_set_attachment download
-(defn- format-attachment [row]
+(defn- format-attachment-get [row]
   (->
     {:body (java.io.ByteArrayInputStream. (:contents row))}
     (content-type (:mime_type row))
