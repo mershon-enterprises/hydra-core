@@ -383,29 +383,31 @@
          can-access (or (contains? access constants/manage-data))
          can-access-own (contains? access constants/view-own-data)
 
-         orderBy
-         (if (:orderBy search-params)
-           (str "ORDER BY " (:order_by search-params)
-                (if (:order search-params)
-                  (str (:order search-params) " ")
-                  "DESC "))
-           " ")
+         order (:order_by search-params)
+         order-by-query (if (:orderBy search-params)
+                          (str "order by " (:order_by search-params)
+                               (if (order)
+                                 (str (order) " ")
+                                 "desc "))
+                          "order by ds.date_created desc ")
 
-         limit
-         (if (:limit search-params)
-           (str "LIMIT " (:limit search-params) " ") " ")
+         limit-query (if (:limit search-params)
+                       (str "limit " (:limit search-params) " ")
+                       " ")
 
-         offset
-         (if (:offset search-params)
-           (str "OFFSET" (:offset search-params) " ") " ")
+         offset-query (if (:offset search-params)
+                        (str "offset " (:offset search-params) " ")
+                        " ")
 
          query (str data-set-query
-                   "order by ds.date_created desc ")
+                    order-by-query
+                    limit-query
+                    offset-query)
          query-own (str data-set-query
                         "and u.email_address=? "
-                        orderBy
-                        limit
-                        offset)]
+                        order-by-query
+                        limit-query
+                        offset-query)]
      (if can-access
        (response {:response (sql/query (db) [query] :row-fn format-data-set)})
        ; if the user cannot access all data, try to at least show them their own
