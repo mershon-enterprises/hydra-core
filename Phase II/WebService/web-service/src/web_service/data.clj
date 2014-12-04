@@ -49,6 +49,17 @@
                    (get-primitive-data "text" (:id row))])})
 
 
+; format the specified row from the data_set_attachment table
+(defn- format-data-set-attachment [row]
+  {:filename (:filename row)
+   :bytes (:bytes row)
+   :date_created (:date_created row)
+   :created_by (:email_address row)
+   :client (:client row)
+   :location (:location row)
+   :uuid (:uuid row)})
+
+
 ; format the specified row from the data_set_attachment for info display
 (defn- format-attachment-info [row]
   {:filename (:filename row)
