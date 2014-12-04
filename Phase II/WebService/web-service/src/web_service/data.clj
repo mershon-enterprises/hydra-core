@@ -86,20 +86,27 @@
 
 (def data-set-attachment-query
   (str "select "
-       "  a.filename as filename, "
-       "  a.date_created as date_created, "
-       "  u.email_address as email_address, "
-       "  a.data_set_id, "
-       "  a.mime_type, "
-       "  a.contents, "
-       "  octet_length(a.contents) as bytes "
-       "from public.data_set_attachment a "
-       "inner join public.data_set ds "
-       "  on ds.id = a.data_set_id "
-       "inner join public.user u "
+       "  distinct dsa.id, "
+       "  dsa.filename as filename, "
+       "  octet_length(dsa.contents) as bytes, "
+       "  dsa.date_created as date_created, "
+       "  u.email_address as created_by, "
+       "  c.name as client, "
+       "  cl.description as location, "
+       "  ds.uuid as data_set_uuid, "
+       "from data_set_attachment as dsa "
+       "inner join data_set as ds "
+       "  on ds.id = dsa.data_set_id "
+       "left join data_set_text as dst "
+       "  on ds.id = dst.data_set_id "
+       "left join public.user as u "
        "  on u.id = ds.created_by "
-       "where a.date_deleted is null "
-       "and ds.date_deleted is null "))
+       "left join public.client_location as cl "
+       "  on ds.client_location_id = cl.id "
+       "left join public.client as c "
+       "  on cl.client_id = c.id "
+       "where ds.date_deleted is null "
+       "  and dsa.date_deleted is null "))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -408,11 +415,10 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
-        query data-set-attachment-query
-        query-own (str data-set-attachment-query
-                       "and u.email_address=? "
-                       "and uuid::character varying=? "
-                       "and a.filename=? ")]
+        query (str data-set-attachment-query
+                   "and uuid::character varying=? "
+                   "and a.filename=? ")
+        query-own (str query "and u.email_address=? ")]
     (if can-access
            (response {:response (sql/query
                                   (db)
@@ -442,20 +448,20 @@
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/manage-attachments))
         can-access-own (contains? access constants/view-own-data)
-        query-own (str data-set-attachment-query
-                       "and u.email_address=? "
-                       "and uuid::character varying=? "
-                       "and a.filename=? ")]
+        query (str data-set-attachment-query
+                   "and uuid::character varying=? "
+                   "and a.filename=? ")
+        query-own (str query "and a.filename=? ")]
     (if can-access
       (first (sql/query (db)
-                        [data-set-attachment-query uuid filename]
-                        :row-fn format-attachment))
+                        [query uuid filename]
+                        :row-fn format-attachment-get))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
       (if can-access-own
         (first (sql/query (db)
                           [query-own uuid filename email-address]
-                          :row-fn format-attachment))
+                          :row-fn format-attachment-get))
         (access-denied constants/manage-data)))))
 
 ; delete the specified data set attachment by dataset uuid and filename
