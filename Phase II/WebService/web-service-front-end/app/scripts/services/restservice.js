@@ -51,12 +51,6 @@ angular.module('webServiceApp').factory('RestService',
                     //Create the cache for this user's data
                     restService.createCache();
 
-                    $rootScope.$apply(function() {
-                        //Broadcast to any listeners that the cache should be
-                        //refreshed
-                        $rootScope.$broadcast(EVENTS.cacheRefresh);
-                    });
-
                     //Mark that we have received data
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log('restclient.authenticate succeeded');
@@ -483,13 +477,27 @@ angular.module('webServiceApp').factory('RestService',
     };
 
 //CACHE ========================================================================
+//The cache is a where data retrived from the restclient are stored in memory
+//for angular. This could not be made into its own service due to a circular
+//dependency problem. Restservice -> Cache && Cache -> Restservice
 
     //Create the cache keys in localstorage.
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
-        restService.refreshCache();
+        restService.refreshCache().then(
+            function(success) {
+                //Once the cache is ready, signal to the rest of the app
+                //that restclient calls may be used.
+                if (success) {
+                    $rootScope.$broadcast(EVENTS.cacheReady);
+                }
+            },
+            function(error) {
+                console.log('refreshCache failed.');
+                console.log(error);
+            });
     };
 
     //Invoke all restservice methods to repopulate the cache with new values
@@ -566,6 +574,12 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.remove('clients');
         localStorageService.remove('users');
     };
+
+    //Reset the cache if the reset event is broadcast.
+    $rootScope.$on(EVENTS.cacheReset, function() {
+        restService.destroyCache();
+        restService.createCache();
+    });
 
   return restService;
 });

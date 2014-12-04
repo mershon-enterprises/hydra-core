@@ -19,7 +19,7 @@ angular.module('webServiceApp').directive('navbar', function() {
             });
 
             $(document).on('click', '.sync', function(){
-                $rootScope.$broadcast(EVENTS.cacheRefresh);
+                $rootScope.$broadcast(EVENTS.cacheReset);
             });
 
             var self = this;
