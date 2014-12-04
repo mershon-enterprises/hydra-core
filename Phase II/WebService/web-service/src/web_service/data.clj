@@ -54,7 +54,7 @@
   {:filename (:filename row)
    :bytes (:bytes row)
    :date_created (:date_created row)
-   :created_by (:email_address row)
+   :created_by (:created_by row)
    :client (:client row)
    :location (:location row)
    :uuid (:uuid row)})
@@ -104,7 +104,7 @@
        "  u.email_address as created_by, "
        "  c.name as client, "
        "  cl.description as location, "
-       "  ds.uuid as data_set_uuid, "
+       "  ds.uuid as uuid "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
@@ -430,26 +430,27 @@
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
 
-        search-string (:searchString search-params)
         search-string-query
-        (if (search-string)
-          (str "and ( dsa.filename ilike '%" search-string "%' "
-               "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
-               "or u.email_address ilike '%" search-string "%' "
-               "or cl.description ilike '%" search-string "%' "
-               "or c.name ilike '%" search-string "%' "
-               "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-               "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-               ") ")
+        (if (:searchString search-params)
+          (let [search-string (:searchString search-params)]
+            (str "and ( dsa.filename ilike '%" search-string "%' "
+                 "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+                 "or u.email_address ilike '%" search-string "%' "
+                 "or cl.description ilike '%" search-string "%' "
+                 "or c.name ilike '%" search-string "%' "
+                 "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                 "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                 ") "))
           " ")
 
-        order (:order search-params)
-        order-by-query (if (:orderBy search-params)
-                        (str "order by " (:order_by search-params)
-                             (if (order)
-                               (str order " ")
-                               "desc"))
-                        "order by dsa.date_created desc ")
+        order-by-query
+        (if (:orderBy search-params)
+          (let [order (:order search-params)]
+            (str "order by " (:order_by search-params)
+                 (if (order)
+                   (str order " ")
+                   "desc"))
+            "order by dsa.date_created desc "))
 
         limit-query (if (:limit search-params)
                       (str "limit" (:limit search-params) " ")
