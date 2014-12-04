@@ -1,11 +1,11 @@
 (ns well-test-identifier.identifier
-  (:use [well-test-identifier.smtp]
-        [well-test-identifier.zip])
   (:require [clojure.string :as string]
             [cheshire.core :refer :all]
             [clj-time.format :as f]
-            [clojure.java.io :as io]))
-
+            [clojure.java.io :as io]
+            [well-test-identifier.amqp :as amqp]
+            [well-test-identifier.smtp :as smtp]
+            [well-test-identifier.zip :as zip]))
 
 
 (defn- is-a-well-test
@@ -125,7 +125,8 @@
   [well-test-json]
   (let [data-set (parse-string well-test-json true)]
     (if (is-a-well-test data-set)
-      (let [well-test-data (:data data-set)]
+      (let [well-test-data (:data data-set)
+            base-name (build-base-name data-set)]
         ; TODO - identify the client name and field name values in the dataset,
         ; and use them to populate their respective tables associated to the
         ; dataset
@@ -140,25 +141,34 @@
         ;
         ; Historical  - 110127 Chev   KR    275H Lyons Hist.csv
         ;               yyMMdd CLIENT FIELD WELL LEASE 'Hist'.csv
+        (println "Invoking RPC call to rename attachment...")
+        (amqp/invoke
+          "text/json"
+          (generate-string {:command "rename-attachment"
+                            :data-set-uuid (:uuid data-set)
+                            :old-filename "a"
+                            :new-filename "b"})
+          (fn [response]
+            (println "RPC call complete.")
+            ; TODO -- rename the other 2 attachments
 
-        ; bundle together attachments as a temporary zip file, email out to
-        ; the administrative users, and then delete the file
-        (let [base-name (build-base-name data-set)
-              zip-filename (zip-well-test base-name data-set)
-              test-notes (:value (first (filter
-                                          (fn [{type :type descr :description}]
-                                            (and (= "text" type)
-                                                 (= "wellTestNotes" descr)))
-                                          well-test-data)))]
-          (send-well-test (str "Red Lion Well Test - " base-name)
-                          (if (and (not (nil? test-notes))
-                                   (not (empty? test-notes)))
-                            test-notes
-                            "<h2>No test notes provided.</h2>")
-                          zip-filename)
-          (io/delete-file zip-filename))
 
-        ; return true to fire another AMQP event with the original data, but on
-        ; the well-test routing key, to trigger downstream reporting
-        true)
-      false)))
+            ; bundle together attachments as a temporary zip file, email out to
+            ; the administrative users, and then delete the file
+            (let [zip-filename (zip/zip-well-test base-name data-set)
+                  test-notes (:value (first (filter
+                                              (fn [{type :type descr :description}]
+                                                (and (= "text" type)
+                                                     (= "wellTestNotes" descr)))
+                                              well-test-data)))]
+              (smtp/send-well-test (str "Red Lion Well Test - " base-name)
+                                   (if (and (not (nil? test-notes))
+                                            (not (empty? test-notes)))
+                                     test-notes
+                                     "<h2>No test notes provided.</h2>")
+                                   zip-filename)
+              (io/delete-file zip-filename)
+
+              ; fire another AMQP event with the original data, but on the
+              ; well-test routing key, to trigger downstream reporting
+              (amqp/broadcast "text/json" "well-test" well-test-json))))))))
