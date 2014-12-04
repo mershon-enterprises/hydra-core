@@ -781,3 +781,63 @@ exports['listUserAccess'] = {
       });
   }
 };
+
+exports['listAttachments'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listAttachments(
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(6);
+    restclient.listAttachments(
+      clientUUID,
+      apiToken,
+      {limit: 20,
+       offset: 10,
+       search_string: "2014",
+       order_by: "date_created",
+       order: "desc" }
+    ).then(
+      function(data) {
+        console.log(data);
+
+        test.equal(data.status.code, 200, 'list data should succeed');
+
+        var bodyObj = JSON.parse(data.entity);
+        checkResponse(test, bodyObj);
+        test.ok(Array.isArray(bodyObj['response']),
+          'data list should be an array');
+        test.ok(bodyObj['response'].length === 20,
+          'should return exactly 20 attachments');
+        //test.ok('uuid' in bodyObj['response'][0],
+        //  'data-set uuid should be stated');
+        //test.ok('date_created' in bodyObj['response'][0],
+        //  'data-set date created should be stated');
+        //test.ok('created_by' in bodyObj['response'][0],
+        //  'data-set created-by should be stated');
+        //test.ok('data' in bodyObj['response'][0],
+        //  'data-set data should be stated');
+        //test.ok(Array.isArray(bodyObj['response'][0]['data']),
+        //  'data-set data should be an array');
+        //test.ok(bodyObj['response'][0]['data'].length > 0,
+        //  'at least one data-set data item should exist');
+
+        test.done();
+      });
+  }
+};
+
+
