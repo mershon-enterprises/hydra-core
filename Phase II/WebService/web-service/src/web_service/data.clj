@@ -49,7 +49,7 @@
                    (get-primitive-data "text" (:id row))])})
 
 
-; format the specified row from the data_set_attachment info display
+; format the specified row from the data_set_attachment for info display
 (defn- format-attachment-info [row]
   {:filename (:filename row)
    :date_created (:date_created row)
@@ -57,7 +57,7 @@
    :data (get-primitive-data "text" (:data_set_id row))})
 
 
-; format the specified attachment from the data_set_attachment download
+; format the specified attachment from the data_set_attachment for download
 (defn- format-attachment-get [row]
   (->
     {:body (java.io.ByteArrayInputStream. (:contents row))}
