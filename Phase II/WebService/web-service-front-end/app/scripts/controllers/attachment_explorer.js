@@ -42,7 +42,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.paramsMap.
         $scope.getData = function () {
-            RestService.listData($scope.paramsMap).then(
+            RestService.listAttachments($scope.paramsMap).then(
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];

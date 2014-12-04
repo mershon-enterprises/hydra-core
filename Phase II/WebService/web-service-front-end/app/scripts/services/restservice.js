@@ -198,13 +198,15 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    restService.listData = function (searchParams) {
+    restService.listAttachments = function (searchParams) {
 
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listData(clientUUID, Session.getToken(), searchParams).then(
+        console.log(searchParams);
+
+        restclient.listAttachments(clientUUID, Session.getToken(), searchParams).then(
 
             function(response) {
 
@@ -219,67 +221,36 @@ angular.module('webServiceApp').factory('RestService',
                     var parsedData =  restService.parseData(responseBody);
 
                     deferred.resolve([EVENTS.promiseSuccess, parsedData]);
-                    console.log('restclient.listData succeeded');
+
+                    console.log('restclient.listAttachments succeeded');
                 }
                 else {
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.listData promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.listAttachments promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.listData promise failed: ' + error);
+                console.log('restclient.listAttachments promise failed: ' + error);
             });
         return deferred.promise;
     };
 
-    //Parse the data from the restClient into a format ngGrid wants.
+    //Parse the data from the restClient into a format the attachment_explorer wants.
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
         var data = [];
-        var attachments = [];
-        var uuid = null;
-        var createdBy = null;
-        var dateCreated = null;
-        var clientName = null;
-        var location = null;
-        var fieldName = null;
-        var wellName = null;
-        var trailerNumber = null;
         var uniqueKey = null;
 
-        $.each(rawData, function(index, value){
-            createdBy = {created_by: value.created_by};
-            uuid = {uuid: value.uuid};
-            dateCreated = {date_created: value.date_created};
-            clientName = {client: value.client};
-            location = {location: value.location};
-            $.each(value.data, function(index, value){
-                if(value.type === 'attachment') {
-                    attachments.push(value);
-                }
-                else if(value.type === 'text') {
-                    if(value.description === 'fieldName') {
-                        fieldName = {field_name: value.value};
-                    }
-                    else if(value.description === 'wellName') {
-                        wellName = {well_name: value.value};
-                    }
-                    else if(value.description === 'trailerNumber') {
-                        trailerNumber = {trailer_number: value.value};
-                    }
-                }
+        if (rawData) {
+            $.each(rawData, function(index, value){
+                uniqueKey = {unique_key: value.filename + '\n' + value.uuid};
+                data.push($.extend(value, uniqueKey));
             });
-            $.each(attachments, function(index, value){
-                uniqueKey = {unique_key: value.filename + '\n' + uuid.uuid};
-                data.push($.extend(value, uuid, createdBy, location, dateCreated,
-                    clientName, fieldName, wellName, trailerNumber, uniqueKey));
-            });
-            attachments = [];
-        });
+        }
 
         return data;
     };
