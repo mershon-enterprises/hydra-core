@@ -46,7 +46,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
-                    console.log($scope.data);
                 }
             },
             function (error) {

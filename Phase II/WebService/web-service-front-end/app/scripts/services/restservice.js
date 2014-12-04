@@ -198,8 +198,6 @@ angular.module('webServiceApp').factory('RestService',
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        console.log(searchParams);
-
         restclient.listAttachments(clientUUID, Session.getToken(), searchParams).then(
 
             function(response) {
