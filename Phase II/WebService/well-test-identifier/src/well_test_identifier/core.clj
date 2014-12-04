@@ -1,6 +1,6 @@
 (ns well-test-identifier.core
-  (:use [well-test-identifier.amqp]))
+  (:require [well-test-identifier.shared-init :as shared-init]))
 
 (defn -main
   []
-  (well-test-identifier.amqp/connect))
+  (shared-init/init))

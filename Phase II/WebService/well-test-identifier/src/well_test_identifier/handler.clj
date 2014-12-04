@@ -3,7 +3,7 @@
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [well-test-identifier.amqp :as amqp]))
+            [well-test-identifier.shared-init :as shared-init]))
 
 (defroutes app-routes
   (GET "/" [] (redirect "http://hydra.slixbits.com"))
@@ -13,12 +13,12 @@
 (defn init
   []
   ; start the AMQP connection
-  (amqp/connect))
+  (shared-init/init))
 
 (defn destroy
   []
   ; shutdown the AMQP connection
-  (amqp/disconnect))
+  (shared-init/destroy))
 
 (def app
   (->
