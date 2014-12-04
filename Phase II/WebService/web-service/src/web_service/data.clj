@@ -448,9 +448,16 @@
         can-access (or (contains? access constants/manage-data))
         can-access-own (contains? access constants/view-own-data)
 
+        json-search-params (try
+                    (parse-string search-params true)
+                    (catch Exception e
+                      (println (str "Failed to parse 'search-params' as JSON string"))
+                      ; return an empty data-set
+                      []))
+
         search-string-query
-        (if (:searchString search-params)
-          (let [search-string (:searchString search-params)]
+        (if (:search_string json-search-params)
+          (let [search-string (:search_string json-search-params)]
             (str "and ( dsa.filename ilike '%" search-string "%' "
                  "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
                  "or u.email_address ilike '%" search-string "%' "
@@ -462,20 +469,19 @@
           " ")
 
         order-by-query
-        (if (:orderBy search-params)
-          (let [order (:order search-params)]
-            (str "order by " (:order_by search-params)
-                 (if (order)
-                   (str order " ")
-                   "desc"))
-            "order by dsa.date_created desc "))
+        (if (:order_by json-search-params)
+          (let [order (if(:order json-search-params)
+                        (:order json-search-params)
+                        "desc ")]
+            (str "order by " (:order_by json-search-params) " " order " "))
+          "order by dsa.date_created desc ")
 
-        limit-query (if (:limit search-params)
-                      (str "limit" (:limit search-params) " ")
+        limit-query (if (:limit json-search-params)
+                      (str "limit " (:limit json-search-params) " ")
                       " ")
 
-        offset-query (if (:offset search-params)
-                       (str "offset" (:offset search-params) " ")
+        offset-query (if (:offset json-search-params)
+                       (str "offset " (:offset json-search-params) " ")
                        " ")
 
         query (str data-set-attachment-query

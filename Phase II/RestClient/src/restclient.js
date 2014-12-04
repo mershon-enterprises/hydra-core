@@ -218,7 +218,7 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        search_params: searchParams
+        search_params: JSON.stringify(searchParams)
       }
     });
   };
