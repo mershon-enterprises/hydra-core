@@ -15,6 +15,8 @@
 ; dynamic variables for connection and channel
 (def ^:dynamic conn nil)
 (def ^:dynamic ch nil)
+(def ^:dynamic rpc-queue nil)
+(def response-payload (chan 10))
 
 ; define the exchange name
 (def ex "pi.web-service")
@@ -41,25 +43,10 @@
   [content-type command]
 
   ; use an async channel to block waiting for the response
-  (let [response-payload (chan 10)
-        message-uuid (str (rand-int Integer/MAX_VALUE))
-        listener (lq/declare-server-named ch {:exclusive true :auto-delete true})
-        handler (fn [ch {:keys [content-type
-                                delivery-tag
-                                correlation-id] :as meta} ^bytes payload]
-                  (println (format "received response %s from core" correlation-id))
-                  (>!! response-payload (String. payload "UTF-8"))
-                  (println "callback complete")
-                  ;(lb/cancel ch listener)
-                  ;(println "no longer listening")
-                  )]
-
-    (lq/bind ch listener ex {:routing-key "rpc"})
-    (lc/subscribe ch listener handler {:auto-ack true})
-
-    ; send a payload and then expect a response on the rpc queue
+  (let [message-uuid (str (rand-int Integer/MAX_VALUE))]
+    ; send a command and then expect a response on the rpc queue
     (lb/publish ch ex "rpc" command {:content-type content-type
-                                     :reply-to listener
+                                     :reply-to rpc-queue
                                      :correlation-id message-uuid})
 
     ; return the response payload
@@ -75,6 +62,16 @@
   ; declare a topic exchange that is not persisted across reboots and
   ; auto-deletes messages after all consumers are updated
   (le/declare ch ex "topic" {:durable false :auto-delete true})
+
+  ; set up the RPC response queue
+  (let [handler (fn [ch {:keys [content-type
+                                delivery-tag
+                                correlation-id] :as meta} ^bytes payload]
+                  ; pass the response back to the calling thread
+                  (>!! response-payload (String. payload "UTF-8")))]
+    (def rpc-queue (lq/declare-server-named ch {:exclusive true :auto-delete true}))
+    (lq/bind ch rpc-queue ex {:routing-key "rpc"})
+    (lc/subscribe ch rpc-queue handler {:auto-ack true}))
 
   ; return the open connection
   ch)
