@@ -820,6 +820,9 @@ exports['listAttachments'] = {
           'data list should be an array');
         test.ok(bodyObj['response'].length === 20,
           'should return exactly 20 attachments');
+        //TODO Need to mock 100 Datasets with attachments to test limit and
+        //offset and search features
+
         //test.ok('uuid' in bodyObj['response'][0],
         //  'data-set uuid should be stated');
         //test.ok('date_created' in bodyObj['response'][0],

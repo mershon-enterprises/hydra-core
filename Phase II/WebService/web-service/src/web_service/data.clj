@@ -65,7 +65,7 @@
 (defn- format-attachment-info [row]
   {:filename (:filename row)
    :date_created (:date_created row)
-   :created_by (:email_address row)
+   :created_by (:created_by row)
    :data (get-primitive-data "text" (:data_set_id row))})
 
 
@@ -105,6 +105,7 @@
        "  u.email_address as created_by, "
        "  c.name as client, "
        "  cl.description as location, "
+       "  ds.id as data_set_id, ",
        "  ds.uuid as uuid "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
@@ -553,10 +554,10 @@
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
-                   "and a.filename=? ")
+                   "and dsa.filename=? ")
         query-own (str data-set-attachment-query
                        "and uuid::character varying=? "
-                       "and a.filename=? "
+                       "and dsa.filename=? "
                        "and u.email_address=? ")]
     (if can-access
            (response {:response (sql/query
