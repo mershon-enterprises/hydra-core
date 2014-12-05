@@ -104,6 +104,16 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             RestService.updateCacheValue('data', $scope.data);
         };
 
+        $scope.$watch('searchParams', function(newValue, oldValue) {
+            if (newValue === oldValue) { return; }
+            $scope.getData();
+        }, true);
+
+        $scope.$on(EVENTS.newSearch, function(event, args) {
+            $scope.searchParams.search_string = args;
+            $scope.$apply();
+        });
+
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.getData();
         });

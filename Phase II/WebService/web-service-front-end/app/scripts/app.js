@@ -40,11 +40,12 @@ angular.module('webServiceApp', [
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
-      cacheRefresh: 'cache-refresh',
+      cacheReset: 'cache-reset',
       cacheReady: 'cache-ready',
       promiseSuccess: 'promise-success',
       promiseFailed: 'promise-failed',
       badStatus: 'bad-status',
+      newSearch: 'new-search',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized'
     })
