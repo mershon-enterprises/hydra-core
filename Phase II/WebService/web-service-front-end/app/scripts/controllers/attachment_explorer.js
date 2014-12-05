@@ -26,7 +26,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $(document).on('click', '.toggle', function() {
             $scope.client = $(this).attr('client');
-            toggle = $(this)
+            toggle = $(this);
             $('.file-explorer-table').each(function() {
                 if ($(this).attr('client') === $scope.client) {
                     if ($scope.collapseOptions[$scope.client]) {
@@ -99,7 +99,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                         }
                     }
                     else {
-                        clientGroups['nonClient'].push(value);
+                        clientGroups.nonClient.push(value);
                     }
                     $scope.collapseOptions[clientName] = false;
                 });
