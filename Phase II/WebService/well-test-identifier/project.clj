@@ -12,6 +12,7 @@
                  [clj-time "0.8.0"]                     ; time helpers and
                                                         ;   formatters
                  [com.draines/postal "1.11.1"]          ; smtp email library
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  ]
   :plugins [[lein-ring "0.8.11"]
             [lein-environ "1.0.0"]]

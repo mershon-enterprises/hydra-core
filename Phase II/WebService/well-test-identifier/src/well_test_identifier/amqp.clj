@@ -1,5 +1,6 @@
 (ns well-test-identifier.amqp
-  (:require [langohr.core      :as rmq]
+  (:require [clojure.core.async :refer [chan <!! >!!]]
+            [langohr.core      :as rmq]
             [langohr.channel   :as lch]
             [langohr.exchange  :as le]
             [langohr.queue     :as lq]
@@ -37,16 +38,17 @@
     (lc/subscribe ch queue-name handler {:auto-ack true})))
 
 (defn invoke
-  [content-type payload callback]
+  [content-type payload]
 
   ; use an async channel to block waiting for the response
-  (let [message-uuid "0000"
-        listener (lq/declare-server-named ch {:exclusive true})
+  (let [response-payload (chan 10)
+        message-uuid (rand-int)
+        listener (lq/declare-server-named ch {:exclusive true :auto-delete true})
         handler (fn [ch {:keys [content-type
                                 delivery-tag
                                 correlation-id] :as meta} ^bytes payload]
                   (println (format "received response %s from core" correlation-id))
-                  (callback (String. payload "UTF-8"))
+                  (>!! response-payload (String. payload "UTF-8"))
                   (println "callback complete")
                   ;(lb/cancel ch listener)
                   ;(println "no longer listening")
@@ -58,8 +60,10 @@
     ; send a payload and then expect a response on the rpc queue
     (lb/publish ch ex "rpc" payload {:content-type content-type
                                      :reply-to listener
-                                     :correlation-id message-uuid})))
+                                     :correlation-id message-uuid})
 
+    ; return the response payload
+    (<!! response-payload)))
 
 ; connect to the rabbitmq server, and create a fanout exchange called
 ; "pi.web-service"

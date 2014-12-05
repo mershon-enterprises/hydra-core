@@ -1,9 +1,10 @@
 (ns well-test-identifier.identifier
-  (:require [clojure.string :as string]
-            [cheshire.core :refer :all]
-            [clj-time.format :as f]
-            [clojure.java.io :as io]
+  (:require [clojure.core.async :refer [thread]]
             [clojure.data.codec.base64 :as b64]
+            [clojure.java.io :as io]
+            [clojure.string :as string]
+            [clj-time.format :as f]
+            [cheshire.core :refer :all]
             [well-test-identifier.amqp :as amqp]
             [well-test-identifier.smtp :as smtp]
             [well-test-identifier.zip :as zip]))
@@ -136,26 +137,19 @@
   ; there can be multiple well reports per test, and they are identified as
   ; being CSV files containing the string "Well Test ID" in the first line
   ; somewhere
-  (map (fn [x] (.indexOf x well-test-data))
+  (map (fn [x] (.indexOf well-test-data x))
        (filter (fn [{type :type
                      filename :filename
                      mime-type :mime_type
                      contents :contents}]
                  (if (and (= "attachment" type)
                           (= "text/csv" mime-type))
-                   (let [contents-decoded (b64/decode (.getBytes contents "UTF-8"))
+                   (let [contents-decoded (String. (b64/decode (.getBytes contents "UTF-8")))
                          contents-abbrv (.substring contents-decoded
-                                                    0 (Math/min (.length contents-decoded)
+                                                    0 (Math/min (Integer. (.length contents-decoded))
                                                                 1000))]
-                     (println (format "Attachment '%s' abbrv: %s"
-                                      filename
-                                      contents-abbrv))
-                     (not= -1 (.indexOf contents-abbrv "Well Test ID"))))
-
-                 )
-               well-test-data)
-       )
-  )
+                     (not= -1 (.indexOf contents-abbrv "Well Test ID")))))
+               well-test-data)))
 
 (defn identify
   [well-test-json]
@@ -163,6 +157,14 @@
     (if (is-a-well-test data-set)
       (let [well-test-data       (:data data-set)
             base-name            (build-base-name data-set)
+            rename-rpc (fn [uuid old-filename new-filename]
+                         (println "Invoking RPC call to rename attachment...")
+                         (amqp/invoke
+                           "text/json"
+                           (generate-string {:command "rename-attachment"
+                                             :data-set-uuid uuid
+                                             :old-filename old-filename
+                                             :new-filename new-filename})))
             index-cbw            (find-file-index-cut-by-weight well-test-data)
             indicies-well-report (find-file-indicies-well-report well-test-data)]
         ; TODO - identify the client name and field name values in the dataset,
@@ -179,22 +181,18 @@
         ;
         ; Historical  - 110127 Chev   KR    275H Lyons Hist.csv
         ;               yyMMdd CLIENT FIELD WELL LEASE 'Hist'.csv
-        (println (format "Indicies of Well Reports are [%s]"
-                         (string/join "," indicies-well-report)))
         (println (format "Filenames of Well Reports are [%s]"
                          (string/join ","
                                       (map
                                         (fn [x] (format "'%s'"
                                                         (:filename (nth well-test-data x))))
                                         indicies-well-report))))
-        (println "Invoking RPC call to rename attachment...")
-        (amqp/invoke
-          "text/json"
-          (generate-string {:command "rename-attachment"
-                            :data-set-uuid (:uuid data-set)
-                            :old-filename "a"
-                            :new-filename "b"})
-          (fn [response]
+
+        (thread
+          (rename-rpc (:uuid data-set) "a" "b")
+          (rename-rpc (:uuid data-set) "c" "d")
+          (rename-rpc (:uuid data-set) "e" "f")
+          (do
             (println "RPC call complete.")
             ; TODO -- rename the other 2 attachments
 
@@ -217,4 +215,5 @@
 
               ; fire another AMQP event with the original data, but on the
               ; well-test routing key, to trigger downstream reporting
-              (amqp/broadcast "text/json" "well-test" well-test-json))))))))
+              (amqp/broadcast "text/json" "well-test" well-test-json))))
+        ))))
