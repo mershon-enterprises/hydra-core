@@ -21,17 +21,17 @@
   (let [required-keys ["wellName" "trailerNumber" "clientName" "fieldName"]]
     ; expect one text value of each required description
     (if (not-every?
-             (fn [required-key]
-               ; destructure the properties out of the data-item
-               (some (fn [{type :type
-                           description :description
-                           value :value}]
-                       (and (= "text" type)
-                            (= required-key description)
-                            (and (not (nil? value))
-                                 (not-empty value))))
-                     well-test-data))
-             required-keys)
+          (fn [required-key]
+            ; destructure the properties out of the data-item
+            (some (fn [{type :type
+                        description :description
+                        value :value}]
+                    (and (= "text" type)
+                         (= required-key description)
+                         (and (not (nil? value))
+                              (not-empty value))))
+                  well-test-data))
+          required-keys)
       (do
         (println "Missing one or more required key.")
         (println (str "Keys were: "
