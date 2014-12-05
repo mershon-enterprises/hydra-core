@@ -159,6 +159,9 @@
             base-name            (build-base-name data-set)
             rename-rpc (fn [uuid old-filename new-filename]
                          (println "Invoking RPC call to rename attachment...")
+                         (println (format "Renaming attachment '%s' to '%s'"
+                                          old-filename
+                                          new-filename))
                          (amqp/invoke
                            "text/json"
                            (generate-string {:command "rename-attachment"
@@ -167,11 +170,12 @@
                                              :new-filename new-filename})))
             index-cbw            (find-file-index-cut-by-weight well-test-data)
             indicies-well-report (find-file-indicies-well-report well-test-data)]
-        ; TODO - identify the client name and field name values in the dataset,
+
+        ; identify the client name and field name values in the dataset,
         ; and use them to populate their respective tables associated to the
         ; dataset
 
-        ; TODO - rename the attachments to match the format PI uses:
+        ; This is the naming convention format PI uses:
         ;
         ; CBW         - 110127 Chev   KR    275H Lyons CBW.xlsx
         ;               yyMMdd CLIENT FIELD WELL LEASE 'CBW'.xlsx
@@ -181,20 +185,35 @@
         ;
         ; Historical  - 110127 Chev   KR    275H Lyons Hist.csv
         ;               yyMMdd CLIENT FIELD WELL LEASE 'Hist'.csv
-        (println (format "Filenames of Well Reports are [%s]"
-                         (string/join ","
-                                      (map
-                                        (fn [x] (format "'%s'"
-                                                        (:filename (nth well-test-data x))))
-                                        indicies-well-report))))
-
         (thread
-          (rename-rpc (:uuid data-set) "a" "b")
-          (rename-rpc (:uuid data-set) "c" "d")
-          (rename-rpc (:uuid data-set) "e" "f")
+          ; TODO -- rename the CBW to follow naming convention
+
+          ; rename all well-tests to follow naming convention
+          (doall
+            ; use map-indexed because doseq [x sequence] won't work on sequences
+            ; of primitives like int
+            (map-indexed
+              (fn [x well-report-index]
+                (let [old-filename (:filename (nth well-test-data well-report-index))
+                      ; files should be named as follows:
+                      ;
+                      ; 0th : basename REPORT.csv
+                      ; 1st : basename REPORT-2.csv
+                      ; 2nd : basename REPORT-3.csv
+                      ;
+                      ; ... etc.
+                      new-filename (str (format "%s REPORT%s.csv"
+                                                base-name
+                                                (if (> x 0)
+                                                  (str "-" (+ x 1))
+                                                  "")))]
+                  (rename-rpc (:uuid data-set) old-filename new-filename)))
+              indicies-well-report))
+
+          ; TODO -- rename all historical files to follow naming convention
+
           (do
             (println "RPC call complete.")
-            ; TODO -- rename the other 2 attachments
 
 
             ; bundle together attachments as a temporary zip file, email out to

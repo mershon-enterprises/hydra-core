@@ -38,11 +38,11 @@
     (lc/subscribe ch queue-name handler {:auto-ack true})))
 
 (defn invoke
-  [content-type payload]
+  [content-type command]
 
   ; use an async channel to block waiting for the response
   (let [response-payload (chan 10)
-        message-uuid (rand-int)
+        message-uuid (str (rand-int Integer/MAX_VALUE))
         listener (lq/declare-server-named ch {:exclusive true :auto-delete true})
         handler (fn [ch {:keys [content-type
                                 delivery-tag
@@ -58,7 +58,7 @@
     (lc/subscribe ch listener handler {:auto-ack true})
 
     ; send a payload and then expect a response on the rpc queue
-    (lb/publish ch ex "rpc" payload {:content-type content-type
+    (lb/publish ch ex "rpc" command {:content-type content-type
                                      :reply-to listener
                                      :correlation-id message-uuid})
 
