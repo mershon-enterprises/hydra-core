@@ -63,8 +63,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                 //TODO. Not implemented.
             }
 
-            console.log($scope.searchParams);
-
             $scope.$apply();
         });
 
@@ -125,30 +123,50 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         $scope.sortData = function () {
             var clientGroups = {};
             var clientName = null;
-            var tempObject = {};
+            var locationName = null;
 
-            $.extend(clientGroups, {'nonClient': []});
             if ($scope.data) {
                 $.each($scope.data, function(index, value) {
                     if ('client' in value) {
+
                         clientName = value.client;
-                        if (clientName in clientGroups) {
-                            clientGroups[clientName].push(value);
+
+                        if(!(clientName in clientGroups)) {
+                            clientGroups[clientName] = {};
+                        }
+
+                        if('location' in value) {
+                            locationName = value.location;
+                            clientGroups[clientName][locationName] = [];
                         }
                         else {
-                            tempObject[clientName] = [];
-                            $.extend(clientGroups, tempObject);
-                            clientGroups[clientName].push(value);
-                            tempObject = {};
+                            clientGroups[clientName]['noLocation'] = [];
                         }
                     }
                     else {
-                        clientGroups.nonClient.push(value);
+                        clientGroups['noClient'] = [];
                     }
-                    $scope.collapseOptions[clientName] = false;
                 });
-                //TODO Field Sort
+
+                $.each($scope.data, function(index, value) {
+                    if (('client' in value) && ('location' in value)) {
+                        clientName = value.client;
+                        locationName = value.location;
+                        clientGroups[clientName][locationName].push(value);
+                        $scope.collapseOptions[clientName] = false;
+                    }
+                    else if (('client' in value) && !('location' in value)) {
+                        clientName = value.client;
+                        clientGroups[clientName]['noLocation'].push(value);
+                        $scope.collapseOptions[clientName] = false;
+                    }
+                    else if (!('client' in value)) {
+                        clientGroups['noClient'].push(value);
+                    }
+                });
             }
+
+            console.log(clientGroups);
             $scope.data = clientGroups;
             RestService.updateCacheValue('data', $scope.data);
         };

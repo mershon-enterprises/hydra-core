@@ -32,21 +32,29 @@
                 <th></th>
             </tr>
         </table>
-        <table ng-repeat="key in data" ng-if="key" class="file-explorer-table" client={{key[0].client}}>
-            <tr>
-                <th colspan="5"><i class="toggle fa fa-minus-square" client={{key[0].client}}></i> {{key[0].client}}</th>
-            </tr>
-            <tr ng-repeat="row in key">
-                <td>{{row.filename}}</td>
-                <td>{{row.bytes | filesize}}</td>
-                <td class="author">{{row.created_by}}</td>
-                <td>{{row.date_created | date : 'short'}}</td>
-                <td>
-                    <i class="fa fa-download" ukey={{row.unique_key}}></i>
-                    <i class="fa fa-cog" ukey={{row.unique_key}}></i>
-                </td>
-            </tr>
-        </table>
+
+        <div ng-repeat="(key, client) in data">
+            <table class="file-explorer-table">
+                <tr>
+                    <th class="client-header" colspan="5"><i class="toggle fa fa-minus-square" client={{key}}></i> {{key}}</th>
+                </tr>
+            </table>
+            <table class="file-explorer-table" ng-repeat="(key, location) in client">
+                <tr>
+                    <th class="location-header" colspan="5"><i class="toggle fa fa-minus-square" location={{key}}></i> {{key}}</th>
+                </tr>
+                <tr ng-repeat="row in location">
+                    <td>{{row.filename}}</td>
+                    <td>{{row.bytes | filesize}}</td>
+                    <td class="author">{{row.created_by}}</td>
+                    <td>{{row.date_created | date : 'short'}}</td>
+                    <td>
+                        <i class="fa fa-download" ukey={{row.unique_key}}></i>
+                        <i class="fa fa-cog" ukey={{row.unique_key}}></i>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         <ul class="pagination pages">
             <li>25</li>

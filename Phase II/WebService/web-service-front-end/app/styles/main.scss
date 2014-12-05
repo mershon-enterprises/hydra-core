@@ -355,7 +355,6 @@ footer {
         text-align: left;
     }
 
-
     tr {
         th:nth-child(1), td:nth-child(1) {
             width: 22%;
@@ -381,13 +380,18 @@ footer {
     .fa-cog {
         padding-left: $default-padding/3;
     }
+
+    .location-header {
+        border: 0;
+        padding-left: $default-margin*3;
+    }
+
+    .client-header {
+        border: 0;
+    }
 }
 
 .file-explorer-header {
-    th, td {
-        border-bottom: 0px;
-    }
-
     th {
         text-align: center !important;
         cursor: pointer;
