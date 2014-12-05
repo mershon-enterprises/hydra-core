@@ -4,9 +4,10 @@
         [web-service.session]
         [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
-            [web-service.constants :as constants]
+            [clojure.tools.logging :as log]
             [cheshire.core :refer :all]
-            [web-service.amqp :as amqp]))
+            [web-service.amqp :as amqp]
+            [web-service.constants :as constants]))
 
 (import java.sql.SQLException)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -151,7 +152,12 @@
         (response {:response (first (sql/query (db)
                                                [query-own uuid email-address]
                                                :row-fn format-data-set))})
-        (access-denied constants/manage-data)))))
+        (do
+          (log/debug
+            (format ("User %s tried to access data-set '%s' but lacks access")
+                    email-address
+                    uuid))
+          (access-denied constants/manage-data))))))
 
 
 ; delete the specified data_set by date
@@ -188,11 +194,16 @@
                       (sql/execute! (db) [(str "update public.data_set_" type " "
                                                delete-associations-query)
                                           email-address uuid]))
-                    ["attachment" "boolean" "date" "integer" "real" "text"])] 
+                    ["attachment" "boolean" "date" "integer" "real" "text"])]
         (if (and delete-data-set-success delete-associations-success)
           (status (response {:response "OK"}) 200 )
           (status (response {:response "Failure"}) 409)))
-      (access-denied constants/manage-data))))
+      (do
+        (log/debug
+          (format ("User %s tried to delete data-set '%s' but lacks access")
+                  email-address
+                  uuid))
+        (access-denied constants/manage-data))))))))
 
 
 ; submit data
@@ -223,8 +234,8 @@
         (status (response {:response "Cannot record empty data-set"}) 409)
         (try
           (let [keys (sql/db-do-prepared-return-keys (db) query [uuid
-                                                               date-created
-                                                               created-by])
+                                                                 date-created
+                                                                 created-by])
                 id (:id keys)]
             ; iterate child elements of 'data' and add to the database also
             (doseq [data-element json-data]
@@ -238,7 +249,7 @@
                                    "(data_set_id, filename, mime_type, contents) "
                                    "values (?,?,?,decode(?, 'base64'))")
                         success (sql/execute! (db) [query id filename mime-type
-                                                  contents])]
+                                                    contents])]
                     (if (not success)
                       (throw Exception "Failed to insert new attachment!")))
                   (let [type (:type data-element)
@@ -265,12 +276,17 @@
                                 (generate-string with-attachments)))
               (status data-saved 201)))
           (catch Exception e
+            (log/error e (format (str "There was an error submitting a "
+                                      "data-set for user %s")
+                                 email-address))
             ; TODO -- rollback the transaction
-            (println (.getMessage e))
-            (if (.getNextException e)
-              (println (.getMessage (.getNextException e))))
+            (if (instance? SQLException e)
+              (log/error (.getCause e) "Caused by: "))
             (status (response {:response "Failure"}) 409))))
-      (access-denied constants/create-data))))
+      (do
+        (log/debug (format "User %s tried to submit data-set but lacks access"
+                           email-address))
+        (access-denied constants/create-data)))))
 
 (defn data-set-attachment-submit
   [email-address data-set-uuid data-element]
@@ -502,8 +518,12 @@
       (if can-access-own
         (response {:response (sql/query (db)
                                         [query-own email-address]
+                                        )})))))
                                         :row-fn format-data-set-attachment)})
-        (access-denied constants/manage-data)))))
+        (do
+          (log/debug (format "User %s tried to list data-sets but lacks access"
+                             email-address))
+          (access-denied constants/manage-data))))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
@@ -515,7 +535,8 @@
               constants/session-list-datasets)
 
   (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data))
+        can-access (or (contains? access constants/manage-data)
+                       (contains? access constants/view-attachments))
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
@@ -551,7 +572,7 @@
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
-                       (contains? access constants/manage-attachments))
+                       (contains? access constants/view-attachments))
         can-access-own (contains? access constants/view-own-data)
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
@@ -570,7 +591,13 @@
         (first (sql/query (db)
                           [query-own uuid filename email-address]
                           :row-fn format-attachment-get))
-        (access-denied constants/manage-data)))))
+        (do
+          (log/debug (format (str "User %s tried to download attachment '%s' "
+                                  "from data-set '%s' but lacks access")
+                             email-address
+                             filename
+                             uuid))
+          (access-denied constants/manage-data))))))
 
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete
@@ -593,15 +620,25 @@
                    "and date_deleted is null")]
     (if can-access
       (if (try (sql/execute! (db) [query email-address uuid filename])
-             (catch Exception e
-               (if (instance? SQLException e)
-                 (do (.getCause e)
-                     (println (.getNextException e)))
-                 (println (.getMessage e)))
-               false))
+               (catch Exception e
+                 (log/error e (format (str "There was an error deleting "
+                                           "attachment '%s' from data-set '%s' "
+                                           "by user %s")
+                                      filename
+                                      uuid
+                                      email-address))
+                 (if (instance? SQLException e)
+                   (log/error (.getCause e) "Caused by: "))
+                 false))
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
-      (access-denied constants/manage-data))))
+      (do
+        (log/debug (format (str "User %s tried to delete attachment '%s' "
+                                "from data-set '%s' but lacks access")
+                           email-address
+                           filename
+                           uuid))
+        (access-denied constants/manage-data)))))
 
 ; rename the specified data set attachment filename
 (defn data-set-attachment-filename-rename
@@ -623,12 +660,17 @@
                    "and date_deleted is null")]
     (if can-access
       (if (try (sql/execute! (db) [query new-filename uuid filename])
-            (catch Exception e
-              (if (instance? SQLException e)
-                (do (.getCause e)
-                    (println (.getNextException e)))
-                (println (.getMessage e)))
-              false))
+               (catch Exception e
+                 (log/error e (format (str "There was an error renamining "
+                                           "attachment '%s' to '%s' in data-set "
+                                           "'%s' by user %s")
+                                      filename
+                                      new-filename
+                                      uuid
+                                      email-address))
+                 (if (instance? SQLException e)
+                   (log/error (.getCause e) "Caused by: "))
+                 false))
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))

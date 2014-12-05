@@ -13,4 +13,7 @@ grunt clean
 cd "$dir/WebService/web-service"
 lein clean
 
+cd "$dir/WebService/well-test-identifier"
+lein clean
+
 cd "$dir"
