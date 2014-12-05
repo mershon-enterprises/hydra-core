@@ -18,7 +18,6 @@
   :ring {:handler well-test-identifier.handler/app
          :init well-test-identifier.handler/init
          :destroy well-test-identifier.handler/destroy}
-  :main well-test-identifier.core
   :profiles {:dev {:env {:rabbitmq-host      "localhost"
                          :rabbitmq-username  "guest"
                          :rabbitmq-password  "guest"
