@@ -1,10 +1,34 @@
 <div class="file-explorer">
         <table class="file-explorer-table file-explorer-header">
             <tr>
-                <th>Filename</th>
-                <th>File Size</th>
-                <th>Author</th>
-                <th>Creation Date</th>
+                <th key="filename">
+                    Filename
+                    <div ng-if="filename_show">
+                        <i ng-show="filename_asc" class="fa fa-angle-up"></i>
+                        <i ng-hide="filename_asc" class="fa fa-angle-down"></i>
+                    </div>
+                </th>
+                <th key="bytes">
+                    File Size
+                    <div ng-if="bytes_show">
+                        <i ng-show="bytes_asc" class="fa fa-angle-up"></i>
+                        <i ng-hide="bytes_asc" class="fa fa-angle-down"></i>
+                    </div>
+                </th>
+                <th key="created_by">
+                    Author
+                    <div ng-if="created_by_show">
+                        <i ng-show="created_by_asc" class="fa fa-angle-up"></i>
+                        <i ng-hide="created_by_asc" class="fa fa-angle-down"></i>
+                    </div>
+                </th>
+                <th key="date_created">
+                    Creation Date
+                    <div ng-if="date_created_show">
+                        <i ng-show="date_created_asc" class="fa fa-angle-up"></i>
+                        <i ng-hide="date_created_asc" class="fa fa-angle-down"></i>
+                    </div>
+                </th>
                 <th></th>
             </tr>
         </table>

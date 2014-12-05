@@ -24,6 +24,22 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         $scope.client = {};
         var toggle = null;
 
+        $(document).on('click', '.file-explorer-header * th', function() {
+            if ($scope.searchParams.order_by === $(this).attr('key')) {
+                if ($scope.searchParams.order === 'desc') {
+                    $scope.searchParams.order = 'asc';
+                }
+                else {
+                    $scope.searchParams.order = 'desc';
+                }
+            }
+            else {
+                $scope.searchParams.order_by = $(this).attr('key');
+                $scope.searchParams.order = 'desc';
+            }
+            $scope.$apply();
+        });
+
         $(document).on('click', '.pages > li', function() {
             $scope.searchParams.limit = parseInt($(this).html());
             $scope.$apply();
@@ -131,14 +147,52 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                     }
                     $scope.collapseOptions[clientName] = false;
                 });
+                //TODO Field Sort
             }
             $scope.data = clientGroups;
             RestService.updateCacheValue('data', $scope.data);
         };
 
+        $scope.updateColumnHeaders = function () {
+            $scope.filename_show = false;
+            $scope.bytes_show = false;
+            $scope.created_by_show = false;
+            $scope.date_created_show  = false;
+            $scope.filename_asc = false;
+            $scope.bytes_asc = false;
+            $scope.created_by_asc = false;
+            $scope.date_created_asc = false;
+
+            if ($scope.searchParams.order_by === 'filename') {
+                $scope.filename_show = true;
+                if ($scope.searchParams.order === 'asc') {
+                    $scope.filename_asc = true;
+                }
+            }
+            else if ($scope.searchParams.order_by === 'bytes') {
+                $scope.bytes_show = true;
+                if ($scope.searchParams.order === 'asc') {
+                    $scope.bytes_asc = true;
+                }
+            }
+            else if ($scope.searchParams.order_by === 'created_by') {
+                $scope.created_by_show = true;
+                if ($scope.searchParams.order === 'asc') {
+                    $scope.created_by_asc = true;
+                }
+            }
+            else if ($scope.searchParams.order_by === 'date_created') {
+                $scope.date_created_show = true;
+                if ($scope.searchParams.order === 'asc') {
+                    $scope.date_created_asc = true;
+                }
+            }
+        };
+
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
             $scope.getData();
+            $scope.updateColumnHeaders();
         }, true);
 
         $scope.$on(EVENTS.newSearch, function(event, args) {
@@ -148,6 +202,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.getData();
+            $scope.updateColumnHeaders();
         });
 
         if (RestService.getCacheValue('data') !== null) {

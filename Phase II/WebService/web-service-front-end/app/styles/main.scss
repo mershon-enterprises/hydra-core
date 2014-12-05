@@ -390,6 +390,15 @@ footer {
 
     th {
         text-align: center !important;
+        cursor: pointer;
+        &:hover {
+            background-color: $dark-gray + $default-hover-offset/2;
+        }
+    }
+
+    div {
+        display: inline;
+        padding-left: $default-padding/2;
     }
 }
 
@@ -404,6 +413,9 @@ footer {
         color: $off-white;
         font-weight: bold;
         height: 30px;
+        &:hover {
+            background-color: $dark-gray + $default-hover-offset/2;
+        }
     }
 }
 
