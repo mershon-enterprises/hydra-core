@@ -2,7 +2,7 @@
     <div ng-repeat="key in data">
         <table ng-if="key" class="file-explorer-table" client={{key[0].client}}>
             <tr>
-                <th colspan="5"><i class="fa fa-plus-square" client={{key[0].client}}></i> {{key[0].client}}</th>
+                <th colspan="5"><i class="toggle fa fa-minus-square" client={{key[0].client}}></i> {{key[0].client}}</th>
             </tr>
             <tr ng-repeat="row in key">
                 <td>{{row.filename}}</td>

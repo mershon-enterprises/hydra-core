@@ -22,16 +22,20 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.collapseOptions = {};
         $scope.client = {};
+        var toggle = null;
 
-        $(document).on('click', '.fa-plus-square', function() {
+        $(document).on('click', '.toggle', function() {
             $scope.client = $(this).attr('client');
+            toggle = $(this)
             $('.file-explorer-table').each(function() {
                 if ($(this).attr('client') === $scope.client) {
                     if ($scope.collapseOptions[$scope.client]) {
                         $(this).find('td').show();
+                        toggle.removeClass('fa-plus-square').addClass('fa-minus-square');
                     }
                     else {
                         $(this).find('td').hide();
+                        toggle.removeClass('fa-minus-square').addClass('fa-plus-square');
                     }
                     $scope.collapseOptions[$scope.client] = !$scope.collapseOptions[$scope.client];
                 }
