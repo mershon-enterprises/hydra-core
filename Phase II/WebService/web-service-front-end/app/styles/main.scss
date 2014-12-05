@@ -394,7 +394,6 @@ footer {
 }
 
 .pagination {
-    float: left;
     margin: $default-margin/2;
     li {
         display: inline-block;
@@ -404,6 +403,18 @@ footer {
         background: $dark-gray;
         color: $off-white;
         font-weight: bold;
+        height: 30px;
+    }
+}
+
+.pages {
+    float: left;
+}
+
+.navigation {
+    float: right;
+    li {
+        width: 30px;
     }
 }
 

@@ -24,8 +24,31 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         $scope.client = {};
         var toggle = null;
 
-        $(document).on('click', '.pagination > li', function() {
-            $scope.searchParams.limit = $(this).html();
+        $(document).on('click', '.pages > li', function() {
+            $scope.searchParams.limit = parseInt($(this).html());
+            $scope.$apply();
+        });
+
+        $(document).on('click', '.navigation > li', function() {
+
+            if ($(this).children().hasClass('fa-angle-double-left')) {
+                $scope.searchParams.offset = 0;
+            }
+            else if ($(this).children().hasClass('fa-angle-left')) {
+                if ($scope.searchParams.offset - $scope.searchParams.limit >= 0) {
+                    $scope.searchParams.offset = $scope.searchParams.offset - $scope.searchParams.limit;
+                }
+            }
+            else if ($(this).children().hasClass('fa-angle-right')) {
+                //TODO. Implement maximum.
+                $scope.searchParams.offset = $scope.searchParams.offset + $scope.searchParams.limit;
+            }
+            else if ($(this).children().hasClass('fa-angle-double-right')) {
+                //TODO. Not implemented.
+            }
+
+            console.log($scope.searchParams);
+
             $scope.$apply();
         });
 
