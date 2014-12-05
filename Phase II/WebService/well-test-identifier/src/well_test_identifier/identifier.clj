@@ -207,7 +207,10 @@
                                                 (if (> x 0)
                                                   (str "-" (+ x 1))
                                                   "")))]
-                  (rename-rpc (:uuid data-set) old-filename new-filename)))
+                  (rename-rpc (:uuid data-set) old-filename new-filename)
+                  ; TODO - update the local copy of well-test-json so we only
+                  ; use the new filename going forward
+                  ))
               indicies-well-report))
 
           ; TODO -- rename all historical files to follow naming convention
