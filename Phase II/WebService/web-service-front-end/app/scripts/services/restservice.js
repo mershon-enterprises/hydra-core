@@ -212,6 +212,8 @@ angular.module('webServiceApp').factory('RestService',
 
                     var parsedData =  restService.parseData(responseBody);
 
+                    restService.updateCacheValue('data', parsedData);
+
                     deferred.resolve([EVENTS.promiseSuccess, parsedData]);
 
                     console.log('restclient.listAttachments succeeded');
@@ -483,6 +485,7 @@ angular.module('webServiceApp').factory('RestService',
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
+        localStorageService.set('data', null);
         localStorageService.set('users', null);
         restService.refreshCache().then(
             function(success) {
@@ -490,6 +493,7 @@ angular.module('webServiceApp').factory('RestService',
                 //that restclient calls may be used.
                 if (success) {
                     $rootScope.$broadcast(EVENTS.cacheReady);
+                    console.log('refreshCache succeed.');
                 }
             },
             function(error) {
@@ -542,6 +546,9 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'clients') {
             localStorageService.set('clients', data);
         }
+        else if (key === 'data') {
+            localStorageService.set('data', data);
+        }
         else if (key === 'users') {
             localStorageService.set('users', data);
         }
@@ -555,6 +562,9 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'clients') {
             return localStorageService.get('clients');
         }
+        else if (key === 'data') {
+            return localStorageService.get('data');
+        }
         else if (key === 'users') {
             return localStorageService.get('users');
         }
@@ -567,9 +577,11 @@ angular.module('webServiceApp').factory('RestService',
     restService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
+        localStorageService.set('data', null);
         localStorageService.set('users', null);
         localStorageService.remove('accessLevels');
         localStorageService.remove('clients');
+        localStorageService.remove('data');
         localStorageService.remove('users');
     };
 

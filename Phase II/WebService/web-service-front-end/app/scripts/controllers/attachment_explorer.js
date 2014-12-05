@@ -101,11 +101,16 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                 });
             }
             $scope.data = clientGroups;
+            RestService.updateCacheValue('data', $scope.data);
         };
 
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.getData();
         });
+
+        if (RestService.getCacheValue('data') !== null) {
+            $scope.data = RestService.getCacheValue('data');
+        }
 
     }
 
