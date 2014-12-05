@@ -1,6 +1,14 @@
 <div class="file-explorer">
-    <div ng-repeat="key in data">
-        <table ng-if="key" class="file-explorer-table" client={{key[0].client}}>
+        <table class="file-explorer-table file-explorer-header">
+            <tr>
+                <th>Filename</th>
+                <th>File Size</th>
+                <th>Author</th>
+                <th>Creation Date</th>
+                <th></th>
+            </tr>
+        </table>
+        <table ng-repeat="key in data" ng-if="key" class="file-explorer-table" client={{key[0].client}}>
             <tr>
                 <th colspan="5"><i class="toggle fa fa-minus-square" client={{key[0].client}}></i> {{key[0].client}}</th>
             </tr>
@@ -15,5 +23,4 @@
                 </td>
             </tr>
         </table>
-    </div>
 </div>

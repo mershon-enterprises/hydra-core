@@ -198,7 +198,6 @@ td {
 
 th {
     border: 1px solid $off-black;
-    text-align: left;
     padding: $default-padding/2 $default-padding;
 }
 
@@ -353,6 +352,26 @@ footer {
     th {
         background-color: $dark-gray;
         color: $off-white;
+        text-align: left;
+    }
+
+
+    tr {
+        th:nth-child(1), td:nth-child(1) {
+            width: 22%;
+        }
+        th:nth-child(2), td:nth-child(2) {
+            width: 20%;
+        }
+        th:nth-child(3), td:nth-child(3) {
+            width: 30%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 20%;
+        }
+        th:nth-child(5), td:nth-child(5) {
+            width: 8%;
+        }
     }
 
     i {
@@ -361,6 +380,16 @@ footer {
 
     .fa-cog {
         padding-left: $default-padding/3;
+    }
+}
+
+.file-explorer-header {
+    th, td {
+        border-bottom: 0px;
+    }
+
+    th {
+        text-align: center !important;
     }
 }
 
