@@ -17,7 +17,8 @@
             [lein-environ "1.0.0"]]
   :ring {:handler well-test-identifier.handler/app
          :init well-test-identifier.handler/init
-         :destroy well-test-identifier.handler/destroy}
+         :destroy well-test-identifier.handler/destroy
+         :port 3001}
   :profiles {:dev {:env {:rabbitmq-host      "localhost"
                          :rabbitmq-username  "guest"
                          :rabbitmq-password  "guest"
