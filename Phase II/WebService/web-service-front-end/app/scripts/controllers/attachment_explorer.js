@@ -12,13 +12,31 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.data = null;
 
-        $scope.paramsMap = {
-            stringQuery: '',
-            order: 'desc',
-            offset: '',
-            limit: '',
-            order_by: 'data_created'
+        $scope.searchParams = {
+            search_string: '',
+            limit: 20,
+            offset: 0,
+            order_by: 'date_created',
+            order: 'desc'
         };
+
+        $scope.collapseOptions = {};
+        $scope.client = {};
+
+        $(document).on('click', '.fa-plus-square', function() {
+            $scope.client = $(this).attr('client');
+            $('.file-explorer-table').each(function() {
+                if ($(this).attr('client') === $scope.client) {
+                    if ($scope.collapseOptions[$scope.client]) {
+                        $(this).find('td').show();
+                    }
+                    else {
+                        $(this).find('td').hide();
+                    }
+                    $scope.collapseOptions[$scope.client] = !$scope.collapseOptions[$scope.client];
+                }
+            });
+        });
 
         //Bindings for the controls in each row.
         $(document).on('click', '.fa-download', function(){
@@ -46,24 +64,43 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
+                    $scope.sortData();
                 }
             },
             function (error) {
                 console.log('AttachmentExplorerCtrl promise error.');
                 console.log(error);
             });
-
-            //Sort the data.
-            $scope.sortData();
         };
 
         //Sort the data into containers based on client/field combinations.
         $scope.sortData = function () {
+            var clientGroups = {};
+            var clientName = null;
+            var tempObject = {};
+
+            $.extend(clientGroups, {'nonClient': []});
             if ($scope.data) {
                 $.each($scope.data, function(index, value) {
-
+                    if ('client' in value) {
+                        clientName = value.client;
+                        if (clientName in clientGroups) {
+                            clientGroups[clientName].push(value);
+                        }
+                        else {
+                            tempObject[clientName] = [];
+                            $.extend(clientGroups, tempObject);
+                            clientGroups[clientName].push(value);
+                            tempObject = {};
+                        }
+                    }
+                    else {
+                        clientGroups['nonClient'].push(value);
+                    }
+                    $scope.collapseOptions[clientName] = false;
                 });
             }
+            $scope.data = clientGroups;
         };
 
         $scope.$on(EVENTS.cacheReady, function() {

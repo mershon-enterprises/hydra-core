@@ -188,13 +188,18 @@ nav {
 
 table {
     border-collapse: collapse;
-    border: 2px solid $off-black;
     color: $off-black;
 }
 
 td {
     border: 1px solid $off-black;
     padding: $default-padding;
+}
+
+th {
+    border: 1px solid $off-black;
+    text-align: left;
+    padding: $default-padding/2 $default-padding;
 }
 
 tr:nth-child(even) {
@@ -332,8 +337,12 @@ footer {
 
 //File Explorer
 .file-explorer {
+    margin: $default-margin;
+}
 
-    margin: $default-margin auto;
+.file-explorer-table {
+
+    margin: 0 auto;
 
     width: 90%;
 
