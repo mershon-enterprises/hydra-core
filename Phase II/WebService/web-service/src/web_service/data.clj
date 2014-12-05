@@ -218,6 +218,7 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/create-data)
                        (contains? access constants/manage-data))
+        conn (db)
         query (str "insert into public.data_set "
                    "(uuid, date_created, created_by) values "
                    "(?::uuid, ?::timestamp with time zone, ("
@@ -233,53 +234,66 @@
       (if (empty? json-data)
         (status (response {:response "Cannot record empty data-set"}) 409)
         (try
-          (let [keys (sql/db-do-prepared-return-keys (db) query [uuid
-                                                                 date-created
-                                                                 created-by])
-                id (:id keys)]
-            ; iterate child elements of 'data' and add to the database also
-            (doseq [data-element json-data]
-              (let [type (:type data-element)]
-                ; treat attachments and primitive data differently
-                (if (= type "attachment")
-                  (let [filename (:filename data-element)
-                        mime-type (:mime_type data-element)
-                        contents (:contents data-element)
-                        query (str "insert into public.data_set_attachment "
-                                   "(data_set_id, filename, mime_type, contents) "
-                                   "values (?,?,?,decode(?, 'base64'))")
-                        success (sql/execute! (db) [query id filename mime-type
-                                                    contents])]
-                    (if (not success)
-                      (throw Exception "Failed to insert new attachment!")))
-                  (let [type (:type data-element)
-                        description (:description data-element)
-                        value (:value data-element)
-                        query (str "insert into public.data_set_" type " "
-                                   "(data_set_id, description, value) values "
-                                   "(?,?,?"
-                                   (if (= type "date") ; cast dates correctly
-                                     "::timestamp with time zone"
-                                     "")
-                                   ")")
-                        success (sql/execute! (db)
-                                              [query id description value])]
-                    (if (not success)
-                      (throw Exception "Failed to insert new child row!"))))))
-            (let [data-saved (data-set-get email-address uuid)]
-              ; broadcast the dataset including attachment binary data to
-              ; listeners
-              (let [with-attachments (merge (:response (:body data-saved))
-                                            {:data json-data})]
-                (amqp/broadcast "text/json"
-                                "dataset"
-                                (generate-string with-attachments)))
-              (status data-saved 201)))
+          (sql/with-db-transaction
+            [conn db-spec]
+            (let [keys (sql/db-do-prepared-return-keys conn
+                                                       false ; no transaction
+                                                       query
+                                                       [uuid
+                                                        date-created
+                                                        created-by])
+                  id (:id keys)]
+              ; iterate child elements of 'data' and add to the database also
+              (doseq [data-element json-data]
+                (let [type (:type data-element)]
+                  ; treat attachments and primitive data differently
+                  (if (= type "attachment")
+                    ;TODO replace with data-set-attachment-submit
+                    (let [filename (:filename data-element)
+                          mime-type (:mime_type data-element)
+                          contents (:contents data-element)
+                          query (str "insert into public.data_set_attachment "
+                                     "(data_set_id, filename, mime_type, contents) "
+                                     "values (?,?,?,decode(?, 'base64'))")
+                          success (sql/execute! conn [query
+                                                      id
+                                                      filename
+                                                      mime-type
+                                                      contents]
+                                                :transaction? false)]
+                      (if (not success)
+                        (throw Exception "Failed to insert new attachment!")))
+                    ;TODO replace with data-set-primitive-submit
+                    (let [type (:type data-element)
+                          description (:description data-element)
+                          value (:value data-element)
+                          query (str "insert into public.data_set_" type " "
+                                     "(data_set_id, description, value) values "
+                                     "(?,?,?"
+                                     (if (= type "date") ; cast dates correctly
+                                       "::timestamp with time zone"
+                                       "")
+                                     ")")
+                          success (sql/execute! conn
+                                                [query id description value]
+                                                :transaction? false)]
+                      (if (not success)
+                        (throw Exception "Failed to insert new child row!"))))))))
+          (let [data-saved (data-set-get email-address uuid)]
+            ; broadcast the dataset including attachment binary data to
+            ; listeners
+            (let [with-attachments (merge (:response (:body data-saved))
+                                          {:data json-data})]
+              (amqp/broadcast "text/json"
+                              "dataset"
+                              (generate-string with-attachments)))
+            (status data-saved 201))
           (catch Exception e
             (log/error e (format (str "There was an error submitting a "
                                       "data-set for user %s")
                                  email-address))
-            ; TODO -- rollback the transaction
+            ; rollback the transaction
+            (sql/db-set-rollback-only! conn)
             (if (instance? SQLException e)
               (log/error (.getCause e) "Caused by: "))
             (status (response {:response "Failure"}) 409))))
