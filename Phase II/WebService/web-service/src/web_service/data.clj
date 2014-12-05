@@ -203,7 +203,7 @@
           (format ("User %s tried to delete data-set '%s' but lacks access")
                   email-address
                   uuid))
-        (access-denied constants/manage-data))))))))
+        (access-denied constants/manage-data)))))
 
 
 ; submit data
@@ -532,7 +532,6 @@
       (if can-access-own
         (response {:response (sql/query (db)
                                         [query-own email-address]
-                                        )})))))
                                         :row-fn format-data-set-attachment)})
         (do
           (log/debug (format "User %s tried to list data-sets but lacks access"
