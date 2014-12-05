@@ -66,6 +66,7 @@
   {:filename (:filename row)
    :date_created (:date_created row)
    :created_by (:created_by row)
+   :data_set_uuid (:data_set_uuid row)
    :data (get-primitive-data "text" (:data_set_id row))})
 
 
@@ -106,7 +107,7 @@
        "  c.name as client, "
        "  cl.description as location, "
        "  ds.id as data_set_id, ",
-       "  ds.uuid as uuid "
+       "  ds.uuid as data_set_uuid "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
