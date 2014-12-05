@@ -84,8 +84,8 @@
   (le/declare ch ex "topic" {:durable false :auto-delete true})
 
   ; queue up a listening message handler for local debugging
-  (start-consumer ch "#" (str ex ".#.core") true)
-  ;(start-consumer ch "authentication" (str ex ".authentication.core") true)
+  ;(start-consumer ch "#" (str ex ".#.core") true)
+  (start-consumer ch "authentication" (str ex ".authentication.core") true)
   ;(start-consumer ch "dataset" (str ex ".dataset.core") true)
   (start-consumer ch "rpc" (str ex ".rpc.core") false))
 
