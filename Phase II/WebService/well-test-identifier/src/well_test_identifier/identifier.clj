@@ -212,27 +212,22 @@
 
           ; TODO -- rename all historical files to follow naming convention
 
-          (do
-            (println "RPC call complete.")
+          ; bundle together attachments as a temporary zip file, email out to
+          ; the administrative users, and then delete the file
+          (let [zip-filename (zip/zip-well-test base-name data-set)
+                test-notes (:value (first (filter
+                                            (fn [{type :type descr :description}]
+                                              (and (= "text" type)
+                                                   (= "wellTestNotes" descr)))
+                                            well-test-data)))]
+            (smtp/send-well-test (str "Red Lion Well Test - " base-name)
+                                 (if (and (not (nil? test-notes))
+                                          (not-empty test-notes))
+                                   test-notes
+                                   "<h2>No test notes provided.</h2>")
+                                 zip-filename)
+            (io/delete-file zip-filename)
 
-
-            ; bundle together attachments as a temporary zip file, email out to
-            ; the administrative users, and then delete the file
-            (let [zip-filename (zip/zip-well-test base-name data-set)
-                  test-notes (:value (first (filter
-                                              (fn [{type :type descr :description}]
-                                                (and (= "text" type)
-                                                     (= "wellTestNotes" descr)))
-                                              well-test-data)))]
-              (smtp/send-well-test (str "Red Lion Well Test - " base-name)
-                                   (if (and (not (nil? test-notes))
-                                            (not-empty test-notes))
-                                     test-notes
-                                     "<h2>No test notes provided.</h2>")
-                                   zip-filename)
-              (io/delete-file zip-filename)
-
-              ; fire another AMQP event with the original data, but on the
-              ; well-test routing key, to trigger downstream reporting
-              (amqp/broadcast "text/json" "well-test" well-test-json))))
-        ))))
+            ; fire another AMQP event with the original data, but on the
+            ; well-test routing key, to trigger downstream reporting
+            (amqp/broadcast "text/json" "well-test" well-test-json)))))))
