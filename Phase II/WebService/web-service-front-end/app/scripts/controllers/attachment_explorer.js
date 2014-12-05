@@ -14,7 +14,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.searchParams = {
             search_string: '',
-            limit: 20,
+            limit: 25,
             offset: 0,
             order_by: 'date_created',
             order: 'desc'
@@ -23,6 +23,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         $scope.collapseOptions = {};
         $scope.client = {};
         var toggle = null;
+
+        $(document).on('click', '.pagination > li', function() {
+            $scope.searchParams.limit = $(this).html();
+            $scope.$apply();
+        });
 
         $(document).on('click', '.toggle', function() {
             $scope.client = $(this).attr('client');

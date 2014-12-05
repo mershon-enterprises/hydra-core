@@ -336,7 +336,7 @@ footer {
 
 //File Explorer
 .file-explorer {
-    margin: $default-margin;
+    margin: $default-margin $default-margin $default-margin*3;
 }
 
 .file-explorer-table {
@@ -390,6 +390,20 @@ footer {
 
     th {
         text-align: center !important;
+    }
+}
+
+.pagination {
+    float: left;
+    margin: $default-margin/2;
+    li {
+        display: inline-block;
+        border: 1px solid $off-black;
+        padding: $default-padding/2;
+        cursor: pointer;
+        background: $dark-gray;
+        color: $off-white;
+        font-weight: bold;
     }
 }
 
