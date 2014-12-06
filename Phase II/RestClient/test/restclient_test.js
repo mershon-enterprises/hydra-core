@@ -801,7 +801,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(6);
+    test.expect(10);
     restclient.listAttachments(
       clientUUID,
       apiToken,
@@ -812,29 +812,23 @@ exports['listAttachments'] = {
        order: "desc" }
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list data should succeed');
-
         var bodyObj = JSON.parse(data.entity);
-        checkResponse(test, bodyObj);
-        test.ok(Array.isArray(bodyObj['response']),
-          'data list should be an array');
-        test.ok(bodyObj['response'].length === 20,
-          'should return exactly 20 attachments');
-        //TODO Need to mock 100 Datasets with attachments to test limit and
-        //offset and search features
 
-        //test.ok('uuid' in bodyObj['response'][0],
-        //  'data-set uuid should be stated');
-        //test.ok('date_created' in bodyObj['response'][0],
-        //  'data-set date created should be stated');
-        //test.ok('created_by' in bodyObj['response'][0],
-        //  'data-set created-by should be stated');
-        //test.ok('data' in bodyObj['response'][0],
-        //  'data-set data should be stated');
-        //test.ok(Array.isArray(bodyObj['response'][0]['data']),
-        //  'data-set data should be an array');
-        //test.ok(bodyObj['response'][0]['data'].length > 0,
-        //  'at least one data-set data item should exist');
+        console.log(data);
+        checkResponse(test, bodyObj);
+        test.equal(data.status.code, 200, 'list data should succeed');
+        test.ok(Array.isArray(bodyObj['response']['attachments']),
+          'data list should be an array');
+        test.ok(bodyObj['response']['attachments'].length === 20,
+          'should return exactly 20 attachments');
+        test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+          'data set uuid should be stated');
+        test.ok('date_created' in bodyObj['response']['attachments'][0], 
+          'attachment date created should be stated');
+        test.ok('created_by' in bodyObj['response']['attachments'][0],
+          'attachment created-by should be stated');
+        test.ok('filename' in bodyObj['response']['attachments'][0],
+          'attachment filename should be stated');
 
         test.done();
       });
@@ -922,9 +916,7 @@ exports['getAttachmentInfo'] = {
               'primitive data value should be "testValue"');
             test.done();
         });
-
     });
-
   }
 };
 
