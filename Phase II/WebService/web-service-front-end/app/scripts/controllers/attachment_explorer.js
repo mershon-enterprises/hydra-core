@@ -20,9 +20,52 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             order: 'desc'
         };
 
-        $scope.collapseOptions = {};
-        $scope.client = {};
-        var toggle = null;
+        $scope.clientCollapseOptions = {};
+        $scope.locationCollapseOptions = {};
+
+        $(document).on('click', '.toggle', function() {
+
+            var toggle = null;
+            var clientName = null;
+            var locationName = null;
+
+            if($(this).attr('client')) {
+                toggle = $(this);
+                clientName = $(this).attr('client');
+                $('.location-table').each(function() {
+                    if ($(this).attr('parent-client') === clientName) {
+                        if ($scope.clientCollapseOptions[clientName]) {
+                            $(this).show();
+                            toggle.removeClass('fa-plus-square').addClass('fa-minus-square');
+                        }
+                        else {
+                            $(this).hide();
+                            toggle.removeClass('fa-minus-square').addClass('fa-plus-square');
+                        }
+                    }
+                });
+                $scope.clientCollapseOptions[clientName] = !$scope.clientCollapseOptions[clientName];
+            }
+
+            if($(this).attr('location')) {
+                toggle = $(this);
+                clientName = $(this).attr('parent-client');
+                locationName = $(this).attr('location');
+                $('.data-row').each(function() {
+                    if (($(this).attr('parent-client') === clientName) && ($(this).attr('location') === locationName)) {
+                        if ($scope.locationCollapseOptions[clientName+locationName]) {
+                            $(this).show();
+                            toggle.removeClass('fa-plus-square').addClass('fa-minus-square');
+                        }
+                        else {
+                            $(this).hide();
+                            toggle.removeClass('fa-minus-square').addClass('fa-plus-square');
+                        }
+                    }
+                });
+                $scope.locationCollapseOptions[clientName+locationName] = !$scope.locationCollapseOptions[clientName+locationName];
+            }
+        });
 
         $(document).on('click', '.file-explorer-header * th', function() {
             if ($scope.searchParams.order_by === $(this).attr('key')) {
@@ -64,24 +107,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             }
 
             $scope.$apply();
-        });
-
-        $(document).on('click', '.toggle', function() {
-            $scope.client = $(this).attr('client');
-            toggle = $(this);
-            $('.file-explorer-table').each(function() {
-                if ($(this).attr('client') === $scope.client) {
-                    if ($scope.collapseOptions[$scope.client]) {
-                        $(this).find('td').show();
-                        toggle.removeClass('fa-plus-square').addClass('fa-minus-square');
-                    }
-                    else {
-                        $(this).find('td').hide();
-                        toggle.removeClass('fa-minus-square').addClass('fa-plus-square');
-                    }
-                    $scope.collapseOptions[$scope.client] = !$scope.collapseOptions[$scope.client];
-                }
-            });
         });
 
         //Bindings for the controls in each row.
@@ -130,6 +155,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                     if ('client' in value) {
 
                         clientName = value.client;
+                        $scope.clientCollapseOptions[clientName] = false;
 
                         if(!(clientName in clientGroups)) {
                             clientGroups[clientName] = {};
@@ -138,6 +164,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                         if('location' in value) {
                             locationName = value.location;
                             clientGroups[clientName][locationName] = [];
+                            $scope.locationCollapseOptions[clientName+locationName] = false;
                         }
                         else {
                             clientGroups[clientName]['noLocation'] = [];
@@ -153,12 +180,10 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                         clientName = value.client;
                         locationName = value.location;
                         clientGroups[clientName][locationName].push(value);
-                        $scope.collapseOptions[clientName] = false;
                     }
                     else if (('client' in value) && !('location' in value)) {
                         clientName = value.client;
                         clientGroups[clientName]['noLocation'].push(value);
-                        $scope.collapseOptions[clientName] = false;
                     }
                     else if (!('client' in value)) {
                         clientGroups['noClient'].push(value);

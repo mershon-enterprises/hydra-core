@@ -33,17 +33,17 @@
             </tr>
         </table>
 
-        <div ng-repeat="(key, client) in data">
+        <div ng-repeat="(clientName, client) in data">
             <table class="file-explorer-table">
                 <tr>
-                    <th class="client-header" colspan="5"><i class="toggle fa fa-minus-square" client={{key}}></i> {{key}}</th>
+                    <th class="client-header" colspan="5"><i class="toggle fa fa-minus-square" client={{clientName}}></i> {{clientName}}</th>
                 </tr>
             </table>
-            <table class="file-explorer-table" ng-repeat="(key, location) in client">
+            <table class="file-explorer-table location-table" parent-client="{{clientName}}" ng-repeat="(locationName, location) in client">
                 <tr>
-                    <th class="location-header" colspan="5"><i class="toggle fa fa-minus-square" location={{key}}></i> {{key}}</th>
+                    <th class="location-header" colspan="5"><i class="toggle fa fa-minus-square" location="{{locationName}}" parent-client="{{clientName}}" ></i> {{locationName}}</th>
                 </tr>
-                <tr ng-repeat="row in location">
+                <tr class="data-row" parent-client="{{clientName}}" location="{{locationName}}" ng-repeat="row in location">
                     <td>{{row.filename}}</td>
                     <td>{{row.bytes | filesize}}</td>
                     <td class="author">{{row.created_by}}</td>
