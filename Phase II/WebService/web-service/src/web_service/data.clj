@@ -557,13 +557,13 @@
     (if can-access
       (response {:response
                  {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
-                  :result_count (sql/query (db) [query-result-count])}})
+                  :result_count (:count (first (sql/query (db) [query-result-count])))}})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
         (response {:response
                  {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                  :result_count (sql/query (db) [query-own-result-count email-address])}})
+                  :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}})
         (access-denied constants/manage-data)))))
 
 ; get data_set_attachment info
