@@ -814,7 +814,6 @@ exports['listAttachments'] = {
       function(data) {
         var bodyObj = JSON.parse(data.entity);
 
-        console.log(data);
         checkResponse(test, bodyObj);
         test.equal(data.status.code, 200, 'list data should succeed');
         test.ok(Array.isArray(bodyObj['response']['attachments']),
@@ -836,7 +835,7 @@ exports['listAttachments'] = {
   'with-api-token-search-filename': function(test) {
     test.expect(14);
 
-    var attachment = restclient.Attachment("findThis.csv", "test/csv", "");
+    var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
 
     restclient.submitData(
       clientUUID,
@@ -887,7 +886,7 @@ exports['listAttachments'] = {
   'with-api-token-search-primitive-value': function(test) {
     test.expect(14);
 
-    var attachment = restclient.Attachment("test.csv", "test/csv", "");
+    var attachment = restclient.Attachment("test.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "description", "findThisValue");
 
     restclient.submitData(
@@ -939,7 +938,7 @@ exports['listAttachments'] = {
   'with-api-token-search-created-by': function(test) {
     test.expect(14);
 
-    var attachment = restclient.Attachment("test.csv", "test/csv", "");
+    var attachment = restclient.Attachment("test.csv", "text/csv", "");
 
     restclient.submitData(
       clientUUID,
@@ -1014,7 +1013,7 @@ exports['getAttachmentInfo'] = {
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
-        attachment = restclient.Attachment("test.csv", "test/csv", ""),
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
