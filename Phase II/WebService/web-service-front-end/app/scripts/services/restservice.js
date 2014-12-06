@@ -245,7 +245,7 @@ angular.module('webServiceApp').factory('RestService',
 
         if (rawData) {
             $.each(rawData, function(index, value){
-                uniqueKey = {unique_key: value.filename + '\n' + value.uuid};
+                uniqueKey = {unique_key: value.filename + '\n' + value.data_set_uuid};
                 data.push($.extend(value, uniqueKey));
             });
         }
