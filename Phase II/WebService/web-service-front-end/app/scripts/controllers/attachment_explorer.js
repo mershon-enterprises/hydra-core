@@ -11,6 +11,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
     if (Session.exists()) {
 
         $scope.data = null;
+        $scope.resultCount = 0;
+        $scope.clientCollapseOptions = {};
+        $scope.locationCollapseOptions = {};
 
         $scope.searchParams = {
             search_string: '',
@@ -19,9 +22,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             order_by: 'date_created',
             order: 'desc'
         };
-
-        $scope.clientCollapseOptions = {};
-        $scope.locationCollapseOptions = {};
 
         $(document).on('click', '.toggle', function() {
 
@@ -89,7 +89,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         });
 
         $(document).on('click', '.navigation > li', function() {
-
             if ($(this).children().hasClass('fa-angle-double-left')) {
                 $scope.searchParams.offset = 0;
             }
@@ -99,11 +98,13 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                 }
             }
             else if ($(this).children().hasClass('fa-angle-right')) {
-                //TODO. Implement maximum.
-                $scope.searchParams.offset = $scope.searchParams.offset + $scope.searchParams.limit;
+
+                if ($scope.searchParams.offset + $scope.searchParams.limit < $scope.resultCount) {
+                    $scope.searchParams.offset = $scope.searchParams.offset + $scope.searchParams.limit;
+                }
             }
             else if ($(this).children().hasClass('fa-angle-double-right')) {
-                //TODO. Not implemented.
+                $scope.searchParams.offset = $scope.resultCount - $scope.searchParams.limit;
             }
 
             $scope.$apply();
@@ -135,6 +136,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
+                    $scope.resultCount = success[2];
                     $scope.sortData();
                 }
             },
@@ -191,7 +193,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                 });
             }
 
-            console.log(clientGroups);
             $scope.data = clientGroups;
             RestService.updateCacheValue('data', $scope.data);
         };
@@ -250,6 +251,10 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         if (RestService.getCacheValue('data') !== null) {
             $scope.data = RestService.getCacheValue('data');
+        }
+
+        if (RestService.getCacheValue('result_count') !== null) {
+            $scope.resultCount = RestService.getCacheValue('result_count');
         }
 
     }

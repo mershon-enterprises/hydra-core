@@ -210,11 +210,15 @@ angular.module('webServiceApp').factory('RestService',
 
                     var responseBody = jsonResponse.response;
 
-                    var parsedData =  restService.parseData(responseBody);
+                    var parsedData =  restService.parseData(responseBody.attachments);
+
+                    var resultCount =  responseBody.result_count;
 
                     restService.updateCacheValue('data', parsedData);
 
-                    deferred.resolve([EVENTS.promiseSuccess, parsedData]);
+                    restService.updateCacheValue('result_count', resultCount);
+
+                    deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
 
                     console.log('restclient.listAttachments succeeded');
                 }
@@ -486,6 +490,7 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
         localStorageService.set('data', null);
+        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         restService.refreshCache().then(
             function(success) {
@@ -549,6 +554,9 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'data') {
             localStorageService.set('data', data);
         }
+        else if (key === 'result_count') {
+            localStorageService.set('result_count', data);
+        }
         else if (key === 'users') {
             localStorageService.set('users', data);
         }
@@ -565,6 +573,9 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'data') {
             return localStorageService.get('data');
         }
+        else if (key === 'result_count') {
+            return localStorageService.get('result_count');
+        }
         else if (key === 'users') {
             return localStorageService.get('users');
         }
@@ -578,10 +589,12 @@ angular.module('webServiceApp').factory('RestService',
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
         localStorageService.set('data', null);
+        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         localStorageService.remove('accessLevels');
         localStorageService.remove('clients');
         localStorageService.remove('data');
+        localStorageService.remove('result_count');
         localStorageService.remove('users');
     };
 
