@@ -58,7 +58,7 @@
    :created_by (:created_by row)
    :client (:client row)
    :location (:location row)
-   :uuid (:uuid row)})
+   :data_set_uuid (:uuid row)})
 
 
 ; format the specified row from the data_set_attachment for info display
@@ -121,6 +121,26 @@
        "  on cl.client_id = c.id "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
+
+
+(def data-set-attachment-query-count
+  (str "select "
+       "  count(distinct dsa.id) "
+       "from data_set_attachment as dsa "
+       "inner join data_set as ds "
+       "  on ds.id = dsa.data_set_id "
+       "left join data_set_text as dst "
+       "  on ds.id = dst.data_set_id "
+       "left join public.user as u "
+       "  on u.id = ds.created_by "
+       "left join public.client_location as cl "
+       "  on ds.client_location_id = cl.id "
+       "left join public.client as c "
+       "  on cl.client_id = c.id "
+       "where ds.date_deleted is null "
+       "  and dsa.date_deleted is null "))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -521,24 +541,30 @@
                    order-by-query
                    limit-query
                    offset-query)
+
+        query-result-count (str data-set-attachment-query-count
+                                search-string-query)
+
         query-own (str data-set-attachment-query
                        "and u.email_address=? "
                        search-string-query
                        order-by-query
                        limit-query
-                       offset-query)]
+                       offset-query)
+        query-own-result-count (str data-set-attachment-query-count
+                                    "and u.email_address=? "
+                                    search-string-query)]
     (if can-access
-      (response {:response (sql/query (db) [query] :row-fn format-data-set-attachment)})
+      (response {:response
+                 {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
+                  :result_count (sql/query (db) [query-result-count])}})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (if can-access-own
-        (response {:response (sql/query (db)
-                                        [query-own email-address]
-                                        :row-fn format-data-set-attachment)})
-        (do
-          (log/debug (format "User %s tried to list data-sets but lacks access"
-                             email-address))
-          (access-denied constants/manage-data))))))
+        (response {:response
+                 {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
+                  :result_count (sql/query (db) [query-own-result-count email-address])}})
+        (access-denied constants/manage-data)))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
