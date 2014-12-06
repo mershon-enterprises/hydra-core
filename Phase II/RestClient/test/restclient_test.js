@@ -1051,22 +1051,22 @@ exports['getAttachmentInfo'] = {
               'attachment date created should be stated');
             test.ok('created_by' in bodyObj['response'][0],
               'attachment created-by should be stated');
-            test.ok('data' in bodyObj['response'][0],
-              'attachment data should be stated');
-            test.ok(Array.isArray(bodyObj['response'][0]['data']),
-              'attachment data should be an array');
+            test.ok('primitive_text_data' in bodyObj['response'][0],
+              'primitive text data should be stated');
+            test.ok(Array.isArray(bodyObj['response'][0]['primitive_text_data']),
+              'primitive_text_data should be an array');
             test.ok(bodyObj['response'][0]['filename'] === 'test.csv',
               'filename should be called "test.csv"');
             test.ok(bodyObj['response'][0]['created_by'] === 'admin@example.com',
               'created_by should be "admin@example.com"');
-            test.ok(bodyObj['response'][0]['data'].length === 1,
-              'data should have 1 primitive data elements');
-            test.ok(bodyObj['response'][0]['data'][0]['type'] === 'text',
-              'primitive data type should be "text"');
-            test.ok(bodyObj['response'][0]['data'][0]['description'] === 'testTextDescription',
-              'primitive data description should be "testTextDescription"');
-            test.ok(bodyObj['response'][0]['data'][0]['value'] === 'testValue',
-              'primitive data value should be "testValue"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'].length === 1,
+              'primitive text data should have 1 element');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['type'] === 'text',
+              'primitive text data type should be "text"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['description'] === 'testTextDescription',
+              'primitive text data description should be "testTextDescription"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['value'] === 'testValue',
+              'primitive text data value should be "testValue"');
             test.done();
         });
     });

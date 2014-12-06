@@ -53,6 +53,7 @@
 ; format the specified row from the data_set_attachment table
 (defn- format-data-set-attachment [row]
   {:filename (:filename row)
+   :mime_type (:mime_type row)
    :bytes (:bytes row)
    :date_created (:date_created row)
    :created_by (:created_by row)
@@ -64,10 +65,12 @@
 ; format the specified row from the data_set_attachment for info display
 (defn- format-attachment-info [row]
   {:filename (:filename row)
+   :mime_type (:mime_type row)
+   :bytes (:bytes row)
    :date_created (:date_created row)
    :created_by (:created_by row)
    :data_set_uuid (:data_set_uuid row)
-   :data (get-primitive-data "text" (:data_set_id row))})
+   :primitive_text_data (get-primitive-data "text" (:data_set_id row))})
 
 
 ; format the specified attachment from the data_set_attachment for download
