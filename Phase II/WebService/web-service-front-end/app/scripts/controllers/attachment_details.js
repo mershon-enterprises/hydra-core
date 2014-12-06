@@ -27,7 +27,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     $scope.filename = success[1].filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
-                    $scope.tags = success[1].data;
+                    $scope.tags = success[1].primitive_text_data;
                 }
             },
             function (error) {
