@@ -58,7 +58,7 @@
    :created_by (:created_by row)
    :client (:client row)
    :location (:location row)
-   :data_set_uuid (:uuid row)})
+   :data_set_uuid (:data_set_uuid row)})
 
 
 ; format the specified row from the data_set_attachment for info display
