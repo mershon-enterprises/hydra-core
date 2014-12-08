@@ -3,7 +3,7 @@
                 Upload File<i class="fa fa-upload"></i>
     </a>
     <input ng-show="nav.isLoggedIn" placeholder="Search..." type="text" class="search">
-    <button class="search-button">Search</button>
+    <button ng-show="nav.isLoggedIn" class="search-button">Search</button>
     <ul>
         <li ng-show="nav.isLoggedIn">
             <a ng-href="#/attachment_explorer">
