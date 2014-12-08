@@ -41,15 +41,20 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         $scope.renameFile = function() {
 
             var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
-            var cacheValueRenamed = null;
 
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
                 if(re.test($scope.newFilename)) {
-                    RestService.renameAttachment($scope.ukey, $scope.newFilename);
-                    cacheValueRenamed = RestService.renameCacheDataValue($rootScope.ukey, $scope.newFilename);
-                    if(cacheValueRenamed) {
-                        NotificationService.success('Success', 'Attachment Renamed');
-                    }
+                    RestService.renameAttachment($scope.ukey, $scope.newFilename).then(
+                        function(success) {
+                            if (success[0] === EVENTS.promiseSuccess) {
+                                NotificationService.success('Success', 'Attachment Renamed');
+                            }
+                        },
+                        function(error) {
+                            if(error[0] === EVENTS.promiseFailed) {
+                                NotificationService.error('Critical error.', 'Please contact support.');
+                            }
+                        });
                 }
                 else {
                     NotificationService.error('Invalid filename.', 'Please try again.');

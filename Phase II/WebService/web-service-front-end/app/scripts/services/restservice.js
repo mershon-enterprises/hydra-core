@@ -397,6 +397,7 @@ angular.module('webServiceApp').factory('RestService',
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' renamed to ' + newFilename);
                 }
                 else {
@@ -408,8 +409,9 @@ angular.module('webServiceApp').factory('RestService',
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.renameAttachment promise failed: ' + error);
-            }
-        );
+            });
+
+        return deferred.promise;
     };
 
     //Add a tag to a dataset.
