@@ -104,6 +104,7 @@
   (str "select "
        "  distinct dsa.id, "
        "  dsa.filename as filename, "
+       "  dsa.mime_type as mime_type, "
        "  octet_length(dsa.contents) as bytes, "
        "  dsa.date_created as date_created, "
        "  u.email_address as created_by, "
@@ -144,6 +145,18 @@
        "  and dsa.date_deleted is null "))
 
 
+(def data-set-attachment-query-get
+  (str "select "
+       "  dsa.filename as filename, "
+       "  dsa.mime_type as mime_type, "
+       "  octet_length(dsa.contents) as bytes, "
+       "  dsa.contents as contents, "
+       "  ds.uuid as data_set_uuid "
+       "from data_set_attachment as dsa "
+       "inner join data_set as ds "
+       "  on ds.id = dsa.data_set_id "
+       "where ds.date_deleted is null "
+       "  and dsa.date_deleted is null "))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -618,12 +631,12 @@
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/view-attachments))
         can-access-own (contains? access constants/view-own-data)
-        query (str data-set-attachment-query
+        query (str data-set-attachment-query-get
                    "and uuid::character varying=? "
-                   "and a.filename=? ")
-        query-own (str data-set-attachment-query
+                   "and dsa.filename=? ")
+        query-own (str data-set-attachment-query-get
                        "and uuid::character varying=? "
-                       "and a.filename=? "
+                       "and dsa.filename=? "
                        "and u.email_address=? ")]
     (if can-access
       (first (sql/query (db)
