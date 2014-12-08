@@ -148,52 +148,50 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         //Sort the data into containers based on client/field combinations.
         $scope.sortData = function () {
-            var clientGroups = {};
+            var groups = {};
+            groups.clients = {};
+            groups.noClient = [];
             var clientName = null;
             var locationName = null;
 
             if ($scope.data) {
                 $.each($scope.data, function(index, value) {
-                    if ('client' in value) {
+                    if (value.client) {
 
                         clientName = value.client;
                         $scope.clientCollapseOptions[clientName] = false;
 
-                        if(!(clientName in clientGroups)) {
-                            clientGroups[clientName] = {};
+                        if(!(clientName in groups.clients)) {
+                            groups.clients[clientName] = {};
                         }
-
-                        if('location' in value) {
+                        if(value.location) {
                             locationName = value.location;
-                            clientGroups[clientName][locationName] = [];
+                            groups.clients[clientName][locationName] = [];
                             $scope.locationCollapseOptions[clientName+locationName] = false;
                         }
                         else {
-                            clientGroups[clientName]['noLocation'] = [];
+                            groups.clients[clientName] = [];
                         }
-                    }
-                    else {
-                        clientGroups['noClient'] = [];
                     }
                 });
 
                 $.each($scope.data, function(index, value) {
-                    if (('client' in value) && ('location' in value)) {
+                    if ((value.client) && (value.location)) {
                         clientName = value.client;
                         locationName = value.location;
-                        clientGroups[clientName][locationName].push(value);
+                        groups.clients[clientName][locationName].push(value);
                     }
-                    else if (('client' in value) && !('location' in value)) {
+                    else if ((value.client) && !(value.location)) {
                         clientName = value.client;
-                        clientGroups[clientName]['noLocation'].push(value);
+                        groups.clients[clientName]['No Location'].push(value);
                     }
-                    else if (!('client' in value)) {
-                        clientGroups['noClient'].push(value);
+                    else if (!(value.client)) {
+                        groups.noClient.push(value);
                     }
                 });
             }
 
-            $scope.data = clientGroups;
+            $scope.data = groups;
             RestService.updateCacheValue('data', $scope.data);
         };
 

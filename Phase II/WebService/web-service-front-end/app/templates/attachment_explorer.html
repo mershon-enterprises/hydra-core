@@ -33,7 +33,7 @@
             </tr>
         </table>
 
-        <div ng-repeat="(clientName, client) in data">
+        <div ng-repeat="(clientName, client) in data.clients">
             <table class="file-explorer-table">
                 <tr>
                     <th class="client-header" colspan="5"><i class="toggle fa fa-minus-square" client={{clientName}}></i> {{clientName}}</th>
@@ -55,6 +55,21 @@
                 </tr>
             </table>
         </div>
+        <table class="file-explorer-table">
+            <tr>
+                <th class="client-header" colspan="5"></i>No Client</th>
+            </tr>
+            <tr class="data-row" ng-repeat="row in data.noClient">
+                <td>{{row.filename}}</td>
+                <td>{{row.bytes | filesize}}</td>
+                <td class="author">{{row.created_by}}</td>
+                <td>{{row.date_created | date : 'short'}}</td>
+                <td>
+                    <i class="fa fa-download" ukey={{row.unique_key}}></i>
+                    <i class="fa fa-cog" ukey={{row.unique_key}}></i>
+                </td>
+            </tr>
+        </table>
 
         <ul class="pagination pages">
             <li>25</li>
