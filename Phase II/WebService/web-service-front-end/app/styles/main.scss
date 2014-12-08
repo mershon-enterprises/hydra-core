@@ -296,6 +296,18 @@ footer {
     width: 50%;
 }
 
+.search-button {
+    height: 30px;
+    font-weight: bold;
+    background: $light-gray;
+    color: $off-black;
+    cursor: pointer;
+    @include rounded($default-rounding/3, $default-rounding/3, $default-rounding/3, $default-rounding/3);
+    &:hover {
+        background-color: $medium-gray + $default-hover-offset;
+    }
+}
+
 .login-form {
     @include gray-box(1em);
 }

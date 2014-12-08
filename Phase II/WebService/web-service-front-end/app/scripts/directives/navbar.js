@@ -18,8 +18,8 @@ angular.module('webServiceApp').directive('navbar', function() {
                 }
             });
 
-            $(document).on('click', '.sync', function(){
-                $rootScope.$broadcast(EVENTS.cacheReset);
+            $('.search-button').click(function() {
+                $rootScope.$broadcast(EVENTS.newSearch, $('.search').val());
             });
 
             var self = this;
