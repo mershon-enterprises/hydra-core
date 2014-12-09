@@ -44,29 +44,12 @@
 ; start a message consumer for the specified channel, topic name, and with the
 ; specified consumer name
 (defn start-consumer
-  [ch topic-name queue-name auto-ack]
+  [ch topic-name queue-name auto-ack impl]
   (let [handler (fn [ch {:keys [content-type
                                 delivery-tag
                                 reply-to
                                 correlation-id] :as meta} ^bytes payload]
-                  (if (= topic-name "#")
-                    ; for testing purposes, println the payload
-                    (println (format "['%s'] received '%s'"
-                                     queue-name
-                                     (String. payload "UTF-8"))))
-                  (if (= topic-name "rpc")
-                    (do
-                      (println (format "['%s'] received RPC call: '%s'"
-                                       queue-name
-                                       (String. payload "UTF-8")))
-                      ; TODO -- perform the command and write a response
-
-                      ; acknowledge the message
-                      (println "sending message acknowledgement")
-                      (lb/ack ch delivery-tag)
-                      (println (format "sending response %s to %s" correlation-id reply-to))
-                      (reply "text/json" reply-to "[core response]" correlation-id)
-                      (println "done."))))]
+                  (impl topic-name queue-name meta payload))]
     (lq/declare   ch queue-name {:exclusive false :auto-delete true})
     (lq/bind      ch queue-name ex {:routing-key topic-name})
     (lc/subscribe ch queue-name handler {:auto-ack auto-ack})))
@@ -83,11 +66,8 @@
   ; auto-deletes messages after all consumers are updated
   (le/declare ch ex "topic" {:durable false :auto-delete true})
 
-  ; queue up a listening message handler for local debugging
-  ;(start-consumer ch "#" (str ex ".#.core") true)
-  (start-consumer ch "authentication" (str ex ".authentication.core") true)
-  ;(start-consumer ch "dataset" (str ex ".dataset.core") true)
-  (start-consumer ch "rpc" (str ex ".rpc.core") false))
+  ; return the open connection
+  ch)
 
 
 ; disconnect from the rabbitmq server

@@ -1,6 +1,8 @@
 (ns web-service.core
   (:use [web-service.handler])
   (:require [ring.adapter.jetty :as jetty]
+            [web-service.handler :as handler]
+            [web-service.shared-init :as shared-init]
             [dummy.datasets]))
 
 ; define a configurator function for the jetty web server so we can override the
@@ -13,10 +15,10 @@
 (defn -main
   []
 
-  (web-service.handler/init)
+  (shared-init/init)
 
   ; mock 500 datasets
   (dummy.datasets/mock-datasets 500)
 
-  (jetty/run-jetty web-service.handler/app {:port 3000
-                                            :configurator full-head-avoidance}))
+  (jetty/run-jetty handler/app {:port 3000
+                                :configurator full-head-avoidance}))
