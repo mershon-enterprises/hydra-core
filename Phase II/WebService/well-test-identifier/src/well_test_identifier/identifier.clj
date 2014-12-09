@@ -164,10 +164,10 @@
                                           new-filename))
                          (amqp/invoke
                            "text/json"
-                           (generate-string {:command "rename-attachment"
-                                             :data-set-uuid uuid
-                                             :old-filename old-filename
-                                             :new-filename new-filename})))
+                           (generate-string {:command "do-rename-attachment"
+                                             :args [uuid
+                                                    old-filename
+                                                    new-filename]})))
             index-cbw            (find-file-index-cut-by-weight well-test-data)
             indicies-well-report (find-file-indicies-well-report well-test-data)]
 
@@ -206,8 +206,12 @@
                                                 base-name
                                                 (if (> x 0)
                                                   (str "-" (+ x 1))
-                                                  "")))]
-                  (rename-rpc (:uuid data-set) old-filename new-filename)
+                                                  "")))
+                      response (rename-rpc (:uuid data-set) old-filename new-filename)]
+                  (if (not= response true)
+                    (println (format "Unexpected response to rename: %s"
+                                     response)))
+
                   ; TODO - update the local copy of well-test-json so we only
                   ; use the new filename going forward
                   ))
