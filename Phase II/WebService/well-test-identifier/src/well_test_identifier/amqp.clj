@@ -70,7 +70,7 @@
                   ; pass the response back to the calling thread
                   (>!! response-payload (String. payload "UTF-8")))]
     (def rpc-queue (lq/declare-server-named ch {:exclusive true :auto-delete true}))
-    (lq/bind ch rpc-queue ex {:routing-key "rpc"})
+    (lq/bind ch rpc-queue ex {:routing-key rpc-queue})
     (lc/subscribe ch rpc-queue handler {:auto-ack true}))
 
   ; return the open connection
