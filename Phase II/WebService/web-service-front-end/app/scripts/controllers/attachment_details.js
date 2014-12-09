@@ -71,24 +71,22 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
 
             RestService.deleteAttachment($scope.ukey).then(
                 function(success) {
-                        if (success[0] === EVENTS.promiseSuccess) {
-                            if(RestService.removeCacheDataValue($scope.ukey)) {
-                                NotificationService.success('Success', 'Attachment Deleted');
-                                $location.path('/attachment_explorer');
-                            }
-                            else {
-                                console.log('Attachment deleted from server but not cache!');
-                            }
-                        }
-                    },
-                    function(error) {
-                        if (error[0] === EVENTS.promiseFailed) {
-                            NotificationService.error('Critical error.', 'Please contact support.');
-                        }
-                        else if (error[0] === EVENTS.badStatus) {
-                            NotificationService.error('Cannot connect to server.', 'Please contact support.');
-                        }
-                    });
+                    if (success[0] === EVENTS.promiseSuccess) {
+                            NotificationService.success('Success', 'Attachment Deleted');
+                            $location.path('/attachment_explorer');
+                    }
+                    else {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                    }
+            });
         };
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.
