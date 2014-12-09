@@ -158,7 +158,6 @@
       (let [well-test-data       (:data data-set)
             base-name            (build-base-name data-set)
             rename-rpc (fn [uuid old-filename new-filename]
-                         (println "Invoking RPC call to rename attachment...")
                          (println (format "Renaming attachment '%s' to '%s'"
                                           old-filename
                                           new-filename))

@@ -44,6 +44,10 @@
                    "  where uuid::character varying=?) "
                    "and filename=? "
                    "and date_deleted is null")]
+    (println (format "Renaming '%s' to '%s' in data-set '%s'"
+                     filename
+                     new-filename
+                     uuid))
     (try (sql/execute! (db) [query new-filename uuid filename])
          (catch Exception e
            (log/error e (format (str "There was an error renamining "

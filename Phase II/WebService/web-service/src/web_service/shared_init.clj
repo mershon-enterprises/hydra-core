@@ -27,23 +27,19 @@
       (str amqp/ex ".rpc.core")
       false
       (fn [topic-name queue-name meta payload]
-        (do
-          (println (format "['%s'] received RPC call: '%s'"
-                           queue-name
-                           (String. payload "UTF-8")))
-
-          ; perform the command and write a response
-          (let [command-json (parse-string (String. payload "UTF-8") true)
-                response (try
-                           (apply (resolve
-                                    (symbol (:command command-json)))
-                                  (:args command-json))
-                           (catch NullPointerException ex
-                             (format "Specified command '%s' does not exist"
-                                     (:command command-json))))]
-            ; acknowledge the message and send response
-            (lb/ack ch (:delivery-tag meta))
-            (amqp/reply "text/json" (:reply-to meta) response (:correlation-id meta))))))))
+        ; perform the command and write a response
+        (let [command-json (parse-string (String. payload "UTF-8") true)
+              response (let [{cmd :command
+                              args :args} command-json
+                             callable (ns-resolve 'web-service.shared-init
+                                                  (symbol cmd))]
+                         (if callable
+                           (generate-string (apply callable args))
+                           (format "Failed to resolve command '%s'"
+                                   cmd)))]
+          ; acknowledge the message and send response
+          (lb/ack ch (:delivery-tag meta))
+          (amqp/reply "text/json" (:reply-to meta) response (:correlation-id meta)))))))
 
 (defn destroy
   []
