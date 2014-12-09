@@ -481,6 +481,25 @@ footer {
         }
     }
 
+    .file-details-table {
+        td:nth-child(1), td:nth-child(2), td:nth-child(3) {
+            width: 15%;
+        }
+        td:nth-child(4) {
+            width: 10%;
+        }
+        .buttonCell {
+            background: $dark-gray;
+            border: 0;
+        }
+        .spacer {
+            background: $dark-gray;
+            td {
+                border: 0;
+            }
+        }
+    }
+
     .leftColumn {
         vertical-align: top;
         width: 50%;
