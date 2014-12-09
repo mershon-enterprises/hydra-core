@@ -83,8 +83,8 @@
   (context
     "/data" []
     (defroutes document-routes
-      (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid data-set-list))
+      (GET "/" [api_token client_uuid search_params]
+           (guard-with-user api_token client_uuid data-set-list search_params))
       (PUT "/" [] (not-allowed "Update-all data"))
       (POST "/" [api_token client_uuid uuid date_created created_by data]
             (guard-with-user api_token
@@ -158,8 +158,8 @@
   (context
     "/attachments" []
       (defroutes document-routes
-        (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid data-set-list))
+        (GET "/" [api_token client_uuid search_params]
+           (guard-with-user api_token client_uuid data-set-attachment-list search_params))
         (PUT "/" [] (not-allowed "Update-all data attachments"))
         (POST "/" [] (not-allowed "Sumbit-all  data attachemnts"))
         (DELETE "/" [] (not-allowed "Delete-all data attachments"))))

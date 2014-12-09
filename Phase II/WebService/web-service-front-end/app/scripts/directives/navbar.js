@@ -11,15 +11,15 @@ angular.module('webServiceApp').directive('navbar', function() {
         templateUrl: 'templates/navbar.html',
         controller: function ($rootScope, $scope, Session, EVENTS) {
 
-            $('.search').keyup(function() {
-                //Get current value of input field after every key press.
-                var currentValue = $(this).val();
-                $('.ngColMenu').find('input').val(currentValue);
-                $('.ngColMenu').find('input').trigger('input');
+            $('.search').keyup(function(event) {
+                 if ( event.which === 13 ) {
+                    event.preventDefault();
+                    $rootScope.$broadcast(EVENTS.newSearch, $(this).val());
+                }
             });
 
-            $(document).on('click', '.sync', function(){
-                $rootScope.$broadcast(EVENTS.cacheRefresh);
+            $('.search-button').click(function() {
+                $rootScope.$broadcast(EVENTS.newSearch, $('.search').val());
             });
 
             var self = this;

@@ -3,13 +3,11 @@
                 Upload File<i class="fa fa-upload"></i>
     </a>
     <input ng-show="nav.isLoggedIn" placeholder="Search..." type="text" class="search">
+    <button ng-show="nav.isLoggedIn" class="search-button">Search</button>
     <ul>
-        <li ng-show="nav.isLoggedIn" class="sync">
-            Sync Data<i class="fa fa-refresh"></i>
-        </li>
         <li ng-show="nav.isLoggedIn">
-            <a ng-href="#/datasets">
-                File Search<i class="fa fa-search"></i>
+            <a ng-href="#/attachment_explorer">
+                File Explorer<i class="fa fa-search"></i>
             </a>
         </li>
         <li ng-show="nav.isLoggedIn" ng-controller="LogoutCtrl">

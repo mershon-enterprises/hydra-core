@@ -3,17 +3,16 @@
 angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
       'LocalStorageModule', // Angular Localstorage
-      'ngGrid', // Angular Table Directive
       'file-model'
     ])
-    .config(function ($routeProvider) {
+    .config(function ($routeProvider, localStorageServiceProvider) {
       $routeProvider
         .when('/', {
           templateUrl: 'templates/login.html',
           loggedInOnly: false
-        }).when('/datasets', {
-          templateUrl: 'templates/datasets.html',
-          controller: 'DatasetsCtrl',
+        }).when('/attachment_explorer', {
+          templateUrl: 'templates/attachment_explorer.html',
+          controller: 'AttachmentExplorerCtrl',
           loggedInOnly: true
         })
         .when('/attachment_details', {
@@ -29,6 +28,8 @@ angular.module('webServiceApp', [
         .otherwise({
           redirectTo: '/'
         });
+
+      localStorageServiceProvider.setPrefix('hydra');
     })
     .constant('USER_ROLES', {
       operator: 'operator',
@@ -39,11 +40,12 @@ angular.module('webServiceApp', [
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
       logoutSuccess: 'auth-logout-success',
-      cacheRefresh: 'cache-refresh',
+      cacheReset: 'cache-reset',
       cacheReady: 'cache-ready',
       promiseSuccess: 'promise-success',
       promiseFailed: 'promise-failed',
       badStatus: 'bad-status',
+      newSearch: 'new-search',
       sessionTimeout: 'auth-session-timeout',
       notAuthorized: 'auth-not-authorized'
     })

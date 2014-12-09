@@ -133,13 +133,14 @@
     });
   };
 
-  exports.listData = function(clientUUID, apiToken) {
+  exports.listData = function(clientUUID, apiToken, searchParams) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
       params: {
         client_uuid: clientUUID,
-        api_token: apiToken
+        api_token: apiToken,
+        search_params: searchParams
       }
     });
   };
@@ -210,15 +211,14 @@
     });
   };
 
-  //TODO Duplicate, returns same as listData(). change references to
-  //listDatasetsWithAttachments to listData() and rename to listAttachments 
-  exports.listDatasetsWithAttachments = function(clientUUID, apiToken) {
+  exports.listAttachments = function(clientUUID, apiToken, searchParams) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/attachments',
       params: {
         client_uuid: clientUUID,
-        api_token: apiToken
+        api_token: apiToken,
+        search_params: JSON.stringify(searchParams)
       }
     });
   };

@@ -1,6 +1,6 @@
 'use strict';
 
-//Attachment Controller
+//Attachment Details Controller
 
 //Display attachment details to the user and provide controls for the attachments
 //name and tags, as well as delete functionality.
@@ -15,9 +15,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         $scope.tags = [];
 
         //The user should not be visiting this view unless sent from the
-        //datasets controller. rootscope.ukey will be populated if they were.
+        //attachment explorer controller. rootscope.ukey will be populated if
+        //they were.
         if (!$rootScope.ukey) {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         }
         else {
             RestService.getAttachmentInfo($rootScope.ukey).then(
@@ -26,7 +27,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     $scope.filename = success[1].filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
-                    $scope.tags = success[1].data;
+                    $scope.tags = success[1].primitive_text_data;
                 }
             },
             function (error) {
@@ -40,15 +41,20 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
         $scope.renameFile = function() {
 
             var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
-            var cacheValueRenamed = null;
 
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
                 if(re.test($scope.newFilename)) {
-                    RestService.renameAttachment($scope.ukey, $scope.newFilename);
-                    cacheValueRenamed = RestService.renameCacheDataValue($rootScope.ukey, $scope.newFilename);
-                    if(cacheValueRenamed) {
-                        NotificationService.success('Success', 'Attachment Renamed');
-                    }
+                    RestService.renameAttachment($scope.ukey, $scope.newFilename).then(
+                        function(success) {
+                            if (success[0] === EVENTS.promiseSuccess) {
+                                NotificationService.success('Success', 'Attachment Renamed');
+                            }
+                        },
+                        function(error) {
+                            if(error[0] === EVENTS.promiseFailed) {
+                                NotificationService.error('Critical error.', 'Please contact support.');
+                            }
+                        });
                 }
                 else {
                     NotificationService.error('Invalid filename.', 'Please try again.');
@@ -68,7 +74,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                         if (success[0] === EVENTS.promiseSuccess) {
                             if(RestService.removeCacheDataValue($scope.ukey)) {
                                 NotificationService.success('Success', 'Attachment Deleted');
-                                $location.path('/datasets');
+                                $location.path('/attachment_explorer');
                             }
                             else {
                                 console.log('Attachment deleted from server but not cache!');
@@ -152,9 +158,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
             });
         };
 
-        //Back button to return to the datasets view.
+        //Back button to return to the attachment explorer view.
         $scope.back = function () {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         };
 
     }

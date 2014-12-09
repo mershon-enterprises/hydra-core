@@ -1,6 +1,6 @@
 'use strict';
 
-//Upload Controller
+//Attachment Upload Controller
 
 //Collects all required data from the user to be submitted to the Restclient.
 //Performs client-side verification of input and extraction of file properties
@@ -131,9 +131,9 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
-        //Back button to return to the datasets view.
+        //Back button to return to the attachment explorer view.
         $scope.back = function () {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         };
 
     }
