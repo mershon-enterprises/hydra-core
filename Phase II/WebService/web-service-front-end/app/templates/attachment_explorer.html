@@ -1,4 +1,11 @@
+<!--    File Explorer. Primary tabular view of file data. Primarily uses
+        Angular directive ng-Repeat to iterate over rows prepared in the
+        scope. Provides controls to work on individual files by embedding
+        ukey attributes in the markup and using jQuery to harvest them.      -->
 <div class="file-explorer">
+        <!--    Seperate table that displays a header for all the tables that
+                will be displayed below it. Also displays sort direction arrows.
+                                                                             -->
         <table class="file-explorer-table file-explorer-header">
             <tr>
                 <th key="filename">
@@ -33,17 +40,47 @@
             </tr>
         </table>
 
+        <!--    Div that repeats for every client in the collection. clientName
+                is the key of the collection, allowing us to display the name.
+                                                                             -->
         <div ng-repeat="(clientName, client) in data.clients">
             <table class="file-explorer-table">
                 <tr>
-                    <th class="client-header" colspan="5"><i class="toggle fa fa-minus-square" client={{clientName}}></i> {{clientName}}</th>
+                    <!-- Display client name and toggle +/- for collapsing.  -->
+                    <th class="client-header" colspan="5">
+                        <i  class="toggle fa fa-minus-square"
+                            client={{clientName}}>
+                        </i>
+                        {{clientName}}
+                    </th>
                 </tr>
             </table>
-            <table class="file-explorer-table location-table" parent-client="{{clientName}}" ng-repeat="(locationName, location) in client">
+            <!--    For every location for that client, make a new table for
+                    their rows.-->
+            <table  class="file-explorer-table location-table"
+                    parent-client="{{clientName}}"
+                    ng-repeat="(locationName, location) in client"
+                    >
                 <tr>
-                    <th class="location-header" colspan="5"><i class="toggle fa fa-minus-square" location="{{locationName}}" parent-client="{{clientName}}" ></i> {{locationName}}</th>
+                    <!-- Display the location name and the toggle +/- for
+                    collapsing the location section. -->
+                    <th class="location-header" colspan="5">
+                        <i  class="toggle fa fa-minus-square"
+                            location="{{locationName}}"
+                            parent-client="{{clientName}}"
+                        >
+                        </i>
+                        {{locationName}}
+                    </th>
                 </tr>
-                <tr class="data-row" parent-client="{{clientName}}" location="{{locationName}}" ng-repeat="row in location">
+                <!--    Display the actual data and the controls, embedding
+                        ukey in the icons so that when they are clicked, we know
+                        which row to operate on. -->
+                <tr class="data-row"
+                    parent-client="{{clientName}}"
+                    location="{{locationName}}"
+                    ng-repeat="row in location"
+                    >
                     <td>{{row.filename}}</td>
                     <td>{{row.bytes | filesize}}</td>
                     <td class="author">{{row.created_by}}</td>
@@ -55,6 +92,7 @@
                 </tr>
             </table>
         </div>
+        <!-- Display all rows that have no client or location. -->
         <table class="file-explorer-table" ng-if="data.noClient">
             <tr>
                 <th class="client-header" colspan="5"></i>No Client</th>
@@ -71,6 +109,7 @@
             </tr>
         </table>
 
+        <!-- Pagination Controls -->
         <ul class="pagination pages">
             <li>25</li>
             <li>50</li>
