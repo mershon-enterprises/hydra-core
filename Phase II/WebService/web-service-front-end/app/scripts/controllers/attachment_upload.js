@@ -5,7 +5,7 @@
 //Collects all required data from the user to be submitted to the Restclient.
 //Performs client-side verification of input and extraction of file properties
 //from attachments.
-angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($scope, $location, Session, RestService, EVENTS, NotificationService) {
+angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($rootScope, $scope, $location, Session, RestService, EVENTS, NotificationService) {
 
     //If the user is logged in...
     if (Session.exists()) {
@@ -118,6 +118,8 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 {
                     if (success[0] === EVENTS.promiseSuccess) {
                         NotificationService.success('File: ' + $scope.file.name, 'Submitted Successfully!');
+                        $rootScope.dataChanged = true;
+                        $location.path('/attachment_explorer');
                     }
                 },
                 function(error) {

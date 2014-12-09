@@ -68,11 +68,11 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
 
         //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
-
             RestService.deleteAttachment($scope.ukey).then(
                 function(success) {
                     if (success[0] === EVENTS.promiseSuccess) {
                             NotificationService.success('Success', 'Attachment Deleted');
+                            $rootScope.dataChanged = true;
                             $location.path('/attachment_explorer');
                     }
                     else {

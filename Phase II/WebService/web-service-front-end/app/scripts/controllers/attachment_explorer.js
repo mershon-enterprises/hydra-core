@@ -247,6 +247,12 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             $scope.updateColumnHeaders();
         });
 
+        if($rootScope.dataChanged) {
+            $scope.getData();
+            $scope.updateColumnHeaders();
+            $rootScope.dataChanged = false;
+        }
+
         if (RestService.getCacheValue('data') !== null) {
             $scope.data = RestService.getCacheValue('data');
         }
