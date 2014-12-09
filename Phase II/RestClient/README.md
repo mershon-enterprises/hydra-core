@@ -67,6 +67,8 @@ restclient.authenticate(email, password, function(statusCode, entity)) {
 }
 ```
 
+### restclient.version(callback)
+
 These are the method signatures of the `restclient`:
 ```javascript
 restclient.version(callback);
