@@ -69,6 +69,9 @@ restclient.authenticate(email, password, function(statusCode, entity)) {
 
 ### restclient.version(callback)
 
+Learning to edit markdown.
+
+
 These are the method signatures of the `restclient`:
 ```javascript
 restclient.version(callback);
