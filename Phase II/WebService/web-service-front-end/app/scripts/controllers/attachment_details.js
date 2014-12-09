@@ -47,6 +47,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     RestService.renameAttachment($scope.ukey, $scope.newFilename).then(
                         function(success) {
                             if (success[0] === EVENTS.promiseSuccess) {
+                                $rootScope.dataChanged = true;
                                 NotificationService.success('Success', 'Attachment Renamed');
                             }
                         },
