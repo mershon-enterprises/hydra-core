@@ -23,9 +23,9 @@ In your web page:
 <script src="dist/restclient.standalone.min.js"></script>
 <script>
 restclient.authenticate("email address", "password", function(statusCode, entity) {
-  if (statusCode == 200) { 
+  if (statusCode == 200) {
     // success!
-  } else if (statusCode == 401) { 
+  } else if (statusCode == 401) {
     // failure!
   }
 });
@@ -41,7 +41,7 @@ function(statusCode, entity) {
   //
   // statusCode in the 200-299 range is "good",
   // statusCode in the 400-599 range is "bad"
-  
+
   // entity may be a String, or a JSON object or array
   var bodyObject = JSON.parse(entity);
   // keys in the response from the server can be directly referenced as properties of bodyObject
@@ -55,7 +55,7 @@ restclient.authenticate(email, password, function(statusCode, entity)) {
   if (statusCode == 200) {
     var bodyObject = JSON.parse(entity);
     apiToken = bodyObject['token']; // token is now non-null
-    
+
     // list users
     restclient.listUsers(apiToken, function(statusCode2, entity2) {
       if (statusCode == 200) ){
@@ -93,5 +93,5 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _Also, please don't edit files in the "dist" subdirectory as they are generated via Grunt. You'll find source code in the "lib" subdirectory!_
 
 ## License
- 
+
  Copyright (c) 2014 Slixbits Inc. Licensed under the GPLv3 license.
