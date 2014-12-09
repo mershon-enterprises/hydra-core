@@ -448,13 +448,13 @@ footer {
 }
 
 //File upload and file details view.
-.tagView {
+.tag-view {
     @include gray-box(1em);
     padding: $default-padding * 2 $default-padding * 4 !important;
 
     table {
         width: 90%;
-        margin: 0 auto;
+        margin: $default-margin auto;
     }
     input[type='file'] {
         height: 0;
@@ -462,7 +462,7 @@ footer {
         overflow: hidden;
     }
 
-    .tags {
+    .file-upload-table {
         td:nth-child(1), td:nth-child(2) {
             width: 22.5%;
         }
