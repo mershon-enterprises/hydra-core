@@ -17,6 +17,10 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
         $scope.file = null;
         $scope.fileData = null;
 
+        $('.uploadButton').click(function() {
+            $('.uploadInput').click();
+        });
+
         //Watch for new file attachment.
         $scope.$watch('file', function () {
             if($scope.file) {

@@ -262,10 +262,6 @@ input[type='password']:focus, textarea:focus {
     box-shadow: 0 0 5px $light-red;
 }
 
-input[type='file'] {
-    margin: $default-margin $default-margin $default-margin*4;
-}
-
 //Footer
 footer {
 
@@ -290,6 +286,11 @@ footer {
         width: 200px;
     }
 
+}
+
+.inactive {
+    opacity: .5 !important;
+    cursor: default !important;
 }
 
 .search {
@@ -450,23 +451,36 @@ footer {
 .tagView {
     @include gray-box(1em);
     padding: $default-padding * 2 $default-padding * 4 !important;
-    .fileProperties {
-        width: 100%;
-        span {
-            display: block;
-            font-size: 1.5em;
-            padding-right: $default-padding;
+
+    table {
+        width: 90%;
+        margin: 0 auto;
+    }
+    input[type='file'] {
+        height: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .tags {
+        td:nth-child(1), td:nth-child(2) {
+            width: 22.5%;
         }
-        li {
-            height: 100%;
-            line-height: 3em;
-            vertical-align: top;
-            text-align: left;
-            &>* {
-                display: inline-block;
+        td:nth-child(3), td:nth-child(4), td:nth-child(5)  {
+            width: 15%;
+        }
+        .buttonCell {
+            background: $dark-gray;
+            border: 0;
+        }
+        .spacer {
+            background: $dark-gray;
+            td {
+                border: 0;
             }
         }
     }
+
     .leftColumn {
         vertical-align: top;
         width: 50%;
