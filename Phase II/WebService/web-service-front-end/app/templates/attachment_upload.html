@@ -27,8 +27,8 @@
                 <th>Add/Remove</th>
             </tr>
             <tr ng-repeat="tag in tags">
-                <td>{{tag.description}}</td>
-                <td>{{tag.value}}</td>
+                <td colspan="2">{{tag.description}}</td>
+                <td colspan="3">{{tag.value}}</td>
                 <td><i class="fa fa-minus" ng-click="removeRow(tag.description)"></i></td>
             </tr>
             <tr>
