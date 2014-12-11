@@ -358,6 +358,10 @@ footer {
 
     width: 90%;
 
+    .data-row:hover {
+        background-color: $light-gray + $default-hover-offset;
+    }
+
     .author {
         font-size: .8em;
     }
