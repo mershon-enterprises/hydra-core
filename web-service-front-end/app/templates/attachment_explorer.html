@@ -3,6 +3,28 @@
         scope. Provides controls to work on individual files by embedding
         ukey attributes in the markup and using jQuery to harvest them.      -->
 <div class="file-explorer">
+
+        <!-- Pagination Controls -->
+        <ul class="pagination pages">
+            <li>25</li>
+            <li>50</li>
+            <li>100</li>
+            <li>Reset</li>
+        </ul>
+
+        <span class="results">
+            Showing {{(searchParams.offset + 1)}} -
+            {{searchParams.offset + searchParams.limit}}
+            of {{resultCount}} Results
+        </span>
+
+        <ul class="pagination navigation">
+            <li><i class="fa fa-angle-double-left"></i></li>
+            <li><i class="fa fa-angle-left"></i></li>
+            <li><i class="fa fa-angle-right"></i></li>
+            <li><i class="fa fa-angle-double-right"></i></li>
+        </ul>
+
         <!--    Seperate table that displays a header for all the tables that
                 will be displayed below it. Also displays sort direction arrows.
                                                                              -->
@@ -81,10 +103,10 @@
                     location="{{locationName}}"
                     ng-repeat="row in location"
                     >
-                    <td>{{row.filename}}</td>
-                    <td>{{row.bytes | filesize}}</td>
-                    <td class="author">{{row.created_by}}</td>
-                    <td>{{row.date_created | date : 'short'}}</td>
+                    <td class="data-cell">{{row.filename}}</td>
+                    <td class="data-cell">{{row.bytes | filesize}}</td>
+                    <td class="data-cell author">{{row.created_by}}</td>
+                    <td class="data-cell">{{row.date_created | date : 'short'}}</td>
                     <td>
                         <i class="fa fa-download" ukey={{row.unique_key}}></i>
                         <i class="fa fa-cog" ukey={{row.unique_key}}></i>
@@ -98,10 +120,10 @@
                 <th class="client-header" colspan="5"></i>No Client</th>
             </tr>
             <tr class="data-row" ng-repeat="row in data.noClient">
-                <td>{{row.filename}}</td>
-                <td>{{row.bytes | filesize}}</td>
-                <td class="author">{{row.created_by}}</td>
-                <td>{{row.date_created | date : 'short'}}</td>
+                <td class="data-cell">{{row.filename}}</td>
+                <td class="data-cell">{{row.bytes | filesize}}</td>
+                <td class="data-cell author">{{row.created_by}}</td>
+                <td class="data-cell">{{row.date_created | date : 'short'}}</td>
                 <td>
                     <i class="fa fa-download" ukey={{row.unique_key}}></i>
                     <i class="fa fa-cog" ukey={{row.unique_key}}></i>
@@ -114,7 +136,14 @@
             <li>25</li>
             <li>50</li>
             <li>100</li>
+            <li>Reset</li>
         </ul>
+
+        <span class="results">
+            Showing {{(searchParams.offset + 1)}} -
+            {{searchParams.offset + searchParams.limit}}
+            of {{resultCount}} Results
+        </span>
 
         <ul class="pagination navigation">
             <li><i class="fa fa-angle-double-left"></i></li>

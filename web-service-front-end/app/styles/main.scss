@@ -358,6 +358,10 @@ footer {
 
     width: 90%;
 
+    .data-row:hover {
+        background-color: $light-gray + $default-hover-offset;
+    }
+
     .author {
         font-size: .8em;
     }
@@ -387,6 +391,10 @@ footer {
     }
 
     i {
+        cursor: pointer;
+    }
+
+    .data-cell {
         cursor: pointer;
     }
 
@@ -445,6 +453,11 @@ footer {
     li {
         width: 30px;
     }
+}
+
+.results {
+    margin: $default-margin/2;
+    display: inline-block;
 }
 
 //File upload and file details view.
