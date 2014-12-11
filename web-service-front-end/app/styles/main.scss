@@ -447,6 +447,11 @@ footer {
     }
 }
 
+.results {
+    margin: $default-margin/2;
+    display: inline-block;
+}
+
 //File upload and file details view.
 .tag-view {
     @include gray-box(1em);

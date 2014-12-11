@@ -11,6 +11,12 @@
             <li>100</li>
         </ul>
 
+        <span class="results">
+            Showing {{(searchParams.offset + 1)}} -
+            {{searchParams.offset + searchParams.limit}}
+            of {{resultCount}} Results
+        </span>
+
         <ul class="pagination navigation">
             <li><i class="fa fa-angle-double-left"></i></li>
             <li><i class="fa fa-angle-left"></i></li>
@@ -130,6 +136,12 @@
             <li>50</li>
             <li>100</li>
         </ul>
+
+        <span class="results">
+            Showing {{(searchParams.offset + 1)}} -
+            {{searchParams.offset + searchParams.limit}}
+            of {{resultCount}} Results
+        </span>
 
         <ul class="pagination navigation">
             <li><i class="fa fa-angle-double-left"></i></li>
