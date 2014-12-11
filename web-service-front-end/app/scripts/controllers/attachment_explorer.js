@@ -84,7 +84,19 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         });
 
         $(document).on('click', '.pages > li', function() {
-            $scope.searchParams.limit = parseInt($(this).html());
+            if($(this).html() === 'Reset') {
+                $scope.searchParams = {
+                    search_string: '',
+                    limit: 25,
+                    offset: 0,
+                    order_by: 'date_created',
+                    order: 'desc'
+                };
+                $('input.search').val('');
+            }
+            else {
+                $scope.searchParams.limit = parseInt($(this).html());
+            }
             $scope.$apply();
         });
 
