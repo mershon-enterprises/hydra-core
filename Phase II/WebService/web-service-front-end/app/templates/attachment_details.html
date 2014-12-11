@@ -1,37 +1,69 @@
-<div class="tagView">
-    <div class="fileProperties">
-            <div class="leftColumn">
-                <ul>
-                    <li>
-                        <span>File Name:</span><input type="text" id="fileName" ng-model="newFilename" placeholder="{{filename}}"> <button ng-click="renameFile(newFilename)">Rename</button>
-                    </li>
-                </ul>
-            </div>
-            <div class="rightColumn">
-                <ul>
-                    <li><span>Author:</span>{{createdBy}}</li>
-                    <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
-                </ul>
-            </div>
-    </div>
-    <div class="tags">
-        <table>
-            <tr><th>Tag Name</th><th>Tag Value</th><th>Add/Remove</th></tr>
-            <tr ng-repeat="tag in tags">
-                <td>{{tag.description}}</td>
-                <td>{{tag.value}}</td>
-                <td><i class="fa fa-minus"></i></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td><i class="fa fa-plus"></i></td>
-            </tr>
-        </table>
-    </div>
+<div class="tag-view">
+    <table class="file-details-table">
+        <tr>
+            <th>Filename</th>
+            <th>Author</th>
+            <th>Creation Date</th>
+            <th>Rename</th>
+            <th rowspan="2" class="buttonCell">
+                <button
+                    confirmed-click="renameFile(newFilename)"
+                    ng-confirm-click="Are you sure?"
+                    >Rename
+                </button>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                {{filename}}
+            </td>
+            <td>{{createdBy}}</td>
+            <td>{{dateCreated | date : 'short'}}</td>
+            <td>
+                <input
+                    type="text"
+                    id="fileName"
+                    ng-model="newFilename"
+                    placeholder="{{filename}}"
+                >
+            </td>
+        </tr>
+        <tr class="spacer"><td></td></tr>
+        <tr>
+            <th colspan="2">Tag Name</th>
+            <th colspan="2">Tag Value</th>
+            <th>Add/Remove</th>
+        </tr>
+        <tr ng-repeat="tag in tags">
+            <td colspan="2">{{tag.description}}</td>
+            <td colspan="2">{{tag.value}}</td>
+            <td>
+                <i
+                    class="fa fa-minus"
+                    confirmed-click="removeRow(tag.description)"
+                    ng-confirm-click="Remove the {{tag.description}} tag?">
+                </i>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="text" name="description" ng-model="description">
+            </td>
+            <td colspan="2">
+                <input type="text" name="value" ng-model="value">
+            </td>
+            <td>
+                <i class="fa fa-plus" ng-click="addRow(description, value)"></i>
+            </td>
+        </tr>
+    </table>
 
     <div class="controlls">
         <button class="leftButton" ng-click="back()">Back</button>
-        <button class="rightButton" ng-click="deleteFile()">Delete</button>
+        <button class="rightButton"
+                confirmed-click="deleteFile()"
+                ng-confirm-click="Are you sure?"
+                >Delete
+        </button>
     </div>
 </div>

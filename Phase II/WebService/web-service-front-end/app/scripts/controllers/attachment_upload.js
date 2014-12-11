@@ -1,11 +1,11 @@
 'use strict';
 
-//Upload Controller
+//Attachment Upload Controller
 
 //Collects all required data from the user to be submitted to the Restclient.
 //Performs client-side verification of input and extraction of file properties
 //from attachments.
-angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($scope, $location, Session, RestService, EVENTS, NotificationService) {
+angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($rootScope, $scope, $location, Session, RestService, EVENTS, NotificationService) {
 
     //If the user is logged in...
     if (Session.exists()) {
@@ -16,6 +16,10 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
+
+        $('.uploadButton').click(function() {
+            $('.uploadInput').click();
+        });
 
         //Watch for new file attachment.
         $scope.$watch('file', function () {
@@ -29,7 +33,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 //http://www.html5rocks.com/en/tutorials/file/dndfiles/
                 var reader = new FileReader();
                 // Closure to capture the file information.
-                reader.onload = (function(theFile) {
+                reader.onload = (function() {
                     return function(e) {
                         $scope.fileData = e.target.result;
                     };
@@ -40,16 +44,25 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
-            var duplicateFlag = false;
-            $.each($scope.tags, function(index, value) {
-                    if (value.description) {
-                        if (value.description === description) {
-                            duplicateFlag = true;
+            if (description && value) {
+                var duplicateFlag = false;
+                $.each($scope.tags, function(index, value) {
+                        if (value.description) {
+                            if (value.description === description) {
+                                duplicateFlag = true;
+                            }
                         }
-                    }
-            });
-            if (!duplicateFlag) {
-                $scope.tags.push({'description' : description, 'value' : value});
+                });
+                if (!duplicateFlag) {
+                    $scope.tags.push({'description' : description, 'value' : value});
+                    $('table * input').val('');
+                }
+                else {
+                    NotificationService.error('Invalid Tag.', 'Duplicate Tag Name.');
+                }
+            }
+            else {
+                NotificationService.error('Invalid Tag.', 'Both description and value cannot be blank.');
             }
         };
 
@@ -112,7 +125,9 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
                 function(success)
                 {
                     if (success[0] === EVENTS.promiseSuccess) {
-                        NotificationService.success('File: ' + $scope.file.name, 'Submitted Successfully!');
+                        NotificationService.success('File: ' + $scope.filename, 'Submitted Successfully!');
+                        $rootScope.dataChanged = true;
+                        $location.path('/attachment_explorer');
                     }
                 },
                 function(error) {
@@ -126,9 +141,9 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($sc
             }
         };
 
-        //Back button to return to the datasets view.
+        //Back button to return to the attachment explorer view.
         $scope.back = function () {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         };
 
     }

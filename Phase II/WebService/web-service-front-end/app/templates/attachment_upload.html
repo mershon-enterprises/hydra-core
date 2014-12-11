@@ -1,31 +1,40 @@
-<div class="tagView">
-    <div class="fileProperties">
-            <div class="leftColumn">
-                <ul>
-                    <li>
-                        <span>File Name:</span><input id="fileNameInput" type="text" ng-model="filename">
-                    </li>
-                    <li><span>Author:</span>{{createdBy}}</li>
-                    <li><span>Creation Date:</span>{{dateCreated | date : 'short'}}</li>
-                    <li ng-if="file"><span>Size:</span>{{file.size | filesize}}</li>
-                    <li ng-if="file"><span>Last Modified:</span>{{file.lastModifiedDate | date : 'short'}}</li>
-                </ul>
-            </div>
-            <div class="rightColumn">
-                    <span>Attachment:</span><input id="fileAttachmentInput" type="file" file-model='file'>
-            </div>
-    </div>
-    <div class="tags">
+<div class="tag-view">
+    <div class="file-upload-table">
         <table>
-            <tr><th>Tag Name</th><th>Tag Value</th><th>Add/Remove</th></tr>
+            <tr>
+                <th>Filename</th>
+                <th>Author</th>
+                <th>Creation Date</th>
+                <th>File Size</th>
+                <th>Last Modified</th>
+                <th class="buttonCell" rowspan=2>
+                    <button class="uploadButton">Choose File</button>
+                    <input class="uploadInput" type="file" file-model='file'>
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <input id="fileNameInput" type="text" ng-model="filename">
+                </td>
+                <td>{{createdBy}}</td>
+                <td>{{dateCreated | date : 'short'}}</td>
+                <td><span ng-if="file">{{file.size | filesize}}</span></td>
+                <td><span ng-if="file">{{file.lastModifiedDate | date : 'short'}}</span></td>
+            </tr>
+            <tr class="spacer"><td></td></tr>
+            <tr>
+                <th colspan="2">Tag Name</th>
+                <th colspan="3">Tag Value</th>
+                <th>Add/Remove</th>
+            </tr>
             <tr ng-repeat="tag in tags">
-                <td>{{tag.description}}</td>
-                <td>{{tag.value}}</td>
+                <td colspan="2">{{tag.description}}</td>
+                <td colspan="3">{{tag.value}}</td>
                 <td><i class="fa fa-minus" ng-click="removeRow(tag.description)"></i></td>
             </tr>
             <tr>
-                <td><input type="text" name="description" ng-model="description"></td>
-                <td><input type="text" name="value" ng-model="value"></td>
+                <td colspan="2"><input type="text" name="description" ng-model="description"></td>
+                <td colspan="3"><input type="text" name="value" ng-model="value"></td>
                 <td><i class="fa fa-plus" ng-click="addRow(description, value)"></i></td>
             </tr>
         </table>
@@ -33,6 +42,7 @@
 
     <div class="controlls">
         <button class="leftButton" ng-click="back()">Back</button>
-        <button ng-if="file" class="rightButton" ng-click="save()">Save</button>
+        <button ng-show="file" class="rightButton" ng-click="save()">Save</button>
+        <button ng-hide="file" class="inactive rightButton">Save</button>
     </div>
 </div>

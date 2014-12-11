@@ -1,6 +1,6 @@
 'use strict';
 
-//Attachment Controller
+//Attachment Details Controller
 
 //Display attachment details to the user and provide controls for the attachments
 //name and tags, as well as delete functionality.
@@ -9,10 +9,16 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
     //If the user is logged in...
     if (Session.exists()) {
 
+        $scope.filename = null;
+        $scope.dateCreated = null;
+        $scope.createdBy = null;
+        $scope.tags = [];
+
         //The user should not be visiting this view unless sent from the
-        //datasets controller. rootscope.ukey will be populated if they were.
+        //attachment explorer controller. rootscope.ukey will be populated if
+        //they were.
         if (!$rootScope.ukey) {
-            $location.path('/datasets');
+            $location.path('/attachment_explorer');
         }
         else {
             RestService.getAttachmentInfo($rootScope.ukey).then(
@@ -21,32 +27,35 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     $scope.filename = success[1].filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
-                    $scope.tags = success[1].data;
+                    $scope.tags = success[1].primitive_text_data;
                 }
             },
             function (error) {
-                console.log('AttachmentDetailsCtrl promise error.');
-                console.log(error);
+                if(error[0] === EVENTS.promiseFailed) {
+                    NotificationService.error('Critical error.', 'Please contact support.');
+                }
             });
         }
-
-        $scope.back = function () {
-            $location.path('/datasets');
-        };
 
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
             var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
-            var cacheValueRenamed = null;
 
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
                 if(re.test($scope.newFilename)) {
-                    RestService.renameAttachment($scope.ukey, $scope.newFilename);
-                    cacheValueRenamed = RestService.renameCacheDataValue($rootScope.ukey, $scope.newFilename);
-                    if(cacheValueRenamed) {
-                        NotificationService.success('Success', 'Attachment Renamed');
-                    }
+                    RestService.renameAttachment($scope.ukey, $scope.newFilename).then(
+                        function(success) {
+                            if (success[0] === EVENTS.promiseSuccess) {
+                                $rootScope.dataChanged = true;
+                                NotificationService.success('Success', 'Attachment Renamed');
+                            }
+                        },
+                        function(error) {
+                            if(error[0] === EVENTS.promiseFailed) {
+                                NotificationService.error('Critical error.', 'Please contact support.');
+                            }
+                        });
                 }
                 else {
                     NotificationService.error('Invalid filename.', 'Please try again.');
@@ -60,17 +69,97 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
 
         //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
+            RestService.deleteAttachment($scope.ukey).then(
+                function(success) {
+                    if (success[0] === EVENTS.promiseSuccess) {
+                            NotificationService.success('Success', 'Attachment Deleted');
+                            $rootScope.dataChanged = true;
+                            $location.path('/attachment_explorer');
+                    }
+                    else {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                    }
+            });
+        };
 
-            RestService.deleteAttachment($scope.ukey);
-            var cacheValueDeleted = RestService.removeCacheDataValue($scope.ukey);
+        //Adds a tag row to the tag table. Prevents adding duplicate values.
+        $scope.addRow = function(description, value) {
+            if (description && value) {
+                var duplicateFlag = false;
+                $.each($scope.tags, function(index, value) {
+                        if (value.description) {
+                            if (value.description === description) {
+                                duplicateFlag = true;
+                            }
+                        }
+                });
+                if (!duplicateFlag) {
+                    $scope.tags.push({'description' : description, 'value' : value});
 
-            if(cacheValueDeleted) {
-                NotificationService.success('Success', 'Attachment Deleted');
-                $location.path('/datasets');
+                    RestService.submitTag($scope.ukey, 'text', description, value).then(
+                    function(success) {
+                        if (success[0] === EVENTS.promiseSuccess) {
+                            NotificationService.success('Success', 'Tag Added.');
+                        }
+                    },
+                    function(error) {
+                        if (error[0] === EVENTS.promiseFailed) {
+                            NotificationService.error('Critical error.', 'Please contact support.');
+                        }
+                        else if (error[0] === EVENTS.badStatus) {
+                            NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                        }
+                    });
+                }
+                else {
+                    NotificationService.error('Invalid Tag.', 'Tag cannot be a duplicate of another.');
+                }
+
             }
             else {
-                NotificationService.error('Could not delete attachment.', 'Please try again.');
+                NotificationService.error('Invalid Tag.', 'Tag name and value cannot be blank.');
             }
+        };
+
+        //Removes all rows that match the provided tag description.
+        $scope.removeRow = function(description) {
+            var newTags = [];
+            $.each($scope.tags, function(index, value) {
+                    if (value.description) {
+                        if (value.description !== description) {
+                            newTags.push(value);
+                        }
+                    }
+            });
+            $scope.tags = newTags;
+
+            RestService.deleteTag($scope.ukey, 'text', description).then(
+                function(success) {
+                    if (success[0] === EVENTS.promiseSuccess) {
+                        NotificationService.success('Success', 'Tag Removed.');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                    }
+            });
+        };
+
+        //Back button to return to the attachment explorer view.
+        $scope.back = function () {
+            $location.path('/attachment_explorer');
         };
 
     }

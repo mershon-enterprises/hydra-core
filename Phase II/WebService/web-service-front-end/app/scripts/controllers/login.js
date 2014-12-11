@@ -10,7 +10,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
     //If they are at the login route and already have a valid session, send them
     //to where they need to be.
     if(Session.exists()) {
-        $location.path('/datasets');
+        $location.path('/attachment_explorer');
     }
 
     //Will be populated by user on login view.
@@ -23,15 +23,22 @@ angular.module('webServiceApp').controller('LoginCtrl',
     $scope.login = function (credentials) {
         RestService.authenticate(credentials).then(
         function(success) {
-            $rootScope.$broadcast(EVENTS.loginSuccess);
-            NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
-            $location.path('/datasets');
+            if (success[0] === EVENTS.promiseSuccess) {
+                $rootScope.$broadcast(EVENTS.loginSuccess);
+                NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
+                $location.path('/attachment_explorer');
+            }
         },
         function(error) {
+            if (error[0] === EVENTS.promiseFailed) {
+                NotificationService.error('Critical error.', 'Please contact support.');
+            }
+            else if (error[0] === EVENTS.badStatus) {
+                NotificationService.error('Could not connect to server.', 'Please try again.');
+            }
             $rootScope.$broadcast(EVENTS.loginFailed);
             NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
             Session.destroy();
-            console.log(error);
         });
     };
 

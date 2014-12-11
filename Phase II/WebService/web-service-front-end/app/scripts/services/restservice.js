@@ -51,12 +51,6 @@ angular.module('webServiceApp').factory('RestService',
                     //Create the cache for this user's data
                     restService.createCache();
 
-                    $rootScope.$apply(function() {
-                        //Broadcast to any listeners that the cache should be
-                        //refreshed
-                        $rootScope.$broadcast(EVENTS.cacheRefresh);
-                    });
-
                     //Mark that we have received data
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log('restclient.authenticate succeeded');
@@ -198,13 +192,13 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    restService.listDatasetsWithAttachments = function () {
+    restService.listAttachments = function (searchParams) {
 
         var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.listDatasetsWithAttachments(clientUUID, Session.getToken()).then(
+        restclient.listAttachments(clientUUID, Session.getToken(), searchParams).then(
 
             function(response) {
 
@@ -216,72 +210,45 @@ angular.module('webServiceApp').factory('RestService',
 
                     var responseBody = jsonResponse.response;
 
-                    var parsedData =  restService.parseData(responseBody);
+                    var parsedData =  restService.parseData(responseBody.attachments);
+
+                    var resultCount =  responseBody.result_count;
 
                     restService.updateCacheValue('data', parsedData);
 
-                    deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listDatasetsWithAttachments succeeded');
+                    restService.updateCacheValue('result_count', resultCount);
+
+                    deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
+
+                    console.log('restclient.listAttachments succeeded');
                 }
                 else {
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.listDatasetsWithAttachments promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.listAttachments promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.listDatasetsWithAttachments promise failed: ' + error);
+                console.log('restclient.listAttachments promise failed: ' + error);
             });
         return deferred.promise;
     };
 
-    //Parse the data from the restClient into a format ngGrid wants.
+    //Parse the data from the restClient into a format the attachment_explorer wants.
     //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
     restService.parseData = function (rawData) {
 
         var data = [];
-        var attachments = [];
-        var uuid = null;
-        var createdBy = null;
-        var dateCreated = null;
-        var clientName = null;
-        var location = null;
-        var fieldName = null;
-        var wellName = null;
-        var trailerNumber = null;
         var uniqueKey = null;
 
-        $.each(rawData, function(index, value){
-            createdBy = {created_by: value.created_by};
-            uuid = {uuid: value.uuid};
-            dateCreated = {date_created: value.date_created};
-            clientName = {client: value.client};
-            location = {location: value.location};
-            $.each(value.data, function(index, value){
-                if(value.type === 'attachment') {
-                    attachments.push(value);
-                }
-                else if(value.type === 'text') {
-                    if(value.description === 'fieldName') {
-                        fieldName = {field_name: value.value};
-                    }
-                    else if(value.description === 'wellName') {
-                        wellName = {well_name: value.value};
-                    }
-                    else if(value.description === 'trailerNumber') {
-                        trailerNumber = {trailer_number: value.value};
-                    }
-                }
+        if (rawData) {
+            $.each(rawData, function(index, value){
+                uniqueKey = {unique_key: value.filename + '\n' + value.data_set_uuid};
+                data.push($.extend(value, uniqueKey));
             });
-            $.each(attachments, function(index, value){
-                uniqueKey = {unique_key: value.filename + '\n' + uuid.uuid};
-                data.push($.extend(value, uuid, createdBy, location, dateCreated,
-                    clientName, fieldName, wellName, trailerNumber, uniqueKey));
-            });
-            attachments = [];
-        });
+        }
 
         return data;
     };
@@ -380,6 +347,8 @@ angular.module('webServiceApp').factory('RestService',
     //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {
 
+        var deferred = $q.defer();
+
         var clientUUID = localStorageService.get('clientUUID');
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
@@ -393,21 +362,27 @@ angular.module('webServiceApp').factory('RestService',
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' deleted');
                 }
                 else {
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.deleteAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
             },
             function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.deleteAttachment promise failed: ' + error);
-            }
-        );
+            });
+
+        return deferred.promise;
     };
 
     //Rename an attachment on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.renameAttachment = function (ukey, newFilename) {
+
+        var deferred = $q.defer();
 
         var clientUUID = localStorageService.get('clientUUID');
         var filename = ukey.split('\n')[0];
@@ -422,27 +397,116 @@ angular.module('webServiceApp').factory('RestService',
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' renamed to ' + newFilename);
                 }
                 else {
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.renameAttachment promise succeeded ' + 'But with bad status code : ' + response.status.code);
                 }
 
             },
             function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.renameAttachment promise failed: ' + error);
+            });
+
+        return deferred.promise;
+    };
+
+    //Add a tag to a dataset.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.submitTag = function (ukey, type, description, value) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var uuid = ukey.split('\n')[1];
+
+        restclient.submitTag(clientUUID, Session.getToken(), uuid, type, description, value).then(
+
+            function(response) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log(description + ':' + value + ' added to ' + ukey);
+                }
+                else {
+                    console.log('restclient.submitTag promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+
+            },
+            function(error) {
+                console.log('restclient.submitTag promise failed: ' + error);
             }
         );
+
+        return deferred.promise;
+    };
+
+    //Remove a tag from a dataset.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.deleteTag = function (ukey, type, description) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var uuid = ukey.split('\n')[1];
+
+        restclient.deleteTag(clientUUID, Session.getToken(), uuid, type, description).then(
+
+            function(response) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log(description + ' removed from ' + ukey);
+                }
+                else {
+                    console.log('restclient.deleteTag promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+
+            },
+            function(error) {
+                console.log('restclient.deleteTag promise failed: ' + error);
+            }
+        );
+
+        return deferred.promise;
     };
 
 //CACHE ========================================================================
+//The cache is a where data retrived from the restclient are stored in memory
+//for angular. This could not be made into its own service due to a circular
+//dependency problem. Restservice -> Cache && Cache -> Restservice
 
     //Create the cache keys in localstorage.
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
-        localStorageService.set('users', null);
         localStorageService.set('data', null);
+        localStorageService.set('result_count', null);
+        localStorageService.set('users', null);
+        restService.refreshCache().then(
+            function(success) {
+                //Once the cache is ready, signal to the rest of the app
+                //that restclient calls may be used.
+                if (success) {
+                    $rootScope.$broadcast(EVENTS.cacheReady);
+                    console.log('refreshCache succeed.');
+                }
+            },
+            function(error) {
+                console.log('refreshCache failed.');
+                console.log(error);
+            });
     };
 
     //Invoke all restservice methods to repopulate the cache with new values
@@ -463,13 +527,7 @@ angular.module('webServiceApp').factory('RestService',
                     function() {
                         restService.listUsers().then(
                             function() {
-                                restService.listDatasetsWithAttachments().then(
-                                    function() {
-                                        deferred.resolve(true);
-                                    },
-                                    function() {
-                                        deferred.reject(false);
-                                    });
+                                deferred.resolve(true);
                             },
                             function() {
                                 deferred.reject(false);
@@ -495,11 +553,14 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'clients') {
             localStorageService.set('clients', data);
         }
-        else if (key === 'users') {
-            localStorageService.set('users', data);
-        }
         else if (key === 'data') {
             localStorageService.set('data', data);
+        }
+        else if (key === 'result_count') {
+            localStorageService.set('result_count', data);
+        }
+        else if (key === 'users') {
+            localStorageService.set('users', data);
         }
     };
 
@@ -511,111 +572,39 @@ angular.module('webServiceApp').factory('RestService',
         else if (key === 'clients') {
             return localStorageService.get('clients');
         }
-        else if (key === 'users') {
-            return localStorageService.get('users');
-        }
         else if (key === 'data') {
             return localStorageService.get('data');
+        }
+        else if (key === 'result_count') {
+            return localStorageService.get('result_count');
+        }
+        else if (key === 'users') {
+            return localStorageService.get('users');
         }
         else if (key === 'clientUUID') {
             return localStorageService.get('clientUUID');
         }
     };
 
-    //Remove a value from the restclient's data cache with a matching filename
-    //and uuid.
-    //ukey = 'filename' + '\n' + 'uuid'
-    restService.removeCacheDataValue = function (ukey) {
-
-        var filename = ukey.split('\n')[0];
-        var uuid = ukey.split('\n')[1];
-
-        var data = localStorageService.get('data');
-        var matchingIndex = null;
-
-        if(data) {
-            $.each(data, function(index, value){
-                if((value.uuid === uuid) && (value.filename === filename)) {
-                    matchingIndex = index;
-                }
-            });
-
-            if(matchingIndex) {
-                data.splice(matchingIndex, 1);
-                restService.updateCacheValue('data', data);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    //Rename a value from the restclient's data cache with a matching filename
-    //and uuid.
-    //ukey = 'filename' + '\n' + 'uuid'
-    restService.renameCacheDataValue = function (ukey, newFilename) {
-
-        var filename = ukey.split('\n')[0];
-        var uuid = ukey.split('\n')[1];
-
-        var data = localStorageService.get('data');
-        var matchingIndex = null;
-
-        if(data) {
-            $.each(data, function(index, value){
-                if((value.uuid === uuid) && (value.filename === filename)) {
-                    matchingIndex = index;
-                }
-            });
-
-            if(matchingIndex) {
-                data[matchingIndex].filename = newFilename;
-                restService.updateCacheValue('data', data);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    //Check if data is available in the cache. Refresh it if not.
-    restService.cacheExists = function () {
-
-        var deferred = $q.defer();
-
-        //If you have a session...
-        if (Session.exists()) {
-            //And there is already data in the cache...
-            if(localStorageService.get('data')) {
-                //Data controller may tell the table to update.
-                deferred.resolve(true);
-            }
-            //Otherwise, refresh the cache...
-            else {
-                restService.refreshCache().then(
-                    function() {
-                        //Data controller may tell the table to update.
-                        deferred.resolve(true);
-                    },
-                    function() {
-                        //Data controller may not tell the table to update.
-                        deferred.reject(false);
-                    }
-                );
-            }
-        }
-        return deferred.promise;
-    };
-
     //Destroy the cache values and their keys from local storage.
     restService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('clients', null);
-        localStorageService.set('users', null);
         localStorageService.set('data', null);
+        localStorageService.set('result_count', null);
+        localStorageService.set('users', null);
         localStorageService.remove('accessLevels');
         localStorageService.remove('clients');
-        localStorageService.remove('users');
         localStorageService.remove('data');
+        localStorageService.remove('result_count');
+        localStorageService.remove('users');
     };
+
+    //Reset the cache if the reset event is broadcast.
+    $rootScope.$on(EVENTS.cacheReset, function() {
+        restService.destroyCache();
+        restService.createCache();
+    });
 
   return restService;
 });

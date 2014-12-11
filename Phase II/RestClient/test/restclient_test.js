@@ -781,3 +781,296 @@ exports['listUserAccess'] = {
       });
   }
 };
+
+exports['listAttachments'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.listAttachments(
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(10);
+    restclient.listAttachments(
+      clientUUID,
+      apiToken,
+      {limit: 20,
+       offset: 10,
+       search_string: "2014",
+       order_by: "date_created",
+       order: "desc" }
+    ).then(
+      function(data) {
+        var bodyObj = JSON.parse(data.entity);
+
+        checkResponse(test, bodyObj);
+        test.equal(data.status.code, 200, 'list data should succeed');
+        test.ok(Array.isArray(bodyObj['response']['attachments']),
+          'data list should be an array');
+        test.ok(bodyObj['response']['attachments'].length === 20,
+          'should return exactly 20 attachments');
+        test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+          'data set uuid should be stated');
+        test.ok('date_created' in bodyObj['response']['attachments'][0], 
+          'attachment date created should be stated');
+        test.ok('created_by' in bodyObj['response']['attachments'][0],
+          'attachment created-by should be stated');
+        test.ok('filename' in bodyObj['response']['attachments'][0],
+          'attachment filename should be stated');
+
+        test.done();
+      });
+  },
+  'with-api-token-search-filename': function(test) {
+    test.expect(14);
+
+    var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        apiToken = bodyObj['token'];
+        restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {search_string: "this.csv"}
+        ).then(
+          function(getListResponse) {
+            var bodyObj = JSON.parse(getListResponse.entity);
+
+            checkResponse(test, bodyObj);
+
+            test.equal(getListResponse.status.code, 200,
+              'list data should succeed');
+            test.ok('attachments' in bodyObj['response'],
+              'attachments data should be stated');
+            test.ok('result_count' in bodyObj['response'],
+              'result count should be stated');
+            test.ok(Array.isArray(bodyObj['response']['attachments']),
+              'attachment list should be an array');
+            test.ok(bodyObj['response']['attachments'].length > 0,
+              'there should be at least one attachments');
+            test.ok(bodyObj['response']['result_count'] > 0,
+              'result count should be a least 1');
+            test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+              'data-set_uuid should be stated');
+            test.ok('date_created' in bodyObj['response']['attachments'][0],
+              'attachment date created should be stated');
+            test.ok('created_by' in bodyObj['response']['attachments'][0],
+              'attachment created-by should be stated');
+            test.ok(bodyObj['response']['attachments'][0]['filename'] === 'findThis.csv',
+              'filename should be called "test.csv"');
+            test.ok(bodyObj['response']['attachments'][0]['created_by'] === 'admin@example.com',
+              'created_by should be "admin@example.com"');
+            test.done();
+        });
+    });
+  },
+  'with-api-token-search-primitive-value': function(test) {
+    test.expect(14);
+
+    var attachment = restclient.Attachment("test.csv", "text/csv", "");
+    var primitive = restclient.PrimitiveData("text", "description", "findThisValue");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitive]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        apiToken = bodyObj['token'];
+        restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {search_string: "thisvalue"}
+        ).then(
+          function(getListResponse) {
+            var bodyObj = JSON.parse(getListResponse.entity);
+
+            checkResponse(test, bodyObj);
+
+            test.equal(getListResponse.status.code, 200,
+              'list data should succeed');
+            test.ok('attachments' in bodyObj['response'],
+              'attachments data should be stated');
+            test.ok('result_count' in bodyObj['response'],
+              'result count should be stated');
+            test.ok(Array.isArray(bodyObj['response']['attachments']),
+              'attachment list should be an array');
+            test.ok(bodyObj['response']['attachments'].length > 0,
+              'there should be at least one attachments');
+            test.ok(bodyObj['response']['result_count'] > 0,
+              'result count should be a least 1');
+            test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+              'data-set_uuid should be stated');
+            test.ok('date_created' in bodyObj['response']['attachments'][0],
+              'attachment date created should be stated');
+            test.ok('created_by' in bodyObj['response']['attachments'][0],
+              'attachment created-by should be stated');
+            test.ok(bodyObj['response']['attachments'][0]['filename'] === 'test.csv',
+              'filename should be called "test.csv"');
+            test.ok(bodyObj['response']['attachments'][0]['created_by'] === 'admin@example.com',
+              'created_by should be "admin@example.com"');
+            test.done();
+        });
+    });
+  },
+  'with-api-token-search-created-by': function(test) {
+    test.expect(14);
+
+    var attachment = restclient.Attachment("test.csv", "text/csv", "");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        apiToken = bodyObj['token'];
+        restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {search_string: "admin"}
+        ).then(
+          function(getListResponse) {
+            var bodyObj = JSON.parse(getListResponse.entity);
+
+            checkResponse(test, bodyObj);
+
+            test.equal(getListResponse.status.code, 200,
+              'list data should succeed');
+            test.ok('attachments' in bodyObj['response'],
+              'attachments data should be stated');
+            test.ok('result_count' in bodyObj['response'],
+              'result count should be stated');
+            test.ok(Array.isArray(bodyObj['response']['attachments']),
+              'attachment list should be an array');
+            test.ok(bodyObj['response']['attachments'].length > 0,
+              'there should be at least one attachments');
+            test.ok(bodyObj['response']['result_count'] > 0,
+              'result count should be a least 1');
+            test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+              'data-set_uuid should be stated');
+            test.ok('date_created' in bodyObj['response']['attachments'][0],
+              'attachment date created should be stated');
+            test.ok('created_by' in bodyObj['response']['attachments'][0],
+              'attachment created-by should be stated');
+            test.ok(bodyObj['response']['attachments'][0]['filename'] === 'test.csv',
+              'filename should be called "test.csv"');
+            test.ok(bodyObj['response']['attachments'][0]['created_by'] === 'admin@example.com',
+              'created_by should be "admin@example.com"');
+            test.done();
+        });
+    });
+  }
+};
+
+exports['getAttachmentInfo'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getAttachmentInfo(
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(16);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        restclient.getAttachmentInfo(
+            clientUUID,
+            apiToken,
+            datasetWithAttachmentUUID,
+            attachmentFilename
+        ).then(
+          function(getInfoResponse) {
+            var bodyObj = JSON.parse(getInfoResponse.entity);
+
+            checkResponse(test, bodyObj);
+
+            test.equal(getInfoResponse.status.code, 200,
+              'list data should succeed');
+            test.ok(Array.isArray(bodyObj['response']),
+              'data list should be an array');
+            test.ok('data_set_uuid' in bodyObj['response'][0],
+              'data-set_uuid should be stated');
+            test.ok('date_created' in bodyObj['response'][0],
+              'attachment date created should be stated');
+            test.ok('created_by' in bodyObj['response'][0],
+              'attachment created-by should be stated');
+            test.ok('primitive_text_data' in bodyObj['response'][0],
+              'primitive text data should be stated');
+            test.ok(Array.isArray(bodyObj['response'][0]['primitive_text_data']),
+              'primitive_text_data should be an array');
+            test.ok(bodyObj['response'][0]['filename'] === 'test.csv',
+              'filename should be called "test.csv"');
+            test.ok(bodyObj['response'][0]['created_by'] === 'admin@example.com',
+              'created_by should be "admin@example.com"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'].length === 1,
+              'primitive text data should have 1 element');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['type'] === 'text',
+              'primitive text data type should be "text"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['description'] === 'testTextDescription',
+              'primitive text data description should be "testTextDescription"');
+            test.ok(bodyObj['response'][0]['primitive_text_data'][0]['value'] === 'testValue',
+              'primitive text data value should be "testValue"');
+            test.done();
+        });
+    });
+  }
+};
+
+
