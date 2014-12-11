@@ -378,7 +378,7 @@ module.exports = function (grunt) {
       },
       restclient: {
         dest: 'bower_components/restclient/restclient.js',
-        src: '../../RestClient/dist/restclient.standalone.js'
+        src: '../rest-client/dist/restclient.standalone.js'
       }
     },
 
@@ -418,11 +418,11 @@ module.exports = function (grunt) {
     subgrunt: {
       dev: {
         // build the restclient plugin
-        '../../RestClient': 'dev'
+        '../rest-client': 'dev'
       },
       dist: {
         // build the restclient plugin
-        '../../RestClient': 'build'
+        '../rest-client': 'build'
       }
     }
   });
