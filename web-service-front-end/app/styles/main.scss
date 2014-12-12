@@ -262,10 +262,6 @@ input[type='password']:focus, textarea:focus {
     box-shadow: 0 0 5px $light-red;
 }
 
-input[type='file'] {
-    margin: $default-margin $default-margin $default-margin*4;
-}
-
 //Footer
 footer {
 
@@ -290,6 +286,11 @@ footer {
         width: 200px;
     }
 
+}
+
+.inactive {
+    opacity: .5 !important;
+    cursor: default !important;
 }
 
 .search {
@@ -357,6 +358,10 @@ footer {
 
     width: 90%;
 
+    .data-row:hover {
+        background-color: $light-gray + $default-hover-offset;
+    }
+
     .author {
         font-size: .8em;
     }
@@ -386,6 +391,10 @@ footer {
     }
 
     i {
+        cursor: pointer;
+    }
+
+    .data-cell {
         cursor: pointer;
     }
 
@@ -446,27 +455,64 @@ footer {
     }
 }
 
+.results {
+    margin: $default-margin/2;
+    display: inline-block;
+}
+
 //File upload and file details view.
-.tagView {
+.tag-view {
     @include gray-box(1em);
     padding: $default-padding * 2 $default-padding * 4 !important;
-    .fileProperties {
-        width: 100%;
-        span {
-            display: block;
-            font-size: 1.5em;
-            padding-right: $default-padding;
+
+    table {
+        width: 90%;
+        margin: $default-margin auto;
+    }
+    input[type='file'] {
+        height: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .file-upload-table {
+        td:nth-child(1), td:nth-child(2) {
+            width: 22.5%;
         }
-        li {
-            height: 100%;
-            line-height: 3em;
-            vertical-align: top;
-            text-align: left;
-            &>* {
-                display: inline-block;
+        td:nth-child(3), td:nth-child(4), td:nth-child(5)  {
+            width: 15%;
+        }
+        .buttonCell {
+            background: $dark-gray;
+            border: 0;
+        }
+        .spacer {
+            background: $dark-gray;
+            td {
+                border: 0;
             }
         }
     }
+
+    .file-details-table {
+        td:nth-child(1), td:nth-child(2), td:nth-child(3) {
+            width: 15%;
+        }
+        td:nth-child(4) {
+            width: 10%;
+        }
+        .buttonCell {
+            background: $dark-gray;
+            border: 0;
+        }
+        .spacer {
+            background: $dark-gray;
+            td {
+                border: 0;
+            }
+        }
+    }
+
     .leftColumn {
         vertical-align: top;
         width: 50%;

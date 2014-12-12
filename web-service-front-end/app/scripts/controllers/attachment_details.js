@@ -47,6 +47,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
                     RestService.renameAttachment($scope.ukey, $scope.newFilename).then(
                         function(success) {
                             if (success[0] === EVENTS.promiseSuccess) {
+                                $rootScope.dataChanged = true;
                                 NotificationService.success('Success', 'Attachment Renamed');
                             }
                         },
@@ -68,27 +69,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl', function ($r
 
         //Delete the file from cache and server whose ukey is in scope.
         $scope.deleteFile = function() {
-
             RestService.deleteAttachment($scope.ukey).then(
                 function(success) {
-                        if (success[0] === EVENTS.promiseSuccess) {
-                            if(RestService.removeCacheDataValue($scope.ukey)) {
-                                NotificationService.success('Success', 'Attachment Deleted');
-                                $location.path('/attachment_explorer');
-                            }
-                            else {
-                                console.log('Attachment deleted from server but not cache!');
-                            }
-                        }
-                    },
-                    function(error) {
-                        if (error[0] === EVENTS.promiseFailed) {
-                            NotificationService.error('Critical error.', 'Please contact support.');
-                        }
-                        else if (error[0] === EVENTS.badStatus) {
-                            NotificationService.error('Cannot connect to server.', 'Please contact support.');
-                        }
-                    });
+                    if (success[0] === EVENTS.promiseSuccess) {
+                            NotificationService.success('Success', 'Attachment Deleted');
+                            $rootScope.dataChanged = true;
+                            $location.path('/attachment_explorer');
+                    }
+                    else {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                },
+                function(error) {
+                    if (error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error('Critical error.', 'Please contact support.');
+                    }
+                    else if (error[0] === EVENTS.badStatus) {
+                        NotificationService.error('Cannot connect to server.', 'Please contact support.');
+                    }
+            });
         };
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.

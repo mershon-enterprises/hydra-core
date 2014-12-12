@@ -25,7 +25,8 @@
        :memberOf "group1,Domain Admins"}
       #(let [response (app (mock/request :post
                                          "/admin-authenticate"
-                                         {:email_address "a@b.c"
+                                         {:client_uuid "00000000-0000-0000-0000-000000000000"
+                                          :email_address "a@b.c"
                                           :password "password"
                                           :user_email_address "email-address"}))
              json-body (parse-string (:body response) true)
@@ -64,7 +65,8 @@
        :memberOf "group1,group2"}
       #(let [response (app (mock/request :post
                                          "/admin-authenticate"
-                                         {:email_address "a@b.c"
+                                         {:client_uuid "00000000-0000-0000-0000-000000000000"
+                                          :email_address "a@b.c"
                                           :password "password"
                                           :user_email_address "email-address"}))]
 
@@ -100,7 +102,8 @@
        :memberOf "group1,group2"}
       #(let [response (app (mock/request :post
                                          "/authenticate"
-                                         {:email_address "a@b.c"
+                                         {:client_uuid "00000000-0000-0000-0000-000000000000"
+                                          :email_address "a@b.c"
                                           :password "password"}))
              json-body (parse-string (:body response) true)
              content (:response json-body)]
@@ -134,7 +137,8 @@
       nil
       #(let [response (app (mock/request :post
                                          "/authenticate"
-                                         {:email_address "a@b.c"
+                                         {:client_uuid "00000000-0000-0000-0000-000000000000"
+                                          :email_address "a@b.c"
                                           :password "password"}))]
 
          ; verify that the response status is HTTP 401
