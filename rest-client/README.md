@@ -12,6 +12,7 @@ CommonJS REST API client
 * [Method Signatures](#method-signatures)
 
 [Contributing](#contributing)
+
 [License](#license)
 
 ## Getting Started
@@ -85,55 +86,69 @@ restclient.authenticate(email, password, function(statusCode, entity)) {
 These are the method signatures of the `rest-client`:
 
 ```javascript
-restclient.version(callback);```
+restclient.version(callback);
+```
 
 ```javascript
-restclient.authenticate(clientUUID, emailAddress, password)```
+restclient.authenticate(clientUUID, emailAddress, password)
+```
 
 Authenticates the user's credentials against the LDAP server.
 
 `clientUUID` - Unique identifier for a client machine. Generated from
-restclient.uuid.<br>
+restclient.uuid.
 `emailAddress` - Username for the user as a string.
 `password` - Password for the user as an unencrypted string.
 
 Returns
 
 ```javascript
-restclient.listAcccessLevels(apiToken, callback);```
+restclient.listAcccessLevels(apiToken, callback);
+```
 
 ```javascript
-restclient.getAccessLevel(apiToken, accessLevelDescription, callback);```
+restclient.getAccessLevel(apiToken, accessLevelDescription, callback);
+```
 
 ```javascript
-restclient.listClients(apiToken, callback);```
+restclient.listClients(apiToken, callback);
+```
 
 ```javascript
-restclient.getClient(apiToken, clientName, callback);```
+restclient.getClient(apiToken, clientName, callback);
+```
 
 ```javascript
-restclient.listClientLocations(apiToken, callback);```
+restclient.listClientLocations(apiToken, callback);
+```
 
 ```javascript
-restclient.listData(apiToken, callback);```
+restclient.listData(apiToken, callback);
+```
 
 ```javascript
-restclient.getData(apiToken, datasetUUID, callback);```
+restclient.getData(apiToken, datasetUUID, callback);
+```
 
 ```javascript
-restclient.submitData(apiToken, dateCreated, createdByEmailAddress, dataItems, callback);```
+restclient.submitData(apiToken, dateCreated, createdByEmailAddress, dataItems, callback);
+```
 
 ```javascript
-restclient.deleteData(apiToken, datasetUUID, callback);```
+restclient.deleteData(apiToken, datasetUUID, callback);
+```
 
 ```javascript
-restclient.listUsers(apiToken, callback);```
+restclient.listUsers(apiToken, callback);
+```
 
 ```javascript
-restclient.getUser(apiToken, emailAddress, callback);```
+restclient.getUser(apiToken, emailAddress, callback);
+```
 
 ```javascript
-restclient.listUserAccess(apiToken, callback);```
+restclient.listUserAccess(apiToken, callback);
+```
 
 For the method `restclient.submitData`, each element in the `dataItems` array must be an instance of either `restclient.Attachment` or `restclient.PrimitiveData`. UUIDs which are UUID type-4 compliant can be generated using the helper method `restclient.uuid()`.
 
@@ -143,5 +158,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _Also, please don't edit files in the "dist" subdirectory as they are generated via Grunt. You'll find source code in the "lib" subdirectory!_
 
 ## License
-
  Copyright (c) 2014 Slixbits Inc. Licensed under the GPLv3 license.
