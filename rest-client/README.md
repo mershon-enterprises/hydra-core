@@ -1,6 +1,18 @@
-# RestClient
+# Rest Client
 
 CommonJS REST API client
+
+[Getting Started](#getting-started)
+* [On the server](#on-the-server)
+* [In the browser](#in-the-browser)
+
+[Documentation](#documentation)
+* [Callback Function](#callback-function)
+* [API Tokens](#api-tokens)
+* [Method Signatures](#method-signatures)
+
+[Contributing](#contributing)
+[License](#license)
 
 ## Getting Started
 ### On the server
@@ -34,6 +46,7 @@ restclient.authenticate("email address", "password", function(statusCode, entity
 
 
 ## Documentation
+###Callback Function
 Every method exposed via `restclient` takes as its last parameter a callback function, ala:
 ```javascript
 function(statusCode, entity) {
@@ -48,6 +61,7 @@ function(statusCode, entity) {
 }
 ```
 
+###API Tokens
 Additionally, except for `authenticate` and `version`, every method exposed via `restclient` takes as its first parameter an ever-changing API Token. Invoke `authenticate` to generate an API Token, and every request after that will take the API token, expire it, and then return a new one. Follow the process like this:
 ```javascript
 var apiToken = null;
@@ -67,28 +81,59 @@ restclient.authenticate(email, password, function(statusCode, entity)) {
 }
 ```
 
-### restclient.version(callback)
+###Method Signatures
+These are the method signatures of the `rest-client`:
 
-Learning to edit markdown.
-
-
-These are the method signatures of the `restclient`:
 ```javascript
-restclient.version(callback);
-restclient.authenticate(emailAddress, password, callback);
-restclient.listAcccessLevels(apiToken, callback);
-restclient.getAccessLevel(apiToken, accessLevelDescription, callback);
-restclient.listClients(apiToken, callback);
-restclient.getClient(apiToken, clientName, callback);
-restclient.listClientLocations(apiToken, callback);
-restclient.listData(apiToken, callback);
-restclient.getData(apiToken, datasetUUID, callback);
-restclient.submitData(apiToken, dateCreated, createdByEmailAddress, dataItems, callback);
-restclient.deleteData(apiToken, datasetUUID, callback);
-restclient.listUsers(apiToken, callback);
-restclient.getUser(apiToken, emailAddress, callback);
-restclient.listUserAccess(apiToken, callback);
-```
+restclient.version(callback);```
+
+```javascript
+restclient.authenticate(clientUUID, emailAddress, password)```
+
+Authenticates the user's credentials against the LDAP server.
+
+`clientUUID` - Unique identifier for a client machine. Generated from
+restclient.uuid.<br>
+`emailAddress` - Username for the user as a string.
+`password` - Password for the user as an unencrypted string.
+
+Returns
+
+```javascript
+restclient.listAcccessLevels(apiToken, callback);```
+
+```javascript
+restclient.getAccessLevel(apiToken, accessLevelDescription, callback);```
+
+```javascript
+restclient.listClients(apiToken, callback);```
+
+```javascript
+restclient.getClient(apiToken, clientName, callback);```
+
+```javascript
+restclient.listClientLocations(apiToken, callback);```
+
+```javascript
+restclient.listData(apiToken, callback);```
+
+```javascript
+restclient.getData(apiToken, datasetUUID, callback);```
+
+```javascript
+restclient.submitData(apiToken, dateCreated, createdByEmailAddress, dataItems, callback);```
+
+```javascript
+restclient.deleteData(apiToken, datasetUUID, callback);```
+
+```javascript
+restclient.listUsers(apiToken, callback);```
+
+```javascript
+restclient.getUser(apiToken, emailAddress, callback);```
+
+```javascript
+restclient.listUserAccess(apiToken, callback);```
 
 For the method `restclient.submitData`, each element in the `dataItems` array must be an instance of either `restclient.Attachment` or `restclient.PrimitiveData`. UUIDs which are UUID type-4 compliant can be generated using the helper method `restclient.uuid()`.
 
