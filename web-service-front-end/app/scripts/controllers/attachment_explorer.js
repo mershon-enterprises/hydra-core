@@ -215,7 +215,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 window.location.href = success[1];
             }
             },
-            function(error){
+            function(){
                 NotificationService.error(
                     'Critical Error',
                     'Please contact support.'

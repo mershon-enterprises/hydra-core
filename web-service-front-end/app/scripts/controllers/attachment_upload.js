@@ -5,9 +5,19 @@
 //Collects all required data from the user to be submitted to the Restclient.
 //Performs client-side verification of input and extraction of file properties
 //from attachments.
-angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($rootScope, $scope, $location, Session, RestService, EVENTS, NotificationService) {
+angular.module('webServiceApp').controller('AttachmentUploadCtrl',
+    function (
+        $location,
+        $rootScope,
+        $scope,
+        NotificationService,
+        RestService,
+        Session,
+        EVENTS
+        )
+    {
 
-    //If the user is logged in...
+    //The user must have a session...
     if (Session.exists()) {
 
         $scope.filename = '';
@@ -17,6 +27,9 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
         $scope.file = null;
         $scope.fileData = null;
 
+        //Allows us to forward click events from our nice-looking styled
+        //upload button to the hidden and unstyle-able nasty-looking file
+        //input field.
         $('.uploadButton').click(function() {
             $('.uploadInput').click();
         });
@@ -45,37 +58,65 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
         //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
             if (description && value) {
+
                 var duplicateFlag = false;
+
+                //For every row...
                 $.each($scope.tags, function(index, value) {
+                        //If you found the entered tag description in another
+                        //tag.
                         if (value.description) {
+                            //It's a duplicate.
                             if (value.description === description) {
                                 duplicateFlag = true;
                             }
                         }
                 });
+                //If there are no duplicates...
                 if (!duplicateFlag) {
-                    $scope.tags.push({'description' : description, 'value' : value});
-                    $('table * input').val('');
+                    //Add the tag row.
+                    $scope.tags.push(
+                        {
+                            'description' : description,
+                            'value' : value
+                        }
+                    );
+                    //Clear the tag inputs.
+                    $('.tag-input').val('');
                 }
                 else {
-                    NotificationService.error('Invalid Tag.', 'Duplicate Tag Name.');
+                    NotificationService.error(
+                        'Invalid Tag',
+                        'Duplicate Tag Name.'
+                    );
                 }
             }
             else {
-                NotificationService.error('Invalid Tag.', 'Both description and value cannot be blank.');
+                NotificationService.error(
+                    'Invalid Tag',
+                    'Both description and value cannot be blank.'
+                );
             }
         };
 
         //Removes all rows that match the provided tag description.
         $scope.removeRow = function(description) {
+
             var newTags = [];
+
+            //For every tag row...
             $.each($scope.tags, function(index, value) {
+                    //If it has a description...
                     if (value.description) {
+                        //And it doesn't match the entered description...
                         if (value.description !== description) {
+                            //Add it to the new container.
                             newTags.push(value);
                         }
                     }
             });
+            //Make the existing container equal to the new container. Removing
+            //All tags that matched the description.
             $scope.tags = newTags;
         };
 
@@ -83,16 +124,24 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
         //of success or failure.
         $scope.save = function () {
 
-            //Verify filename is good to go.
-            var re = new RegExp('[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$');
+            //Verify filename is valid
+            var re = new RegExp(
+                '[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$'
+            );
 
             if($scope.filename === '' || $scope.filename === null) {
-                NotificationService.error('Could not save attachment.', 'Filename cannot be blank.');
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Filename cannot be blank.'
+                );
                 return;
             }
 
             if(!re.test($scope.filename)) {
-                NotificationService.error('Invalid filename.', 'Please try again.');
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Please try again.'
+                );
                 return;
             }
 
@@ -103,7 +152,12 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                 //restclient.PrimitiveData objects without modifying $scope.tags
                 var dataItems = [];
                 $.each($scope.tags, function(index, value) {
-                    dataItems.push(restclient.PrimitiveData('text', value.description, value.value));
+                    dataItems.push(
+                        restclient.PrimitiveData(
+                            'text',
+                            value.description,
+                            value.value
+                        ));
                 });
 
                 //Create the attachment as restclient.Attachment object.
@@ -125,17 +179,26 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                 function(success)
                 {
                     if (success[0] === EVENTS.promiseSuccess) {
-                        NotificationService.success('File: ' + $scope.filename, 'Submitted Successfully!');
+                        NotificationService.success(
+                            'File: ' + $scope.filename,
+                            'Submitted Successfully!'
+                        );
                         $rootScope.dataChanged = true;
                         $location.path('/attachment_explorer');
                     }
                 },
                 function(error) {
                     if (error[0] === EVENTS.badStatus) {
-                        NotificationService.error('Server unreachable.', 'Please contact support.');
+                        NotificationService.error(
+                            'Server Unreachable',
+                            'Please contact support.'
+                        );
                     }
                     else if (error[0] === EVENTS.promiseFailed) {
-                        NotificationService.error('Critical error.', 'Please contact support.');
+                        NotificationService.error(
+                            'Critical Error',
+                            'Please contact support.'
+                        );
                     }
                 });
             }
