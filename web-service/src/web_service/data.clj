@@ -48,7 +48,8 @@
                      filename
                      new-filename
                      uuid))
-    (try (sql/execute! (db) [query new-filename uuid filename])
+    (try (if (sql/execute! (db) [query new-filename uuid filename])
+           true)
          (catch Exception e
            (log/error e (format (str "There was an error renamining "
                                      "attachment '%s' to '%s' in data-set "
