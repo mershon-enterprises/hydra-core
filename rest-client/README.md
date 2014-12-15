@@ -47,108 +47,227 @@ restclient.authenticate("email address", "password", function(statusCode, entity
 
 
 ## Documentation
-###Callback Function
-Every method exposed via `restclient` takes as its last parameter a callback function, ala:
-```javascript
-function(statusCode, entity) {
-  // statusCode meanings are HTTP standard status response codes
-  //
-  // statusCode in the 200-299 range is "good",
-  // statusCode in the 400-599 range is "bad"
 
-  // entity may be a String, or a JSON object or array
-  var bodyObject = JSON.parse(entity);
-  // keys in the response from the server can be directly referenced as properties of bodyObject
-}
-```
+###clientUUID
+
 
 ###API Tokens
-Additionally, except for `authenticate` and `version`, every method exposed via `restclient` takes as its first parameter an ever-changing API Token. Invoke `authenticate` to generate an API Token, and every request after that will take the API token, expire it, and then return a new one. Follow the process like this:
+Many restclient methods take as its first parameter an ever-changing API Token. Invoke `authenticate` to generate an API Token. Every restclient method that takes an API token will expire it and then return a new one. Follow the process like this:
 ```javascript
+//Set up variables to call authenticate and store apiToken
+var clientUUID = restclient.uuid;
 var apiToken = null;
-restclient.authenticate(email, password, function(statusCode, entity)) {
-  if (statusCode == 200) {
-    var bodyObject = JSON.parse(entity);
-    apiToken = bodyObject['token']; // token is now non-null
+var credentials = {};
 
-    // list users
-    restclient.listUsers(apiToken, function(statusCode2, entity2) {
-      if (statusCode == 200) ){
-        var bodyObject2 = JSON.parse(entity2);
-        apiToken = bodyObject2['token']; // token is now different from last request
-      }
+credentials.email = 'test@test.com';
+credentials.password = 'abc123';
+
+//Invoke restclient.authenticate. A promise will be returned.
+restclient.authenticate(clientUUID, credentials.email, credentials.password).then(
+  function (response) {
+    //If the server responded with an OK status...
+    if (response.status.code === 200) {
+
+      var jsonResponse = JSON.parse(response.entity);
+
+      //Extract the apiToken
+      apiToken = jsonResponse.token;
+
+      console.log('Authenticate Successful');
+      console.log(apiToken);
     }
+    else {
+      console.log('Bad status code.');
+    }
+
+  },
+  function (reject) {
+    console.log('Promise failed.');
+    console.log(reject);
+  });
+
+```
+Many restclient methods return a promise. You will need to extract the apiToken from the promise success callback function.
+The token is not available if the promise returns as a rejection. The token will also not change if you call a restclient
+method with an apiToken as a parameter and the promise fails.
+
+```javascript
+promise.then(function(response) {
+    //Api token will update.
+  }, function(error) {
+    //Api token will not update.
   }
-}
+);
+
 ```
 
 ###Method Signatures
 These are the method signatures of the `rest-client`:
 
+
 ```javascript
-restclient.version(callback);
+restclient.endpointUrl();
+```
+
+A placeholder string to be replaced by grunt.
+
+```javascript
+restclient.uuid();
+```
+
+Generates a type 4 UUID to be used as a client identifier for other restclient calls.
+
+```javascript
+restclient.Attachment(filename, mimeType, contents);
+```
+
+Generates an Attachment object of the following format:
+{
+  type: 'attachment',
+  filename: filename,
+  mime_type: mimeType,
+  contents: contents
+}
+
+`type` String - "attachment"
+
+`filename` String - Ex: "filename.txt"
+
+`mime_type` String - Ex: "text/csv"
+
+`contents` String - A base64-encoded string.
+
+Specifically used for the `dataItems` argument of `restclient.submitData` when
+submitting attachment files to the back-end.
+
+```javascript
+restclient.PrimitiveData(type, description, value);
+```
+Generates an PrimitiveData object of the following format:
+{
+  type: type,
+  description: description,
+  value: value
+}
+
+`type` String - Ex: "string"
+
+`description` String - Ex: "wellName"
+
+`value` String - "A-001-Alpha"
+
+Specifically used for the `dataItems` argument of `restclient.submitData` when
+submitting tags related to attachment files to the back-end.
+
+{
+  type: type,
+  description: description,
+  value: value
+}
+
+```javascript
+restclient.version();
 ```
 
 ```javascript
-restclient.authenticate(clientUUID, emailAddress, password)
+restclient.authenticate(clientUUID, emailAddress, password);
 ```
 
 Authenticates the user's credentials against the LDAP server.
 
 `clientUUID` - Unique identifier for a client machine. Generated from
 restclient.uuid.
+
 `emailAddress` - Username for the user as a string.
+
 `password` - Password for the user as an unencrypted string.
 
-Returns
 
 ```javascript
-restclient.listAcccessLevels(apiToken, callback);
+restclient.adminAuthenticate(clientUUID, emailAddress, password, userEmailAddress);
 ```
 
 ```javascript
-restclient.getAccessLevel(apiToken, accessLevelDescription, callback);
+restclient.listAccessLevels(clientUUID, apiToken);
 ```
 
 ```javascript
-restclient.listClients(apiToken, callback);
+restclient.getAccessLevel(clientUUID, apiToken, description);
 ```
 
 ```javascript
-restclient.getClient(apiToken, clientName, callback);
+restclient.listClients(clientUUID, apiToken);
 ```
 
 ```javascript
-restclient.listClientLocations(apiToken, callback);
+restclient.getClient(clientUUID, apiToken, name);
 ```
 
 ```javascript
-restclient.listData(apiToken, callback);
+restclient.listClientLocations(clientUUID, apiToken, name);
 ```
 
 ```javascript
-restclient.getData(apiToken, datasetUUID, callback);
+restclient.listData(clientUUID, apiToken, searchParams);
 ```
 
 ```javascript
-restclient.submitData(apiToken, dateCreated, createdByEmailAddress, dataItems, callback);
+restclient.getData(clientUUID, apiToken, uuid);
 ```
 
 ```javascript
-restclient.deleteData(apiToken, datasetUUID, callback);
+restclient.submitData(clientUUID, apiToken, dateCreated, createdBy, dataItems);
 ```
 
 ```javascript
-restclient.listUsers(apiToken, callback);
+restclient.deleteData(clientUUID, apiToken, uuid);
 ```
 
 ```javascript
-restclient.getUser(apiToken, emailAddress, callback);
+restclient.listAttachments(clientUUID, apiToken, searchParams);
 ```
 
 ```javascript
-restclient.listUserAccess(apiToken, callback);
+restclient.getAttachment(clientUUID, apiToken, uuid, filename);
 ```
+
+```javascript
+restclient.getAttachmentURL(clientUUID, apiToken, uuid, filename);
+```
+
+```javascript
+restclient.getAttachmentInfo(clientUUID, apiToken, uuid, filename);
+```
+
+```javascript
+restclient.renameAttachment(clientUUID, apiToken, uuid, filename, newFilename);
+```
+
+```javascript
+restclient.deleteAttachment(clientUUID, apiToken, uuid, filename);
+```
+
+```javascript
+restclient.submitTag(clientUUID, apiToken, uuid, type, description, value);
+```
+
+```javascript
+restclient.deleteTag(clientUUID, apiToken, uuid, type, description);
+```
+
+```javascript
+restclient.listUsers(clientUUID, apiToken);
+```
+
+```javascript
+restclient.getUser(clientUUID, apiToken, emailAddress);
+```
+
+```javascript
+restclient.listUserAccess(clientUUID, apiToken, emailAddress);
+```
+
+
 
 For the method `restclient.submitData`, each element in the `dataItems` array must be an instance of either `restclient.Attachment` or `restclient.PrimitiveData`. UUIDs which are UUID type-4 compliant can be generated using the helper method `restclient.uuid()`.
 
