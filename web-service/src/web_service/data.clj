@@ -175,7 +175,6 @@
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
-        can-access-own (contains? access constants/view-own-data)
         query (str data-set-query " and uuid::character varying=?")
         query-own (str data-set-query
                        " and uuid::character varying=?"
@@ -186,16 +185,9 @@
                                              :row-fn format-data-set))})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
-      (if can-access-own
-        (response {:response (first (sql/query (db)
-                                               [query-own uuid email-address]
-                                               :row-fn format-data-set))})
-        (do
-          (log/debug
-            (format ("User %s tried to access data-set '%s' but lacks access")
-                    email-address
-                    uuid))
-          (access-denied constants/manage-data))))))
+      (response {:response (first (sql/query (db)
+                                             [query-own uuid email-address]
+                                             :row-fn format-data-set))}))))
 
 
 ; delete the specified data_set by date
@@ -436,7 +428,6 @@
 ; list up data_sets in the database, as an HTTP response
 (defn data-set-list
   ([email-address]
-
    ; log the activity in the session
    (log-detail email-address
                constants/session-activity
@@ -444,7 +435,6 @@
 
    (let [access (set (get-user-access email-address))
          can-access (or (contains? access constants/manage-data))
-         can-access-own (contains? access constants/view-own-data)
          query (str data-set-query
                    "order by ds.date_created desc ")
          query-own (str data-set-query
@@ -454,11 +444,9 @@
        (response {:response (sql/query (db) [query] :row-fn format-data-set)})
        ; if the user cannot access all data, try to at least show them their own
        ; data instead
-       (if can-access-own
-         (response {:response (sql/query (db)
-                                         [query-own email-address]
-                                         :row-fn format-data-set)})
-         (access-denied constants/manage-data)))))
+       (response {:response (sql/query (db)
+                                       [query-own email-address]
+                                       :row-fn format-data-set)}))))
   ([email-address search-params]
    ; log the activity in the session
    (log-detail email-address
@@ -467,7 +455,6 @@
 
    (let [access (set (get-user-access email-address))
          can-access (or (contains? access constants/manage-data))
-         can-access-own (contains? access constants/view-own-data)
 
          order (:order_by search-params)
          order-by-query (if (:orderBy search-params)
@@ -498,11 +485,9 @@
        (response {:response (sql/query (db) [query] :row-fn format-data-set)})
        ; if the user cannot access all data, try to at least show them their own
        ; data instead
-       (if can-access-own
-         (response {:response (sql/query (db)
-                                         [query-own email-address]
-                                         :row-fn format-data-set)})
-         (access-denied constants/manage-data))))))
+       (response {:response (sql/query (db)
+                                       [query-own email-address]
+                                       :row-fn format-data-set)})))))
 
 (defn data-set-attachment-list
   [email-address search-params]
@@ -514,8 +499,6 @@
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
-        can-access-own (contains? access constants/view-own-data)
-
         json-search-params (try
                     (parse-string search-params true)
                     (catch Exception e
@@ -576,11 +559,9 @@
                   :result_count (:count (first (sql/query (db) [query-result-count])))}})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
-      (if can-access-own
-        (response {:response
+      (response {:response
                  {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                  :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}})
-        (access-denied constants/manage-data)))))
+                  :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}}))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
@@ -594,7 +575,6 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data)
                        (contains? access constants/view-attachments))
-        can-access-own (contains? access constants/view-own-data)
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
                    "and dsa.filename=? ")
@@ -603,18 +583,16 @@
                        "and dsa.filename=? "
                        "and u.email_address=? ")]
     (if can-access
-           (response {:response (sql/query
-                                  (db)
-                                  [query uuid filename]
-                                  :row-fn format-attachment-info)})
-           ; if the user cannot access all data, try to at least show them their
-           ; own data instead
-           (if can-access-own
-             (response {:response (sql/query
-                                    (db)
-                                    [query-own uuid filename email-address]
-                                    :row-fn format-attachment-info)})
-             (access-denied constants/manage-data)))))
+      (response {:response (sql/query
+                             (db)
+                             [query uuid filename]
+                             :row-fn format-attachment-info)})
+      ; if the user cannot access all data, try to at least show them their
+      ; own data instead
+      (response {:response (sql/query
+                             (db)
+                             [query-own uuid filename email-address]
+                             :row-fn format-attachment-info)}))))
 
 
 ; get the specified attachment to a data set, by date and filename
@@ -630,7 +608,6 @@
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/view-attachments))
-        can-access-own (contains? access constants/view-own-data)
         query (str data-set-attachment-query-get
                    "and uuid::character varying=? "
                    "and dsa.filename=? ")
@@ -644,17 +621,27 @@
                         :row-fn format-attachment-get))
       ; if the user cannot access all attachments, try to show them the
       ; attachment if this is their data set
-      (if can-access-own
-        (first (sql/query (db)
-                          [query-own uuid filename email-address]
-                          :row-fn format-attachment-get))
-        (do
-          (log/debug (format (str "User %s tried to download attachment '%s' "
-                                  "from data-set '%s' but lacks access")
-                             email-address
-                             filename
-                             uuid))
-          (access-denied constants/manage-data))))))
+      (first (sql/query (db)
+                        [query-own uuid filename email-address]
+                        :row-fn format-attachment-get))
+
+      ; FIXME -- the logic here really needs to be revised. Currently it's
+      ; impossible for the user to know if A) they're trying to download a file
+      ; that doesn't exist, or B) They're trying to download a file that exists,
+      ; but is for a data set they didn't create and don't have access to.
+      ; Because they're downloading the file contents, there's no opportunity to
+      ; spit back a status message. So, the best we can do is either send back a
+      ; 404 header or (access-denied) which is a 401 header.
+      ;
+      ; (do
+      ;   (log/debug (format (str "User %s tried to download attachment '%s' "
+      ;                           "from data-set '%s' but lacks access")
+      ;                      email-address
+      ;                      filename
+      ;                      uuid))
+      ;   (access-denied constants/manage-data))
+
+      )))
 
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete
