@@ -18,8 +18,7 @@ insert into public.user_access_level (description) values
 ('View Attachments'),
 ('View Clients'),
 ('View Same Client Data'),
-('View Same Client Location Data'),
-('View Own Data');
+('View Same Client Location Data');
 
 -- set up clients
 insert into public.client (name) values
@@ -81,10 +80,6 @@ insert into public.user_to_user_access_level (user_id, access_level_id) values
 (
     (select id from public.user where email_address='manager@example.com'),
     (select id from public.user_access_level where description='Create Data')
-),
-(
-    (select id from public.user where email_address='manager@example.com'),
-    (select id from public.user_access_level where description='View Own Data')
 );
 
 
