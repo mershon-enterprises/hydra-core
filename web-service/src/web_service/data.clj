@@ -182,6 +182,8 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
+       "left join public.user as u "
+       "  on u.id = ds.created_by "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
@@ -661,14 +663,16 @@
                                      :row-fn format-attachment-get))
         attachment-own (first (sql/query (db)
                                          [query-own uuid filename email-address]
-                                         :row-fn format-attachment-get))]
+                                         :row-fn format-attachment-get))
+        attachment-count (count (:headers attachment))
+        attachment-own-count (count (:headers attachment-own))]
     (if can-access
-      (if (> (count attachment) 0)
+      (if (> attachment-count 0)
         attachment
         (status (response {:response "File not found."}) 404))
-      (if (> (count attachment-own) 0)
+      (if (> attachment-own-count 0)
         attachment-own
-        (if (= (count attachment) (count attachment-own) 0)
+        (if (= attachment-count attachment-own-count 0)
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to download attachment '%s' "
