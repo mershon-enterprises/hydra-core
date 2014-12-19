@@ -34,6 +34,33 @@
     (sql/query (db) [query data-set-id])))
 
 
+; semi-internal API for renaming attachments directly (used by child services)
+(defn do-rename-attachment
+  [uuid filename new-filename]
+  (let [query (str "update public.data_set_attachment "
+                   "set filename=? "
+                   "where data_set_id=("
+                   "  select id from public.data_set "
+                   "  where uuid::character varying=?) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (println (format "Renaming '%s' to '%s' in data-set '%s'"
+                     filename
+                     new-filename
+                     uuid))
+    (try (if (sql/execute! (db) [query new-filename uuid filename])
+           true)
+         (catch Exception e
+           (log/error e (format (str "There was an error renamining "
+                                     "attachment '%s' to '%s' in data-set "
+                                     "'%s'")
+                                filename
+                                new-filename
+                                uuid))
+           (if (instance? SQLException e)
+             (log/error (.getCause e) "Caused by: "))
+           false))))
+
 
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
@@ -694,27 +721,9 @@
               (str constants/session-rename-dataset-attachment " " uuid))
 
   (let [access (set (get-user-access email-address))
-        can-access (contains? access constants/manage-data)
-        query (str "update public.data_set_attachment "
-                   "set filename=? "
-                   "where data_set_id=("
-                   "  select id from public.data_set "
-                   "  where uuid::character varying=?) "
-                   "and filename=? "
-                   "and date_deleted is null")]
+        can-access (contains? access constants/manage-data)]
     (if can-access
-      (if (try (sql/execute! (db) [query new-filename uuid filename])
-               (catch Exception e
-                 (log/error e (format (str "There was an error renamining "
-                                           "attachment '%s' to '%s' in data-set "
-                                           "'%s' by user %s")
-                                      filename
-                                      new-filename
-                                      uuid
-                                      email-address))
-                 (if (instance? SQLException e)
-                   (log/error (.getCause e) "Caused by: "))
-                 false))
+      (if (do-rename-attachment uuid filename new-filename)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))

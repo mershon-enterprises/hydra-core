@@ -9,7 +9,7 @@
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
             [compojure.route :as route]
-            [web-service.amqp :as amqp]))
+            [web-service.shared-init :as shared-init]))
 
 ; get the version of the API
 (defn get-version
@@ -199,12 +199,12 @@
 (defn init
   []
   ; start the AMQP connection
-  (amqp/connect))
+  (shared-init/init))
 
 (defn destroy
   []
   ; shutdown the AMQP connection
-  (amqp/disconnect))
+  (shared-init/destroy))
 
 (def app
   (->
