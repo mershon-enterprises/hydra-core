@@ -14,7 +14,7 @@
 ; get the version of the API
 (defn get-version
   []
-  (response {:version "0.3.0"}))
+  (response {:version "0.4.2"}))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed
