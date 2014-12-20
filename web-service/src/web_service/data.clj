@@ -305,34 +305,48 @@
                 (let [type (:type data-element)]
                   ; treat attachments and primitive data differently
                   (if (= type "attachment")
-                    ;TODO replace with data-set-attachment-submit
+                    ; TODO refactor this and data-set-attachment-submit to use
+                    ; same shared private function
                     (let [filename (:filename data-element)
                           mime-type (:mime_type data-element)
                           contents (:contents data-element)
                           query (str "insert into public.data_set_attachment "
-                                     "(data_set_id, filename, mime_type, contents) "
-                                     "values (?,?,?,decode(?, 'base64'))")
+                                     "(data_set_id, date_created, created_by, "
+                                     "filename, mime_type, contents) "
+                                     "values (?,?::timestamp with time zone, ("
+                                     " select id from public.user where email_address=?"
+                                     "),?,?,decode(?, 'base64'))")
                           success (sql/execute! conn [query
                                                       id
+                                                      date-created
+                                                      created-by
                                                       filename
                                                       mime-type
                                                       contents]
                                                 :transaction? false)]
                       (if (not success)
                         (throw Exception "Failed to insert new attachment!")))
-                    ;TODO replace with data-set-primitive-submit
+                    ; TODO -- refactor this and data-set-primitive-submit to use
+                    ; same shared private function
                     (let [type (:type data-element)
                           description (:description data-element)
                           value (:value data-element)
                           query (str "insert into public.data_set_" type " "
-                                     "(data_set_id, description, value) values "
-                                     "(?,?,?"
+                                     "(data_set_id, date_created, created_by, "
+                                     "description, value) values "
+                                     "(?,?::timestamp with time zone,("
+                                     " select id from public.user where email_address=?"
+                                     "),?,?"
                                      (if (= type "date") ; cast dates correctly
                                        "::timestamp with time zone"
                                        "")
                                      ")")
-                          success (sql/execute! conn
-                                                [query id description value]
+                          success (sql/execute! conn [query
+                                                      id
+                                                      date-created
+                                                      created-by
+                                                      description
+                                                      value]
                                                 :transaction? false)]
                       (if (not success)
                         (throw Exception "Failed to insert new child row!"))))))))
