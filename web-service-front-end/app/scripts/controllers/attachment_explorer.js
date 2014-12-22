@@ -12,6 +12,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.data = null;
         $scope.resultCount = 0;
+        $scope.resultCountLabel = "";
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
 
@@ -148,11 +149,21 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
+            $(".file-explorer-table td").remove();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
+                    $scope.resultCountLabel =
+                        "Showing " +
+                        ($scope.searchParams.offset + 1) +
+                        " - " +
+                        Math.min(
+                            ($scope.searchParams.offset +
+                             $scope.searchParams.limit),
+                            $scope.resultCount)
+                        + " of " + $scope.resultCount + " Results";
                     $scope.sortData();
                 }
             },
@@ -269,14 +280,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             $rootScope.dataChanged = false;
         }
 
-        if (RestService.getCacheValue('data') !== null) {
-            $scope.data = RestService.getCacheValue('data');
-        }
-
-        if (RestService.getCacheValue('result_count') !== null) {
-            $scope.resultCount = RestService.getCacheValue('result_count');
-        }
-
+        // always load the data fresh from the back-end
+        $scope.getData();
     }
 
 });
