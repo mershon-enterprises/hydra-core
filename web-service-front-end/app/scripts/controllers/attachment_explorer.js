@@ -12,7 +12,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
 
         $scope.data = null;
         $scope.resultCount = 0;
-        $scope.resultCountLabel = "";
+        $scope.resultCountLabel = '';
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
 
@@ -149,21 +149,21 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
-            $(".file-explorer-table td").remove();
+            $('.file-explorer-table td').remove();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
                     $scope.resultCountLabel =
-                        "Showing " +
+                        'Showing ' +
                         ($scope.searchParams.offset + 1) +
-                        " - " +
+                        ' - ' +
                         Math.min(
                             ($scope.searchParams.offset +
                              $scope.searchParams.limit),
-                            $scope.resultCount)
-                        + " of " + $scope.resultCount + " Results";
+                            $scope.resultCount) +
+                        ' of ' + $scope.resultCount + ' Results';
                     $scope.sortData();
                 }
             },
