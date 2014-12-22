@@ -149,7 +149,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
-            $('.file-explorer-table td').remove();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
                 if (success[0] === EVENTS.promiseSuccess) {
@@ -269,19 +268,22 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             $scope.$apply();
         });
 
+        //If the cache is ready, force a reload of the page and
+        //mark that the cache is ready for future reloads.
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.getData();
             $scope.updateColumnHeaders();
         });
 
-        if($rootScope.dataChanged) {
+        //Whenever the page is loaded or refreshed, check if the cache
+        //is ready and populate the page if it is. This eliminates race
+        //conditions with the api-token that could put the app into an
+        //unusuable state.
+        if(RestService.getCacheValue('cacheReady')) {
             $scope.getData();
             $scope.updateColumnHeaders();
-            $rootScope.dataChanged = false;
         }
 
-        // always load the data fresh from the back-end
-        $scope.getData();
     }
 
 });
