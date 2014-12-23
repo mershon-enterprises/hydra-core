@@ -318,6 +318,7 @@ angular.module('webServiceApp').factory('RestService',
 
         var clientUUID = localStorageService.get('clientUUID');
 
+        NProgress.start();
 
         // In order to be memory efficient, we must drop back to using
         // XMLHttpRequests here...
@@ -331,6 +332,13 @@ angular.module('webServiceApp').factory('RestService',
 
         var x = new XMLHttpRequest();
         x.open('POST', restclient.endpointUrl + '/data');
+
+        // progress notifier
+        x.addEventListener("progress", function(progressEvent) {
+            if (progressEvent.lengthComputable) {
+                NProgress.set(progressEvent.loaded / progressEvent.total);
+            }
+        }, false);
 
         x.onreadystatechange = function() {
             var statusCode = x.status;
@@ -354,6 +362,7 @@ angular.module('webServiceApp').factory('RestService',
                 }
             }
 
+            NProgress.done();
         };
 
         x.send(form);
