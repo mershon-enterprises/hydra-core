@@ -801,7 +801,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(10);
+    test.expect(5);
     restclient.listAttachments(
       clientUUID,
       apiToken,
@@ -818,16 +818,19 @@ exports['listAttachments'] = {
         test.equal(data.status.code, 200, 'list data should succeed');
         test.ok(Array.isArray(bodyObj['response']['attachments']),
           'data list should be an array');
-        test.ok(bodyObj['response']['attachments'].length === 20,
-          'should return exactly 20 attachments');
-        test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
-          'data set uuid should be stated');
-        test.ok('date_created' in bodyObj['response']['attachments'][0], 
-          'attachment date created should be stated');
-        test.ok('created_by' in bodyObj['response']['attachments'][0],
-          'attachment created-by should be stated');
-        test.ok('filename' in bodyObj['response']['attachments'][0],
-          'attachment filename should be stated');
+        // FIXME -- these assumptions are not safe. You cannot assume data
+        // exists in the database unless you put it there with a fixture.
+        //
+        // test.ok(bodyObj['response']['attachments'].length === 20,
+        //   'should return exactly 20 attachments');
+        // test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+        //   'data set uuid should be stated');
+        // test.ok('date_created' in bodyObj['response']['attachments'][0],
+        //   'attachment date created should be stated');
+        // test.ok('created_by' in bodyObj['response']['attachments'][0],
+        //   'attachment created-by should be stated');
+        // test.ok('filename' in bodyObj['response']['attachments'][0],
+        //   'attachment filename should be stated');
 
         test.done();
       });
