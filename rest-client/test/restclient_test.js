@@ -1213,6 +1213,94 @@ exports['getAttachment'] = {
             test.done();
         });
     });
+  },
+  'file-restricted-access': function(test) {
+    test.expect(4);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("restricted.csv", "text/csv", "");
+
+    //submit attachment as admin
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        apiToken = bodyObj['token'];
+
+        //login as restricted user
+        restclient.adminAuthenticate(
+          clientUUID,
+          'admin@example.com',
+          'adminpassword',
+          'basicuser@example.com'
+        ).then(
+          function(limitedAccessLoginResponse) {
+            var bodyObj = JSON.parse(limitedAccessLoginResponse.entity);
+            apiToken = bodyObj['token'];
+
+            test.equal(limitedAccessLoginResponse.status.code, 200,
+                'login should succeed');
+
+            //try to retreive attachment as resticted user
+            restclient.getAttachment(
+                clientUUID,
+                apiToken,
+                datasetWithAttachmentUUID,
+                "restricted.csv"
+            ).then(
+              function(getRestrictedResponse) {
+                var bodyObj = JSON.parse(getRestrictedResponse.entity);
+                //apiToken = bodyObj['token'];
+
+                test.equal(getRestrictedResponse.status.code, 401,
+                  'get attachment should fail with 401');
+
+                //try to retrieve attachment that doesn't exist as restricted user
+                restclient.getAttachment(
+                    clientUUID,
+                    apiToken,
+                    datasetWithAttachmentUUID,
+                    "notFound.csv"
+                ).then(
+                  function(getNotFoundResponse) {
+                    var bodyObj = JSON.parse(getNotFoundResponse.entity);
+                    //apiToken = bodyObj['token'];
+
+                    test.equal(getNotFoundResponse.status.code, 404,
+                      'get attachment should fail with 401');
+
+                    //delete mock attachment
+                    //
+                    goodLogin(
+                      function(adminLoginResponseData) {
+                        var bodyObj = JSON.parse(adminLoginResponseData.entity);
+                        apiToken = bodyObj['token'];
+
+                        restclient.deleteData(
+                          clientUUID,
+                          apiToken,
+                          datasetWithAttachmentUUID
+                        ).then(
+                            function(deleteDataResponse) {
+                            var bodyObj = JSON.parse(deleteDataResponse.entity);
+                            apiToken = bodyObj['token'];
+
+                            test.equal(deleteDataResponse.status.code, 200,
+                                'delete data should succeed');
+                            test.done();
+                        });
+                    });
+                });
+            });
+        });
+    });
   }
 };
 
