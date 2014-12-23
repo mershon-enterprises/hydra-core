@@ -867,7 +867,8 @@ exports['listAttachments'] = {
               function(deleteDataResponse) {
                 var bodyObj = JSON.parse(deleteDataResponse.entity);
                 apiToken = bodyObj['token'];
-                test.equal(deleteDataResponse.status.code, 200, 'list data should succeed');
+                test.equal(deleteDataResponse.status.code, 200,
+                    'delete data should succeed');
                 test.done();
             });
         });
