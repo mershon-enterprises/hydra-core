@@ -438,6 +438,8 @@ footer {
         color: $off-white;
         font-weight: bold;
         height: 30px;
+        line-height: 1em;
+        vertical-align: middle;
         &:hover {
             background-color: $dark-gray + $default-hover-offset/2;
         }
@@ -448,11 +450,12 @@ footer {
     float: left;
 }
 
-.navigation {
+.navigation-menu {
     float: right;
-    li {
-        width: 30px;
-    }
+}
+
+.navigation-arrow {
+    width: 30px;
 }
 
 .results {

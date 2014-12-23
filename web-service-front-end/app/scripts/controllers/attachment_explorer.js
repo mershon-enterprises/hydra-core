@@ -15,6 +15,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         $scope.resultCountLabel = '';
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
+        $scope.currentPage = 0;
+        $scope.paginationPages = [];
 
         $scope.searchParams = {
             search_string: '',
@@ -101,11 +103,13 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             }
             else {
                 $scope.searchParams.limit = parseInt($(this).html());
+                $scope.searchParams.limit = parseInt($(this).html());
             }
+            $scope.currentPage = 1;
             $scope.$apply();
         });
 
-        $(document).on('click', '.navigation > li', function() {
+        $(document).on('click', '.navigation-arrow', function() {
             if ($(this).children().hasClass('fa-angle-double-left')) {
                 $scope.searchParams.offset = 0;
             }
@@ -157,6 +161,17 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
+
+                    //Calculate the page numbers for the pagination dropdown.
+                    var temp = $scope.resultCount;
+                    var i = 1;
+                    $scope.paginationPages = [];
+                    while(temp > 0) {
+                        $scope.paginationPages.push(i);
+                        temp = temp - $scope.searchParams.limit;
+                        i = i+1;
+                    }
+
                     $scope.resultCountLabel =
                         'Showing ' +
                         ($scope.searchParams.offset + 1) +
@@ -266,6 +281,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
             if (newValue === oldValue) { return; }
             $scope.getData();
             $scope.updateColumnHeaders();
+        }, true);
+
+        $scope.$watch('currentPage', function(newValue, oldValue) {
+            if (newValue === oldValue) { return; }
+            $scope.searchParams.offset = $scope.searchParams.limit * ($scope.currentPage - 1);
         }, true);
 
         $scope.$on(EVENTS.newSearch, function(event, args) {
