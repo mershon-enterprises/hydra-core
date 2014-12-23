@@ -149,8 +149,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
+            NProgress.start();
+            NProgress.inc();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
+                NProgress.set(0.75);
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
@@ -165,10 +168,12 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl', function ($
                         ' of ' + $scope.resultCount + ' Results';
                     $scope.sortData();
                 }
+                NProgress.done();
             },
             function (error) {
                 console.log('AttachmentExplorerCtrl promise error.');
                 console.log(error);
+                NProgress.set(0.0);
             });
         };
 

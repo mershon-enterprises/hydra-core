@@ -72,5 +72,19 @@ angular.module('webServiceApp').service('NotificationService',
 
     };
 
+    notificationService.showUploading = function (title, message) {
+        return $.iGrowl({
+            type: 'info',
+            title: title,
+            message: message,
+            icon: 'linecons-cloud',
+            delay: 0,
+            placement: {
+                x: 'left',
+                y: 'bottom'
+            }
+        });
+    };
+
   return notificationService;
 });

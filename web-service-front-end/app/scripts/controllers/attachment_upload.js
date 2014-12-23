@@ -116,6 +116,11 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                 //Add it to dataItems.
                 dataItems.push(attachment);
 
+                //Keep a sticky notification during file upload.
+                var notification = NotificationService.showUploading(
+                        'Uploading',
+                        'Uploading file "' + $scope.filename + '". Please wait...');
+
                 //Invoke the restservice to submit the dataset and attachment.
                 RestService.submitData(
                     $scope.dateCreated,
@@ -128,6 +133,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                         NotificationService.success('File: ' + $scope.filename, 'Submitted Successfully!');
                         $location.path('/attachment_explorer');
                     }
+                    notification.dismiss();
                 },
                 function(error) {
                     if (error[0] === EVENTS.badStatus) {
@@ -136,6 +142,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                     else if (error[0] === EVENTS.promiseFailed) {
                         NotificationService.error('Critical error.', 'Please contact support.');
                     }
+                    notification.dismiss();
                 });
             }
         };
