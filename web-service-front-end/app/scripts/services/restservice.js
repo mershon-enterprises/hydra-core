@@ -490,15 +490,15 @@ angular.module('webServiceApp').factory('RestService',
     //Create the cache keys in localstorage.
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
+        localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
-        localStorageService.set('data', null);
-        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         restService.refreshCache().then(
             function(success) {
                 //Once the cache is ready, signal to the rest of the app
                 //that restclient calls may be used.
                 if (success) {
+                    restService.updateCacheValue('cacheReady', true);
                     $rootScope.$broadcast(EVENTS.cacheReady);
                     console.log('refreshCache succeed.');
                 }
@@ -562,14 +562,11 @@ angular.module('webServiceApp').factory('RestService',
         if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
         }
+        else if (key === 'cacheReady') {
+            localStorageService.set('cacheReady', data);
+        }
         else if (key === 'clients') {
             localStorageService.set('clients', data);
-        }
-        else if (key === 'data') {
-            localStorageService.set('data', data);
-        }
-        else if (key === 'result_count') {
-            localStorageService.set('result_count', data);
         }
         else if (key === 'users') {
             localStorageService.set('users', data);
@@ -581,14 +578,11 @@ angular.module('webServiceApp').factory('RestService',
         if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
         }
+        else if (key === 'cacheReady') {
+            return localStorageService.get('cacheReady');
+        }
         else if (key === 'clients') {
             return localStorageService.get('clients');
-        }
-        else if (key === 'data') {
-            return localStorageService.get('data');
-        }
-        else if (key === 'result_count') {
-            return localStorageService.get('result_count');
         }
         else if (key === 'users') {
             return localStorageService.get('users');
@@ -601,14 +595,12 @@ angular.module('webServiceApp').factory('RestService',
     //Destroy the cache values and their keys from local storage.
     restService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
+        localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
-        localStorageService.set('data', null);
-        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         localStorageService.remove('accessLevels');
+        localStorageService.remove('cacheReady');
         localStorageService.remove('clients');
-        localStorageService.remove('data');
-        localStorageService.remove('result_count');
         localStorageService.remove('users');
     };
 

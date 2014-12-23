@@ -126,7 +126,6 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                 {
                     if (success[0] === EVENTS.promiseSuccess) {
                         NotificationService.success('File: ' + $scope.filename, 'Submitted Successfully!');
-                        $rootScope.dataChanged = true;
                         $location.path('/attachment_explorer');
                     }
                 },
