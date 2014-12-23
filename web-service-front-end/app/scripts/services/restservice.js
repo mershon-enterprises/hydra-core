@@ -318,28 +318,46 @@ angular.module('webServiceApp').factory('RestService',
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdBy, dataItems).then(
-            function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
+        // In order to be memory efficient, we must drop back to using
+        // XMLHttpRequests here...
+        var form = new FormData();
+        form.append('client_uuid', clientUUID);
+        form.append('api_token', Session.getToken());
+        form.append('uuid', restclient.uuid());
+        form.append('date_created', dateCreated.toISOString());
+        form.append('created_by', createdBy);
+        form.append('data', JSON.stringify(dataItems));
 
-                if (response.status.code === STATUS_CODES.ok || response.status.code === STATUS_CODES.created) {
-                    deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.submitData succeeded');
-                }
-                else {
-                    //If we did get data, but a bad status code, then the
-                    //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
-                }
-            },
-            function(error) {
+        var x = new XMLHttpRequest();
+        x.open('POST', restclient.endpointUrl + '/data');
+
+        x.onreadystatechange = function() {
+            var statusCode = x.status;
+
+            if (statusCode < 200 || statusCode >= 300) {
                 deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.getAttachmentInfo promise failed: ' + error);
-            });
+            } else {
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(x.responseText);
+                Session.updateToken(jsonResponse.token);
+
+                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.submitData succeeded');
+                } else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+            }
+
+        };
+
+        x.send(form);
+
         return deferred.promise;
     };
 
