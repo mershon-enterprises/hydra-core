@@ -15,7 +15,6 @@
 (def view-clients "View Clients")
 (def view-same-client-data "View Same Client Data")
 (def view-same-client-location-data "View Same Client Location Data")
-(def view-own-data "View Own Data")
 
 ;
 ; session activity constants
@@ -39,7 +38,6 @@
 (def session-add-dataset-attachment "add dataset attachment")
 (def session-get-dataset-attachment "get dataset attachment")
 (def session-rename-dataset-attachment "rename dataset attachment")
-(def session-delete-dataset-attachment "delete dataset attachment")
 (def session-delete-dataset-attachment "delete dataset attachment")
 (def session-add-dataset-primitive "add dataset primitive")
 (def session-update-dataset-primitive "update dataset primitive")

@@ -521,21 +521,33 @@ angular.module('webServiceApp').factory('RestService',
         }
 
         refreshing = true;
+        var userAccess = localStorageService.get('permissions');
         restService.listAccessLevels().then(
             function() {
-                restService.listClients().then(
-                    function() {
-                        restService.listUsers().then(
-                            function() {
+                // Not all users can view all clients
+                if (userAccess.indexOf('Manage Clients') === -1 &&
+                    userAccess.indexOf('View Clients') === -1) {
+                    deferred.resolve(true);
+                } else {
+                    restService.listClients().then(
+                        function() {
+                            // Not all users can manage other users
+                            if (userAccess.indexOf('Manage Users') === -1) {
                                 deferred.resolve(true);
-                            },
-                            function() {
-                                deferred.reject(false);
-                            });
-                    },
-                    function() {
-                        deferred.reject(false);
-                    });
+                            } else {
+                                restService.listUsers().then(
+                                    function() {
+                                        deferred.resolve(true);
+                                    },
+                                    function() {
+                                        deferred.reject(false);
+                                    });
+                            }
+                        },
+                        function() {
+                            deferred.reject(false);
+                        });
+                }
             },
             function() {
                 deferred.reject(false);
