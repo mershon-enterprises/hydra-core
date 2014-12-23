@@ -334,7 +334,7 @@ angular.module('webServiceApp').factory('RestService',
         x.open('POST', restclient.endpointUrl + '/data');
 
         // progress notifier
-        x.addEventListener("progress", function(progressEvent) {
+        x.addEventListener('progress', function(progressEvent) {
             if (progressEvent.lengthComputable) {
                 NProgress.set(progressEvent.loaded / progressEvent.total);
             }
@@ -344,8 +344,8 @@ angular.module('webServiceApp').factory('RestService',
             var statusCode = x.status;
 
             if (statusCode < 200 || statusCode >= 300) {
-                deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.getAttachmentInfo promise failed: ' + error);
+                deferred.reject([EVENTS.promiseFailed]);
+                console.log('restclient.submitData promise failed');
             } else {
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
@@ -358,7 +358,7 @@ angular.module('webServiceApp').factory('RestService',
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, statusCode]);
-                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.submitData promise succeeded ' + 'But with bad status code : ' + statusCode);
                 }
             }
 
