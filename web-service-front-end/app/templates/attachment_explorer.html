@@ -20,11 +20,9 @@
             <li><i class="navigation-arrow fa fa-angle-double-left"></i></li>
             <li><i class="navigation-arrow fa fa-angle-left"></i></li>
             <li>
-                <select ng-model="currentPage">
-                    <option ng-repeat="paginationPage in paginationPages"
-                            value="{{paginationPage}}">
-                            {{paginationPage}}
-                    </option>
+                <select ng-model="currentPage"
+                        ng-init="currentPage = 1"
+                        ng-options="p for p in paginationPages">
                 </select>
             </li>
             <li><i class="navigation-arrow fa fa-angle-right"></i></li>
