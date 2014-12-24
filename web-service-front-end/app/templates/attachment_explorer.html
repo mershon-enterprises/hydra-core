@@ -16,11 +16,17 @@
             {{resultCountLabel}}
         </span>
 
-        <ul class="pagination navigation">
-            <li><i class="fa fa-angle-double-left"></i></li>
-            <li><i class="fa fa-angle-left"></i></li>
-            <li><i class="fa fa-angle-right"></i></li>
-            <li><i class="fa fa-angle-double-right"></i></li>
+        <ul class="navigation-menu pagination">
+            <li><i class="navigation-arrow fa fa-angle-double-left"></i></li>
+            <li><i class="navigation-arrow fa fa-angle-left"></i></li>
+            <li>
+                <select ng-model="currentPage"
+                        ng-init="currentPage = 1"
+                        ng-options="p for p in paginationPages">
+                </select>
+            </li>
+            <li><i class="navigation-arrow fa fa-angle-right"></i></li>
+            <li><i class="navigation-arrow fa fa-angle-double-right"></i></li>
         </ul>
 
         <!--    Seperate table that displays a header for all the tables that
@@ -141,10 +147,19 @@
             {{resultCountLabel}}
         </span>
 
-        <ul class="pagination navigation">
-            <li><i class="fa fa-angle-double-left"></i></li>
-            <li><i class="fa fa-angle-left"></i></li>
-            <li><i class="fa fa-angle-right"></i></li>
-            <li><i class="fa fa-angle-double-right"></i></li>
+        <ul class="navigation-menu pagination">
+            <li><i class="navigation-arrow fa fa-angle-double-left"></i></li>
+            <li><i class="navigation-arrow fa fa-angle-left"></i></li>
+            <li>
+                <select ng-model="currentPage">
+                    <option ng-repeat="paginationPage in paginationPages"
+                            value="{{paginationPage}}">
+                            {{paginationPage}}
+                    </option>
+                </select>
+            </li>
+            <li><i class="navigation-arrow fa fa-angle-right"></i></li>
+            <li><i class="navigation-arrow fa fa-angle-double-right"></i></li>
         </ul>
+
 </div>
