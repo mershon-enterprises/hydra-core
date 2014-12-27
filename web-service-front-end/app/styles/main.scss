@@ -153,40 +153,6 @@ header {
   line-height: 2em;
 }
 
-nav {
-
-  * {
-    display: inline-block;
-  }
-
-  background-color: $dark-gray;
-  color: $off-white;
-  height: 40px;
-  line-height: 2.5em;
-  text-align: center;
-
-  i {
-    padding-left: $default-padding/2;
-    padding-right: $default-padding;
-  }
-
-  ul {
-    float: right;
-  }
-
-  li {
-    color: $off-white;
-    display: inline;
-    padding-left: $default-padding;
-    text-decoration: none;
-
-    &:hover {
-        color: $off-white - $default-hover-offset;
-        cursor: pointer;
-    }
-  }
-}
-
 table {
   border-collapse: collapse;
   color: $off-black;
@@ -287,29 +253,58 @@ footer {
 }
 
 /* Navbar */
-.search {
-  width: 50%;
-}
+nav {
 
-.search-button {
-  @include rounded( $default-rounding/3,
-                    $default-rounding/3,
-                    $default-rounding/3,
-                    $default-rounding/3);
-  background: $light-gray;
-  color: $off-black;
-  cursor: pointer;
-  font-weight: bold;
-  height: 30px;
-
-  &:hover {
-    background-color: $gray + $default-hover-offset;
+  * {
+    display: inline-block;
   }
-}
 
-.upload-link {
-  float: left;
-  padding-left: $default-padding;
+  background-color: $dark-gray;
+  color: $off-white;
+  line-height: 2.5em;
+  text-align: center;
+
+  i {
+    padding-left: $default-padding/2;
+    padding-right: $default-padding;
+  }
+
+  ul {
+    float: right;
+  }
+
+  li {
+    color: $off-white;
+    display: inline;
+    padding-left: $default-padding;
+    text-decoration: none;
+
+    &:hover {
+        color: $off-white - $default-hover-offset;
+        cursor: pointer;
+    }
+  }
+
+  .search {
+    width: 50%;
+  }
+
+  .search-button {
+    @include rounded( $default-rounding/3,
+                  $default-rounding/3,
+                  $default-rounding/3,
+                  $default-rounding/3);
+    cursor: pointer;
+    font-size: 1em;
+    &:hover {
+      background-color: $gray + $default-hover-offset;
+    }
+  }
+
+  .upload-link {
+    float: left;
+    padding-left: $default-padding;
+  }
 }
 
 /* Login */
