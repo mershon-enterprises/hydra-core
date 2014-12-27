@@ -6,16 +6,15 @@
 
 // Color Palette
 $light-gray: #E0E0E0;
-$medium-gray: #444444;
+$gray: #444444;
 $dark-gray: #222222;
-$off-white: #F0F0F0;
-$off-black: #0F0F0F;
+
 $light-red: #DD2C29;
 $red: #DC1E30;
 $dark-red: #660000;
-$dark-green: #006600;
-$dark-blue: #000066;
-$yellow: #ADAD00;
+
+$off-white: #F0F0F0;
+$off-black: #0F0F0F;
 
 //Defaults
 $default-padding: 10px;
@@ -90,7 +89,7 @@ $default-hover-offset: 100;
 //Basic colors, fonts, and alignments.
 body {
     color: $off-black;
-    background-color: $medium-gray;
+    background-color: $gray;
     font-family: 'Lato', sans-serif;
     text-rendering: geometricPrecision;
     text-align: center;
@@ -239,12 +238,12 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
     height: 30px;
     font-size: 1em;
     border: 1px solid $off-black;
-    color: $medium-gray;
+    color: $gray;
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
     -o-transition: all 0.30s ease-in-out;
-    border: 1px solid $medium-gray;
+    border: 1px solid $gray;
 }
 
 input[type='text']:focus, textarea:focus {
@@ -305,7 +304,7 @@ footer {
     cursor: pointer;
     @include rounded($default-rounding/3, $default-rounding/3, $default-rounding/3, $default-rounding/3);
     &:hover {
-        background-color: $medium-gray + $default-hover-offset;
+        background-color: $gray + $default-hover-offset;
     }
 }
 
