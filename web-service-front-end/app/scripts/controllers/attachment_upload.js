@@ -125,23 +125,10 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
         //of success or failure.
         $scope.save = function () {
 
-            //Verify filename is valid
-            var re = new RegExp(
-                '[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$'
-            );
-
             if($scope.filename === '' || $scope.filename === null) {
                 NotificationService.error(
                     'Invalid Filename',
                     'Filename cannot be blank.'
-                );
-                return;
-            }
-
-            if(!re.test($scope.filename)) {
-                NotificationService.error(
-                    'Invalid Filename',
-                    'Please try again.'
                 );
                 return;
             }
