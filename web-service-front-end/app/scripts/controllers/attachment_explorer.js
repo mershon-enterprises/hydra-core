@@ -179,18 +179,15 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
         $(document).on('click', '.navigation-arrow', function() {
 
-            if ($(this).children().hasClass('fa-angle-double-left')) {
+            if ($(this).hasClass('fa-angle-double-left')) {
                 $scope.searchParams.offset = 0;
             }
-            else if ($(this).children().hasClass('fa-angle-left')) {
-                if ($scope.searchParams.offset -
-                    $scope.searchParams.limit >= 0)
-                {
-                    $scope.searchParams.offset =
-                    $scope.searchParams.offset - $scope.searchParams.limit;
+            else if ($(this).hasClass('fa-angle-left')) {
+                if ($scope.searchParams.offset - $scope.searchParams.limit >= 0) {
+                    $scope.searchParams.offset = $scope.searchParams.offset - $scope.searchParams.limit;
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-right')) {
+            else if ($(this).hasClass('fa-angle-right')) {
 
                 if ($scope.searchParams.offset +
                     $scope.searchParams.limit < $scope.resultCount)
@@ -199,9 +196,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                     $scope.searchParams.offset + $scope.searchParams.limit;
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-double-right')) {
-                $scope.searchParams.offset =
-                $scope.resultCount - $scope.searchParams.limit;
+            else if ($(this).hasClass('fa-angle-double-right')) {
+                $scope.searchParams.offset = $scope.resultCount - $scope.searchParams.limit;
             }
 
             //Force UI Update.
