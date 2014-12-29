@@ -1,4 +1,4 @@
-<div class="tag-view">
+<div class="attachment-view">
     <!-- Display file details -->
     <table class="file-details-table">
         <tr>
@@ -68,10 +68,10 @@
 
     <div class="controlls">
 
-        <button class="leftButton" ng-click="back()">Back</button>
+        <button class="back" ng-click="back()">Back</button>
 
         <!-- Again, confirm before file deletion. -->
-        <button class="rightButton"
+        <button class="file-action"
                 confirmed-click="deleteFile()"
                 ng-confirm-click="Are you sure?"
                 >Delete
