@@ -36,14 +36,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             order: 'desc'
         };
 
-        //If the parameters ever change, then re-run $scope.getData() to update
-        //the UI with new data.
-        $scope.$watch('searchParams', function(newValue, oldValue) {
-            if (newValue === oldValue) { return; }
-            $scope.getData();
-            $scope.updateColumnHeaders();
-        }, true);
-
         //If anyone clicks on a <td> that has file data in it, take them
         //to the details view by forwarding the click event to the file
         //details button for that row.

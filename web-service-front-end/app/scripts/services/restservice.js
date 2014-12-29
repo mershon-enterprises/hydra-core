@@ -225,6 +225,7 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Parse out the data from the restclient response.
                     var jsonResponse = JSON.parse(response.entity);
+
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -232,10 +233,6 @@ angular.module('webServiceApp').factory('RestService',
                     var parsedData =  restService.parseData(responseBody.attachments);
 
                     var resultCount =  responseBody.result_count;
-
-                    restService.updateCacheValue('data', parsedData);
-
-                    restService.updateCacheValue('result_count', resultCount);
 
                     deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
 
