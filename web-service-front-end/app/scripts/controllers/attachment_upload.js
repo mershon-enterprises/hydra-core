@@ -55,7 +55,7 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl', function ($ro
                 });
                 if (!duplicateFlag) {
                     $scope.tags.push({'description' : description, 'value' : value});
-                    $('table * input').val('');
+                    $('.tag-input').val('');
                 }
                 else {
                     NotificationService.error('Invalid Tag.', 'Duplicate Tag Name.');
