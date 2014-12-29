@@ -318,28 +318,55 @@ angular.module('webServiceApp').factory('RestService',
 
         var clientUUID = localStorageService.get('clientUUID');
 
-        restclient.submitData(clientUUID, Session.getToken(), dateCreated, createdBy, dataItems).then(
-            function(response) {
+        NProgress.start();
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
+        // In order to be memory efficient, we must drop back to using
+        // XMLHttpRequests here...
+        var form = new FormData();
+        form.append('client_uuid', clientUUID);
+        form.append('api_token', Session.getToken());
+        form.append('uuid', restclient.uuid());
+        form.append('date_created', dateCreated.toISOString());
+        form.append('created_by', createdBy);
+        form.append('data', JSON.stringify(dataItems));
 
-                if (response.status.code === STATUS_CODES.ok || response.status.code === STATUS_CODES.created) {
-                    deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.submitData succeeded');
-                }
-                else {
-                    //If we did get data, but a bad status code, then the
-                    //promise wrapped needs to handle the event like a rejection
-                    deferred.reject([EVENTS.badStatus, response.status.code]);
-                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
-                }
-            },
-            function(error) {
+        var x = new XMLHttpRequest();
+        x.open('POST', restclient.endpointUrl + '/data');
+
+        // progress notifier
+        x.addEventListener("progress", function(progressEvent) {
+            if (progressEvent.lengthComputable) {
+                NProgress.set(progressEvent.loaded / progressEvent.total);
+            }
+        }, false);
+
+        x.onreadystatechange = function() {
+            var statusCode = x.status;
+
+            if (statusCode < 200 || statusCode >= 300) {
                 deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.getAttachmentInfo promise failed: ' + error);
-            });
+            } else {
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(x.responseText);
+                Session.updateToken(jsonResponse.token);
+
+                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.submitData succeeded');
+                } else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+            }
+
+            NProgress.done();
+        };
+
+        x.send(form);
+
         return deferred.promise;
     };
 
@@ -490,15 +517,15 @@ angular.module('webServiceApp').factory('RestService',
     //Create the cache keys in localstorage.
     restService.createCache = function () {
         localStorageService.set('accessLevels', null);
+        localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
-        localStorageService.set('data', null);
-        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         restService.refreshCache().then(
             function(success) {
                 //Once the cache is ready, signal to the rest of the app
                 //that restclient calls may be used.
                 if (success) {
+                    restService.updateCacheValue('cacheReady', true);
                     $rootScope.$broadcast(EVENTS.cacheReady);
                     console.log('refreshCache succeed.');
                 }
@@ -562,14 +589,11 @@ angular.module('webServiceApp').factory('RestService',
         if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
         }
+        else if (key === 'cacheReady') {
+            localStorageService.set('cacheReady', data);
+        }
         else if (key === 'clients') {
             localStorageService.set('clients', data);
-        }
-        else if (key === 'data') {
-            localStorageService.set('data', data);
-        }
-        else if (key === 'result_count') {
-            localStorageService.set('result_count', data);
         }
         else if (key === 'users') {
             localStorageService.set('users', data);
@@ -581,14 +605,11 @@ angular.module('webServiceApp').factory('RestService',
         if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
         }
+        else if (key === 'cacheReady') {
+            return localStorageService.get('cacheReady');
+        }
         else if (key === 'clients') {
             return localStorageService.get('clients');
-        }
-        else if (key === 'data') {
-            return localStorageService.get('data');
-        }
-        else if (key === 'result_count') {
-            return localStorageService.get('result_count');
         }
         else if (key === 'users') {
             return localStorageService.get('users');
@@ -601,14 +622,12 @@ angular.module('webServiceApp').factory('RestService',
     //Destroy the cache values and their keys from local storage.
     restService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
+        localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
-        localStorageService.set('data', null);
-        localStorageService.set('result_count', null);
         localStorageService.set('users', null);
         localStorageService.remove('accessLevels');
+        localStorageService.remove('cacheReady');
         localStorageService.remove('clients');
-        localStorageService.remove('data');
-        localStorageService.remove('result_count');
         localStorageService.remove('users');
     };
 
