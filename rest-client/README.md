@@ -42,7 +42,6 @@ restclient.authenticate("email address", "password", function(statusCode, entity
 </script>
 ```
 
-
 ## Documentation
 
 ###clientUUID
@@ -177,39 +176,80 @@ These are the method signatures of the `rest-client`:
 
 ####restclient.listAccessLevels(clientUUID, apiToken)
 
->Returns list of access levels for all users.
+>Returns array of all potential access levels usable by the system as strings.
+>
+>Example:  
+>```["Create Attachments", "Create Data", ...]```
 
 ####restclient.getAccessLevel(clientUUID, apiToken, description)
 
 >Returns access levels for a single user.
 >
->`description` - Filter to return a specific user.
+>`description` - 
 
 ####restclient.listClients(clientUUID, apiToken)
 
->Returns list of all clients.
+>Returns an array of all clients.
+>
+>Example return value:  
+>```["Aera Energy", "Chevron", ...]```
 
 ####restclient.getClient(clientUUID, apiToken, name)
 
 >Returns a single client.
 >
->`name` - Filter to return a specific client.
+>`name` - 
 
 ####restclient.listClientLocations(clientUUID, apiToken, name)
 
 >Return list of locations related to a single client.
 >
->`name` - Filter to return a specific client.
+>`name` - 
 
 ####restclient.listData(clientUUID, apiToken, searchParams)
 
->_
+>Returns an array of objects containing attachment data.
 >
->`searchParams` - 
+>`searchParams` - Optional fuzzy-search string.
+>
+>Example return value:  
+>```
+[
+{
+  "client": "Aera Energy",
+  "created_by": "admin@example.com",
+  "data": {
+    {
+      "bytes": 104,
+      "filename": "2012-03-27.csv",
+      "type": "attachment",
+    },
+    {
+      "description": "wellName",
+      "type": "text",
+      "value": "Well-11",
+    },
+      "description": "trailerNumber",
+      "type": "text",
+      "value": "16",
+    },
+      "description": "fieldName",
+      "type": "text",
+      "value": "Kern River",
+    },
+  },
+    "date_created": "2014-05-31T01:01:37Z",
+    "location": "South Belridge",
+    "uuid": "7ade2b82-2543-49d7-8637-930d53c3543d",
+},
+...
+]
+```
+>
 
 ####restclient.getData(clientUUID, apiToken, uuid)
 
->_
+>Return data on a single file using the UUID of the file.
 >
 >`uuid` - 
 
