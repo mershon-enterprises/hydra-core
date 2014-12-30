@@ -15,6 +15,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         EVENTS
     ){
 
+    $rootScope.controller = 'AttachmentExplorer';
+
     //If the user is logged in...
     if (Session.exists()) {
 

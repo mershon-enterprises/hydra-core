@@ -12,13 +12,14 @@ user is logged on -->
     <input  ng-show="nav.isLoggedIn"
             placeholder="Search..."
             type="text"
-            class="search">
+            class="search mousetrap">
     <!-- Search Button -->
     <button ng-show="nav.isLoggedIn" class="search-button">Search</button>
     <!-- File Explorer Link / Login/Logout -->
     <ul>
         <li ng-show="nav.isLoggedIn">
-            <a ng-href="#/attachment_explorer">
+            <a  class="file-explorer-link"
+                ng-href="#/attachment_explorer">
                 File Explorer<i class="fa fa-search"></i>
             </a>
         </li>

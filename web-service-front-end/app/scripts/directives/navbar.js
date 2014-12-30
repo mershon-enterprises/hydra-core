@@ -32,6 +32,87 @@ angular.module('webServiceApp').directive('navbar', function() {
             $scope.$on(EVENTS.logoutSuccess, function() {
                 self.isLoggedIn = false;
             });
+
+
+            //Keyboard shortcuts
+            Mousetrap.bind('/', function() {
+                //Clear the search bar and focus on it
+                $('input.search').val('');
+                $('input.search').focus();
+                // don't actually send the '/' character
+                return false;
+            });
+
+            Mousetrap.bind('alt+u', function() {
+                //Navigate to the Upload File screen
+                $('a.upload-link').click();
+                return false;
+            });
+
+            Mousetrap.bind('alt+c', function() {
+                if ($rootScope.controller === 'AttachmentUpload') {
+                    //Choose the file to upload
+                    $('button.uploadButton').click();
+                }
+                return false;
+            });
+
+            Mousetrap.bind('tab', function() {
+                if ($rootScope.controller === 'AttachmentUpload') {
+                    var selected = $(document.activeElement);
+                    if (selected.length === 0) {
+                        return true;
+                    }
+                    if (selected.hasClass('tag-input') &&
+                               selected.hasClass('tag-value')) {
+                        $('.fa-plus').click();
+                        $('.tag-description').focus();
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            Mousetrap.bind('alt+s', function() {
+                if ($rootScope.controller === 'AttachmentUpload') {
+                    //Save the file
+                    $('button.file-action').click();
+                }
+                return false;
+            });
+
+            Mousetrap.bind('alt+f', function() {
+                //Navigate to the Upload File screen
+                $('a.file-explorer-link').click();
+                return false;
+            });
+
+            Mousetrap.bind('escape', function() {
+                //Clear the search and reset
+                if ($rootScope.controller === 'AttachmentExplorer') {
+                    $('.pages > li:contains("Reset")').click();
+                    $('input.search').blur();
+                }
+                return false;
+            });
+
+            Mousetrap.bind('pageup', function() {
+                if ($rootScope.controller === 'AttachmentExplorer') {
+                    //Navigate to the previous page
+                    $('.navigation-arrow.fa-angle-left').click();
+                    console.log('page up pressed');
+                }
+                return false;
+            });
+
+            Mousetrap.bind('pagedown', function() {
+                if ($rootScope.controller === 'AttachmentExplorer') {
+                    //Navigate to the next page
+                    $('.navigation-arrow.fa-angle-right').click();
+                    console.log('page down pressed');
+                }
+                return false;
+            });
         },
         controllerAs: 'nav'
     };
