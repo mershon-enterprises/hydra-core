@@ -14,6 +14,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 EVENTS
     ){
 
+    $rootScope.controller = 'AttachmentDetails';
+
     //Only run if the user has a session.
     if (Session.exists()) {
 
