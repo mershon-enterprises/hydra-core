@@ -17,6 +17,8 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
         )
     {
 
+    $rootScope.controller = 'AttachmentUpload';
+
     //The user must have a session...
     if (Session.exists()) {
 
