@@ -171,25 +171,23 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
         $(document).on('click', '.navigation-arrow', function() {
 
-            if ($(this).hasClass('fa-angle-double-left')) {
-                $scope.searchParams.offset = 0;
-            }
-            else if ($(this).hasClass('fa-angle-left')) {
-                if ($scope.searchParams.offset - $scope.searchParams.limit >= 0) {
-                    $scope.searchParams.offset = $scope.searchParams.offset - $scope.searchParams.limit;
-                }
-            }
-            else if ($(this).hasClass('fa-angle-right')) {
+            var lastPage = $scope.paginationPages.slice(-1)[0];
 
-                if ($scope.searchParams.offset +
-                    $scope.searchParams.limit < $scope.resultCount)
-                {
-                    $scope.searchParams.offset =
-                    $scope.searchParams.offset + $scope.searchParams.limit;
+            if ($(this).children().hasClass('fa-angle-double-left')) {
+                $scope.currentPage = 1;
+            }
+            else if ($(this).children().hasClass('fa-angle-left')) {
+                if (($scope.currentPage - 1) > 0) {
+                    $scope.currentPage = $scope.currentPage - 1;
                 }
             }
-            else if ($(this).hasClass('fa-angle-double-right')) {
-                $scope.searchParams.offset = $scope.resultCount - $scope.searchParams.limit;
+            else if ($(this).children().hasClass('fa-angle-right')) {
+                if (($scope.currentPage + 1) <= lastPage){
+                    $scope.currentPage = $scope.currentPage + 1;
+                }
+            }
+            else if ($(this).children().hasClass('fa-angle-double-right')) {
+                $scope.currentPage = lastPage;
             }
 
             //Force UI Update.
