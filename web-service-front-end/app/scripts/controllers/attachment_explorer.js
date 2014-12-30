@@ -36,14 +36,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             order: 'desc'
         };
 
-        //If the parameters ever change, then re-run $scope.getData() to update
-        //the UI with new data.
-        $scope.$watch('searchParams', function(newValue, oldValue) {
-            if (newValue === oldValue) { return; }
-            $scope.getData();
-            $scope.updateColumnHeaders();
-        }, true);
-
         //If anyone clicks on a <td> that has file data in it, take them
         //to the details view by forwarding the click event to the file
         //details button for that row.
@@ -179,25 +171,23 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
         $(document).on('click', '.navigation-arrow', function() {
 
-            if ($(this).hasClass('fa-angle-double-left')) {
-                $scope.searchParams.offset = 0;
-            }
-            else if ($(this).hasClass('fa-angle-left')) {
-                if ($scope.searchParams.offset - $scope.searchParams.limit >= 0) {
-                    $scope.searchParams.offset = $scope.searchParams.offset - $scope.searchParams.limit;
-                }
-            }
-            else if ($(this).hasClass('fa-angle-right')) {
+            var lastPage = $scope.paginationPages.slice(-1)[0];
 
-                if ($scope.searchParams.offset +
-                    $scope.searchParams.limit < $scope.resultCount)
-                {
-                    $scope.searchParams.offset =
-                    $scope.searchParams.offset + $scope.searchParams.limit;
+            if ($(this).children().hasClass('fa-angle-double-left')) {
+                $scope.currentPage = 1;
+            }
+            else if ($(this).children().hasClass('fa-angle-left')) {
+                if (($scope.currentPage - 1) > 0) {
+                    $scope.currentPage = $scope.currentPage - 1;
                 }
             }
-            else if ($(this).hasClass('fa-angle-double-right')) {
-                $scope.searchParams.offset = $scope.resultCount - $scope.searchParams.limit;
+            else if ($(this).children().hasClass('fa-angle-right')) {
+                if (($scope.currentPage + 1) <= lastPage){
+                    $scope.currentPage = $scope.currentPage + 1;
+                }
+            }
+            else if ($(this).children().hasClass('fa-angle-double-right')) {
+                $scope.currentPage = lastPage;
             }
 
             //Force UI Update.
