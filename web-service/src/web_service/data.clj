@@ -786,5 +786,4 @@
       (if (do-replace-attachment uuid filename new-contents)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
-      (access-denied constants/manage-data)))
-  )
+      (access-denied constants/manage-data))))
