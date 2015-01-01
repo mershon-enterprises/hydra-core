@@ -61,6 +61,35 @@
              (log/error (.getCause e) "Caused by: "))
            false))))
 
+; semi-internal API for replacing attachment contents directly (may be used by
+; child services)
+(defn do-replace-attachment
+  [uuid filename new-contents]
+  ; FIXME -- instead of directly replacing the contents, mark the old file as
+  ; deleted, create a new one with exactly the same properties but the new
+  ; contents
+  (let [query (str "update public.data_set_attachment "
+                   "set contents=decode(?, 'base64') "
+                   "where data_set_id=("
+                   "  select id from public.data_set "
+                   "  where uuid::character varying=?) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (println (format "Replacing '%s' with new contents in data-set '%s'"
+                     filename
+                     uuid))
+    (try (if (sql/execute! (db) [query new-contents uuid filename])
+           true)
+         (catch Exception e
+           (log/error e (format (str "There was an error replacing "
+                                     "attachment '%s' in data-set "
+                                     "'%s'")
+                                filename
+                                uuid))
+           (if (instance? SQLException e)
+             (log/error (.getCause e) "Caused by: "))
+           false))))
+
 
 ; format the specified row from the data_set table
 (defn- format-data-set [row]
@@ -740,3 +769,22 @@
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
+
+; replace the contents of the specified data set attachment, changing nothing
+; else about it
+(defn data-set-attachment-file-replace
+  [email-address uuid filename new-contents]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-replace-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)]
+    (if can-access
+      (if (do-replace-attachment uuid filename new-contents)
+        (status (response {:response "OK"}) 200 )
+        (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data)))
+  )
