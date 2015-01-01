@@ -45,11 +45,48 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 reader.onload = (function() {
                     return function(e) {
                         $scope.fileData = e.target.result;
+
+                        //Keep a sticky notification during file upload.
+                        var notification = NotificationService.showUploading(
+                                'Uploading',
+                                'Uploading file "' + $scope.filename + '". Please wait...');
+
+                        //Invoke the restservice to replace the attachment in
+                        //the dataset.
+                        RestService.replaceAttachment(
+                            $scope.ukey,
+                            window.btoa($scope.fileData)
+                        ).then(
+                        function(success)
+                        {
+                            if (success[0] === EVENTS.promiseSuccess) {
+                                NotificationService.success(
+                                    'File: ' + $scope.filename,
+                                    'Replaced Successfully!'
+                                );
+                                $rootScope.dataChanged = true;
+                                $location.path('/attachment_explorer');
+                            }
+                            notification.dismiss();
+                        },
+                        function(error) {
+                            if (error[0] === EVENTS.badStatus) {
+                                NotificationService.error(
+                                    'Server Unreachable',
+                                    'Please contact support.'
+                                );
+                            }
+                            else if (error[0] === EVENTS.promiseFailed) {
+                                NotificationService.error(
+                                    'Critical Error',
+                                    'Please contact support.'
+                                );
+                            }
+                            notification.dismiss();
+                        });
                     };
                 })($scope.file);
                 reader.readAsBinaryString($scope.file);
-
-                //TODO -- Immediately submit the updated file to the server
             }
         });
 
