@@ -1,128 +1,135 @@
 // bower:scss
 // endbower
 
-// Fonts
+/* Fonts */
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
-// Color Palette
-$light-gray: #E0E0E0;
-$medium-gray: #444444;
+/* Color Palette */
+$light-gray: #e0e0e0;
+$gray: #444444;
 $dark-gray: #222222;
-$off-white: #F0F0F0;
-$off-black: #0F0F0F;
-$light-red: #DD2C29;
-$red: #DC1E30;
-$dark-red: #660000;
-$dark-green: #006600;
-$dark-blue: #000066;
-$yellow: #ADAD00;
 
-//Defaults
+$light-red: #dd2c29;
+$red: #dc1e30;
+$dark-red: #660000;
+
+$off-white: #f0f0f0;
+$off-black: #0f0f0f;
+
+/* Constants */
 $default-padding: 10px;
 $default-margin: 20px;
 $default-rounding: 20px;
 $default-hover-offset: 100;
 
-//Mixins
+/* Mixins */
 @mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
-    -webkit-border-radius: $topleft $topright $bottomright $bottomleft;
-    -moz-border-radius: $topleft $topright $bottomright $bottomleft;
-    border-radius: $topleft $topright $bottomright $bottomleft;
+  -moz-border-radius: $topleft $topright $bottomright $bottomleft;
+  -webkit-border-radius: $topleft $topright $bottomright $bottomleft;
+  border-radius: $topleft $topright $bottomright $bottomleft;
 }
 
 @mixin top-left-shadow() {
-    -webkit-box-shadow: -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
-    -moz-box-shadow:    -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
-    box-shadow:         -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  -webkit-box-shadow: -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  -moz-box-shadow:    -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  box-shadow:         -4px -4px 15px 0px rgba(34, 34, 34, 0.75);
 }
 
 @mixin top-right-shadow() {
-    -webkit-box-shadow: 4px -4px 15px 0px rgba(34, 34, 34, 0.75);
-    -moz-box-shadow:    4px -4px 15px 0px rgba(34, 34, 34, 0.75);
-    box-shadow:         4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  -webkit-box-shadow: 4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  -moz-box-shadow:    4px -4px 15px 0px rgba(34, 34, 34, 0.75);
+  box-shadow:         4px -4px 15px 0px rgba(34, 34, 34, 0.75);
 }
 
 @mixin bottom-left-shadow() {
-    -webkit-box-shadow: 4px 4px 15px 0px rgba(34, 34, 34, 0.75);
-    -moz-box-shadow:    4px 4px 15px 0px rgba(34, 34, 34, 0.75);
-    box-shadow:         4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  -webkit-box-shadow: 4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  -moz-box-shadow:    4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  box-shadow:         4px 4px 15px 0px rgba(34, 34, 34, 0.75);
 }
 
 @mixin bottom-right-shadow() {
-    -webkit-box-shadow: -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
-    -moz-box-shadow:    -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
-    box-shadow:         -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  -webkit-box-shadow: -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  -moz-box-shadow:    -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
+  box-shadow:         -4px 4px 15px 0px rgba(34, 34, 34, 0.75);
 }
 
 @mixin inset-shadow() {
-    -webkit-box-shadow: inset 0px 0px 5px rgba(68, 68, 68, 0.75);
-    -moz-box-shadow:    inset 0px 0px 5px rgba(68, 68, 68, 0.75);
-    box-shadow:         inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+  -webkit-box-shadow: inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+  -moz-box-shadow:    inset 0px 0px 5px rgba(68, 68, 68, 0.75);
+  box-shadow:         inset 0px 0px 5px rgba(68, 68, 68, 0.75);
 }
 
 @mixin button-style($fontSize) {
-    background-color: $dark-red;
-    font-size: $fontSize;
-    vertical-align: middle;
-    font-weight: bold;
-    cursor: pointer;
-    @include rounded($default-rounding/2, $default-rounding/2, $default-rounding/2, $default-rounding/2);
-    padding: $default-padding*2;
-    color: $off-white;
-    min-width: 100px;
-    &:hover {
-        background-color: $red;
-    }
+  @include rounded( $default-rounding/2,
+                    $default-rounding/2,
+                    $default-rounding/2,
+                    $default-rounding/2);
+  background-color: $dark-red;
+  color: $off-white;
+  cursor: pointer;
+  font-size: $fontSize;
+  font-weight: bold;
+  min-width: 100px;
+  padding: $default-padding*2;
+  vertical-align: middle;
+
+  &:hover {
+    background-color: $red;
+  }
 }
 
 @mixin gray-box($fontSize) {
-    background-color: $dark-gray;
-    color: $off-white;
-    padding: $default-padding;
-    margin: $default-margin;
-    @include rounded($default-rounding, $default-rounding, $default-rounding, $default-rounding);
-    button {
-        @include button-style($fontSize);
-    }
-    overflow: auto;
+  @include rounded( $default-rounding,
+                    $default-rounding,
+                    $default-rounding,
+                    $default-rounding);
+  background-color: $dark-gray;
+  color: $off-white;
+  margin: $default-margin;
+  overflow: auto;
+  padding: $default-padding;
+
+  button {
+    @include button-style($fontSize);
+  }
 }
 
-//Basic colors, fonts, and alignments.
+/* Site Wide */
 body {
-    color: $off-black;
-    background-color: $medium-gray;
-    font-family: 'Lato', sans-serif;
-    text-rendering: geometricPrecision;
-    text-align: center;
+  background-color: $gray;
+  color: $off-black;
+  font-family: 'Lato', sans-serif;
+  text-align: center;
+  text-rendering: geometricPrecision;
 }
 
-// Changes all elements to use the border-box property, allowing for much
-// more predictable behavior when declaring width.
-*, *:before, *:after {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
  }
 
-//Get rid of all borders we didn't ask for.
 * {
-     border: none;
+  border: none;
 }
 
-//Get rid of all hover-outlines we didn't ask for.
 *:focus {
-    outline: none;
+  outline: none;
 }
 
-//Wrapper for primary content area.
 #web-service-project-wrapper {
-    width: 75%;
-    min-width: 1024px;
-    background-color: $off-white;
-    margin: $default-margin auto;
-    @include rounded($default-rounding*1.2, $default-rounding*1.2, $default-rounding, $default-rounding);
-    @include inset-shadow();
-    position: relative;
+  @include rounded( $default-rounding*1.2,
+                    $default-rounding*1.2,
+                    $default-rounding,
+                    $default-rounding);
+  @include inset-shadow();
+  background-color: $off-white;
+  margin: $default-margin auto;
+  min-width: 1024px;
+  position: relative;
+  width: 75%;
 }
 
 a:link {color: $off-white; text-decoration: none;}
@@ -130,417 +137,385 @@ a:active {color: $off-white; text-decoration: none;}
 a:visited {color: $off-white; text-decoration: none;}
 a:hover {color: $off-white - $default-hover-offset; text-decoration: none;}
 
-//Lists
 ul {
-    list-style: none;
-    margin: 0 auto;
-    padding: 0;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
 }
 
-//Header
 header {
-
-    background-color: $dark-red;
-    color: $off-white;
-    line-height: 2em;
-    font-size: 2em;
-    @include rounded($default-rounding, $default-rounding, 0, 0);
-    @include top-left-shadow();
-    @include top-right-shadow();
-
- }
-
-//Navbar
-nav {
-
-    * {
-        display: inline-block;
-    }
-
-    background-color: $dark-gray;
-    text-align: center;
-    height: 40px;
-    line-height: 2.5em;
-    color: $off-white;
-
-    i {
-        padding-left: $default-padding/2;
-        padding-right: $default-padding;
-    }
-
-    ul {
-        float: right;
-    }
-
-    li {
-        padding-left: $default-padding;
-        color: $off-white;
-        display: inline;
-        text-decoration: none;
-        &:hover {
-            color: $off-white - $default-hover-offset;
-            cursor: pointer;
-        }
-    }
-
-
+  @include rounded($default-rounding, $default-rounding, 0, 0);
+  @include top-left-shadow();
+  @include top-right-shadow();
+  background-color: $dark-red;
+  color: $off-white;
+  font-size: 2em;
+  line-height: 2em;
 }
 
 table {
-    border-collapse: collapse;
-    color: $off-black;
+  border-collapse: collapse;
+  color: $off-black;
 }
 
 td {
-    border: 1px solid $off-black;
-    padding: $default-padding;
+  border: 1px solid $off-black;
+  padding: $default-padding;
 }
 
 th {
-    border: 1px solid $off-black;
-    padding: $default-padding/2 $default-padding;
+  border: 1px solid $off-black;
+  padding: $default-padding/2 $default-padding;
 }
 
 tr:nth-child(even) {
-    background-color: $light-gray;
+  background-color: $light-gray;
 }
 
 tr:nth-child(odd) {
-    background-color: $light-gray + 20;
+  background-color: $light-gray + 20;
 }
 
-//Forms
 form label {
-    line-height: 2em;
-    font-weight: bold;
-    float: left;
+  float: left;
+  font-weight: bold;
+  line-height: 2em;
 }
 
-form input, form textarea {
-    width: 100%;
-    margin-bottom: $default-margin/2;
+form input,
+form textarea {
+  margin-bottom: $default-margin/2;
+  width: 100%;
 }
 
 form textarea {
-    height: 200px;
-    font-size: 1.3em;
+  height: 200px;
+  font-size: 1.3em;
 }
 
 form button {
-    @include button-style(1em);
+  @include button-style(1em);
 }
 
 form button[type='submit'] {
-    float: right;
+  float: right;
 }
 
-//Input Fields
-input[type='text'], input[type='email'], input[type='password'], textarea {
-    height: 30px;
-    font-size: 1em;
-    border: 1px solid $off-black;
-    color: $medium-gray;
-    -webkit-transition: all 0.30s ease-in-out;
-    -moz-transition: all 0.30s ease-in-out;
-    -ms-transition: all 0.30s ease-in-out;
-    -o-transition: all 0.30s ease-in-out;
-    border: 1px solid $medium-gray;
+input[type='text'],
+input[type='email'],
+input[type='password'],
+textarea {
+  border: 1px solid $off-black;
+  border: 1px solid $gray;
+  color: $gray;
+  font-size: 1em;
+  height: 30px;
+  -moz-transition: all 0.30s ease-in-out;
+  -ms-transition: all 0.30s ease-in-out;
+  -o-transition: all 0.30s ease-in-out;
+  -webkit-transition: all 0.30s ease-in-out;
 }
 
-input[type='text']:focus, textarea:focus {
-    border: 1px solid $light-red;
-    box-shadow: 0 0 5px $light-red;
+input[type='text']:focus,
+input[type='password']:focus,
+input[type='email']:focus,
+textarea:focus {
+  border: 1px solid $light-red;
+  box-shadow: 0 0 5px $light-red;
 }
 
-input[type='email']:focus, textarea:focus {
-    border: 1px solid $light-red;
-    box-shadow: 0 0 5px $light-red;
-}
-
-input[type='password']:focus, textarea:focus {
-    border: 1px solid $light-red;
-    box-shadow: 0 0 5px $light-red;
-}
-
-//Footer
 footer {
+  @include rounded(0, 0, $default-rounding, $default-rounding);
+  @include bottom-left-shadow();
+  @include bottom-right-shadow();
+  background-color: $dark-gray;
+  color: $off-white;
+  vertical-align: middle;
 
-    background-color: $dark-gray;
-    color: $off-white;
-    @include rounded(0, 0, $default-rounding, $default-rounding);
-    @include bottom-left-shadow();
-    @include bottom-right-shadow();
+  img, ul {
+    display: inline-block;
     vertical-align: middle;
+    margin: $default-margin/2;
+  }
 
-    img, ul {
-        display: inline-block;
-        vertical-align: middle;
-        margin: $default-margin/2;
-    }
+  ul li {
+    text-align: left;
+  }
 
-    ul li {
-        text-align: left;
-    }
-
-    img {
-        width: 200px;
-    }
-
+  img {
+    width: 200px;
+  }
 }
 
 .inactive {
-    opacity: .5 !important;
-    cursor: default !important;
+  cursor: default !important;
+  opacity: .5 !important;
 }
 
-.search {
-    width: 50%;
-}
+/* Navbar */
+nav {
 
-.search-button {
-    height: 30px;
-    font-weight: bold;
-    background: $light-gray;
-    color: $off-black;
-    cursor: pointer;
-    @include rounded($default-rounding/3, $default-rounding/3, $default-rounding/3, $default-rounding/3);
+  * {
+    display: inline-block;
+  }
+
+  background-color: $dark-gray;
+  color: $off-white;
+  line-height: 2.5em;
+  text-align: center;
+
+  i {
+    padding-left: $default-padding/2;
+    padding-right: $default-padding;
+  }
+
+  ul {
+    float: right;
+  }
+
+  li {
+    color: $off-white;
+    display: inline;
+    padding-left: $default-padding;
+    text-decoration: none;
+
     &:hover {
-        background-color: $medium-gray + $default-hover-offset;
+        color: $off-white - $default-hover-offset;
+        cursor: pointer;
     }
-}
+  }
 
-.login-form {
-    @include gray-box(1em);
-}
+  .search {
+    width: 50%;
+  }
 
-.login-form {
-        width: 35%;
-        padding: $default-padding*5;
-        display: inline-block;
-        vertical-align: top;
-
-        button {
-            margin-top: $default-margin*2;
-        }
-}
-
-.upload-form {
-    padding: $default-padding*3;
-    .left-column {
-        width: 55%;
-        display: inline-block;
-        vertical-align: top;
+  .search-button {
+    @include rounded( $default-rounding/3,
+                  $default-rounding/3,
+                  $default-rounding/3,
+                  $default-rounding/3);
+    cursor: pointer;
+    font-size: 1em;
+    &:hover {
+      background-color: $gray + $default-hover-offset;
     }
-    .right-column {
-        width: 35%;
-        display: inline-block;
-        vertical-align: top;
-        button {
-            float: none;
-        }
-    }
-}
+  }
 
-.upload-link {
+  .upload-link {
     float: left;
     padding-left: $default-padding;
+  }
 }
 
+/* Login */
+.login-form {
+  @include gray-box(1em);
+}
 
-//File Explorer
+.login-form {
+  display: inline-block;
+  padding: $default-padding*5;
+  vertical-align: top;
+  width: 35%;
+
+  button {
+    margin-top: $default-margin*2;
+  }
+}
+
+/* Attachment Explorer */
 .file-explorer {
-    margin: $default-margin $default-margin $default-margin*3;
-}
+  margin: $default-margin $default-margin $default-margin*3;
 
-.file-explorer-table {
-
+  .file-explorer-table {
     margin: 0 auto;
-
     width: 90%;
 
     .data-row:hover {
-        background-color: $light-gray + $default-hover-offset;
+      background-color: $light-gray + $default-hover-offset;
     }
 
     .author {
-        font-size: .8em;
+      font-size: .8em;
     }
 
     th {
-        background-color: $dark-gray;
-        color: $off-white;
-        text-align: left;
+      background-color: $dark-gray;
+      color: $off-white;
+      text-align: left;
     }
 
     tr {
-        th:nth-child(1), td:nth-child(1) {
-            width: 22%;
-        }
-        th:nth-child(2), td:nth-child(2) {
-            width: 20%;
-        }
-        th:nth-child(3), td:nth-child(3) {
-            width: 30%;
-        }
-        th:nth-child(4), td:nth-child(4) {
-            width: 20%;
-        }
-        th:nth-child(5), td:nth-child(5) {
-            width: 8%;
-        }
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 22%;
+      }
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 20%;
+      }
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 30%;
+      }
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 20%;
+      }
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 8%;
+      }
     }
 
+    .data-cell,
     i {
-        cursor: pointer;
-    }
-
-    .data-cell {
-        cursor: pointer;
+      cursor: pointer;
     }
 
     .fa-cog {
-        padding-left: $default-padding/3;
+      padding-left: $default-padding/3;
     }
 
     .location-header {
-        border-top: 0;
-        padding-left: $default-margin*3;
+      border-top: 0;
+      padding-left: $default-margin*3;
     }
 
     .client-header {
-        border: 0;
+      border: 0;
     }
-}
+  }
 
-.file-explorer-header {
+  .file-explorer-header {
     th {
-        text-align: center !important;
-        cursor: pointer;
-        &:hover {
-            background-color: $dark-gray + $default-hover-offset/2;
-        }
+      cursor: pointer;
+      text-align: center !important;
+
+      &:hover {
+        background-color: $dark-gray + $default-hover-offset/2;
+      }
     }
 
     div {
-        display: inline;
-        padding-left: $default-padding/2;
+      display: inline;
+      padding-left: $default-padding/2;
     }
-}
+  }
 
-.pagination {
+  .pagination {
     margin: $default-margin/2;
-    li {
-        display: inline-block;
-        border: 1px solid $off-black;
-        padding: $default-padding/2;
-        cursor: pointer;
-        background: $dark-gray;
-        color: $off-white;
-        font-weight: bold;
-        height: 30px;
-        &:hover {
-            background-color: $dark-gray + $default-hover-offset/2;
-        }
-    }
-}
 
-.pages {
+    li {
+      background: $dark-gray;
+      border: 1px solid $off-black;
+      color: $off-white;
+      cursor: pointer;
+      display: inline-block;
+      font-weight: bold;
+      height: 30px;
+      line-height: 1em;
+      padding: $default-padding/2;
+      vertical-align: middle;
+
+      &:hover {
+        background-color: $dark-gray + $default-hover-offset/2;
+      }
+    }
+  }
+
+  .pages {
     float: left;
-}
+  }
 
-.navigation {
+  .navigation-menu {
     float: right;
-    li {
-        width: 30px;
-    }
-}
+  }
 
-.results {
+  .navigation-arrow {
+    width: 30px;
+  }
+
+  .results {
     margin: $default-margin/2;
     display: inline-block;
+  }
 }
 
-//File upload and file details view.
-.tag-view {
-    @include gray-box(1em);
-    padding: $default-padding * 2 $default-padding * 4 !important;
+/* Attachment Upload & Attachment Details */
+.attachment-view {
+  @include gray-box(1em);
+  padding: $default-padding * 2 $default-padding * 4 !important;
 
-    table {
-        width: 90%;
-        margin: $default-margin auto;
-    }
-    input[type='file'] {
-        height: 0;
-        width: 0;
-        overflow: hidden;
-    }
+  table {
+    margin: $default-margin auto;
+    width: 90%;
+  }
 
-    .file-upload-table {
-        td:nth-child(1), td:nth-child(2) {
-            width: 22.5%;
-        }
-        td:nth-child(3), td:nth-child(4), td:nth-child(5)  {
-            width: 15%;
-        }
-        .buttonCell {
-            background: $dark-gray;
-            border: 0;
-        }
-        .spacer {
-            background: $dark-gray;
-            td {
-                border: 0;
-            }
-        }
+  input[type='file'] {
+    height: 0;
+    overflow: hidden;
+    width: 0;
+  }
+
+  .file-upload-table {
+
+    td:nth-child(1),
+    td:nth-child(2) {
+      width: 22.5%;
     }
 
-    .file-details-table {
-        td:nth-child(1), td:nth-child(2), td:nth-child(3) {
-            width: 15%;
-        }
-        td:nth-child(4) {
-            width: 10%;
-        }
-        .buttonCell {
-            background: $dark-gray;
-            border: 0;
-        }
-        .spacer {
-            background: $dark-gray;
-            td {
-                border: 0;
-            }
-        }
+    td:nth-child(3),
+    td:nth-child(4),
+    td:nth-child(5) {
+      width: 15%;
     }
 
-    .leftColumn {
-        vertical-align: top;
-        width: 50%;
-        display: inline-block;
-        margin-right: $default-margin*5;
-    }
-    .rightColumn {
-        display: inline-block;
-        margin-left: $default-margin*5;
-    }
-    .leftButton {
-        float: left;
-    }
-    .rightButton {
-        float: right;
-    }
-    .tags {
-        text-align: left;
-        width: 100%;
-        table {
-            text-align: center;
-            margin: $default-margin auto;
-            width: 90%;
-        }
-        i {
-            cursor: pointer;
-        }
+    .buttonCell {
+      background: $dark-gray;
+      border: 0;
     }
 
+    .spacer {
+      background: $dark-gray;
 
+      td {
+        border: 0;
+      }
+    }
+  }
+
+  .file-details-table {
+
+    td:nth-child(1),
+    td:nth-child(2),
+    td:nth-child(3) {
+      width: 15%;
+    }
+
+    td:nth-child(4) {
+      width: 10%;
+    }
+
+    .buttonCell {
+      background: $dark-gray;
+      border: 0;
+    }
+
+    .spacer {
+      background: $dark-gray;
+
+    td {
+        border: 0;
+      }
+    }
+  }
+
+  .back {
+    float: left;
+  }
+
+  .file-action {
+    float: right;
+  }
 }

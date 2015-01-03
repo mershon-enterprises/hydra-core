@@ -801,39 +801,79 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(5);
-    restclient.listAttachments(
+    test.expect(12);
+
+    var attachments = [];
+    var createdUUID;
+
+    // create mock attachments to query for.
+    var i = 0;
+    while (i < 30) {
+      attachments.push(restclient.Attachment(
+            "testListAttachmentItems" + i.toString() + ".csv", "text/csv", ""));
+      i++;
+    }
+
+    // sumbit dataset with mock attachments.
+    restclient.submitData(
       clientUUID,
       apiToken,
-      {limit: 20,
-       offset: 10,
-       search_string: "2014",
-       order_by: "date_created",
-       order: "desc" }
+      new Date(),
+      'admin@example.com',
+      attachments
     ).then(
-      function(data) {
-        var bodyObj = JSON.parse(data.entity);
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        apiToken = bodyObj['token'];
+        createdUUID =  bodyObj['response']['uuid'];
 
-        checkResponse(test, bodyObj);
-        test.equal(data.status.code, 200, 'list data should succeed');
-        test.ok(Array.isArray(bodyObj['response']['attachments']),
-          'data list should be an array');
-        // FIXME -- these assumptions are not safe. You cannot assume data
-        // exists in the database unless you put it there with a fixture.
-        //
-        // test.ok(bodyObj['response']['attachments'].length === 20,
-        //   'should return exactly 20 attachments');
-        // test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
-        //   'data set uuid should be stated');
-        // test.ok('date_created' in bodyObj['response']['attachments'][0],
-        //   'attachment date created should be stated');
-        // test.ok('created_by' in bodyObj['response']['attachments'][0],
-        //   'attachment created-by should be stated');
-        // test.ok('filename' in bodyObj['response']['attachments'][0],
-        //   'attachment filename should be stated');
+        // retrieved submitted mock attachments.
+        restclient.listAttachments(
+          clientUUID,
+          apiToken,
+          {limit: 20,
+           offset: 10,
+           search_string: "testListAttachmentItem",
+           order_by: "date_created",
+           order: "desc"}
+        ).then(
+          function(data) {
+            var bodyObj = JSON.parse(data.entity);
+            apiToken = bodyObj['token'];
 
-        test.done();
-      });
+            checkResponse(test, bodyObj);
+            test.equal(data.status.code, 200, 'list data should succeed');
+            test.ok(Array.isArray(bodyObj['response']['attachments']),
+              'data list should be an array');
+            test.equal(bodyObj['response']['attachments'].length, 20,
+              'should return exactly 20 attachments');
+            test.equal(bodyObj['response']['result_count'], 30,
+              'should return result count of exactly 30 attachments');
+            test.ok('data_set_uuid' in bodyObj['response']['attachments'][0],
+              'data set uuid should be stated');
+            test.ok('date_created' in bodyObj['response']['attachments'][0],
+              'attachment date created should be stated');
+            test.ok('created_by' in bodyObj['response']['attachments'][0],
+              'attachment created-by should be stated');
+            test.ok('filename' in bodyObj['response']['attachments'][0],
+              'attachment filename should be stated');
+
+            // delete mock attachments.
+            restclient.deleteData(
+              clientUUID,
+              apiToken,
+              createdUUID
+            ).then(
+              function(deleteDataResponse) {
+                var bodyObj = JSON.parse(deleteDataResponse.entity);
+                apiToken = bodyObj['token'];
+
+                test.equal(deleteDataResponse.status.code, 200,
+                    'delete data should succeed');
+                test.done();
+            });
+        });
+    });
   },
   'with-api-token-search-filename': function(test) {
     test.expect(14);
@@ -988,6 +1028,195 @@ exports['listAttachments'] = {
             test.done();
         });
     });
+  },
+};
+
+exports['getAttachment'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getAttachment(
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(3);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        restclient.getAttachment(
+            clientUUID,
+            apiToken,
+            datasetWithAttachmentUUID,
+            "test.csv"
+        ).then(
+          function(getResponse) {
+            var headers = getResponse.headers;
+            test.equal(getResponse.status.code, 200,
+              'get attachment should succeed');
+            test.equal(headers['Content-Disposition'],
+              "attachment;filename='test.csv'",
+              'invalid Content-Disposition text');
+            test.equal(headers['Content-Type'],
+              "text/csv",
+              'invalid Content-Disposition text');
+            test.done();
+        });
+    });
+  },
+  'file-not-found': function(test) {
+    test.expect(1);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        restclient.getAttachment(
+            clientUUID,
+            apiToken,
+            datasetWithAttachmentUUID,
+            "notFound.csv"
+        ).then(
+          function(getResponse) {
+            var bodyObj = JSON.parse(getResponse.entity);
+
+            test.equal(getResponse.status.code, 404,
+              'get attachment should fail with 404');
+            test.done();
+        });
+    });
+  },
+  'file-restricted-access': function(test) {
+    test.expect(4);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("restricted.csv", "text/csv", "");
+
+    //submit attachment as admin
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        apiToken = bodyObj['token'];
+
+        //login as restricted user
+        restclient.adminAuthenticate(
+          clientUUID,
+          'admin@example.com',
+          'adminpassword',
+          'basicuser@example.com'
+        ).then(
+          function(limitedAccessLoginResponse) {
+            var bodyObj = JSON.parse(limitedAccessLoginResponse.entity);
+            apiToken = bodyObj['token'];
+
+            test.equal(limitedAccessLoginResponse.status.code, 200,
+                'login should succeed');
+
+            //try to retreive attachment as resticted user
+            restclient.getAttachment(
+                clientUUID,
+                apiToken,
+                datasetWithAttachmentUUID,
+                "restricted.csv"
+            ).then(
+              function(getRestrictedResponse) {
+                var bodyObj = JSON.parse(getRestrictedResponse.entity);
+                //apiToken = bodyObj['token'];
+
+                test.equal(getRestrictedResponse.status.code, 401,
+                  'get attachment should fail with 401');
+
+                //try to retrieve attachment that doesn't exist as restricted user
+                restclient.getAttachment(
+                    clientUUID,
+                    apiToken,
+                    datasetWithAttachmentUUID,
+                    "notFound.csv"
+                ).then(
+                  function(getNotFoundResponse) {
+                    var bodyObj = JSON.parse(getNotFoundResponse.entity);
+                    //apiToken = bodyObj['token'];
+
+                    test.equal(getNotFoundResponse.status.code, 404,
+                      'get attachment should fail with 401');
+
+                    //delete mock attachment
+                    //
+                    goodLogin(
+                      function(adminLoginResponseData) {
+                        var bodyObj = JSON.parse(adminLoginResponseData.entity);
+                        apiToken = bodyObj['token'];
+
+                        restclient.deleteData(
+                          clientUUID,
+                          apiToken,
+                          datasetWithAttachmentUUID
+                        ).then(
+                            function(deleteDataResponse) {
+                            var bodyObj = JSON.parse(deleteDataResponse.entity);
+                            apiToken = bodyObj['token'];
+
+                            test.equal(deleteDataResponse.status.code, 200,
+                                'delete data should succeed');
+                            test.done();
+                        });
+                    });
+                });
+            });
+        });
+    });
   }
 };
 
@@ -1071,6 +1300,195 @@ exports['getAttachmentInfo'] = {
             test.ok(bodyObj['response'][0]['primitive_text_data'][0]['value'] === 'testValue',
               'primitive text data value should be "testValue"');
             test.done();
+        });
+    });
+  },
+};
+
+exports['getAttachment'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.getAttachment(
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'list data get should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(3);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        restclient.getAttachment(
+            clientUUID,
+            apiToken,
+            datasetWithAttachmentUUID,
+            "test.csv"
+        ).then(
+          function(getResponse) {
+            var headers = getResponse.headers;
+            test.equal(getResponse.status.code, 200,
+              'get attachment should succeed');
+            test.equal(headers['Content-Disposition'],
+              "attachment;filename='test.csv'",
+              'invalid Content-Disposition text');
+            test.equal(headers['Content-Type'],
+              "text/csv",
+              'invalid Content-Disposition text');
+            test.done();
+        });
+    });
+  },
+  'file-not-found': function(test) {
+    test.expect(1);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        restclient.getAttachment(
+            clientUUID,
+            apiToken,
+            datasetWithAttachmentUUID,
+            "notFound.csv"
+        ).then(
+          function(getResponse) {
+            var bodyObj = JSON.parse(getResponse.entity);
+
+            test.equal(getResponse.status.code, 404,
+              'get attachment should fail with 404');
+            test.done();
+        });
+    });
+  },
+  'file-restricted-access': function(test) {
+    test.expect(4);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("restricted.csv", "text/csv", "");
+
+    //submit attachment as admin
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        apiToken = bodyObj['token'];
+
+        //login as restricted user
+        restclient.adminAuthenticate(
+          clientUUID,
+          'admin@example.com',
+          'adminpassword',
+          'basicuser@example.com'
+        ).then(
+          function(limitedAccessLoginResponse) {
+            var bodyObj = JSON.parse(limitedAccessLoginResponse.entity);
+            apiToken = bodyObj['token'];
+
+            test.equal(limitedAccessLoginResponse.status.code, 200,
+                'login should succeed');
+
+            //try to retreive attachment as resticted user
+            restclient.getAttachment(
+                clientUUID,
+                apiToken,
+                datasetWithAttachmentUUID,
+                "restricted.csv"
+            ).then(
+              function(getRestrictedResponse) {
+                var bodyObj = JSON.parse(getRestrictedResponse.entity);
+                //apiToken = bodyObj['token'];
+
+                test.equal(getRestrictedResponse.status.code, 401,
+                  'get attachment should fail with 401');
+
+                //try to retrieve attachment that doesn't exist as restricted user
+                restclient.getAttachment(
+                    clientUUID,
+                    apiToken,
+                    datasetWithAttachmentUUID,
+                    "notFound.csv"
+                ).then(
+                  function(getNotFoundResponse) {
+                    var bodyObj = JSON.parse(getNotFoundResponse.entity);
+                    //apiToken = bodyObj['token'];
+
+                    test.equal(getNotFoundResponse.status.code, 404,
+                      'get attachment should fail with 401');
+
+                    //delete mock attachment
+                    //
+                    goodLogin(
+                      function(adminLoginResponseData) {
+                        var bodyObj = JSON.parse(adminLoginResponseData.entity);
+                        apiToken = bodyObj['token'];
+
+                        restclient.deleteData(
+                          clientUUID,
+                          apiToken,
+                          datasetWithAttachmentUUID
+                        ).then(
+                            function(deleteDataResponse) {
+                            var bodyObj = JSON.parse(deleteDataResponse.entity);
+                            apiToken = bodyObj['token'];
+
+                            test.equal(deleteDataResponse.status.code, 200,
+                                'delete data should succeed');
+                            test.done();
+                        });
+                    });
+                });
+            });
         });
     });
   }

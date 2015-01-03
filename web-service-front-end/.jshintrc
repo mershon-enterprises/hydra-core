@@ -20,6 +20,8 @@
   "globals": {
     "angular": false,
     "restclient": false,
+    "NProgress": false,
+    "Mousetrap": false,
     "$scope": false,
     "$": false
   }

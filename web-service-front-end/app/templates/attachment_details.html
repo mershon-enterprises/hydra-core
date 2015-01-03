@@ -1,10 +1,13 @@
-<div class="tag-view">
+<div class="attachment-view">
+    <!-- Display file details -->
     <table class="file-details-table">
         <tr>
             <th>Filename</th>
             <th>Author</th>
             <th>Creation Date</th>
             <th>Rename</th>
+            <!-- Angular directive that checks for confirmation before
+            allowing the function call to execute. -->
             <th rowspan="2" class="buttonCell">
                 <button
                     confirmed-click="renameFile(newFilename)"
@@ -20,6 +23,10 @@
             <td>{{createdBy}}</td>
             <td>{{dateCreated | date : 'short'}}</td>
             <td>
+                <!-- Input field for renaming a new file. Angular remembers
+                the entered value as $scope.newFilename. Placeholder is
+                $scope.filename, the original name of the file from the backend.
+                -->
                 <input
                     type="text"
                     id="fileName"
@@ -38,6 +45,7 @@
             <td colspan="2">{{tag.description}}</td>
             <td colspan="2">{{tag.value}}</td>
             <td>
+                <!-- Again, confirm before tag deletion. -->
                 <i
                     class="fa fa-minus"
                     confirmed-click="removeRow(tag.description)"
@@ -59,11 +67,15 @@
     </table>
 
     <div class="controlls">
-        <button class="leftButton" ng-click="back()">Back</button>
-        <button class="rightButton"
+
+        <button class="back" ng-click="back()">Back</button>
+
+        <!-- Again, confirm before file deletion. -->
+        <button class="file-action"
                 confirmed-click="deleteFile()"
                 ng-confirm-click="Are you sure?"
                 >Delete
         </button>
+
     </div>
 </div>

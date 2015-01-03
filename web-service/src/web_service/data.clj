@@ -182,6 +182,8 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
+       "left join public.user as u "
+       "  on u.id = ds.created_by "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
@@ -655,34 +657,31 @@
         query-own (str data-set-attachment-query-get
                        "and uuid::character varying=? "
                        "and dsa.filename=? "
-                       "and u.email_address=? ")]
+                       "and u.email_address=? ")
+        attachment (first (sql/query (db)
+                                     [query uuid filename]
+                                     :row-fn format-attachment-get))
+        attachment-own (first (sql/query (db)
+                                         [query-own uuid filename email-address]
+                                         :row-fn format-attachment-get))
+        attachment-count (count (:headers attachment))
+        attachment-own-count (count (:headers attachment-own))]
     (if can-access
-      (first (sql/query (db)
-                        [query uuid filename]
-                        :row-fn format-attachment-get))
-      ; if the user cannot access all attachments, try to show them the
-      ; attachment if this is their data set
-      (first (sql/query (db)
-                        [query-own uuid filename email-address]
-                        :row-fn format-attachment-get))
+      (if (> attachment-count 0)
+        attachment
+        (status (response {:response "File not found."}) 404))
+      (if (> attachment-own-count 0)
+        attachment-own
+        (if (= attachment-count attachment-own-count 0)
+          (status (response {:response "File not found."}) 404)
+          (do
+            (log/debug (format (str "User %s tried to download attachment '%s' "
+                                    "from data-set '%s' but lacks access")
+                               email-address
+                               filename
+                               uuid))
+          (access-denied constants/manage-data)))))))
 
-      ; FIXME -- the logic here really needs to be revised. Currently it's
-      ; impossible for the user to know if A) they're trying to download a file
-      ; that doesn't exist, or B) They're trying to download a file that exists,
-      ; but is for a data set they didn't create and don't have access to.
-      ; Because they're downloading the file contents, there's no opportunity to
-      ; spit back a status message. So, the best we can do is either send back a
-      ; 404 header or (access-denied) which is a 401 header.
-      ;
-      ; (do
-      ;   (log/debug (format (str "User %s tried to download attachment '%s' "
-      ;                           "from data-set '%s' but lacks access")
-      ;                      email-address
-      ;                      filename
-      ;                      uuid))
-      ;   (access-denied constants/manage-data))
-
-      )))
 
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete

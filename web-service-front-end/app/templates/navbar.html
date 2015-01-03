@@ -1,18 +1,32 @@
+<!-- Display a menu with various options that may only be visible is the
+user is logged on -->
 <nav>
-    <a ng-show="nav.isLoggedIn" class="upload-link" ng-href="#/attachment_upload">
-                Upload File<i class="fa fa-upload"></i>
+    <!-- Upload Link -->
+    <a  ng-show="nav.isLoggedIn"
+        class="upload-link"
+        ng-href="#/attachment_upload">
+        Upload File
+        <i class="fa fa-upload"></i>
     </a>
-    <input ng-show="nav.isLoggedIn" placeholder="Search..." type="text" class="search">
+    <!-- Search Bar -->
+    <input  ng-show="nav.isLoggedIn"
+            placeholder="Search..."
+            type="text"
+            class="search mousetrap">
+    <!-- Search Button -->
     <button ng-show="nav.isLoggedIn" class="search-button">Search</button>
+    <!-- File Explorer Link / Login/Logout -->
     <ul>
         <li ng-show="nav.isLoggedIn">
-            <a ng-href="#/attachment_explorer">
+            <a  class="file-explorer-link"
+                ng-href="#/attachment_explorer">
                 File Explorer<i class="fa fa-search"></i>
             </a>
         </li>
         <li ng-show="nav.isLoggedIn" ng-controller="LogoutCtrl">
             <a ng-click="logout()">
-                Logout<i class="fa fa-sign-out"></i>
+                Logout
+                <i class="fa fa-sign-out"></i>
             </a>
         </li>
     </ul>

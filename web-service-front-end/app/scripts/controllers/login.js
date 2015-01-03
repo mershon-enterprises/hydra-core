@@ -21,12 +21,14 @@ angular.module('webServiceApp').controller('LoginCtrl',
 
     //Call RestService with given credentials.
     $scope.login = function (credentials) {
+        NProgress.start();
         RestService.authenticate(credentials).then(
         function(success) {
             if (success[0] === EVENTS.promiseSuccess) {
                 $rootScope.$broadcast(EVENTS.loginSuccess);
                 NotificationService.loginSuccess('Authentication Successful!', 'Welcome ' + Session.firstName + '!');
                 $location.path('/attachment_explorer');
+                NProgress.set(0.25);
             }
         },
         function(error) {
@@ -39,6 +41,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
             $rootScope.$broadcast(EVENTS.loginFailed);
             NotificationService.loginFailed('Authentication Failure...', 'Please check your credentials.');
             Session.destroy();
+            NProgress.done();
         });
     };
 
