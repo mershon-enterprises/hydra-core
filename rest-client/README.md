@@ -249,7 +249,7 @@ These are the method signatures of the `rest-client`:
 
 ####restclient.getData(clientUUID, apiToken, uuid)
 
->Return data on a single file using the UUID of the file.
+>Searches for UUID of a file and returns file data.
 >
 >`uuid` - 
 
