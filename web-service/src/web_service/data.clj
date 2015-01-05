@@ -741,3 +741,47 @@
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
+
+(defn data-set-attachment-sharable-download-link
+  [email-address uuid filename]
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-generate-sharable-download-link " "
+                   uuid " " filename))
+;(response {:response (make-sharable-download-link-api-token email-address)})
+
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-attachments)
+                       (contains? access constants/view-attachments))
+        query (str data-set-attachment-query-get
+                   "and uuid::character varying=? "
+                   "and dsa.filename=? ")
+        query-own (str data-set-attachment-query-get
+                       "and uuid::character varying=? "
+                       "and dsa.filename=? "
+                       "and u.email_address=? ")
+        attachment (first (sql/query (db)
+                                     [query uuid filename]
+                                     :row-fn format-attachment-get))
+        attachment-own (first (sql/query (db)
+                                         [query-own uuid filename email-address]
+                                         :row-fn format-attachment-get))
+        attachment-count (count (:headers attachment))
+        attachment-own-count (count (:headers attachment-own))]
+    (if can-access
+      (if (> attachment-count 0)
+        (generate-sharable-download-link email-address uuid filename)
+        (status (response {:response "File not found."}) 404))
+      (if (> attachment-own-count 0)
+        (generate-sharable-download-link email-address uuid filename)
+        (if (= attachment-count attachment-own-count 0)
+          (status (response {:response "File not found."}) 404)
+          (do
+            (log/debug (format (str "User %s tried to create a sharable "
+                                    "download link for '%s' from data-set '%s' "
+                                    "but lacks access")
+                               email-address
+                               filename
+                               uuid))
+          (access-denied constants/manage-data)))))))
