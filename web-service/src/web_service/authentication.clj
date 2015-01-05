@@ -282,3 +282,12 @@
     (let [user (get-user-by-token api-token client-uuid)]
       (apply fun (:email_address user) args))
     (invalid-token)))
+
+(defn generate-sharable-download-link
+  [email-address data-set-uuid filename]
+  (let [client-uuid (str (java.util.UUID/randomUUID))
+        api-token-map (make-token email-address client-uuid)
+        api-token (:token api-token-map)]
+    (response {:response (str "/data/" data-set-uuid "/" filename
+                              "/?client_uuid=" client-uuid "&api_token="
+                              api-token)})))
