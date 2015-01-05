@@ -2,7 +2,8 @@
   (:use [ring.util.response]
         [web-service.db]
         [web-service.session]
-        [web-service.user-helpers])
+        [web-service.user-helpers]
+        [web-service.authentication])
   (:require [clojure.java.jdbc :as sql]
             [clojure.tools.logging :as log]
             [cheshire.core :refer :all]

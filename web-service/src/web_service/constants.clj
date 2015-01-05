@@ -42,3 +42,4 @@
 (def session-add-dataset-primitive "add dataset primitive")
 (def session-update-dataset-primitive "update dataset primitive")
 (def session-delete-dataset-primitive "delete dataset primitive")
+(def session-generate-sharable-download-link "generating data set attachment download link")
