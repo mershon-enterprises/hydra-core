@@ -196,6 +196,26 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             $scope.$apply();
         });
 
+        //If someone clicks the share button on a row...
+        $(document).on('click', '.fa-link', function() {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentDownloadLink($(this).attr('ukey')).then(
+            function(success){
+                //If you got it, set the browser to that URL to have the
+                //browser start file-download.
+                if(success[0] === EVENTS.promiseSuccess) {
+                console.log(success);
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+            });
+        });
+
         //If someone clicks the download button on a row...
         $(document).on('click', '.fa-download', function() {
             //Call the RestService to get the URL for that file in the

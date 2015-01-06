@@ -340,6 +340,47 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Get the share link for a specific attachment.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.getAttachmentDownloadLink = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.getAttachmentDownloadLink(   clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename
+        ).then(
+            function(response) {
+
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(response.entity);
+                Session.updateToken(jsonResponse.token);
+
+                if (response.status.code === STATUS_CODES.ok) {
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        jsonResponse.response[0]]
+                    );
+                    console.log('restclient.getAttachmentDownloadLink succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.getAttachmentDownloadLink promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentDownloadLink promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Submits a new attachment to the backend.
     restService.submitData = function(dateCreated, createdBy, dataItems) {
 
