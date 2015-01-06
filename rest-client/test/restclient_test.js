@@ -1613,8 +1613,8 @@ exports['replaceAttachment'] = {
         var bodyObj = JSON.parse(replaceNotFoundResponse.entity);
         apiToken = bodyObj['token'];
 
-        test.equal(replaceNotFoundResponse.status.code, 409,
-          'replace attachment should fail with 409');
+        test.equal(replaceNotFoundResponse.status.code, 404,
+          'replace attachment should fail with 404');
         test.done();
     });
   }

@@ -249,18 +249,11 @@
 ; semi-internal API for replacing attachment contents directly (may be used by
 ; child services)
 (defn do-replace-attachment
-  [email-address uuid filename new-contents]
-
-  (println (format "Replacing '%s' with new contents in data-set '%s'"
-                           filename
-                           uuid))
+  [email-address uuid filename new-contents attachment-info]
 
   ; mark the old file as deleted, and create a new one with exactly the same
   ; properties but the new
-  (let [attachment-info (do-get-attachment-info email-address
-                                                      uuid
-                                                      filename)
-        conn (db)
+  (let [conn (db)
         query (str "insert into public.data_set_attachment "
                    "(data_set_id, date_created, created_by,"
                    " filename, mime_type, contents"
@@ -274,32 +267,37 @@
                    "   select id from public.user "
                    "   where email_address=? "
                    " ), ?, ?, decode(?, 'base64'))")]
-    (try
-      (sql/with-db-transaction
-        [conn db-spec]
-        (let [is-deleted (do-delete-attachment email-address
-                                               uuid
-                                               filename
-                                               :transaction? false
-                                               :conn conn)]
-          (if (sql/execute! conn [query
-                                  uuid
-                                  (:date_created attachment-info)
-                                  (:created_by attachment-info)
-                                  filename
-                                  (:mime_type attachment-info)
-                                  new-contents]
-                            :transaction? false)
-            true)))
-      (catch Exception e
-        (log/error e (format (str "There was an error replacing "
-                                  "attachment '%s' in data-set "
-                                  "'%s'")
-                             filename
-                             uuid))
-        (if (instance? SQLException e)
-          (log/error (.getCause e) "Caused by: "))
-        false))))
+    (if (nil? attachment-info)
+      false
+      (try
+        (println (format "Replacing '%s' with new contents in data-set '%s'"
+                         filename
+                         uuid))
+        (sql/with-db-transaction
+          [conn db-spec]
+          (let [is-deleted (do-delete-attachment email-address
+                                                 uuid
+                                                 filename
+                                                 :transaction? false
+                                                 :conn conn)]
+            (if (sql/execute! conn [query
+                                    uuid
+                                    (:date_created attachment-info)
+                                    (:created_by attachment-info)
+                                    filename
+                                    (:mime_type attachment-info)
+                                    new-contents]
+                              :transaction? false)
+              true)))
+        (catch Exception e
+          (log/error e (format (str "There was an error replacing "
+                                    "attachment '%s' in data-set "
+                                    "'%s'")
+                               filename
+                               uuid))
+          (if (instance? SQLException e)
+            (log/error (.getCause e) "Caused by: "))
+          false)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -840,9 +838,18 @@
               (str constants/session-replace-dataset-attachment " " uuid))
 
   (let [access (set (get-user-access email-address))
-        can-access (contains? access constants/manage-data)]
+        can-access (contains? access constants/manage-data)
+        attachment-info (do-get-attachment-info email-address
+                                                uuid
+                                                filename)]
     (if can-access
-      (if (do-replace-attachment email-address uuid filename new-contents)
-        (status (response {:response "OK"}) 200 )
-        (status (response {:response "Failure"}) 409))
+      (if (nil? attachment-info)
+        (status (response {:reponse "File not found."}) 404)
+        (if (do-replace-attachment email-address
+                                   uuid
+                                   filename
+                                   new-contents
+                                   attachment-info)
+          (status (response {:response "OK"}) 200)
+          (status (response {:response "Failure"}) 409)))
       (access-denied constants/manage-data))))
