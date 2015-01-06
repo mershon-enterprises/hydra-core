@@ -191,7 +191,10 @@
 ; semi-internal API for deleting attachment directly (may be used by child
 ; services)
 (defn do-delete-attachment
-  [email-address uuid filename]
+  [email-address uuid filename & {:keys [transaction?
+                                         conn]
+                                  :or {transaction? true
+                                       conn         (db)}}]
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
@@ -203,7 +206,8 @@
                    "and filename=? "
                    "and date_deleted is null")]
     (if can-access
-      (if (try (sql/execute! (db) [query email-address uuid filename])
+      (if (try (sql/execute! conn [query email-address uuid filename]
+                             :transaction? transaction?)
                (catch Exception e
                  (log/error e (format (str "There was an error deleting "
                                            "attachment '%s' from data-set '%s' "
@@ -246,12 +250,17 @@
 ; child services)
 (defn do-replace-attachment
   [email-address uuid filename new-contents]
+
+  (println (format "Replacing '%s' with new contents in data-set '%s'"
+                           filename
+                           uuid))
+
   ; mark the old file as deleted, and create a new one with exactly the same
   ; properties but the new
   (let [attachment-info (do-get-attachment-info email-address
-                                                uuid
-                                                filename)
-        is-deleted (do-delete-attachment email-address uuid filename)
+                                                      uuid
+                                                      filename)
+        conn (db)
         query (str "insert into public.data_set_attachment "
                    "(data_set_id, date_created, created_by,"
                    " filename, mime_type, contents"
@@ -265,26 +274,32 @@
                    "   select id from public.user "
                    "   where email_address=? "
                    " ), ?, ?, decode(?, 'base64'))")]
-    (println (format "Replacing '%s' with new contents in data-set '%s'"
-                     filename
-                     uuid))
-    (try (if (sql/execute! (db) [query
-                                 uuid
-                                 (:date_created attachment-info)
-                                 (:created_by attachment-info)
-                                 filename
-                                 (:mime_type attachment-info)
-                                 new-contents])
-           true)
-         (catch Exception e
-           (log/error e (format (str "There was an error replacing "
-                                     "attachment '%s' in data-set "
-                                     "'%s'")
-                                filename
-                                uuid))
-           (if (instance? SQLException e)
-             (log/error (.getCause e) "Caused by: "))
-           false))))
+    (try
+      (sql/with-db-transaction
+        [conn db-spec]
+        (let [is-deleted (do-delete-attachment email-address
+                                               uuid
+                                               filename
+                                               :transaction? false
+                                               :conn conn)]
+          (if (sql/execute! conn [query
+                                  uuid
+                                  (:date_created attachment-info)
+                                  (:created_by attachment-info)
+                                  filename
+                                  (:mime_type attachment-info)
+                                  new-contents]
+                            :transaction? false)
+            true)))
+      (catch Exception e
+        (log/error e (format (str "There was an error replacing "
+                                  "attachment '%s' in data-set "
+                                  "'%s'")
+                             filename
+                             uuid))
+        (if (instance? SQLException e)
+          (log/error (.getCause e) "Caused by: "))
+        false))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
