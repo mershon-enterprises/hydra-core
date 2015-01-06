@@ -316,11 +316,12 @@ angular.module('webServiceApp').factory('RestService',
         ).then(
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         jsonResponse.response[0]]
                     );
@@ -357,11 +358,12 @@ angular.module('webServiceApp').factory('RestService',
         ).then(
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         jsonResponse.response[0]]
                     );
@@ -454,11 +456,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' deleted');
                 }
@@ -489,11 +492,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' renamed to ' + newFilename);
                 }
@@ -524,11 +528,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ':' + value + ' added to ' + ukey);
                 }
@@ -558,11 +563,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ' removed from ' + ukey);
                 }
