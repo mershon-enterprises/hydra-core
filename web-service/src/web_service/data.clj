@@ -799,7 +799,7 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)]
     (if can-access
-      (if (do-delete-attachment email-address uuid filename )
+      (if (do-delete-attachment email-address uuid filename)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (do
