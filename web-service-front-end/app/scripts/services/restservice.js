@@ -647,29 +647,32 @@ angular.module('webServiceApp').factory('RestService',
                     userAccess.indexOf('View Clients') === -1) {
                     deferred.resolve(true);
                 } else {
-                    restService.listClients().then(
-                        function() {
-                            // Not all users can manage other users
-                            if (userAccess.indexOf('Manage Users') === -1) {
-                                deferred.resolve(true);
-                            } else {
-                                restService.listUsers().then(
-                                    function() {
-                                        deferred.resolve(true);
-                                    },
-                                    function() {
-                                        deferred.reject(false);
-                                    });
-                            }
-                        },
-                        function() {
-                            deferred.reject(false);
-                        });
+                    return restService.listClients()
                 }
             },
             function() {
                 deferred.reject(false);
-            });
+            }
+        ).then(
+            function() {
+                // Not all users can manage other users
+                if (userAccess.indexOf('Manage Users') === -1) {
+                    deferred.resolve(true);
+                } else {
+                    return restService.listUsers();
+                }
+            },
+            function() {
+                deferred.reject(false);
+            }
+        ).then(
+            function() {
+                deferred.resolve(true);
+            },
+            function() {
+                deferred.reject(false);
+            }
+        );
 
         refreshing = false;
         return deferred.promise;
