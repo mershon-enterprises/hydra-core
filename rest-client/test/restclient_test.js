@@ -1494,4 +1494,128 @@ exports['getAttachment'] = {
   }
 };
 
+exports['replaceAttachment'] = {
+  setUp: function(done) {
+    if (apiToken == null)
+      goodLogin();
+    done();
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.replaceAttachment(
+      null,
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'replace attachment should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(4);
 
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+        ),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        return restclient.replaceAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename,
+          "bmV3" // "new"
+        );
+      }
+    ).then(
+      function(replaceResponse) {
+        var bodyObj = JSON.parse(replaceResponse.entity);
+        apiToken = bodyObj['token'];
+
+        return restclient.getAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename
+        );
+      }
+    ).then(
+      function(getResponse) {
+        var headers = getResponse.headers;
+        test.equal(getResponse.status.code, 200,
+          'get attachment should succeed');
+        test.equal(headers['Content-Disposition'],
+          "attachment;filename='test.csv'",
+          'invalid Content-Disposition text');
+        test.equal(headers['Content-Type'],
+          'text/csv',
+          'invalid Content-Disposition text');
+        test.equal(getResponse.entity,
+          'new',
+          'file contents should have changed!');
+        test.done();
+      }
+    );
+  },
+  'file-not-found': function(test) {
+    test.expect(1);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("test.csv", "text/csv", ""),
+        primitiveData =
+          restclient.PrimitiveData('text', 'testTextDescription','testValue');
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitiveData]
+    ).then(
+      function(submitResponse) {
+        var bodyObj = JSON.parse(submitResponse.entity);
+        datasetWithAttachmentUUID = bodyObj['response']['uuid'];
+        attachmentFilename = bodyObj['response']['data'][0]['filename']
+        apiToken = bodyObj['token'];
+
+        return restclient.replaceAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          'notFound.csv',
+          "bmV3" // "new"
+        );
+      }
+    ).then(
+      function(replaceNotFoundResponse) {
+        var bodyObj = JSON.parse(replaceNotFoundResponse.entity);
+        apiToken = bodyObj['token'];
+
+        test.equal(replaceNotFoundResponse.status.code, 409,
+          'replace attachment should fail with 409');
+        test.done();
+    });
+  }
+};

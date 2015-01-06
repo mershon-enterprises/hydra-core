@@ -261,6 +261,18 @@
     });
   };
 
+  exports.replaceAttachment = function(clientUUID, apiToken, uuid, filename, newContents) {
+    return rest({
+      method: 'PUT',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/replace",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        new_contents: newContents
+      }
+    });
+  };
+
   exports.deleteAttachment = function(clientUUID, apiToken, uuid, filename) {
     return rest({
       method: 'DELETE',
