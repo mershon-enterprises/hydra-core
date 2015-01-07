@@ -11,7 +11,9 @@
   /*jslint node: true */
   'use strict';
 
-  var rest = require('rest');
+  var r    = require('rest'),
+      mime = require('rest/interceptor/mime'),
+      rest = r.wrap(mime, {mime: "application/json"});
 
   // replaced by grunt-string-replace
   exports.endpointUrl = 'ENDPOINT_URL';
@@ -57,7 +59,7 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/authenticate',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         email_address: emailAddress,
         password: password
@@ -69,7 +71,7 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/admin-authenticate',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         email_address: emailAddress,
         password: password,
@@ -82,7 +84,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -93,7 +95,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels/' + description,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -104,7 +106,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -115,7 +117,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -126,7 +128,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name + '/locations',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
       }
@@ -137,7 +139,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         search_params: searchParams
@@ -149,7 +151,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -189,7 +191,7 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/data',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         uuid: exports.uuid(),
@@ -204,7 +206,7 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -215,7 +217,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/attachments',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         search_params: JSON.stringify(searchParams)
@@ -227,7 +229,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -242,7 +244,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/info",
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -253,7 +255,7 @@
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         new_filename: newFilename
@@ -265,7 +267,7 @@
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/replace",
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         new_contents: newContents
@@ -277,7 +279,7 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -288,7 +290,7 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/data/' + uuid + "/submit-tag",
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         type: type,
@@ -302,7 +304,7 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken,
         type: type,
@@ -317,7 +319,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -328,7 +330,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress,
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -339,7 +341,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress + '/access',
-      params: {
+      entity: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
