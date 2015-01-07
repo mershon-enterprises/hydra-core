@@ -59,8 +59,10 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/authenticate',
-      entity: {
+      params: {
         client_uuid: clientUUID,
+      },
+      entity: {
         email_address: emailAddress,
         password: password
       }
@@ -71,8 +73,10 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/admin-authenticate',
-      entity: {
+      params: {
         client_uuid: clientUUID,
+      },
+      entity: {
         email_address: emailAddress,
         password: password,
         user_email_address: userEmailAddress
@@ -84,7 +88,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -95,7 +99,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/access-levels/' + description,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -106,7 +110,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -117,7 +121,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -128,7 +132,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/clients/' + name + '/locations',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
       }
@@ -139,7 +143,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
         search_params: searchParams
@@ -151,7 +155,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -191,9 +195,11 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/data',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         uuid: exports.uuid(),
         date_created: dateCreated.toISOString(),
         created_by: createdBy,
@@ -206,7 +212,7 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -217,7 +223,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/attachments',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
         search_params: JSON.stringify(searchParams)
@@ -229,7 +235,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -244,7 +250,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/info",
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -255,9 +261,11 @@
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         new_filename: newFilename
       }
     });
@@ -267,9 +275,11 @@
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/replace",
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         new_contents: newContents
       }
     });
@@ -279,7 +289,7 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -290,9 +300,11 @@
     return rest({
       method: 'POST',
       path: exports.endpointUrl + '/data/' + uuid + "/submit-tag",
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         type: type,
         description: description,
         value: value
@@ -304,9 +316,11 @@
     return rest({
       method: 'DELETE',
       path: exports.endpointUrl + '/data/' + uuid + "/delete-tag",
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         type: type,
         description: description
       }
@@ -319,7 +333,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -330,7 +344,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress,
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
@@ -341,7 +355,7 @@
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/users/' + emailAddress + '/access',
-      entity: {
+      params: {
         client_uuid: clientUUID,
         api_token: apiToken
       }
