@@ -14,7 +14,7 @@
 ; get the version of the API
 (defn get-version
   []
-  (response {:version "0.4.2"}))
+  (response {:version "0.5.0"}))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed
@@ -139,21 +139,30 @@
                                          filename))
               (GET "/info" [api_token client_uuid]
                    (guard-with-user api_token
-                                         client_uuid
-                                         data-set-attachment-info-get
-                                         uuid
-                                         filename))
+                                    client_uuid
+                                    data-set-attachment-info-get
+                                    uuid
+                                    filename))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
-                                         client_uuid
-                                         data-set-attachment-filename-rename
-                                         uuid filename new_filename))
+                                    client_uuid
+                                    data-set-attachment-filename-rename
+                                    uuid
+                                    filename
+                                    new_filename))
+              (PUT "/replace" [api_token client_uuid new_contents]
+                   (guard-with-user api_token
+                                    client_uuid
+                                    data-set-attachment-file-replace
+                                    uuid
+                                    filename
+                                    new_contents))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
-                                            client_uuid
-                                            data-set-attachment-delete
-                                            uuid filename))))))))
+                                       client_uuid
+                                       data-set-attachment-delete
+                                       uuid filename))))))))
 
   (context
     "/attachments" []
@@ -210,4 +219,5 @@
   (->
     (handler/site app-routes)
     (json/wrap-json-body)
+    (json/wrap-json-params)
     (json/wrap-json-response)))

@@ -46,7 +46,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data we want.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     var responseBody = jsonResponse.response;
                     var token = jsonResponse.token;
 
@@ -107,7 +107,7 @@ angular.module('webServiceApp').factory('RestService',
 
                 if (response.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -145,7 +145,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -185,7 +185,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -224,7 +224,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
 
                     Session.updateToken(jsonResponse.token);
 
@@ -317,7 +317,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -414,7 +414,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -449,7 +449,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -470,6 +470,68 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Replaces a new attachment on the backend.
+    restService.replaceAttachment = function(ukey, newContents) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        NProgress.start();
+
+        // In order to be memory efficient, we must drop back to using
+        // XMLHttpRequests here...
+        var form = new FormData();
+        form.append('client_uuid', clientUUID);
+        form.append('api_token', Session.getToken());
+        form.append('uuid', uuid);
+        form.append('filename', filename);
+        form.append('new_contents', newContents);
+
+        var x = new XMLHttpRequest();
+        x.open('PUT', restclient.endpointUrl + '/data/' +
+                                               uuid + '/' +
+                                               filename + '/replace');
+
+        // progress notifier
+        x.addEventListener('progress', function(progressEvent) {
+            if (progressEvent.lengthComputable) {
+                NProgress.set(progressEvent.loaded / progressEvent.total);
+            }
+        }, false);
+
+        x.onreadystatechange = function() {
+            var statusCode = x.status;
+
+            if (statusCode < 200 || statusCode >= 300) {
+                deferred.reject([EVENTS.promiseFailed]);
+                console.log('restclient.replaceAttachment promise failed');
+            } else {
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(x.responseText);
+                Session.updateToken(jsonResponse.token);
+
+                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.replaceAttachment succeeded');
+                } else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    console.log('restclient.replaceAttachment promise succeeded ' + 'But with bad status code : ' + statusCode);
+                }
+            }
+
+            NProgress.done();
+        };
+
+        x.send(form);
+
+        return deferred.promise;
+    };
+
     //Add a tag to a dataset.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.submitTag = function (ukey, type, description, value) {
@@ -484,7 +546,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -518,7 +580,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {

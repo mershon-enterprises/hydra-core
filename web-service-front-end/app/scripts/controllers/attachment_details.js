@@ -24,6 +24,71 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.dateCreated = null;
         $scope.createdBy = null;
         $scope.tags = [];
+        $scope.file = null;
+        $scope.fileData = null;
+
+        //Allows us to forward click events from our nice-looking styled
+        //upload button to the hidden and unstyle-able nasty-looking file
+        //input field.
+        $('.uploadButton').click(function() {
+            $('.uploadInput').click();
+        });
+
+        //Watch for updated file attachment.
+        $scope.$watch('file', function () {
+            if($scope.file) {
+
+                //Read file's binary data.
+                //http://www.html5rocks.com/en/tutorials/file/dndfiles/
+                var reader = new FileReader();
+                // Closure to capture the file information.
+                reader.onload = (function() {
+                    return function(e) {
+                        $scope.fileData = e.target.result;
+
+                        //Keep a sticky notification during file upload.
+                        var notification = NotificationService.showUploading(
+                                'Uploading',
+                                'Uploading file "' + $scope.filename + '". Please wait...');
+
+                        //Invoke the restservice to replace the attachment in
+                        //the dataset.
+                        RestService.replaceAttachment(
+                            $scope.ukey,
+                            window.btoa($scope.fileData)
+                        ).then(
+                        function(success)
+                        {
+                            if (success[0] === EVENTS.promiseSuccess) {
+                                NotificationService.success(
+                                    'File: ' + $scope.filename,
+                                    'Replaced Successfully!'
+                                );
+                                $rootScope.dataChanged = true;
+                                $location.path('/attachment_explorer');
+                            }
+                            notification.dismiss();
+                        },
+                        function(error) {
+                            if (error[0] === EVENTS.badStatus) {
+                                NotificationService.error(
+                                    'Server Unreachable',
+                                    'Please contact support.'
+                                );
+                            }
+                            else if (error[0] === EVENTS.promiseFailed) {
+                                NotificationService.error(
+                                    'Critical Error',
+                                    'Please contact support.'
+                                );
+                            }
+                            notification.dismiss();
+                        });
+                    };
+                })($scope.file);
+                reader.readAsBinaryString($scope.file);
+            }
+        });
 
         //The user should not be visiting this view unless sent from the
         //attachment explorer controller. $rootscope.ukey will be populated if
@@ -43,6 +108,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
                     $scope.tags = success[1].primitive_text_data;
+                    $scope.fileMimeType = success[1].mime_type;
                 }
             },
             //Notify user if something went wrong.

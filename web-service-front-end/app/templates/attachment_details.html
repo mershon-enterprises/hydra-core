@@ -2,18 +2,13 @@
     <!-- Display file details -->
     <table class="file-details-table">
         <tr>
-            <th>Filename</th>
-            <th>Author</th>
-            <th>Creation Date</th>
-            <th>Rename</th>
-            <!-- Angular directive that checks for confirmation before
-            allowing the function call to execute. -->
-            <th rowspan="2" class="buttonCell">
-                <button
-                    confirmed-click="renameFile(newFilename)"
-                    ng-confirm-click="Are you sure?"
-                    >Rename
-                </button>
+            <th class="filename-column">Filename</th>
+            <th class="author-column">Author</th>
+            <th class="createdate-column" colspan="2">Creation Date</th>
+            <th class="buttonCell button-column" rowspan="2">
+                <button class="uploadButton">Replace File</button>
+                <input class="uploadInput" type="file" file-model='file'
+                 accept="{{fileMimeType}}">
             </th>
         </tr>
         <tr>
@@ -21,24 +16,12 @@
                 {{filename}}
             </td>
             <td>{{createdBy}}</td>
-            <td>{{dateCreated | date : 'short'}}</td>
-            <td>
-                <!-- Input field for renaming a new file. Angular remembers
-                the entered value as $scope.newFilename. Placeholder is
-                $scope.filename, the original name of the file from the backend.
-                -->
-                <input
-                    type="text"
-                    id="fileName"
-                    ng-model="newFilename"
-                    placeholder="{{filename}}"
-                >
-            </td>
+            <td colspan="2">{{dateCreated | date : 'short'}}</td>
         </tr>
-        <tr class="spacer"><td></td></tr>
+        <tr class="spacer"><td colspan="5"></td></tr>
         <tr>
-            <th colspan="2">Tag Name</th>
-            <th colspan="2">Tag Value</th>
+            <th class="tagname-column" colspan="2">Tag Name</th>
+            <th class="tagvalue-column" colspan="2">Tag Value</th>
             <th>Add/Remove</th>
         </tr>
         <tr ng-repeat="tag in tags">
@@ -64,9 +47,33 @@
                 <i class="fa fa-plus" ng-click="addRow(description, value)"></i>
             </td>
         </tr>
+        <tr class="spacer"><td colspan="5"></td></tr>
+        <tr>
+            <td colspan="4">
+                <!-- Input field for renaming a new file. Angular remembers
+                the entered value as $scope.newFilename. Placeholder is
+                $scope.filename, the original name of the file from the backend.
+                -->
+                <input
+                type="text"
+                id="fileName"
+                ng-model="newFilename"
+                placeholder="{{filename}}"
+                >
+            </td>
+            <!-- Angular directive that checks for confirmation before
+            allowing the function call to execute. -->
+            <td class="buttonCell">
+                <button
+                    confirmed-click="renameFile(newFilename)"
+                    ng-confirm-click="Are you sure?"
+                    >Rename File
+                </button>
+            </td>
+        </tr>
     </table>
 
-    <div class="controlls">
+    <div class="controls">
 
         <button class="back" ng-click="back()">Back</button>
 
