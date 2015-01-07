@@ -483,8 +483,10 @@
               (log/error (.getCause e) "Caused by: "))
             (status (response {:response "Failure"}) 409))))
       (do
-        (log/debug (format "User %s tried to submit data-set but lacks access"
-                           email-address))
+        (log/warn
+          (format "User %s tried to submit data-set but lacks %s permission."
+                  email-address
+                  constants/create-data))
         (access-denied constants/create-data)))))
 
 (defn data-set-attachment-submit

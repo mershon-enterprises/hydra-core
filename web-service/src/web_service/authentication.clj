@@ -252,10 +252,14 @@
     ; included
     (let [user (get-user-by-token api-token client-uuid)
           fn-results (apply fun args)]
-      (let [new-token (if user (make-token (:email_address user) client-uuid))]
-        {:status (:status fn-results)
-         :headers (:headers fn-results)
-         :body (merge (:body fn-results) new-token)}))
+      ; only update the API token if the function call was successful
+      (if (and (< (:status fn-results) 300)
+               (>= (:status fn-results) 200))
+        (let [new-token (if user (make-token (:email_address user) client-uuid))]
+          {:status (:status fn-results)
+           :headers (:headers fn-results)
+           :body (merge (:body fn-results) new-token)})
+        fn-results))
     (invalid-token)))
 
 
