@@ -202,8 +202,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             //backend.
             RestService.getAttachmentDownloadLink($(this).attr('ukey')).then(
             function(success){
-                //If you got it, set the browser to that URL to have the
-                //browser start file-download.
                 if(success[0] === EVENTS.promiseSuccess) {
                 console.log(success);
             }
