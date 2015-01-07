@@ -140,6 +140,8 @@
   };
 
   exports.listData = function(clientUUID, apiToken, searchParams) {
+    if (!searchParams)
+      searchParams = '';
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
