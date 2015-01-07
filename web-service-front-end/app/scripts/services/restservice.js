@@ -46,7 +46,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data we want.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     var responseBody = jsonResponse.response;
                     var token = jsonResponse.token;
 
@@ -107,7 +107,7 @@ angular.module('webServiceApp').factory('RestService',
 
                 if (response.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -145,7 +145,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -185,7 +185,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -224,7 +224,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
 
                     Session.updateToken(jsonResponse.token);
 
@@ -317,7 +317,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -414,7 +414,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -449,7 +449,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -546,7 +546,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -580,7 +580,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
