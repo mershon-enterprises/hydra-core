@@ -203,7 +203,10 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             RestService.getAttachmentDownloadLink($(this).attr('ukey')).then(
             function(success){
                 if(success[0] === EVENTS.promiseSuccess) {
-                console.log(success);
+                NotificationService.copyBox(
+                    'Share URL',
+                    success[1]
+                );
             }
             },
             function(){
