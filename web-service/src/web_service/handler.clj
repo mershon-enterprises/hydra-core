@@ -219,4 +219,5 @@
   (->
     (handler/site app-routes)
     (json/wrap-json-body)
+    (json/wrap-json-params)
     (json/wrap-json-response)))
