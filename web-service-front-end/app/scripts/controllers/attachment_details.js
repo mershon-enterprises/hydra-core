@@ -24,6 +24,14 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.dateCreated = null;
         $scope.createdBy = null;
         $scope.tags = [];
+        $scope.dateOptions = {
+            dateFormat: 'yy-mm-dd',
+            //constrainInput: true,
+            defaultDate: +7,
+            minDate: new Date()
+        };
+        var currentDate = new Date();
+        $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
 
         //The user should not be visiting this view unless sent from the
         //attachment explorer controller. $rootscope.ukey will be populated if
@@ -267,6 +275,24 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Back button to return to the attachment explorer view.
         $scope.back = function () {
             $location.path('/attachment_explorer');
+        };
+
+        //Share link URL button
+        $scope.generateShareLink = function () {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentDownloadLink($scope.ukey, $('.share-cell'.val())).then(
+            function(success){
+                if(success[0] === EVENTS.promiseSuccess) {
+                    $('.share-cell').html(success[1]);
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+            });
         };
 
     }

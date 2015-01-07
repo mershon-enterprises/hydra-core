@@ -86,24 +86,5 @@ angular.module('webServiceApp').service('NotificationService',
         });
     };
 
-    notificationService.copyBox = function (title, message) {
-        return $.iGrowl({
-            type: 'info',
-            title: title,
-            message: message,
-            icon: 'linecons-note',
-            class: 'copy-box',
-            delay: 0,
-            offset: {
-                x: 0,
-                y: '35%'
-            },
-            placement: {
-                x: 'center',
-                y: 'top'
-            }
-        });
-    };
-
   return notificationService;
 });

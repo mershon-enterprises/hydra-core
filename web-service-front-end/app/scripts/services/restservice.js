@@ -343,7 +343,7 @@ angular.module('webServiceApp').factory('RestService',
 
     //Get the share link for a specific attachment.
     //ukey = 'filename' + '\n' + 'uuid'
-    restService.getAttachmentDownloadLink = function (ukey) {
+    restService.getAttachmentDownloadLink = function (ukey, expirationDate) {
 
         var deferred = $q.defer();
 
@@ -354,7 +354,8 @@ angular.module('webServiceApp').factory('RestService',
         restclient.getAttachmentDownloadLink(   clientUUID,
                                                 Session.getToken(),
                                                 uuid,
-                                                filename
+                                                filename,
+                                                expirationDate
         ).then(
             function(response) {
 
