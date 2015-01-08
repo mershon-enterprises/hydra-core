@@ -510,14 +510,14 @@ nav {
 
     .buttonCell {
       background: $dark-gray;
-      border: 0;
+      border-color: $dark-gray;
     }
 
     .spacer {
       background: $dark-gray;
 
     td {
-        border: 0;
+        border-color: $dark-gray;
       }
     }
   }
