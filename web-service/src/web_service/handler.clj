@@ -27,7 +27,9 @@
           405))
 
 (defroutes app-routes
-  (GET "/" [] (redirect "/index.html"))
+  (GET "/" [] (header (resource-response "index.html" {:root "public"})
+                      "Content-Type"
+                      "text/html"))
   (POST "/admin-authenticate" [client_uuid email_address password user_email_address]
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
@@ -218,6 +220,5 @@
 (def app
   (->
     (handler/site app-routes)
-    (json/wrap-json-body)
     (json/wrap-json-params)
     (json/wrap-json-response)))
