@@ -122,6 +122,17 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         }
 
+        //Hides the rename button and makes it unclickable as long as there
+        //is no text in the rename input field.
+        $('#fileName').keyup(function () {
+            if ($(this).val() === '') {
+                $('.rename-button').addClass('inactive');
+            }
+            else {
+                $('.rename-button').removeClass('inactive');
+            }
+        });
+
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
