@@ -743,14 +743,11 @@
       (access-denied constants/manage-data))))
 
 (defn data-set-attachment-sharable-download-link
-  [email-address uuid filename]
+  [email-address uuid filename exp-date]
   (log-detail email-address
               constants/session-activity
               (str constants/session-generate-sharable-download-link " "
                    uuid " " filename))
-;(response {:response (make-sharable-download-link-api-token email-address)})
-
-
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/view-attachments))
@@ -771,10 +768,10 @@
         attachment-own-count (count (:headers attachment-own))]
     (if can-access
       (if (> attachment-count 0)
-        (generate-sharable-download-link email-address uuid filename)
+        (generate-sharable-download-link email-address uuid filename exp-date)
         (status (response {:response "File not found."}) 404))
       (if (> attachment-own-count 0)
-        (generate-sharable-download-link email-address uuid filename)
+        (generate-sharable-download-link email-address uuid filename exp-date)
         (if (= attachment-count attachment-own-count 0)
           (status (response {:response "File not found."}) 404)
           (do
