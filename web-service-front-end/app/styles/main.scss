@@ -248,8 +248,8 @@ footer {
 }
 
 .inactive {
-  cursor: default !important;
   opacity: .5 !important;
+  pointer-events: none !important;
 }
 
 /* Navbar */
