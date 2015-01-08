@@ -27,7 +27,7 @@
           405))
 
 (defroutes app-routes
-  (GET "/" [] (redirect "/index.html"))
+  (GET "/" [] (resource-response "index.html" {:root "public"}))
   (POST "/admin-authenticate" [client_uuid email_address password user_email_address]
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
