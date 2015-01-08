@@ -44,10 +44,13 @@
             </th>
         </tr>
         <tr>
-            <td colspan="3" class="share-cell">{{shareURL}}</td>
+            <td colspan="3">
+                <textarea class="share-url">
+                </textarea>
+            </td>
             <td>
                 <input
-                        class="share-field"
+                        class="exp-date-field"
                         ui-date="dateOptions"
                         type="text"
                         ng-model="expirationDate"

@@ -280,11 +280,13 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.generateShareLink = function () {
             //Call the RestService to get the URL for that file in the
             //backend.
-            var expirationDate = $('.share-field').val();
+            var expirationDate = $('.exp-date-field').val();
             RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
             function(success){
                 if(success[0] === EVENTS.promiseSuccess) {
-                    $('.share-cell').html(success[1]);
+                    $('.share-url').val(    window.location.protocol + '//' +
+                                            window.location.host +
+                                            success[1]);
             }
             },
             function(){

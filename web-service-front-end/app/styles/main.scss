@@ -209,7 +209,6 @@ textarea {
   border: 1px solid $gray;
   color: $gray;
   font-size: 1em;
-  height: 30px;
   -moz-transition: all 0.30s ease-in-out;
   -ms-transition: all 0.30s ease-in-out;
   -o-transition: all 0.30s ease-in-out;
@@ -497,6 +496,10 @@ nav {
     .buttonCell {
       background: $dark-gray;
       border: 0;
+    }
+
+    .share-url {
+      width: 100% !important;
     }
 
     .spacer {
