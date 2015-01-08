@@ -26,7 +26,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.tags = [];
         $scope.dateOptions = {
             dateFormat: 'yy-mm-dd',
-            //constrainInput: true,
             defaultDate: +7,
             minDate: new Date()
         };
