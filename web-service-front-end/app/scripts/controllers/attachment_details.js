@@ -136,48 +136,35 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
-            //Regular expression for validating filenames.
-            var re = new RegExp(
-                '[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$'
-            );
-
             //If the user has typed in a new filename...
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
-                //Validate it against the regular expression...
-                if(re.test($scope.newFilename)) {
-                    //Invoke the RestService to rename the attachment.
-                    RestService.renameAttachment(
-                        $scope.ukey,
-                        $scope.newFilename).then(
-                        function(success) {
-                            if (success[0] === EVENTS.promiseSuccess) {
+                //Invoke the RestService to rename the attachment.
+                RestService.renameAttachment(
+                    $scope.ukey,
+                    $scope.newFilename
+                ).then(
+                function(success) {
+                    if (success[0] === EVENTS.promiseSuccess) {
 
-                                //Mark to the system that the cache must be
-                                //refreshed after this change.
-                                $rootScope.dataChanged = true;
-                                //Notify user that the file has been renamed.
-                                NotificationService.success(
-                                    'Success',
-                                    'Attachment Renamed'
-                                );
-                            }
-                        },
-                        //Notify user that something went wrong.
-                        function(error) {
-                            if(error[0] === EVENTS.promiseFailed) {
-                                NotificationService.error(
-                                    'Critical Error',
-                                    'Please contact support.'
-                                );
-                            }
-                        });
-                }
-                else {
-                    NotificationService.error(
-                        'Invalid Filename',
-                        'Please enter a valid filename.'
-                    );
-                }
+                        //Mark to the system that the cache must be
+                        //refreshed after this change.
+                        $rootScope.dataChanged = true;
+                        //Notify user that the file has been renamed.
+                        NotificationService.success(
+                            'Success',
+                            'Attachment Renamed'
+                        );
+                    }
+                },
+                //Notify user that something went wrong.
+                function(error) {
+                    if(error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error(
+                            'Critical Error',
+                            'Please contact support.'
+                        );
+                    }
+                });
             }
             else {
                 NotificationService.error(
