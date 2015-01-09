@@ -278,6 +278,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         //Share link URL button
         $scope.generateShareLink = function () {
+            //Disable the button to avoid corrupting the API token
+            $('#share-button').prop('disabled', true);
+
             //Call the RestService to get the URL for that file in the
             //backend.
             var expirationDate = $('.exp-date-field').val();
@@ -287,6 +290,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     $('.share-url').val(    window.location.protocol + '//' +
                                             window.location.host +
                                             success[1]);
+
+                    //Re-enable the share button
+                    $('#share-button').prop('disabled', false);
             }
             },
             function(){
@@ -294,6 +300,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     'Critical Error',
                     'Please contact support.'
                 );
+
+                //Re-enable the share button
+                $('#share-button').prop('disabled', false);
             });
         };
 
