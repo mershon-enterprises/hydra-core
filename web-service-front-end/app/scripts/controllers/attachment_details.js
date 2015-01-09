@@ -129,14 +129,20 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         }
 
-        //Hides the rename button and makes it unclickable as long as there
-        //is no text in the rename input field.
-        $('#fileName').keyup(function () {
+        // Watches for keystrokes in the filename input field.
+        $('#fileName').keyup(function (event) {
+            //Hides the rename button and makes it unclickable as long as there
+            //is no text in the rename input field.
             if ($(this).val() === '') {
                 $('.rename-button').addClass('inactive');
             }
             else {
                 $('.rename-button').removeClass('inactive');
+            }
+
+            // If it's the enter key (keycode 13), then click the rename button
+            if (event.keyCode === 13) {
+                $('.rename-button').click();
             }
         });
 
