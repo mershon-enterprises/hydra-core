@@ -162,6 +162,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         //Mark to the system that the cache must be
                         //refreshed after this change.
                         $rootScope.dataChanged = true;
+
+                        //Change the filename displayed in the UI for the user.
+                        $scope.filename = $scope.newFilename;
                         //Notify user that the file has been renamed.
                         NotificationService.success(
                             'Success',
