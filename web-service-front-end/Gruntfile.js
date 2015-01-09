@@ -362,6 +362,12 @@ module.exports = function (grunt) {
         },
         {
           expand: true,
+          cwd: 'bower_components/jquery-ui/themes/smoothness/',
+          dest: '<%= yeoman.dist %>/styles',
+          src: 'images/{,*/}*'
+        },
+        {
+          expand: true,
           cwd: '../../data-gatherer/plugin-config-files/chrome',
           dest: '<%= yeoman.dist %>/plugins/chrome/data-gatherer',
           src: [
