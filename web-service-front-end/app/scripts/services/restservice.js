@@ -319,11 +319,11 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([  EVENTS.promiseSuccess,
-                                        jsonResponse.response[0]]
+                                        entity.response[0]]
                     );
                     console.log('restclient.getAttachmentInfo succeeded');
                 }
@@ -362,11 +362,11 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([  EVENTS.promiseSuccess,
-                                        jsonResponse.response[0]]
+                                        entity.response[0]]
                     );
                     console.log('restclient.getAttachmentDownloadLink succeeded');
                 }
@@ -460,8 +460,8 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' deleted');
@@ -496,8 +496,8 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' renamed to ' + newFilename);
@@ -594,8 +594,8 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ':' + value + ' added to ' + ukey);
@@ -629,8 +629,8 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
-                    Session.updateToken(jsonResponse.token);
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ' removed from ' + ukey);
@@ -695,7 +695,7 @@ angular.module('webServiceApp').factory('RestService',
                     userAccess.indexOf('View Clients') === -1) {
                     deferred.resolve(true);
                 } else {
-                    return restService.listClients()
+                    return restService.listClients();
                 }
             },
             function() {
