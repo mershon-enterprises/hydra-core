@@ -3,9 +3,9 @@
     <table class="file-details-table">
         <tr>
             <th class="filename-column">Filename</th>
-            <th class="filename-column">Rename</th>
+            <th class="filename-column">Creation Date</th>
             <th class="author-column">Author</th>
-            <th class="createdate-column">Creation Date</th>
+            <th class="createdate-column">Rename</th>
             <th class="buttonCell button-column" rowspan="2">
                 <button
                     class="rename-button inactive"
@@ -20,6 +20,10 @@
                 {{filename}}
             </td>
             <td>
+                {{dateCreated | date : 'short'}}
+            </td>
+            <td>{{createdBy}}</td>
+            <td>
                 <!-- Input field for renaming a new file. Angular remembers
                 the entered value as $scope.newFilename. Placeholder is
                 $scope.filename, the original name of the file from the backend.
@@ -31,8 +35,6 @@
                 placeholder="{{filename}}"
                 >
             </td>
-            <td>{{createdBy}}</td>
-            <td>{{dateCreated | date : 'short'}}</td>
         </tr>
         <tr class="spacer">
             <td colspan="5">
