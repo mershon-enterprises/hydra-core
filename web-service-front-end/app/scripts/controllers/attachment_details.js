@@ -72,7 +72,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                     'File: ' + $scope.filename,
                                     'Replaced Successfully!'
                                 );
-                                $location.path('/attachment_explorer');
                             }
                             notification.dismiss();
                         },
