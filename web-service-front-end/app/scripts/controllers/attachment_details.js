@@ -287,9 +287,11 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
             function(success){
                 if(success[0] === EVENTS.promiseSuccess) {
-                    $('.share-url').val(    window.location.protocol + '//' +
-                                            window.location.host +
-                                            success[1]);
+                    var uri = window.location.protocol + '//' +
+                              window.location.host +
+                              success[1];
+                    $('.share-url').val(uri);
+                    window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
 
                     //Re-enable the share button
                     $('#share-button').prop('disabled', false);
