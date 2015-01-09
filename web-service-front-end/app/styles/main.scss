@@ -209,7 +209,6 @@ textarea {
   border: 1px solid $gray;
   color: $gray;
   font-size: 1em;
-  height: 30px;
   -moz-transition: all 0.30s ease-in-out;
   -ms-transition: all 0.30s ease-in-out;
   -o-transition: all 0.30s ease-in-out;
@@ -371,10 +370,7 @@ nav {
     .data-cell,
     i {
       cursor: pointer;
-    }
-
-    .fa-cog {
-      padding-left: $default-padding/3;
+      padding: $default-padding/4;
     }
 
     .location-header {
@@ -511,6 +507,10 @@ nav {
     .buttonCell {
       background: $dark-gray;
       border-color: $dark-gray;
+    }
+
+    .share-url {
+      width: 100% !important;
     }
 
     .spacer {

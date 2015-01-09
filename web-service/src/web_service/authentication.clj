@@ -12,7 +12,8 @@
             [crypto.random]
             [web-service.constants :as constants]
             [web-service.amqp :as amqp]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [clj-time.format :as f]))
 
 (import java.sql.SQLException)
 
@@ -104,61 +105,62 @@
 ; create an API token for the user
 (def token-lock (Object.))
 (defn- make-token
-  [email-address client-uuid]
+  ([email-address client-uuid]
+   (make-token email-address client-uuid (c/to-sql-date (t/plus (t/now) (t/days 7)))))
+  ([email-address client-uuid expiration-date]
 
-  ; use a sempahore lock just to be extra-careful about transactional behavior
-  (locking token-lock
+   ; use a sempahore lock just to be extra-careful about transactional behavior
+   (locking token-lock
 
-    (let [conn (db)]
-      (sql/with-db-transaction
-        [conn db-spec]
-        (do
-          ; expire API tokens for the specified client uuid, and any other tokens
-          ; which have passed their expiration date
-          (let [expire-query (str "delete from public.user_api_token "
-                                  "where expiration_date<now() "
-                                  "or client_uuid::character varying=?")]
-            (try (sql/execute! conn
-                               [expire-query client-uuid]
-                               :transaction? false)
-                 true
-                 (catch Exception e
-                   (if (instance? SQLException e)
-                     (do
-                       (println e)
-                       (println (.getNextException e)))
-                     (println (.getMessage e)))
-                   false)))
+     (let [conn (db)]
+       (sql/with-db-transaction
+         [conn db-spec]
+         (do
+           ; expire API tokens for the specified client uuid, and any other tokens
+           ; which have passed their expiration date
+           (let [expire-query (str "delete from public.user_api_token "
+                                   "where expiration_date<now() "
+                                   "or client_uuid::character varying=?")]
+             (try (sql/execute! conn
+                                [expire-query client-uuid]
+                                :transaction? false)
+               true
+               (catch Exception e
+                 (if (instance? SQLException e)
+                   (do
+                     (println e)
+                     (println (.getNextException e)))
+                   (println (.getMessage e)))
+                 false)))
 
-          ; create a new token
-          (let [api-token (str (crypto.random/hex 255))
-                expiration-date (c/to-sql-date (t/plus (t/now) (t/days 7)))
-                ; we store the hash of the api token to the database, not the
-                ; token itself, because security
-                query (str "insert into public.user_api_token "
-                           "(api_token, client_uuid, expiration_date, user_id) values "
-                           "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
-                           "(select id from public.user where email_address=?)"
-                           ")")
-                success (try (sql/execute! conn
-                                           [query
-                                            api-token
-                                            client-uuid
-                                            expiration-date
-                                            email-address]
-                                           :transaction? false)
-                             true
-                             (catch Exception e
-                               (if (instance? SQLException e)
-                                 (do
-                                   (println e)
-                                   (println (.getNextException e)))
-                                 (println (.getMessage e)))
-                               (throw e)
-                               false))]
-            (if success
-              {:token api-token
-               :token_expiration_date expiration-date})))))))
+           ; create a new token
+           (let [api-token (str (crypto.random/hex 255))
+                 ; we store the hash of the api token to the database, not the
+                 ; token itself, because security
+                 query (str "insert into public.user_api_token "
+                            "(api_token, client_uuid, expiration_date, user_id) values "
+                            "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
+                            "(select id from public.user where email_address=?)"
+                            ")")
+                 success (try (sql/execute! conn
+                                            [query
+                                             api-token
+                                             client-uuid
+                                             expiration-date
+                                             email-address]
+                                            :transaction? false)
+                           true
+                           (catch Exception e
+                             (if (instance? SQLException e)
+                               (do
+                                 (println e)
+                                 (println (.getNextException e)))
+                               (println (.getMessage e)))
+                             (throw e)
+                             false))]
+             (if success
+               {:token api-token
+                :token_expiration_date expiration-date}))))))))
 
 
 (defn- format-ldap-user
@@ -286,3 +288,13 @@
     (let [user (get-user-by-token api-token client-uuid)]
       (apply fun (:email_address user) args))
     (invalid-token)))
+
+(defn generate-sharable-download-link
+  [email-address data-set-uuid filename exp-date]
+  (let [client-uuid (str (java.util.UUID/randomUUID))
+        sql-exp-date (c/to-sql-date (f/parse (f/formatters :date) exp-date))
+        api-token-map (make-token email-address client-uuid sql-exp-date)
+        api-token (:token api-token-map)
+        link [(str "/data/" data-set-uuid "/" filename
+                         "/?client_uuid=" client-uuid "&api_token=" api-token)]]
+    (response {:response link})))

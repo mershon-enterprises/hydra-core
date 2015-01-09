@@ -141,10 +141,17 @@
                                          filename))
               (GET "/info" [api_token client_uuid]
                    (guard-with-user api_token
+                                         client_uuid
+                                         data-set-attachment-info-get
+                                         uuid
+                                         filename))
+              (GET "/sharable-link" [api_token client_uuid exp_date]
+                   (guard-with-user api_token
                                     client_uuid
-                                    data-set-attachment-info-get
+                                    data-set-attachment-sharable-download-link
                                     uuid
-                                    filename))
+                                    filename
+                                    exp_date))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                     client_uuid

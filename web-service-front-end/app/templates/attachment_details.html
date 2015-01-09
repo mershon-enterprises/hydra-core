@@ -20,6 +20,29 @@
         </tr>
         <tr class="spacer"><td colspan="5"></td></tr>
         <tr>
+            <th colspan="3">Share Link</th>
+            <th>Expiration Date</th>
+            <th rowspan="2" class="buttonCell">
+                <button id="share-button"
+                        ng-click="generateShareLink()">Share</button>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <textarea class="share-url">
+                </textarea>
+            </td>
+            <td>
+                <input
+                        class="exp-date-field"
+                        ui-date="dateOptions"
+                        type="text"
+                        ng-model="expirationDate"
+                        >
+                </td>
+        </tr>
+        <tr class="spacer"><td></td></tr>
+        <tr>
             <th class="tagname-column" colspan="2">Tag Name</th>
             <th class="tagvalue-column" colspan="2">Tag Value</th>
             <th>Add/Remove</th>

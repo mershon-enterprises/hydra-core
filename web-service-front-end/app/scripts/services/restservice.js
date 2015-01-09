@@ -316,11 +316,12 @@ angular.module('webServiceApp').factory('RestService',
         ).then(
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = response.entity;
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         jsonResponse.response[0]]
                     );
@@ -336,6 +337,49 @@ angular.module('webServiceApp').factory('RestService',
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.getAttachmentInfo promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
+    //Get the share link for a specific attachment.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.getAttachmentDownloadLink = function (ukey, expirationDate) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.getAttachmentDownloadLink(   clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename,
+                                                expirationDate
+        ).then(
+            function(response) {
+
+                if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        jsonResponse.response[0]]
+                    );
+                    console.log('restclient.getAttachmentDownloadLink succeeded');
+                }
+                else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, response.status.code]);
+                    console.log('restclient.getAttachmentDownloadLink promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentDownloadLink promise failed: ' + error);
             });
         return deferred.promise;
     };
@@ -413,11 +457,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = response.entity;
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' deleted');
                 }
@@ -448,11 +493,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = response.entity;
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(filename + ' renamed to ' + newFilename);
                 }
@@ -545,11 +591,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = response.entity;
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ':' + value + ' added to ' + ukey);
                 }
@@ -579,11 +626,12 @@ angular.module('webServiceApp').factory('RestService',
 
             function(response) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = response.entity;
-                Session.updateToken(jsonResponse.token);
-
                 if (response.status.code === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var jsonResponse = JSON.parse(response.entity);
+                    Session.updateToken(jsonResponse.token);
+
                     deferred.resolve([EVENTS.promiseSuccess]);
                     console.log(description + ' removed from ' + ukey);
                 }
