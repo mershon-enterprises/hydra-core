@@ -245,6 +245,10 @@ footer {
   img {
     width: 200px;
   }
+
+  i {
+    padding-right: $default-padding/2;
+  }
 }
 
 .inactive {
@@ -529,4 +533,19 @@ nav {
   .file-action {
     float: right;
   }
+}
+
+/* User Manual */
+.user-manual {
+  width: 800px;
+  text-align: left;
+  margin: 0 auto 50px;
+
+    h1 {
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: square;
+    }
 }
