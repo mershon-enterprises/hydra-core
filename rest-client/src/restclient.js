@@ -259,6 +259,18 @@
     });
   };
 
+  exports.getAttachmentDownloadLink= function(clientUUID, apiToken, uuid, filename, expDate) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharable-link",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        exp_date: expDate
+      }
+    });
+  };
+
   exports.renameAttachment = function(clientUUID, apiToken, uuid, filename, newFilename) {
     return rest({
       method: 'PUT',

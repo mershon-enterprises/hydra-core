@@ -209,7 +209,6 @@ textarea {
   border: 1px solid $gray;
   color: $gray;
   font-size: 1em;
-  height: 30px;
   -moz-transition: all 0.30s ease-in-out;
   -ms-transition: all 0.30s ease-in-out;
   -o-transition: all 0.30s ease-in-out;
@@ -252,8 +251,8 @@ footer {
 }
 
 .inactive {
-  cursor: default !important;
   opacity: .5 !important;
+  pointer-events: none !important;
 }
 
 /* Navbar */
@@ -375,10 +374,7 @@ nav {
     .data-cell,
     i {
       cursor: pointer;
-    }
-
-    .fa-cog {
-      padding-left: $default-padding/3;
+      padding: $default-padding/4;
     }
 
     .location-header {
@@ -514,14 +510,18 @@ nav {
 
     .buttonCell {
       background: $dark-gray;
-      border: 0;
+      border-color: $dark-gray;
+    }
+
+    .share-url {
+      width: 100% !important;
     }
 
     .spacer {
       background: $dark-gray;
 
     td {
-        border: 0;
+        border-color: $dark-gray;
       }
     }
   }
@@ -531,6 +531,7 @@ nav {
   }
 
   .file-action {
+    margin-left: $default-margin;
     float: right;
   }
 }

@@ -26,6 +26,13 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
+        $scope.dateOptions = {
+            dateFormat: 'yy-mm-dd',
+            defaultDate: +7,
+            minDate: new Date()
+        };
+        var currentDate = new Date();
+        $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
 
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
@@ -64,7 +71,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                     'File: ' + $scope.filename,
                                     'Replaced Successfully!'
                                 );
-                                $rootScope.dataChanged = true;
                                 $location.path('/attachment_explorer');
                             }
                             notification.dismiss();
@@ -122,51 +128,54 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         }
 
+        // Watches for keystrokes in the filename input field.
+        $('#fileName').keyup(function (event) {
+            //Hides the rename button and makes it unclickable as long as there
+            //is no text in the rename input field.
+            if ($(this).val() === '') {
+                $('.rename-button').addClass('inactive');
+            }
+            else {
+                $('.rename-button').removeClass('inactive');
+            }
+
+            // If it's the enter key (keycode 13), then click the rename button
+            if (event.keyCode === 13) {
+                $('.rename-button').click();
+            }
+        });
+
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
 
-            //Regular expression for validating filenames.
-            var re = new RegExp(
-                '[a-z_\\-\\s0-9\\.]+\\.(txt|csv|pdf|doc|docx|xls|xlsx)$'
-            );
-
             //If the user has typed in a new filename...
             if($scope.newFilename !== '' && $scope.newFilename !== null) {
-                //Validate it against the regular expression...
-                if(re.test($scope.newFilename)) {
-                    //Invoke the RestService to rename the attachment.
-                    RestService.renameAttachment(
-                        $scope.ukey,
-                        $scope.newFilename).then(
-                        function(success) {
-                            if (success[0] === EVENTS.promiseSuccess) {
+                //Invoke the RestService to rename the attachment.
+                RestService.renameAttachment(
+                    $scope.ukey,
+                    $scope.newFilename
+                ).then(
+                function(success) {
+                    if (success[0] === EVENTS.promiseSuccess) {
 
-                                //Mark to the system that the cache must be
-                                //refreshed after this change.
-                                $rootScope.dataChanged = true;
-                                //Notify user that the file has been renamed.
-                                NotificationService.success(
-                                    'Success',
-                                    'Attachment Renamed'
-                                );
-                            }
-                        },
-                        //Notify user that something went wrong.
-                        function(error) {
-                            if(error[0] === EVENTS.promiseFailed) {
-                                NotificationService.error(
-                                    'Critical Error',
-                                    'Please contact support.'
-                                );
-                            }
-                        });
-                }
-                else {
-                    NotificationService.error(
-                        'Invalid Filename',
-                        'Please enter a valid filename.'
-                    );
-                }
+                        //Change the filename displayed in the UI for the user.
+                        $scope.filename = $scope.newFilename;
+                        //Notify user that the file has been renamed.
+                        NotificationService.success(
+                            'Success',
+                            'Attachment Renamed'
+                        );
+                    }
+                },
+                //Notify user that something went wrong.
+                function(error) {
+                    if(error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error(
+                            'Critical Error',
+                            'Please contact support.'
+                        );
+                    }
+                });
             }
             else {
                 NotificationService.error(
@@ -189,8 +198,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Success',
                                 'Attachment Deleted'
                             );
-                            //Mark that the cache must be updated.
-                            $rootScope.dataChanged = true;
                             //Return user to attachment explorer.
                             $location.path('/attachment_explorer');
                     }
@@ -333,6 +340,38 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Back button to return to the attachment explorer view.
         $scope.back = function () {
             $location.path('/attachment_explorer');
+        };
+
+        //Share link URL button
+        $scope.generateShareLink = function () {
+            //Disable the button to avoid corrupting the API token
+            $('#share-button').prop('disabled', true);
+
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            var expirationDate = $('.exp-date-field').val();
+            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
+            function(success){
+                if(success[0] === EVENTS.promiseSuccess) {
+                    var uri = window.location.protocol + '//' +
+                              window.location.host +
+                              success[1];
+                    $('.share-url').val(uri);
+                    window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+
+                    //Re-enable the share button
+                    $('#share-button').prop('disabled', false);
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+
+                //Re-enable the share button
+                $('#share-button').prop('disabled', false);
+            });
         };
 
     }

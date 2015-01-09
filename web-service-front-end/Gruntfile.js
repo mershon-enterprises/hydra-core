@@ -362,6 +362,12 @@ module.exports = function (grunt) {
         },
         {
           expand: true,
+          cwd: 'bower_components/jquery-ui/themes/smoothness/',
+          dest: '<%= yeoman.dist %>/styles',
+          src: 'images/{,*/}*'
+        },
+        {
+          expand: true,
           cwd: '../../data-gatherer/plugin-config-files/chrome',
           dest: '<%= yeoman.dist %>/plugins/chrome/data-gatherer',
           src: [
@@ -397,6 +403,12 @@ module.exports = function (grunt) {
       test: [
         'compass'
       ],
+      staging: [
+        'subgrunt:staging',
+        'compass:dist',
+        'imagemin',
+        'svgmin'
+      ],
       dist: [
         'subgrunt:dist',
         'compass:dist',
@@ -419,6 +431,10 @@ module.exports = function (grunt) {
       dev: {
         // build the restclient plugin
         '../rest-client': 'dev'
+      },
+      staging: {
+        // build the restclient plugin
+        '../rest-client': 'staging'
       },
       dist: {
         // build the restclient plugin
@@ -461,6 +477,24 @@ module.exports = function (grunt) {
     'clean:dist',
     'wiredep',
     'concurrent:dev',
+    'copy:restclient',
+    'useminPrepare',
+    'autoprefixer',
+    'concat',
+    'ngAnnotate',
+    'copy:dist',
+    'cdnify',
+    'cssmin',
+    'uglify',
+    'filerev',
+    'usemin',
+    'htmlmin'
+  ]);
+
+  grunt.registerTask('staging', [
+    'clean:dist',
+    'wiredep',
+    'concurrent:staging',
     'copy:restclient',
     'useminPrepare',
     'autoprefixer',

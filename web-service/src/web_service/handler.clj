@@ -27,7 +27,9 @@
           405))
 
 (defroutes app-routes
-  (GET "/" [] (redirect "/index.html"))
+  (GET "/" [] (header (resource-response "index.html" {:root "public"})
+                      "Content-Type"
+                      "text/html"))
   (POST "/admin-authenticate" [client_uuid email_address password user_email_address]
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
@@ -139,10 +141,17 @@
                                          filename))
               (GET "/info" [api_token client_uuid]
                    (guard-with-user api_token
+                                         client_uuid
+                                         data-set-attachment-info-get
+                                         uuid
+                                         filename))
+              (GET "/sharable-link" [api_token client_uuid exp_date]
+                   (guard-with-user api_token
                                     client_uuid
-                                    data-set-attachment-info-get
+                                    data-set-attachment-sharable-download-link
                                     uuid
-                                    filename))
+                                    filename
+                                    exp_date))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                     client_uuid
@@ -218,6 +227,5 @@
 (def app
   (->
     (handler/site app-routes)
-    (json/wrap-json-body)
     (json/wrap-json-params)
     (json/wrap-json-response)))

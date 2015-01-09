@@ -13,12 +13,17 @@
     (.setRequestHeaderSize connector 8388608)))
 
 (defn -main
-  []
+  [& args]
 
   (shared-init/init)
 
   ; mock 500 datasets
-  (dummy.datasets/mock-datasets 500)
+  (if (and (not (empty? args))
+           (not= -1 (.indexOf args "--mock-data")))
+    (do
+      (println "Mocking 500 datasets...")
+      (dummy.datasets/mock-datasets 500))
+    (println "If needed, use '--mock-data' flag to generate mock data-sets."))
 
   (jetty/run-jetty handler/app {:port 3000
                                 :configurator full-head-avoidance}))
