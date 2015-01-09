@@ -178,7 +178,6 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
                             'File: ' + $scope.filename,
                             'Submitted Successfully!'
                         );
-                        $rootScope.dataChanged = true;
                         $location.path('/attachment_explorer');
                     }
                     notification.dismiss();

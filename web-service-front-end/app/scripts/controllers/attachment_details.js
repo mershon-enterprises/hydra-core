@@ -71,7 +71,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                     'File: ' + $scope.filename,
                                     'Replaced Successfully!'
                                 );
-                                $rootScope.dataChanged = true;
                                 $location.path('/attachment_explorer');
                             }
                             notification.dismiss();
@@ -159,10 +158,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 function(success) {
                     if (success[0] === EVENTS.promiseSuccess) {
 
-                        //Mark to the system that the cache must be
-                        //refreshed after this change.
-                        $rootScope.dataChanged = true;
-
                         //Change the filename displayed in the UI for the user.
                         $scope.filename = $scope.newFilename;
                         //Notify user that the file has been renamed.
@@ -203,8 +198,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Success',
                                 'Attachment Deleted'
                             );
-                            //Mark that the cache must be updated.
-                            $rootScope.dataChanged = true;
                             //Return user to attachment explorer.
                             $location.path('/attachment_explorer');
                     }
