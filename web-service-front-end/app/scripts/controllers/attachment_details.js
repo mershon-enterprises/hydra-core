@@ -178,7 +178,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             // whatever.min.js -> js
             $scope.newExtension = $scope.newFilename.split('.').slice(-1)[0];
 
-            if(!$scope.newExtension) {
+            if(!$scope.newExtension || ($scope.newFilename.split('.').length <= 1)) {
                 NotificationService.error(
                     'Invalid Filename',
                     'Filenames require extension.');
