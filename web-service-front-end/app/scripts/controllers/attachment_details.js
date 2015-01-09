@@ -295,6 +295,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     ).then(
                     function(success) {
                         if (success[0] === EVENTS.promiseSuccess) {
+                            // Clear the tag inputs after a submission.
+                            $('.tag-input').val('');
+
+                            // Notify user of success.
                             NotificationService.success(
                                 'Success',
                                 'Tag Added.'
@@ -314,6 +318,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Please contact support.');
                         }
                     });
+
                 }
                 else {
                     NotificationService.error(
