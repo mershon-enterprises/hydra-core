@@ -34,7 +34,15 @@
             <td>{{createdBy}}</td>
             <td>{{dateCreated | date : 'short'}}</td>
         </tr>
-        <tr class="spacer"><td colspan="5"></td></tr>
+        <tr class="spacer">
+            <td colspan="5">
+                <!-- If the extension of the new filename is different
+                fromt the existing one, this warning will show. -->
+                <p class="extension-warning">
+                    Warning : This will change the file's extension.
+                </p>
+            </td>
+        </tr>
         <tr>
             <th colspan="3">Share Link</th>
             <th>Expiration Date</th>

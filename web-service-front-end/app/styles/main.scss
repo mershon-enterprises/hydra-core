@@ -520,6 +520,12 @@ nav {
         border-color: $dark-gray;
       }
     }
+
+    .extension-warning {
+      margin: 0;
+      color: $red;
+      display: none;
+    }
   }
 
   .back {

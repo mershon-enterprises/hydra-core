@@ -21,6 +21,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         //Storage variables for the file this controller is operating on.
         $scope.filename = null;
+        $scope.extension = null;
         $scope.dateCreated = null;
         $scope.createdBy = null;
         $scope.tags = [];
@@ -143,13 +144,53 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             if (event.keyCode === 13) {
                 $('.rename-button').click();
             }
+
+            // Get last substring of array after a '.' character.
+            // whatever.min.js -> js
+            $scope.extension = $scope.filename.split('.').slice(-1)[0];
+
+            // If the filename field doesn't contain the previous filename's
+            // extension, display a warning.
+            if($(this).val() !== '') {
+                if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
+                    $('.extension-warning').hide();
+                }
+                else {
+                    $('.extension-warning').show();
+                }
+            }
+
         });
+
+        // Validate that a filename was entered properly and notify user if
+        // it was not.
+        $scope.validateFilename = function () {
+
+            // Make sure it's not blank.
+            if ($scope.newFilename === '' || $scope.newFilename === null) {
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Filename cannot be blank.');
+                return false;
+            }
+
+            // Get last substring of array after a '.' character.
+            // whatever.min.js -> js
+            $scope.newExtension = $scope.newFilename.split('.').slice(-1)[0];
+
+            if(!$scope.newExtension) {
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Filenames require extension.');
+                return false;
+            }
+
+            return true;
+        };
 
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
-
-            //If the user has typed in a new filename...
-            if($scope.newFilename !== '' && $scope.newFilename !== null) {
+            if ($scope.validateFilename()) {
                 //Invoke the RestService to rename the attachment.
                 RestService.renameAttachment(
                     $scope.ukey,
@@ -177,12 +218,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     }
                 });
             }
-            else {
-                NotificationService.error(
-                    'Invalid Filename',
-                    'Filename cannot be blank.');
-            }
-
         };
 
         //Delete the file from the backend whose ukey is in scope.
