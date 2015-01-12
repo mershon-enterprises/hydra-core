@@ -23,6 +23,7 @@
     "NProgress": false,
     "Mousetrap": false,
     "$scope": false,
+    "confirm": false,
     "$": false
   }
 }
