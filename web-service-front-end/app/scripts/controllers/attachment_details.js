@@ -194,6 +194,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
                         //Change the filename displayed in the UI for the user.
                         $scope.filename = $scope.newFilename;
+
+                        //Change the ukey to reflect the new filename.
+                        $scope.ukey = $scope.newFilename + '\n' + $scope.ukey.split('\n')[1];
+
                         //Notify user that the file has been renamed.
                         NotificationService.success(
                             'Success',
