@@ -149,13 +149,16 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             $scope.extension = $scope.filename.split('.').slice(-1)[0];
 
             // If the filename field doesn't contain the previous filename's
-            // extension, display a warning.
+            // extension, display a warning. If the previous file had no
+            // extension, ignore this.
             if($(this).val() !== '') {
-                if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
-                    $('.extension-warning').hide();
-                }
-                else {
-                    $('.extension-warning').show();
+                if ($scope.filename.indexOf('.') > -1) {
+                    if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
+                        $('.extension-warning').hide();
+                    }
+                    else {
+                        $('.extension-warning').show();
+                    }
                 }
             }
 
@@ -173,16 +176,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 return false;
             }
 
-            // Get last substring of array after a '.' character.
-            // whatever.min.js -> js
-            $scope.newExtension = $scope.newFilename.split('.').slice(-1)[0];
-
-            if(!$scope.newExtension || ($scope.newFilename.split('.').length <= 1)) {
-                NotificationService.error(
-                    'Invalid Filename',
-                    'Filenames require extension.');
-                return false;
-            }
+            //Place other filename validations here.
 
             return true;
         };
