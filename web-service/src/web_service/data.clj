@@ -101,8 +101,8 @@
        "where ds.date_deleted is null "))
 
 (def data-set-attachment-query
-  (str "select "
-       "  distinct dsa.id, "
+  (str "select distinct on (data_set_attachment_id) "
+       "  dsa.id as data_set_attachment_id, "
        "  dsa.filename as filename, "
        "  dsa.mime_type as mime_type, "
        "  octet_length(dsa.contents) as bytes, "
@@ -110,6 +110,8 @@
        "  u.email_address as created_by, "
        "  c.name as client, "
        "  cl.description as location, "
+       "  dst.description as tag_name, ",
+       "  dst.value as tag_value, ",
        "  ds.id as data_set_id, ",
        "  ds.uuid as data_set_uuid "
        "from data_set_attachment as dsa "
@@ -233,11 +235,13 @@
                        (contains? access constants/view-attachments))
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
-                   "and dsa.filename=? ")
+                   "and dsa.filename=? "
+                   "order by data_set_attachment_id ")
         query-own (str data-set-attachment-query
                        "and uuid::character varying=? "
                        "and dsa.filename=? "
-                       "and u.email_address=? ")]
+                       "and u.email_address=? "
+                       "order by data_set_attachment_id ")]
     (if can-access
       (first (sql/query (db) [query uuid filename]
                   :row-fn format-attachment-info))
@@ -683,7 +687,7 @@
                         (:order json-search-params)
                         "desc ")]
             (str "order by " (:order_by json-search-params) " " order " "))
-          "order by dsa.date_created desc ")
+          "order by date_created desc")
 
         limit-query (if (:limit json-search-params)
                       (str "limit " (:limit json-search-params) " ")
@@ -693,8 +697,10 @@
                        (str "offset " (:offset json-search-params) " ")
                        " ")
 
-        query (str data-set-attachment-query
+        query (str "select * from ("
+                   data-set-attachment-query
                    search-string-query
+                   ") as dsa_table "
                    order-by-query
                    limit-query
                    offset-query)
@@ -702,9 +708,11 @@
         query-result-count (str data-set-attachment-query-count
                                 search-string-query)
 
-        query-own (str data-set-attachment-query
+        query-own (str "select * from ("
+                       data-set-attachment-query
                        "and u.email_address=? "
                        search-string-query
+                       ") as dsa_table "
                        order-by-query
                        limit-query
                        offset-query)
