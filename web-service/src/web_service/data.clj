@@ -668,18 +668,64 @@
                       ; return an empty data-set
                       []))
 
-        search-string-query
-        (if (:search_string json-search-params)
-          (let [search-string (:search_string json-search-params)]
-            (str "and ( dsa.filename ilike '%" search-string "%' "
-                 "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
-                 "or u.email_address ilike '%" search-string "%' "
-                 "or cl.description ilike '%" search-string "%' "
-                 "or c.name ilike '%" search-string "%' "
-                 "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                 "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                 ") "))
+        or-search-string-query
+        (if (:or_search_strings json-search-params)
+          (let [or-search-string-list (:or_search_strings json-search-params)
+                or-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "( dsa.filename ilike '%" search-string "%' "
+                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+                         "or u.email_address ilike '%" search-string "%' "
+                         "or cl.description ilike '%" search-string "%' "
+                         "or c.name ilike '%" search-string "%' "
+                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         ") "))
+                  or-search-string-list)]
+            (str "and (" (clojure.string/join " OR " or-search-string-query-list) ") "))
           " ")
+
+        and-search-string-query
+        (if (:and_search_strings json-search-params)
+          (let [and-search-string-list (:and_search_strings json-search-params)
+                and-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "( dsa.filename ilike '%" search-string "%' "
+                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+                         "or u.email_address ilike '%" search-string "%' "
+                         "or cl.description ilike '%" search-string "%' "
+                         "or c.name ilike '%" search-string "%' "
+                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         ") "))
+                  and-search-string-list)]
+            (str "and (" (clojure.string/join " AND " and-search-string-query-list) ") "))
+          " ")
+
+        not-search-string-query
+        (if (:not_search_strings json-search-params)
+          (let [not-search-string-list (:not_search_strings json-search-params)
+                not-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "( dsa.filename ilike '%" search-string "%' "
+                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+                         "or u.email_address ilike '%" search-string "%' "
+                         "or cl.description ilike '%" search-string "%' "
+                         "or c.name ilike '%" search-string "%' "
+                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         ") "))
+                  not-search-string-list)]
+            (str "AND NOT (" (clojure.string/join " AND NOT " not-search-string-query-list) ") "))
+          " ")
+
+        search-string-query (str
+                              or-search-string-query
+                              and-search-string-query
+                              not-search-string-query)
 
         tag-name-query
         (if (:tag_name json-search-params)
