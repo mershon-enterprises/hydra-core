@@ -260,6 +260,7 @@ nav {
 
   background-color: $dark-gray;
   color: $off-white;
+  height: 2.5em;
   line-height: 2.5em;
   text-align: center;
 
@@ -284,25 +285,31 @@ nav {
     }
   }
 
-  .search {
-    width: 50%;
-  }
-
-  .search-button {
-    @include rounded( $default-rounding/3,
-                  $default-rounding/3,
-                  $default-rounding/3,
-                  $default-rounding/3);
-    cursor: pointer;
-    font-size: 1em;
-    &:hover {
-      background-color: $gray + $default-hover-offset;
-    }
-  }
-
   .upload-link {
     float: left;
     padding-left: $default-padding;
+  }
+}
+
+/* Omnibox */
+
+omnibox {
+  width: 65%;
+}
+
+.search {
+    width: 75%;
+}
+
+.search-button {
+  @include rounded( $default-rounding/3,
+                $default-rounding/3,
+                $default-rounding/3,
+                $default-rounding/3);
+  cursor: pointer;
+  font-size: 1em;
+  &:hover {
+    background-color: $gray + $default-hover-offset;
   }
 }
 
