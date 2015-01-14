@@ -688,7 +688,7 @@
 
         tag-value-query
         (if (:tag_value json-search-params)
-          (str "and dst.value = ''" (:tag_value json-search-params) "'' ")
+          (str "and dst.value = '" (:tag_value json-search-params) "' ")
           " ")
 
         order-by-query
