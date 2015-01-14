@@ -9,6 +9,9 @@ angular.module('webServiceApp').directive('navbar', function() {
         templateUrl: 'templates/navbar.html',
         controller: function ($rootScope, $scope, $location, Session, EVENTS) {
 
+            // Keep track of the user-logged-in state and change state when
+            // various events are broadcast. The template will update based on
+            // which state we are in.
             var self = this;
             self.isLoggedIn = Session.exists();
 
@@ -20,8 +23,7 @@ angular.module('webServiceApp').directive('navbar', function() {
                 self.isLoggedIn = false;
             });
 
-
-            //Keyboard shortcuts
+            //Keyboard navigation shortcuts
             Mousetrap.bind('/', function() {
                 //Clear the search bar and focus on it
                 $('input.search').val('');
