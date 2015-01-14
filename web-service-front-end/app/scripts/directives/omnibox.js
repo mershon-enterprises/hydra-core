@@ -8,11 +8,10 @@ angular.module('webServiceApp').directive('omnibox', function() {
         restrict: 'E',
         templateUrl: 'templates/omnibox.html',
         controller: function ($rootScope, $scope, $location, EVENTS) {
+
             $('.search').keyup(function(event) {
                  if ( event.which === 13 ) {
-                    event.preventDefault();
-                    var searchString = $(this).val();
-                    $rootScope.$broadcast(EVENTS.newSearch, $scope.parseSearch(searchString));
+                    $('.search-button').click();
                 }
             });
 
