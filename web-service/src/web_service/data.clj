@@ -681,6 +681,16 @@
                  ") "))
           " ")
 
+        tag-name-query
+        (if (:tag_name json-search-params)
+          (str "and dst.description = " (:tag_name json-search-params) " ")
+          " ")
+
+        tag-value-query
+        (if (:tag_value json-search-params)
+          (str "and dst.value = " (:tag_value json-search-params) " ")
+          " ")
+
         order-by-query
         (if (:order_by json-search-params)
           (let [order (if(:order json-search-params)
@@ -700,25 +710,37 @@
         query (str "select * from ("
                    data-set-attachment-query
                    search-string-query
-                   ") as dsa_table "
+                   tag-name-query
+                   tag-name-query
+                   "order by data_set_attachment_id "
+                   " ) as dsa_table "
                    order-by-query
                    limit-query
                    offset-query)
 
         query-result-count (str data-set-attachment-query-count
-                                search-string-query)
+                                search-string-query
+                                tag-name-query
+                                tag-name-query
+                                )
 
         query-own (str "select * from ("
                        data-set-attachment-query
-                       "and u.email_address=? "
                        search-string-query
+                       tag-name-query
+                       tag-name-query
+                       "and u.email_address=? "
+                       "order by data_set_attachment_id "
                        ") as dsa_table "
                        order-by-query
                        limit-query
                        offset-query)
+
         query-own-result-count (str data-set-attachment-query-count
                                     "and u.email_address=? "
-                                    search-string-query)]
+                                    search-string-query
+                                    tag-name-query
+                                    tag-name-query)]
     (if can-access
       (response {:response
                  {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
