@@ -32,6 +32,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //Store the parameters for custom backend calls.
         $scope.searchParams = {
             search_string: '',
+            or_search_strings: [],
+            and_search_strings: [],
+            not_search_strings: [],
             limit: 25,
             offset: 0,
             order_by: 'date_created',
@@ -260,7 +263,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         }, true);
 
         $scope.$on(EVENTS.newSearch, function(event, args) {
-            $scope.searchParams.search_string = args;
+            $.extend($scope.searchParams, args);
             $scope.$apply();
         });
 

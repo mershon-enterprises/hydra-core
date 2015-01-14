@@ -11,7 +11,8 @@ angular.module('webServiceApp').directive('omnibox', function() {
             $('.search').keyup(function(event) {
                  if ( event.which === 13 ) {
                     event.preventDefault();
-                    $rootScope.$broadcast(EVENTS.newSearch, $(this).val());
+                    var searchString = $(this).val();
+                    $rootScope.$broadcast(EVENTS.newSearch, $scope.parseSearch(searchString));
                 }
             });
 
@@ -26,8 +27,37 @@ angular.module('webServiceApp').directive('omnibox', function() {
                         $scope.$apply();
                     }
                 }
-                $rootScope.$broadcast(EVENTS.newSearch, $('.search').val());
+                var searchString = $('.search').val();
+                $rootScope.$broadcast(EVENTS.newSearch, $scope.parseSearch(searchString));
             });
+
+            //Parse out the search parameters out of the search string.
+            //Every parameter prefixed with - is a NOT parameter.
+            //Every parameter prefixed with + is an AND parameter.
+            //Every other prefix (no prefix) is an OR parameter.
+            $scope.parseSearch = function(searchString) {
+                var searchParams = {
+                    or_search_strings: [],
+                    and_search_strings: [],
+                    not_search_strings: []
+                };
+
+                var params = searchString.split(' ');
+
+                $.each(params, function(index, value){
+                    if(value[0] === '+') {
+                        searchParams.and_search_strings.push(value.slice(1));
+                    }
+                    else if(value[0] === '-') {
+                        searchParams.not_search_strings.push(value.slice(1));
+                    }
+                    else {
+                        searchParams.or_search_strings.push(value);
+                    }
+                });
+
+                return searchParams;
+            };
         },
         controllerAs: 'omnibox'
     };
