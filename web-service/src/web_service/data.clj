@@ -669,7 +669,7 @@
                       []))
 
         or-search-string-query
-        (if (:or_search_strings json-search-params)
+        (if-not (empty? (:or_search_strings json-search-params))
           (let [or-search-string-list (:or_search_strings json-search-params)
                 or-search-string-query-list
                 (map
@@ -687,7 +687,7 @@
           " ")
 
         and-search-string-query
-        (if (:and_search_strings json-search-params)
+        (if-not (empty?  (:and_search_strings json-search-params))
           (let [and-search-string-list (:and_search_strings json-search-params)
                 and-search-string-query-list
                 (map
@@ -705,7 +705,7 @@
           " ")
 
         not-search-string-query
-        (if (:not_search_strings json-search-params)
+        (if-not (empty?  (:not_search_strings json-search-params))
           (let [not-search-string-list (:not_search_strings json-search-params)
                 not-search-string-query-list
                 (map
