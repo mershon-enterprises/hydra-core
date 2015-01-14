@@ -31,7 +31,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
 
         //Store the parameters for custom backend calls.
         $scope.searchParams = {
-            search_string: '',
             or_search_strings: [],
             and_search_strings: [],
             not_search_strings: [],
