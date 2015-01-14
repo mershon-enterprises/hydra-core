@@ -719,7 +719,7 @@
                          "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          ") "))
                   not-search-string-list)]
-            (str "AND NOT (" (clojure.string/join " AND NOT " not-search-string-query-list) ") "))
+            (str "AND NOT " (clojure.string/join " AND NOT " not-search-string-query-list) " "))
           " ")
 
         search-string-query (str
