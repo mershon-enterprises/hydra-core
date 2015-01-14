@@ -2,6 +2,7 @@
 
 //Omnibox Directive
 
+//Collects and parses search input.
 angular.module('webServiceApp').directive('omnibox', function() {
     return {
         restrict: 'E',
