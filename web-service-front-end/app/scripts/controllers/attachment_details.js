@@ -256,6 +256,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         };
 
+        $scope.downloadFile = function() {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentURL($rootScope.ukey).then(
+            function(success){
+                //If you got it, set the browser to that URL to have the
+                //browser start file-download.
+                if(success[0] === EVENTS.promiseSuccess) {
+                window.location.href = success[1];
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+            });
+        };
+
         //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
             //If both description and value were provided...

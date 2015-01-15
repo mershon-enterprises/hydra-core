@@ -13,6 +13,8 @@ $light-red: #dd2c29;
 $red: #dc1e30;
 $dark-red: #660000;
 
+$dark-green: #006600;
+
 $off-white: #f0f0f0;
 $off-black: #0f0f0f;
 
@@ -20,7 +22,7 @@ $off-black: #0f0f0f;
 $default-padding: 10px;
 $default-margin: 20px;
 $default-rounding: 20px;
-$default-hover-offset: 100;
+$default-hover-offset: #222222;
 
 /* Mixins */
 @mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
@@ -74,7 +76,7 @@ $default-hover-offset: 100;
   vertical-align: middle;
 
   &:hover {
-    background-color: $red;
+    background-color: $dark-red + $default-hover-offset;
   }
 }
 
@@ -511,6 +513,18 @@ nav {
 
     .share-url {
       width: 100% !important;
+    }
+
+    #download-button {
+      background-color: $dark-green;
+      &:hover {
+        background-color: $dark-green + $default-hover-offset;
+      }
+    }
+
+    .fa-edit {
+      margin-left: $default-margin;
+      font-size: 1.2em;
     }
 
     .spacer {

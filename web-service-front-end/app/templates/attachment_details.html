@@ -2,28 +2,16 @@
     <!-- Display file details -->
     <table class="file-details-table">
         <tr>
-            <th class="filename-column">Filename</th>
+            <th colspan="2" class="filename-column">Filename</th>
             <th class="filename-column">Creation Date</th>
             <th class="author-column">Author</th>
-            <th class="createdate-column">Rename</th>
             <th class="buttonCell button-column" rowspan="2">
-                <button
-                    class="rename-button inactive"
-                    confirmed-click="renameFile(newFilename)"
-                    ng-confirm-click="Are you sure?"
-                    >Rename
-                </button>
+                <button id="download-button"
+                        ng-click="downloadFile()">Download</button>
             </th>
         </tr>
         <tr>
-            <td>
-                {{filename}}
-            </td>
-            <td>
-                {{dateCreated | date : 'short'}}
-            </td>
-            <td>{{createdBy}}</td>
-            <td>
+            <td colspan="2">
                 <!-- Input field for renaming a new file. Angular remembers
                 the entered value as $scope.newFilename. Placeholder is
                 $scope.filename, the original name of the file from the backend.
@@ -34,7 +22,17 @@
                 ng-model="newFilename"
                 placeholder="{{filename}}"
                 >
+                <i
+                    class="fa fa-edit rename-button inactive"
+                    confirmed-click="renameFile(newFilename)"
+                    ng-confirm-click="Are you sure?"
+                    >
+                </i>
             </td>
+            <td>
+                {{dateCreated | date : 'short'}}
+            </td>
+            <td>{{createdBy}}</td>
         </tr>
         <tr class="spacer">
             <td colspan="5">
