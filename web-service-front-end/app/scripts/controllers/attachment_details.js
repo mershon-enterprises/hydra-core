@@ -141,7 +141,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
             // If it's the enter key (keycode 13), then click the rename button
             if (event.keyCode === 13) {
-                $('.rename-button').click();
+                if(!$('.rename-button').hasClass('inactive')) {
+                    $('.rename-button').click();
+                }
             }
 
             // Get last substring of array after a '.' character.
