@@ -3,9 +3,9 @@
     <table class="file-details-table">
         <tr>
             <th class="filename-column">Filename</th>
-            <th class="filename-column">Rename</th>
+            <th class="filename-column">Creation Date</th>
             <th class="author-column">Author</th>
-            <th class="createdate-column">Creation Date</th>
+            <th class="createdate-column">Rename</th>
             <th class="buttonCell button-column" rowspan="2">
                 <button
                     class="rename-button inactive"
@@ -20,6 +20,10 @@
                 {{filename}}
             </td>
             <td>
+                {{dateCreated | date : 'short'}}
+            </td>
+            <td>{{createdBy}}</td>
+            <td>
                 <!-- Input field for renaming a new file. Angular remembers
                 the entered value as $scope.newFilename. Placeholder is
                 $scope.filename, the original name of the file from the backend.
@@ -31,10 +35,16 @@
                 placeholder="{{filename}}"
                 >
             </td>
-            <td>{{createdBy}}</td>
-            <td>{{dateCreated | date : 'short'}}</td>
         </tr>
-        <tr class="spacer"><td colspan="5"></td></tr>
+        <tr class="spacer">
+            <td colspan="5">
+                <!-- If the extension of the new filename is different
+                from the existing one, this warning will show. -->
+                <p class="extension-warning">
+                    Warning : This will change the file's extension.
+                </p>
+            </td>
+        </tr>
         <tr>
             <th colspan="3">Share Link</th>
             <th>Expiration Date</th>
@@ -77,10 +87,10 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="text" name="description" ng-model="description">
+                <input class="tag-input" type="text" name="description" ng-model="description">
             </td>
             <td colspan="2">
-                <input type="text" name="value" ng-model="value">
+                <input class="tag-input" type="text" name="value" ng-model="value">
             </td>
             <td>
                 <i class="fa fa-plus" ng-click="addRow(description, value)"></i>

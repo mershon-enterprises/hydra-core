@@ -21,6 +21,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         //Storage variables for the file this controller is operating on.
         $scope.filename = null;
+        $scope.extension = null;
         $scope.dateCreated = null;
         $scope.createdBy = null;
         $scope.tags = [];
@@ -71,7 +72,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                     'File: ' + $scope.filename,
                                     'Replaced Successfully!'
                                 );
-                                $location.path('/attachment_explorer');
                             }
                             notification.dismiss();
                         },
@@ -143,13 +143,47 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             if (event.keyCode === 13) {
                 $('.rename-button').click();
             }
+
+            // Get last substring of array after a '.' character.
+            // whatever.min.js -> js
+            $scope.extension = $scope.filename.split('.').slice(-1)[0];
+
+            // If the filename field doesn't contain the previous filename's
+            // extension, display a warning. If the previous file had no
+            // extension, ignore this.
+            if($(this).val() !== '') {
+                if ($scope.filename.indexOf('.') > -1) {
+                    if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
+                        $('.extension-warning').hide();
+                    }
+                    else {
+                        $('.extension-warning').show();
+                    }
+                }
+            }
+
         });
+
+        // Validate that a filename was entered properly and notify user if
+        // it was not.
+        $scope.validateFilename = function () {
+
+            // Make sure it's not blank.
+            if ($scope.newFilename === '' || $scope.newFilename === null) {
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Filename cannot be blank.');
+                return false;
+            }
+
+            //Place other filename validations here.
+
+            return true;
+        };
 
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
-
-            //If the user has typed in a new filename...
-            if($scope.newFilename !== '' && $scope.newFilename !== null) {
+            if ($scope.validateFilename()) {
                 //Invoke the RestService to rename the attachment.
                 RestService.renameAttachment(
                     $scope.ukey,
@@ -160,6 +194,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
                         //Change the filename displayed in the UI for the user.
                         $scope.filename = $scope.newFilename;
+
+                        //Change the ukey to reflect the new filename.
+                        $scope.ukey = $scope.newFilename + '\n' + $scope.ukey.split('\n')[1];
+
                         //Notify user that the file has been renamed.
                         NotificationService.success(
                             'Success',
@@ -177,12 +215,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     }
                 });
             }
-            else {
-                NotificationService.error(
-                    'Invalid Filename',
-                    'Filename cannot be blank.');
-            }
-
         };
 
         //Delete the file from the backend whose ukey is in scope.
@@ -260,6 +292,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     ).then(
                     function(success) {
                         if (success[0] === EVENTS.promiseSuccess) {
+                            // Clear the tag inputs after a submission.
+                            $('.tag-input').val('');
+
+                            // Notify user of success.
                             NotificationService.success(
                                 'Success',
                                 'Tag Added.'
@@ -279,6 +315,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Please contact support.');
                         }
                     });
+
                 }
                 else {
                     NotificationService.error(
