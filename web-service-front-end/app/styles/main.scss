@@ -151,6 +151,14 @@ header {
   color: $off-white;
   font-size: 2em;
   line-height: 2em;
+
+  .helpIcon {
+    position: absolute;
+    top: 25px;
+    right: 15px;
+    font-size: 0.7em !important;
+  }
+
 }
 
 table {
@@ -543,16 +551,42 @@ nav {
 }
 
 /* User Manual */
-.user-manual {
-  width: 800px;
+.content-wrapper {
   text-align: left;
+  width: 850px;
   margin: 0 auto 50px;
+  $default-figure-width: 425px;
 
-    h1 {
-      text-align: center;
-    }
+  ul {
+    list-style-type: disc !important;
+  }
 
-    ul {
-      list-style-type: square;
-    }
+  figure {
+    padding: $default-padding !important;
+    text-align: center !important;
+    border: 2px solid $dark-gray !important;
+    border-radius: 15px !important;
+    margin: $default-margin auto !important;
+    max-width: $default-figure-width !important;
+  }
+
+  figure img {
+    max-width: $default-figure-width !important;
+  }
+
+  figure.medium {
+    max-width: $default-figure-width * 1.5 !important;
+  }
+
+  figure.medium img {
+    max-width: $default-figure-width * 1.5 !important;
+  }
+
+  figure.large {
+    max-width: $default-figure-width * 2 !important;
+  }
+
+  figure.large img {
+    max-width: $default-figure-width * 2 !important;
+  }
 }
