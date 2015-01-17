@@ -11,7 +11,9 @@
   /*jslint node: true */
   'use strict';
 
-  var rest = require('rest');
+  var r    = require('rest'),
+      mime = require('rest/interceptor/mime'),
+      rest = r.wrap(mime, {mime: "application/json"});
 
   // replaced by grunt-string-replace
   exports.endpointUrl = 'ENDPOINT_URL';
@@ -59,6 +61,8 @@
       path: exports.endpointUrl + '/authenticate',
       params: {
         client_uuid: clientUUID,
+      },
+      entity: {
         email_address: emailAddress,
         password: password
       }
@@ -71,6 +75,8 @@
       path: exports.endpointUrl + '/admin-authenticate',
       params: {
         client_uuid: clientUUID,
+      },
+      entity: {
         email_address: emailAddress,
         password: password,
         user_email_address: userEmailAddress
@@ -134,6 +140,8 @@
   };
 
   exports.listData = function(clientUUID, apiToken, searchParams) {
+    if (!searchParams)
+      searchParams = '';
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data',
@@ -192,6 +200,8 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         uuid: exports.uuid(),
         date_created: dateCreated.toISOString(),
         created_by: createdBy,
@@ -256,7 +266,23 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         new_filename: newFilename
+      }
+    });
+  };
+
+  exports.replaceAttachment = function(clientUUID, apiToken, uuid, filename, newContents) {
+    return rest({
+      method: 'PUT',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/replace",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+      },
+      entity: {
+        new_contents: newContents
       }
     });
   };
@@ -279,6 +305,8 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         type: type,
         description: description,
         value: value
@@ -293,6 +321,8 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
+      },
+      entity: {
         type: type,
         description: description
       }

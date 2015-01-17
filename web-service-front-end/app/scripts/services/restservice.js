@@ -2,14 +2,26 @@
 
 //RestService Factory
 
-//Acts as an angular wrapper for Restclient calls
+//AngularJS Factory wrapper for the restclient. Handles parsing the server's
+//response from every restclient call, console logging when errors occur, and
+//then using $q service to return a promise object.
+
+//The Cache is also handled here. This normally would be its own service, but
+//it would have created a circular dependency.
 angular.module('webServiceApp').factory('RestService',
-    function ($rootScope, $q, EVENTS, STATUS_CODES, Session, localStorageService) {
+    function (
+                $rootScope,
+                $q,
+                localStorageService,
+                Session,
+                EVENTS,
+                STATUS_CODES
+    ){
 
     var restService = {};
 
+    //Generate a unique ID for this client if one doesn't exist.
     restService.updateClientUUID = function () {
-        //Generate a unique ID for this client if one doesn't exist
         if(!localStorageService.get('clientUUID')) {
             localStorageService.set('clientUUID', restclient.uuid());
         }
@@ -32,9 +44,9 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 if (response.status.code === STATUS_CODES.ok) {
-                    //Parse out the data we want.
-                    var jsonResponse = JSON.parse(response.entity);
 
+                    //Parse out the data we want.
+                    var jsonResponse = response.entity;
                     var responseBody = jsonResponse.response;
                     var token = jsonResponse.token;
 
@@ -45,8 +57,13 @@ angular.module('webServiceApp').factory('RestService',
                     var permissions = responseBody.access;
 
                     //Populate the Session singleton with the user data
-                    Session.create(tokenExpirationDate, token, email, firstName,
-                    lastName, permissions);
+                    Session.create( tokenExpirationDate,
+                                    token,
+                                    email,
+                                    firstName,
+                                    lastName,
+                                    permissions
+                    );
 
                     //Create the cache for this user's data
                     restService.createCache();
@@ -59,7 +76,7 @@ angular.module('webServiceApp').factory('RestService',
                 }
                 else {
                     //If we did get data, but a bad status code, then the
-                    //promise wrapped needs to handle the event like a rejection
+                    //promise wrapper needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, response.status.code]);
                     console.log('restclient.authenticate promise succeeded. ' +
                         'But with bad status code : ' + response.status.code);
@@ -77,6 +94,7 @@ angular.module('webServiceApp').factory('RestService',
 
     };
 
+    //Returns the access levels available to the current user.
     restService.listAccessLevels = function () {
 
         var deferred = $q.defer();
@@ -89,7 +107,7 @@ angular.module('webServiceApp').factory('RestService',
 
                 if (response.status.code === STATUS_CODES.ok) {
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -127,7 +145,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -153,6 +171,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+
     restService.listUsers = function () {
 
         var deferred = $q.defer();
@@ -166,7 +185,7 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -205,7 +224,8 @@ angular.module('webServiceApp').factory('RestService',
                 if (response.status.code === STATUS_CODES.ok) {
 
                     //Parse out the data from the restclient response.
-                    var jsonResponse = JSON.parse(response.entity);
+                    var jsonResponse = response.entity;
+
                     Session.updateToken(jsonResponse.token);
 
                     var responseBody = jsonResponse.response;
@@ -213,10 +233,6 @@ angular.module('webServiceApp').factory('RestService',
                     var parsedData =  restService.parseData(responseBody.attachments);
 
                     var resultCount =  responseBody.result_count;
-
-                    restService.updateCacheValue('data', parsedData);
-
-                    restService.updateCacheValue('result_count', resultCount);
 
                     deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
 
@@ -236,8 +252,9 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    //Parse the data from the restClient into a format the attachment_explorer wants.
-    //[{key1:value1, key2:value2, ...}, {key1:value1, key2:value2, ...}, ...]
+    //Parse the data from the restClient into a format the attachment_explorer
+    //wants. Currently only adds a new value "unique key" to the data for use in
+    //the UI.
     restService.parseData = function (rawData) {
 
         var data = [];
@@ -263,7 +280,12 @@ angular.module('webServiceApp').factory('RestService',
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
 
-        var response = restclient.getAttachmentURL(clientUUID, Session.getToken(), uuid, filename);
+        var response = restclient.getAttachmentURL(
+                                                    clientUUID,
+                                                    Session.getToken(),
+                                                    uuid,
+                                                    filename
+        );
 
         if (response) {
             deferred.resolve([EVENTS.promiseSuccess, response]);
@@ -277,7 +299,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
-    //Get the info about a specific attachment.
+    //Get the file details about a specific attachment.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.getAttachmentInfo = function (ukey) {
 
@@ -287,15 +309,21 @@ angular.module('webServiceApp').factory('RestService',
         var filename = ukey.split('\n')[0];
         var uuid = ukey.split('\n')[1];
 
-        restclient.getAttachmentInfo(clientUUID, Session.getToken(), uuid, filename).then(
+        restclient.getAttachmentInfo(   clientUUID,
+                                        Session.getToken(),
+                                        uuid,
+                                        filename
+        ).then(
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
-                    deferred.resolve([EVENTS.promiseSuccess, jsonResponse.response[0]]);
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        jsonResponse.response[0]]
+                    );
                     console.log('restclient.getAttachmentInfo succeeded');
                 }
                 else {
@@ -312,6 +340,7 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Submits a new attachment to the backend.
     restService.submitData = function(dateCreated, createdBy, dataItems) {
 
         var deferred = $q.defer();
@@ -334,7 +363,7 @@ angular.module('webServiceApp').factory('RestService',
         x.open('POST', restclient.endpointUrl + '/data');
 
         // progress notifier
-        x.addEventListener("progress", function(progressEvent) {
+        x.addEventListener('progress', function(progressEvent) {
             if (progressEvent.lengthComputable) {
                 NProgress.set(progressEvent.loaded / progressEvent.total);
             }
@@ -344,8 +373,8 @@ angular.module('webServiceApp').factory('RestService',
             var statusCode = x.status;
 
             if (statusCode < 200 || statusCode >= 300) {
-                deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.getAttachmentInfo promise failed: ' + error);
+                deferred.reject([EVENTS.promiseFailed]);
+                console.log('restclient.submitData promise failed');
             } else {
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
@@ -358,7 +387,7 @@ angular.module('webServiceApp').factory('RestService',
                     //If we did get data, but a bad status code, then the
                     //promise wrapped needs to handle the event like a rejection
                     deferred.reject([EVENTS.badStatus, statusCode]);
-                    console.log('restclient.getAttachmentInfo promise succeeded ' + 'But with bad status code : ' + response.status.code);
+                    console.log('restclient.submitData promise succeeded ' + 'But with bad status code : ' + statusCode);
                 }
             }
 
@@ -385,7 +414,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -420,7 +449,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -441,6 +470,68 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Replaces a new attachment on the backend.
+    restService.replaceAttachment = function(ukey, newContents) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        NProgress.start();
+
+        // In order to be memory efficient, we must drop back to using
+        // XMLHttpRequests here...
+        var form = new FormData();
+        form.append('client_uuid', clientUUID);
+        form.append('api_token', Session.getToken());
+        form.append('uuid', uuid);
+        form.append('filename', filename);
+        form.append('new_contents', newContents);
+
+        var x = new XMLHttpRequest();
+        x.open('PUT', restclient.endpointUrl + '/data/' +
+                                               uuid + '/' +
+                                               filename + '/replace');
+
+        // progress notifier
+        x.addEventListener('progress', function(progressEvent) {
+            if (progressEvent.lengthComputable) {
+                NProgress.set(progressEvent.loaded / progressEvent.total);
+            }
+        }, false);
+
+        x.onreadystatechange = function() {
+            var statusCode = x.status;
+
+            if (statusCode < 200 || statusCode >= 300) {
+                deferred.reject([EVENTS.promiseFailed]);
+                console.log('restclient.replaceAttachment promise failed');
+            } else {
+                //Parse out the data from the restclient response.
+                var jsonResponse = JSON.parse(x.responseText);
+                Session.updateToken(jsonResponse.token);
+
+                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.replaceAttachment succeeded');
+                } else {
+                    //If we did get data, but a bad status code, then the
+                    //promise wrapped needs to handle the event like a rejection
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    console.log('restclient.replaceAttachment promise succeeded ' + 'But with bad status code : ' + statusCode);
+                }
+            }
+
+            NProgress.done();
+        };
+
+        x.send(form);
+
+        return deferred.promise;
+    };
+
     //Add a tag to a dataset.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.submitTag = function (ukey, type, description, value) {
@@ -455,7 +546,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -489,7 +580,7 @@ angular.module('webServiceApp').factory('RestService',
             function(response) {
 
                 //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(response.entity);
+                var jsonResponse = response.entity;
                 Session.updateToken(jsonResponse.token);
 
                 if (response.status.code === STATUS_CODES.ok) {
@@ -556,29 +647,32 @@ angular.module('webServiceApp').factory('RestService',
                     userAccess.indexOf('View Clients') === -1) {
                     deferred.resolve(true);
                 } else {
-                    restService.listClients().then(
-                        function() {
-                            // Not all users can manage other users
-                            if (userAccess.indexOf('Manage Users') === -1) {
-                                deferred.resolve(true);
-                            } else {
-                                restService.listUsers().then(
-                                    function() {
-                                        deferred.resolve(true);
-                                    },
-                                    function() {
-                                        deferred.reject(false);
-                                    });
-                            }
-                        },
-                        function() {
-                            deferred.reject(false);
-                        });
+                    return restService.listClients()
                 }
             },
             function() {
                 deferred.reject(false);
-            });
+            }
+        ).then(
+            function() {
+                // Not all users can manage other users
+                if (userAccess.indexOf('Manage Users') === -1) {
+                    deferred.resolve(true);
+                } else {
+                    return restService.listUsers();
+                }
+            },
+            function() {
+                deferred.reject(false);
+            }
+        ).then(
+            function() {
+                deferred.resolve(true);
+            },
+            function() {
+                deferred.reject(false);
+            }
+        );
 
         refreshing = false;
         return deferred.promise;

@@ -38,6 +38,7 @@
 (def session-add-dataset-attachment "add dataset attachment")
 (def session-get-dataset-attachment "get dataset attachment")
 (def session-rename-dataset-attachment "rename dataset attachment")
+(def session-replace-dataset-attachment "replace dataset attachment")
 (def session-delete-dataset-attachment "delete dataset attachment")
 (def session-add-dataset-primitive "add dataset primitive")
 (def session-update-dataset-primitive "update dataset primitive")

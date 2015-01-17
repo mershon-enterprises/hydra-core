@@ -7,9 +7,9 @@
             [clojure.tools.logging :as log]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
-            [web-service.constants :as constants]))
+            [web-service.constants :as constants])
+  (:import java.sql.SQLException))
 
-(import java.sql.SQLException)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,34 +32,6 @@
                    "where data_set_id=? "
                    "and date_deleted is null")]
     (sql/query (db) [query data-set-id])))
-
-
-; semi-internal API for renaming attachments directly (used by child services)
-(defn do-rename-attachment
-  [uuid filename new-filename]
-  (let [query (str "update public.data_set_attachment "
-                   "set filename=? "
-                   "where data_set_id=("
-                   "  select id from public.data_set "
-                   "  where uuid::character varying=?) "
-                   "and filename=? "
-                   "and date_deleted is null")]
-    (println (format "Renaming '%s' to '%s' in data-set '%s'"
-                     filename
-                     new-filename
-                     uuid))
-    (try (if (sql/execute! (db) [query new-filename uuid filename])
-           true)
-         (catch Exception e
-           (log/error e (format (str "There was an error renamining "
-                                     "attachment '%s' to '%s' in data-set "
-                                     "'%s'")
-                                filename
-                                new-filename
-                                uuid))
-           (if (instance? SQLException e)
-             (log/error (.getCause e) "Caused by: "))
-           false))))
 
 
 ; format the specified row from the data_set table
@@ -182,8 +154,150 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
+       "left join public.user as u "
+       "  on u.id = ds.created_by "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
+
+
+; semi-internal API for renaming attachments directly (used by child services)
+(defn do-rename-attachment
+  [uuid filename new-filename]
+  (let [query (str "update public.data_set_attachment "
+                   "set filename=? "
+                   " where data_set_id=("
+                   "  select id from public.data_set "
+                   "  where uuid::character varying=?) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (println (format "Renaming '%s' to '%s' in data-set '%s'"
+                     filename
+                     new-filename
+                     uuid))
+    (try (if (sql/execute! (db) [query new-filename uuid filename])
+           true)
+         (catch Exception e
+           (log/error e (format (str "There was an error renaming "
+                                     "attachment '%s' to '%s' in data-set "
+                                     "'%s'")
+                                filename
+                                new-filename
+                                uuid))
+           (if (instance? SQLException e)
+             (log/error (.getCause e) "Caused by: "))
+           false))))
+
+
+; semi-internal API for deleting attachment directly (may be used by child
+; services)
+(defn do-delete-attachment
+  [email-address uuid filename & {:keys [transaction?
+                                         conn]
+                                  :or {transaction? true
+                                       conn         (db)}}]
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        query (str "update public.data_set_attachment "
+                   "set date_deleted=now(), deleted_by="
+                   "(select id from public.user where email_address=?) "
+                   "where data_set_id="
+                   "(select id from public.data_set where uuid::character varying=? ) "
+                   "and filename=? "
+                   "and date_deleted is null")]
+    (if can-access
+      (if (try (sql/execute! conn [query email-address uuid filename]
+                             :transaction? transaction?)
+               (catch Exception e
+                 (log/error e (format (str "There was an error deleting "
+                                           "attachment '%s' from data-set '%s' "
+                                           "by user %s")
+                                      filename
+                                      uuid
+                                      email-address))
+                 (if (instance? SQLException e)
+                   (log/error (.getCause e) "Caused by: "))
+                 false))
+        true
+        false))))
+
+
+; semi-internal API for getting attachment info directly (may be used by child
+; services)
+(defn do-get-attachment-info
+  [email-address uuid filename]
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data)
+                       (contains? access constants/view-attachments))
+        query (str data-set-attachment-query
+                   "and uuid::character varying=? "
+                   "and dsa.filename=? ")
+        query-own (str data-set-attachment-query
+                       "and uuid::character varying=? "
+                       "and dsa.filename=? "
+                       "and u.email_address=? ")]
+    (if can-access
+      (first (sql/query (db) [query uuid filename]
+                  :row-fn format-attachment-info))
+      ; if the user cannot access all data, try to at least show them their
+      ; own data instead
+      (first (sql/query (db) [query-own uuid filename email-address]
+                        :row-fn format-attachment-info)))))
+
+
+; semi-internal API for replacing attachment contents directly (may be used by
+; child services)
+(defn do-replace-attachment
+  [email-address uuid filename new-contents attachment-info]
+
+  ; mark the old file as deleted, and create a new one with exactly the same
+  ; properties but the new
+  (let [conn (db)
+        query (str "insert into public.data_set_attachment "
+                   "(data_set_id, date_created, created_by,"
+                   " filename, mime_type, contents"
+                   ") values ("
+                   " ("
+                   "   select id from public.data_set "
+                   "   where uuid::character varying=? "
+                   " ),"
+                   " ?::timestamp with time zone, "
+                   " ("
+                   "   select id from public.user "
+                   "   where email_address=? "
+                   " ), ?, ?, decode(?, 'base64'))")]
+    (if (nil? attachment-info)
+      false
+      (try
+        (println (format "Replacing '%s' with new contents in data-set '%s'"
+                         filename
+                         uuid))
+        (sql/with-db-transaction
+          [conn db-spec]
+          (let [is-deleted (do-delete-attachment email-address
+                                                 uuid
+                                                 filename
+                                                 :transaction? false
+                                                 :conn conn)]
+            (if (sql/execute! conn [query
+                                    uuid
+                                    (:date_created attachment-info)
+                                    (:created_by attachment-info)
+                                    filename
+                                    (:mime_type attachment-info)
+                                    new-contents]
+                              :transaction? false)
+              true)))
+        (catch Exception e
+          (log/error e (format (str "There was an error replacing "
+                                    "attachment '%s' in data-set "
+                                    "'%s'")
+                               filename
+                               uuid))
+          (if (instance? SQLException e)
+            (log/error (.getCause e) "Caused by: "))
+          false)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -369,8 +483,10 @@
               (log/error (.getCause e) "Caused by: "))
             (status (response {:response "Failure"}) 409))))
       (do
-        (log/debug (format "User %s tried to submit data-set but lacks access"
-                           email-address))
+        (log/warn
+          (format "User %s tried to submit data-set but lacks %s permission."
+                  email-address
+                  constants/create-data))
         (access-denied constants/create-data)))))
 
 (defn data-set-attachment-submit
@@ -615,25 +731,14 @@
 
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))
-        query (str data-set-attachment-query
-                   "and uuid::character varying=? "
-                   "and dsa.filename=? ")
-        query-own (str data-set-attachment-query
-                       "and uuid::character varying=? "
-                       "and dsa.filename=? "
-                       "and u.email_address=? ")]
+                       (contains? access constants/view-attachments))]
     (if can-access
-      (response {:response (sql/query
-                             (db)
-                             [query uuid filename]
-                             :row-fn format-attachment-info)})
-      ; if the user cannot access all data, try to at least show them their
-      ; own data instead
-      (response {:response (sql/query
-                             (db)
-                             [query-own uuid filename email-address]
-                             :row-fn format-attachment-info)}))))
+      ; FIXME -- this shouldn't be returning a list, but I don't want to break
+      ; compatibility with the front-end
+      (response {:response [(do-get-attachment-info email-address
+                                                   uuid
+                                                   filename)]})
+      (access-denied constants/manage-data))))
 
 
 ; get the specified attachment to a data set, by date and filename
@@ -655,34 +760,31 @@
         query-own (str data-set-attachment-query-get
                        "and uuid::character varying=? "
                        "and dsa.filename=? "
-                       "and u.email_address=? ")]
+                       "and u.email_address=? ")
+        attachment (first (sql/query (db)
+                                     [query uuid filename]
+                                     :row-fn format-attachment-get))
+        attachment-own (first (sql/query (db)
+                                         [query-own uuid filename email-address]
+                                         :row-fn format-attachment-get))
+        attachment-count (count (:headers attachment))
+        attachment-own-count (count (:headers attachment-own))]
     (if can-access
-      (first (sql/query (db)
-                        [query uuid filename]
-                        :row-fn format-attachment-get))
-      ; if the user cannot access all attachments, try to show them the
-      ; attachment if this is their data set
-      (first (sql/query (db)
-                        [query-own uuid filename email-address]
-                        :row-fn format-attachment-get))
+      (if (> attachment-count 0)
+        attachment
+        (status (response {:response "File not found."}) 404))
+      (if (> attachment-own-count 0)
+        attachment-own
+        (if (= attachment-count attachment-own-count 0)
+          (status (response {:response "File not found."}) 404)
+          (do
+            (log/debug (format (str "User %s tried to download attachment '%s' "
+                                    "from data-set '%s' but lacks access")
+                               email-address
+                               filename
+                               uuid))
+          (access-denied constants/manage-data)))))))
 
-      ; FIXME -- the logic here really needs to be revised. Currently it's
-      ; impossible for the user to know if A) they're trying to download a file
-      ; that doesn't exist, or B) They're trying to download a file that exists,
-      ; but is for a data set they didn't create and don't have access to.
-      ; Because they're downloading the file contents, there's no opportunity to
-      ; spit back a status message. So, the best we can do is either send back a
-      ; 404 header or (access-denied) which is a 401 header.
-      ;
-      ; (do
-      ;   (log/debug (format (str "User %s tried to download attachment '%s' "
-      ;                           "from data-set '%s' but lacks access")
-      ;                      email-address
-      ;                      filename
-      ;                      uuid))
-      ;   (access-denied constants/manage-data))
-
-      )))
 
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete
@@ -695,26 +797,9 @@
               (str constants/session-delete-dataset-attachment " " uuid))
 
   (let [access (set (get-user-access email-address))
-        can-access (contains? access constants/manage-data)
-        query (str "update public.data_set_attachment "
-                   "set date_deleted=now(), deleted_by="
-                   "(select id from public.user where email_address=?) "
-                   "where data_set_id="
-                   "(select id from public.data_set where uuid::character varying=? ) "
-                   "and filename=? "
-                   "and date_deleted is null")]
+        can-access (contains? access constants/manage-data)]
     (if can-access
-      (if (try (sql/execute! (db) [query email-address uuid filename])
-               (catch Exception e
-                 (log/error e (format (str "There was an error deleting "
-                                           "attachment '%s' from data-set '%s' "
-                                           "by user %s")
-                                      filename
-                                      uuid
-                                      email-address))
-                 (if (instance? SQLException e)
-                   (log/error (.getCause e) "Caused by: "))
-                 false))
+      (if (do-delete-attachment email-address uuid filename)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
       (do
@@ -724,6 +809,7 @@
                            filename
                            uuid))
         (access-denied constants/manage-data)))))
+
 
 ; rename the specified data set attachment filename
 (defn data-set-attachment-filename-rename
@@ -740,4 +826,32 @@
       (if (do-rename-attachment uuid filename new-filename)
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+
+; replace the contents of the specified data set attachment, changing nothing
+; else about it
+(defn data-set-attachment-file-replace
+  [email-address uuid filename new-contents]
+
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-replace-dataset-attachment " " uuid))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+        attachment-info (do-get-attachment-info email-address
+                                                uuid
+                                                filename)]
+    (if can-access
+      (if (nil? attachment-info)
+        (status (response {:reponse "File not found."}) 404)
+        (if (do-replace-attachment email-address
+                                   uuid
+                                   filename
+                                   new-contents
+                                   attachment-info)
+          (status (response {:response "OK"}) 200)
+          (status (response {:response "Failure"}) 409)))
       (access-denied constants/manage-data))))

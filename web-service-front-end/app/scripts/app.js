@@ -3,9 +3,12 @@
 angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
       'LocalStorageModule', // Angular Localstorage
-      'file-model'
+      'file-model' //Angular File Directives
     ])
     .config(function ($routeProvider, localStorageServiceProvider) {
+      //Routes. When user visits various URLs, navigate them to specific views
+      //and bring controllers into scope. "loggedInOnly" means the route cannot
+      //be visited if the user has no session.
       $routeProvider
         .when('/', {
           templateUrl: 'templates/login.html',
@@ -29,8 +32,12 @@ angular.module('webServiceApp', [
           redirectTo: '/'
         });
 
-      localStorageServiceProvider.setPrefix('hydra');
+      //Add a prefix to everything saved in localstorage to prevent collissions
+      //with other applications.
+      localStorageServiceProvider.setPrefix('pi-hydra');
     })
+    //Constants to be used in the application instead of strings that can
+    //be mistyped.
     .constant('USER_ROLES', {
       operator: 'operator',
       office: 'office',

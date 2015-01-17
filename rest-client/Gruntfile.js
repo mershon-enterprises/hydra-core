@@ -43,6 +43,19 @@ module.exports = function (grunt) {
           ]
         }
       },
+      staging: {
+        files: {
+          'dist/': 'dist/<%= pkg.name%>.standalone.js'
+        },
+        options: {
+          replacements: [
+            {
+              pattern: 'ENDPOINT_URL',
+              replacement: 'http://hydra-staging.elasticbeanstalk.com'
+            }
+          ]
+        }
+      },
       dist: {
         files: {
           'dist/': 'dist/<%= pkg.name%>.standalone.js'
@@ -51,7 +64,7 @@ module.exports = function (grunt) {
           replacements: [
             {
               pattern: 'ENDPOINT_URL',
-              replacement: 'http://hydra.slixbits.com/'
+              replacement: 'http://hydra.slixbits.com'
             }
           ]
         }
@@ -110,6 +123,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dev', ['browserify', 'string-replace:dev']);
   grunt.registerTask('dist', ['browserify', 'string-replace:dist', 'uglify:dist']);
   grunt.registerTask('build', ['dist']);
+  grunt.registerTask('staging', ['browserify', 'string-replace:staging', 'uglify:dist']);
   grunt.registerTask('test', ['nodeunit']);
   grunt.registerTask('default', ['jshint', 'test', 'build']);
 

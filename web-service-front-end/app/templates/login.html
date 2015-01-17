@@ -1,12 +1,22 @@
 <div class="login-form">
-        <form name="loginForm" ng-controller="LoginCtrl"
-    ng-submit="login(credentials)" novalidate>
+        <!-- Login form to display when login controller is in scope. -->
+        <form   name="loginForm"
+                ng-controller="LoginCtrl"
+                ng-submit="login(credentials)"
+                novalidate>
 
+            <!-- Store credentials as $scope.credentials in login controller -->
             <label for="email">Email</label>
-            <input type="text" id="email" ng-model="credentials.email" required>
+            <input  type="text"
+                    id="email"
+                    ng-model="credentials.email"
+                    required>
 
             <label for="password">Password</label>
-            <input type="password" id="password" ng-model="credentials.password" required>
+            <input  type="password"
+                    id="password"
+                    ng-model="credentials.password"
+                    required>
 
             <button type="submit">Login</button>
 
