@@ -21,17 +21,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         //Storage variables for the file this controller is operating on.
         $scope.filename = null;
+        $scope.extension = null;
         $scope.dateCreated = null;
         $scope.createdBy = null;
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
+        $scope.dateOptions = {
+            dateFormat: 'yy-mm-dd',
+            defaultDate: +7,
+            minDate: new Date()
+        };
+        var currentDate = new Date();
+        $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
 
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
         //input field.
-        $('.uploadButton').click(function() {
-            $('.uploadInput').click();
+        $('.upload-button').click(function() {
+            $('.upload-input').click();
         });
 
         //Watch for updated file attachment.
@@ -64,8 +72,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                     'File: ' + $scope.filename,
                                     'Replaced Successfully!'
                                 );
-                                $rootScope.dataChanged = true;
-                                $location.path('/attachment_explorer');
                             }
                             notification.dismiss();
                         },
@@ -105,6 +111,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             function(success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.filename = success[1].filename;
+                    $scope.newFilename = $scope.filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
                     $scope.tags = success[1].primitive_text_data;
@@ -122,22 +129,64 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         }
 
-        //Hides the rename button and makes it unclickable as long as there
-        //is no text in the rename input field.
-        $('#fileName').keyup(function () {
+        // Watches for keystrokes in the filename input field.
+        $('#fileName').keyup(function (event) {
+            //Hides the rename button and makes it unclickable as long as there
+            //is no text in the rename input field.
             if ($(this).val() === '') {
                 $('.rename-button').addClass('inactive');
             }
             else {
                 $('.rename-button').removeClass('inactive');
             }
+
+            // If it's the enter key (keycode 13), then click the rename button
+            if (event.keyCode === 13) {
+                if(!$('.rename-button').hasClass('inactive')) {
+                    $('.rename-button').click();
+                }
+            }
+
+            // Get last substring of array after a '.' character.
+            // whatever.min.js -> js
+            $scope.extension = $scope.filename.split('.').slice(-1)[0];
+
+            // If the filename field doesn't contain the previous filename's
+            // extension, display a warning. If the previous file had no
+            // extension, ignore this.
+            if($(this).val() !== '') {
+                if ($scope.filename.indexOf('.') > -1) {
+                    if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
+                        $('.extension-warning').hide();
+                    }
+                    else {
+                        $('.extension-warning').show();
+                    }
+                }
+            }
+
         });
+
+        // Validate that a filename was entered properly and notify user if
+        // it was not.
+        $scope.validateFilename = function () {
+
+            // Make sure it's not blank.
+            if ($scope.newFilename === '' || $scope.newFilename === null) {
+                NotificationService.error(
+                    'Invalid Filename',
+                    'Filename cannot be blank.');
+                return false;
+            }
+
+            //Place other filename validations here.
+
+            return true;
+        };
 
         //Rename the file whose ukey is in scope.
         $scope.renameFile = function() {
-
-            //If the user has typed in a new filename...
-            if($scope.newFilename !== '' && $scope.newFilename !== null) {
+            if ($scope.validateFilename()) {
                 //Invoke the RestService to rename the attachment.
                 RestService.renameAttachment(
                     $scope.ukey,
@@ -146,9 +195,15 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 function(success) {
                     if (success[0] === EVENTS.promiseSuccess) {
 
-                        //Mark to the system that the cache must be
-                        //refreshed after this change.
-                        $rootScope.dataChanged = true;
+                        //Change the filename displayed in the UI for the user.
+                        $scope.filename = $scope.newFilename;
+
+                        //Change the ukey to reflect the new filename.
+                        $scope.ukey = $scope.newFilename + '\n' + $scope.ukey.split('\n')[1];
+
+                        //Hide extension warning.
+                        $('.extension-warning').hide();
+
                         //Notify user that the file has been renamed.
                         NotificationService.success(
                             'Success',
@@ -166,12 +221,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     }
                 });
             }
-            else {
-                NotificationService.error(
-                    'Invalid Filename',
-                    'Filename cannot be blank.');
-            }
-
         };
 
         //Delete the file from the backend whose ukey is in scope.
@@ -187,8 +236,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Success',
                                 'Attachment Deleted'
                             );
-                            //Mark that the cache must be updated.
-                            $rootScope.dataChanged = true;
                             //Return user to attachment explorer.
                             $location.path('/attachment_explorer');
                     }
@@ -212,6 +259,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                             'Please contact support.'
                         );
                     }
+            });
+        };
+
+        $scope.downloadFile = function() {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentURL($rootScope.ukey).then(
+            function(success){
+                //If you got it, set the browser to that URL to have the
+                //browser start file-download.
+                if(success[0] === EVENTS.promiseSuccess) {
+                window.location.href = success[1];
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
             });
         };
 
@@ -251,6 +317,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     ).then(
                     function(success) {
                         if (success[0] === EVENTS.promiseSuccess) {
+                            // Clear the tag inputs after a submission.
+                            $('.tag-input').val('');
+
+                            // Notify user of success.
                             NotificationService.success(
                                 'Success',
                                 'Tag Added.'
@@ -270,6 +340,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                                 'Please contact support.');
                         }
                     });
+
                 }
                 else {
                     NotificationService.error(
@@ -331,6 +402,38 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Back button to return to the attachment explorer view.
         $scope.back = function () {
             $location.path('/attachment_explorer');
+        };
+
+        //Share link URL button
+        $scope.generateShareLink = function () {
+            //Disable the button to avoid corrupting the API token
+            $('#share-button').prop('disabled', true);
+
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            var expirationDate = $('.exp-date-field').val();
+            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
+            function(success){
+                if(success[0] === EVENTS.promiseSuccess) {
+                    var uri = window.location.protocol + '//' +
+                              window.location.host +
+                              success[1];
+                    $('.share-url').val(uri);
+                    window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+
+                    //Re-enable the share button
+                    $('#share-button').prop('disabled', false);
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+
+                //Re-enable the share button
+                $('#share-button').prop('disabled', false);
+            });
         };
 
     }

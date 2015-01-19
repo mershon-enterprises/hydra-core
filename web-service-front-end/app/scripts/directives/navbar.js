@@ -9,7 +9,7 @@ angular.module('webServiceApp').directive('navbar', function() {
     return {
         restrict: 'E',
         templateUrl: 'templates/navbar.html',
-        controller: function ($rootScope, $scope, Session, EVENTS) {
+        controller: function ($rootScope, $scope, $location, Session, EVENTS) {
 
             $('.search').keyup(function(event) {
                  if ( event.which === 13 ) {
@@ -19,6 +19,16 @@ angular.module('webServiceApp').directive('navbar', function() {
             });
 
             $('.search-button').click(function() {
+                if($rootScope.controller !== 'AttachmentExplorer') {
+                    var ans = confirm('Cancel your work and return to the file explorer?');
+                    if(ans) {
+                        $location.path('/attachment_explorer');
+                        //forces Angular to update, since normally the $digest wont
+                        //trigger when a directive asks to change location.
+                        //http://stackoverflow.com/questions/17177492/location-path-not-working-inside-an-angular-directive
+                        $scope.$apply();
+                    }
+                }
                 $rootScope.$broadcast(EVENTS.newSearch, $('.search').val());
             });
 
@@ -52,7 +62,7 @@ angular.module('webServiceApp').directive('navbar', function() {
             Mousetrap.bind('alt+c', function() {
                 if ($rootScope.controller === 'AttachmentUpload') {
                     //Choose the file to upload
-                    $('button.uploadButton').click();
+                    $('button.upload-button').click();
                 }
                 return false;
             });
