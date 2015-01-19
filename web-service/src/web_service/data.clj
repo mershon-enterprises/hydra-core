@@ -674,16 +674,24 @@
                 or-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "( dsa.filename ilike '%" search-string "%' "
-                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
+                    (str "or dsa.filename ilike '%" search-string "%' "
                          "or u.email_address ilike '%" search-string "%' "
                          "or cl.description ilike '%" search-string "%' "
                          "or c.name ilike '%" search-string "%' "
                          "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or ( "
+                         "      select exists ( "
+                         "        select * "
+                         "        from (  select dst.value as value "
+                         "                from data_set_text as dst "
+                         "                where dst.data_set_id = ds.id "
+                         "        ) as value_table "
+                         "        where value ilike '%" search-string "%' "
+                         "      ) "
                          ") "))
                   or-search-string-list)]
-            (str "and (" (clojure.string/join " OR " or-search-string-query-list) ") "))
+            (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
 
         and-search-string-query
@@ -692,16 +700,26 @@
                 and-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "( dsa.filename ilike '%" search-string "%' "
-                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
-                         "or u.email_address ilike '%" search-string "%' "
-                         "or cl.description ilike '%" search-string "%' "
-                         "or c.name ilike '%" search-string "%' "
-                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                    (str "and ( false "
+                         "  or dsa.filename ilike '%" search-string "%' "
+                         "  or u.email_address ilike '%" search-string "%' "
+                         "  or cl.description ilike '%" search-string "%' "
+                         "  or c.name ilike '%" search-string "%' "
+                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or ( "
+                         "        select exists ( "
+                         "          select * "
+                         "          from (  select dst.value as value "
+                         "                  from data_set_text as dst "
+                         "                  where dst.data_set_id = ds.id "
+                         "          ) as value_table "
+                         "          where value ilike '%" search-string "%' "
+                         "        ) "
+                         "  ) "
                          ") "))
                   and-search-string-list)]
-            (str "and (" (clojure.string/join " AND " and-search-string-query-list) ") "))
+            (str (clojure.string/join and-search-string-query-list) " "))
           " ")
 
         not-search-string-query
@@ -710,16 +728,26 @@
                 not-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "( dsa.filename ilike '%" search-string "%' "
-                         "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
-                         "or u.email_address ilike '%" search-string "%' "
-                         "or cl.description ilike '%" search-string "%' "
-                         "or c.name ilike '%" search-string "%' "
-                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                    (str "and not ( false "
+                         "  or dsa.filename ilike '%" search-string "%' "
+                         "  or u.email_address ilike '%" search-string "%' "
+                         "  or (cl.description is not null and cl.description ilike '%" search-string "%') "
+                         "  or (c.name is not null and c.name ilike '%" search-string "%') "
+                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or ( "
+                         "        select exists ( "
+                         "          select * "
+                         "          from (  select dst.value as value "
+                         "                  from data_set_text as dst "
+                         "                  where dst.data_set_id = ds.id "
+                         "          ) as value_table "
+                         "          where value ilike '%" search-string "%' "
+                         "        ) "
+                         "  ) "
                          ") "))
                   not-search-string-list)]
-            (str "AND NOT " (clojure.string/join " AND NOT " not-search-string-query-list) " "))
+            (str (clojure.string/join not-search-string-query-list) " "))
           " ")
 
         search-string-query (str
