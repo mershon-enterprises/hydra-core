@@ -62,7 +62,7 @@ angular.module('webServiceApp').directive('navbar', function() {
             Mousetrap.bind('alt+c', function() {
                 if ($rootScope.controller === 'AttachmentUpload') {
                     //Choose the file to upload
-                    $('button.uploadButton').click();
+                    $('button.upload-button').click();
                 }
                 return false;
             });

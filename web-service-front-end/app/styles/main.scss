@@ -13,6 +13,8 @@ $light-red: #dd2c29;
 $red: #dc1e30;
 $dark-red: #660000;
 
+$dark-green: #006600;
+
 $off-white: #f0f0f0;
 $off-black: #0f0f0f;
 
@@ -20,7 +22,7 @@ $off-black: #0f0f0f;
 $default-padding: 10px;
 $default-margin: 20px;
 $default-rounding: 20px;
-$default-hover-offset: 100;
+$default-hover-offset: #222222;
 
 /* Mixins */
 @mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
@@ -74,7 +76,7 @@ $default-hover-offset: 100;
   vertical-align: middle;
 
   &:hover {
-    background-color: $red;
+    background-color: $dark-red + $default-hover-offset;
   }
 }
 
@@ -467,7 +469,7 @@ nav {
       width: 15%;
     }
 
-    .buttonCell {
+    .button-cell {
       background: $dark-gray;
       border: 0;
     }
@@ -483,40 +485,31 @@ nav {
 
   .file-details-table {
 
-    th.filename-column,
-    th.author-column,
-    th.blank-column {
-      width: 22.5%;
-    }
-
-    th.createdate-column,
-    th.tagname-column,
-    th.tagvalue-column {
-        width: 45%;
-    }
-
-    th.button-column {
-      max-width: 180px;
+    th:last-child {
       width: 10%;
     }
 
-    input#fileName {
-      width: 80%;
+    input,
+    textarea {
+      width: 100%;
     }
 
-    .buttonCell {
+    .button-cell {
       background: $dark-gray;
       border-color: $dark-gray;
     }
 
-    .share-url {
-      width: 100% !important;
+    .download-button {
+      background-color: $dark-green !important;
+      &:hover {
+        background-color: $dark-green + $default-hover-offset !important;
+      }
     }
 
     .spacer {
       background: $dark-gray;
 
-    td {
+      td {
         border-color: $dark-gray;
       }
     }
