@@ -469,7 +469,7 @@ nav {
       width: 15%;
     }
 
-    .buttonCell {
+    .button-cell {
       background: $dark-gray;
       border: 0;
     }
@@ -485,52 +485,31 @@ nav {
 
   .file-details-table {
 
-    th.filename-column,
-    th.author-column,
-    th.blank-column {
-      width: 22.5%;
-    }
-
-    th.createdate-column,
-    th.tagname-column,
-    th.tagvalue-column {
-        width: 45%;
-    }
-
-    th.button-column {
-      max-width: 180px;
+    th:last-child {
       width: 10%;
     }
 
-    input#fileName {
-      width: 80%;
+    input,
+    textarea {
+      width: 100%;
     }
 
-    .buttonCell {
+    .button-cell {
       background: $dark-gray;
       border-color: $dark-gray;
     }
 
-    .share-url {
-      width: 100% !important;
-    }
-
-    #download-button {
-      background-color: $dark-green;
+    .download-button {
+      background-color: $dark-green !important;
       &:hover {
-        background-color: $dark-green + $default-hover-offset;
+        background-color: $dark-green + $default-hover-offset !important;
       }
-    }
-
-    .rename-button {
-      margin-left: $default-margin;
-      cursor: pointer;
     }
 
     .spacer {
       background: $dark-gray;
 
-    td {
+      td {
         border-color: $dark-gray;
       }
     }

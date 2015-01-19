@@ -38,8 +38,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
         //input field.
-        $('.uploadButton').click(function() {
-            $('.uploadInput').click();
+        $('.upload-button').click(function() {
+            $('.upload-input').click();
         });
 
         //Watch for updated file attachment.
@@ -111,6 +111,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             function(success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.filename = success[1].filename;
+                    $scope.newFilename = $scope.filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
                     $scope.tags = success[1].primitive_text_data;
@@ -199,6 +200,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
                         //Change the ukey to reflect the new filename.
                         $scope.ukey = $scope.newFilename + '\n' + $scope.ukey.split('\n')[1];
+
+                        //Hide extension warning.
+                        $('.extension-warning').hide();
 
                         //Notify user that the file has been renamed.
                         NotificationService.success(

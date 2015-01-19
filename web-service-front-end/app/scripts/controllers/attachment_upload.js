@@ -32,8 +32,8 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
         //input field.
-        $('.uploadButton').click(function() {
-            $('.uploadInput').click();
+        $('.upload-button').click(function() {
+            $('.upload-input').click();
         });
 
         //Watch for new file attachment.
