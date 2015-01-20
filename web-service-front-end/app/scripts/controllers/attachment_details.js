@@ -38,8 +38,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
         //input field.
-        $('.uploadButton').click(function() {
-            $('.uploadInput').click();
+        $('.upload-button').click(function() {
+            $('.upload-input').click();
         });
 
         //Watch for updated file attachment.
@@ -111,6 +111,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             function(success) {
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.filename = success[1].filename;
+                    $scope.newFilename = $scope.filename;
                     $scope.dateCreated = success[1].date_created;
                     $scope.createdBy = success[1].created_by;
                     $scope.tags = success[1].primitive_text_data;
@@ -141,7 +142,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
             // If it's the enter key (keycode 13), then click the rename button
             if (event.keyCode === 13) {
-                $('.rename-button').click();
+                if(!$('.rename-button').hasClass('inactive')) {
+                    $('.rename-button').click();
+                }
             }
 
             // Get last substring of array after a '.' character.
@@ -198,6 +201,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         //Change the ukey to reflect the new filename.
                         $scope.ukey = $scope.newFilename + '\n' + $scope.ukey.split('\n')[1];
 
+                        //Hide extension warning.
+                        $('.extension-warning').hide();
+
                         //Notify user that the file has been renamed.
                         NotificationService.success(
                             'Success',
@@ -253,6 +259,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                             'Please contact support.'
                         );
                     }
+            });
+        };
+
+        $scope.downloadFile = function() {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentURL($rootScope.ukey).then(
+            function(success){
+                //If you got it, set the browser to that URL to have the
+                //browser start file-download.
+                if(success[0] === EVENTS.promiseSuccess) {
+                window.location.href = success[1];
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
             });
         };
 
