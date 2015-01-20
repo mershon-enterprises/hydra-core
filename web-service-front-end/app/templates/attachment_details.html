@@ -2,53 +2,32 @@
     <!-- Display file details -->
     <table class="file-details-table">
         <tr>
-            <th class="filename-column">Filename</th>
-            <th class="filename-column">Creation Date</th>
-            <th class="author-column">Author</th>
-            <th class="createdate-column">Rename</th>
-            <th class="buttonCell button-column" rowspan="2">
-                <button
-                    class="rename-button inactive"
-                    confirmed-click="renameFile(newFilename)"
-                    ng-confirm-click="Are you sure?"
-                    >Rename
-                </button>
+            <th colspan="2">Filename</th>
+            <th>Author</th>
+            <th>Creation Date</th>
+            <th rowspan="2" class="button-cell">
+                <button class="download-button"
+                        ng-click="downloadFile()">Download</button>
             </th>
         </tr>
         <tr>
-            <td>
+            <td colspan="2">
                 {{filename}}
+            </td>
+            <td>
+                {{createdBy}}
             </td>
             <td>
                 {{dateCreated | date : 'short'}}
             </td>
-            <td>{{createdBy}}</td>
-            <td>
-                <!-- Input field for renaming a new file. Angular remembers
-                the entered value as $scope.newFilename. Placeholder is
-                $scope.filename, the original name of the file from the backend.
-                -->
-                <input
-                type="text"
-                id="fileName"
-                ng-model="newFilename"
-                placeholder="{{filename}}"
-                >
-            </td>
         </tr>
         <tr class="spacer">
-            <td colspan="5">
-                <!-- If the extension of the new filename is different
-                from the existing one, this warning will show. -->
-                <p class="extension-warning">
-                    Warning : This will change the file's extension.
-                </p>
-            </td>
+            <td colspan="5"></td>
         </tr>
         <tr>
             <th colspan="3">Share Link</th>
             <th>Expiration Date</th>
-            <th rowspan="2" class="buttonCell">
+            <th rowspan="2" class="button-cell">
                 <button id="share-button"
                         ng-click="generateShareLink()">Share</button>
             </th>
@@ -63,11 +42,12 @@
                         class="exp-date-field"
                         ui-date="dateOptions"
                         type="text"
-                        ng-model="expirationDate"
-                        >
+                        ng-model="expirationDate">
                 </td>
         </tr>
-        <tr class="spacer"><td></td></tr>
+        <tr class="spacer">
+            <td colspan="5"></td>
+        </tr>
         <tr>
             <th class="tagname-column" colspan="2">Tag Name</th>
             <th class="tagvalue-column" colspan="2">Tag Value</th>
@@ -87,13 +67,53 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input class="tag-input" type="text" name="description" ng-model="description">
+                <input  class="tag-input"
+                        type="text"
+                        name="description"
+                        ng-model="description">
             </td>
             <td colspan="2">
-                <input class="tag-input" type="text" name="value" ng-model="value">
+                <input  class="tag-input"
+                        type="text"
+                        name="value"
+                        ng-model="value">
             </td>
             <td>
                 <i class="fa fa-plus" ng-click="addRow(description, value)"></i>
+            </td>
+        </tr>
+        <tr class="spacer">
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <th colspan="4">Rename</th>
+            <th rowspan="2" class="button-cell">
+                <button class="rename-button inactive"
+                    confirmed-click="renameFile(newFilename)"
+                    ng-confirm-click="Are you sure?"
+                    >Rename</button>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <!-- Input field for renaming a new file. Angular remembers
+                the entered value as $scope.newFilename. Placeholder is
+                $scope.filename, the original name of the file from the backend.
+                -->
+                <input
+                type="text"
+                id="fileName"
+                ng-model="newFilename"
+                >
+            </td>
+        </tr>
+        <tr class="spacer">
+            <td colspan="5">
+                <!-- If the extension of the new filename is different
+                from the existing one, this warning will show. -->
+                <p class="extension-warning">
+                    Warning : This will change the file's extension.
+                </p>
             </td>
         </tr>
     </table>
@@ -109,8 +129,11 @@
                 >Delete
         </button>
 
-        <button class="uploadButton file-action">Replace</button>
-        <input class="uploadInput" type="file" file-model='file' accept="{{fileMimeType}}">
+        <button class="upload-button file-action">Replace</button>
+
+        <input  class="upload-input"
+                type="file"
+                file-model='file'>
 
     </div>
 </div>
