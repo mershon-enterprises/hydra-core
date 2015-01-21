@@ -51,7 +51,6 @@ angular.module('webServiceApp').directive('omnibox', function() {
                 //the params looking for ' or " marks and combine them into
                 //single search terms after performing string.split() on spaces.
                 $.each(params, function(index, value) {
-                    console.log(value);
                     //If you found a quote and there's nothing in the buffer, add this value to the buffer.
                     if (((value.indexOf(single) > -1) || (value.indexOf(double) > -1)) && (buffer.length === 0)) {
                         buffer += value;
