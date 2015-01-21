@@ -725,7 +725,7 @@
                          "  or (c.name is not null and c.name ilike '%" search-string "%') "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or dst.tags ilike '%" search-string "%' "
+                         "  or (dst.tags ilike '%" search-string "%' and dst.tags is not null) "
                          ") "))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
