@@ -110,15 +110,18 @@
        "  u.email_address as created_by, "
        "  c.name as client, "
        "  cl.description as location, "
-       "  dst.description as tag_name, ",
-       "  dst.value as tag_value, ",
        "  ds.id as data_set_id, ",
        "  ds.uuid as data_set_uuid "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
-       "left join data_set_text as dst "
-       "  on ds.id = dst.data_set_id "
+       "left join ( "
+       "  select "
+       "    data_set_id, "
+       "    string_agg(value, ', ') as tags "
+       "  from data_set_text "
+       "  group by data_set_id "
+       ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
        "  on u.id = ds.created_by "
        "left join public.client_location as cl "
@@ -135,8 +138,13 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
-       "left join data_set_text as dst "
-       "  on ds.id = dst.data_set_id "
+       "left join ( "
+       "  select "
+       "    data_set_id, "
+       "    string_agg(value, ', ') as tags "
+       "  from data_set_text "
+       "  group by data_set_id "
+       ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
        "  on u.id = ds.created_by "
        "left join public.client_location as cl "
@@ -680,16 +688,7 @@
                          "or c.name ilike '%" search-string "%' "
                          "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or ( "
-                         "      select exists ( "
-                         "        select * "
-                         "        from (  select dst.value as value "
-                         "                from data_set_text as dst "
-                         "                where dst.data_set_id = ds.id "
-                         "        ) as value_table "
-                         "        where value ilike '%" search-string "%' "
-                         "      ) "
-                         ") "))
+                         "or dst.tags ilike '%" search-string "%' "))
                   or-search-string-list)]
             (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
@@ -707,16 +706,7 @@
                          "  or c.name ilike '%" search-string "%' "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or ( "
-                         "        select exists ( "
-                         "          select * "
-                         "          from (  select dst.value as value "
-                         "                  from data_set_text as dst "
-                         "                  where dst.data_set_id = ds.id "
-                         "          ) as value_table "
-                         "          where value ilike '%" search-string "%' "
-                         "        ) "
-                         "  ) "
+                         "  or dst.tags ilike '%" search-string "%' "
                          ") "))
                   and-search-string-list)]
             (str (clojure.string/join and-search-string-query-list) " "))
@@ -735,16 +725,7 @@
                          "  or (c.name is not null and c.name ilike '%" search-string "%') "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or ( "
-                         "        select exists ( "
-                         "          select * "
-                         "          from (  select dst.value as value "
-                         "                  from data_set_text as dst "
-                         "                  where dst.data_set_id = ds.id "
-                         "          ) as value_table "
-                         "          where value ilike '%" search-string "%' "
-                         "        ) "
-                         "  ) "
+                         "  or dst.tags ilike '%" search-string "%' "
                          ") "))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
