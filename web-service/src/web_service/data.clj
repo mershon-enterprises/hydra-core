@@ -101,8 +101,8 @@
        "where ds.date_deleted is null "))
 
 (def data-set-attachment-query
-  (str "select "
-       "  distinct dsa.id, "
+  (str "select distinct on (data_set_attachment_id) "
+       "  dsa.id as data_set_attachment_id, "
        "  dsa.filename as filename, "
        "  dsa.mime_type as mime_type, "
        "  octet_length(dsa.contents) as bytes, "
@@ -115,8 +115,13 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
-       "left join data_set_text as dst "
-       "  on ds.id = dst.data_set_id "
+       "left join ( "
+       "  select "
+       "    data_set_id, "
+       "    string_agg(value, ', ') as tags "
+       "  from data_set_text "
+       "  group by data_set_id "
+       ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
        "  on u.id = ds.created_by "
        "left join public.client_location as cl "
@@ -133,8 +138,13 @@
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
-       "left join data_set_text as dst "
-       "  on ds.id = dst.data_set_id "
+       "left join ( "
+       "  select "
+       "    data_set_id, "
+       "    string_agg(value, ', ') as tags "
+       "  from data_set_text "
+       "  group by data_set_id "
+       ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
        "  on u.id = ds.created_by "
        "left join public.client_location as cl "
@@ -233,11 +243,13 @@
                        (contains? access constants/view-attachments))
         query (str data-set-attachment-query
                    "and uuid::character varying=? "
-                   "and dsa.filename=? ")
+                   "and dsa.filename=? "
+                   "order by data_set_attachment_id ")
         query-own (str data-set-attachment-query
                        "and uuid::character varying=? "
                        "and dsa.filename=? "
-                       "and u.email_address=? ")]
+                       "and u.email_address=? "
+                       "order by data_set_attachment_id ")]
     (if can-access
       (first (sql/query (db) [query uuid filename]
                   :row-fn format-attachment-info))
@@ -664,17 +676,69 @@
                       ; return an empty data-set
                       []))
 
-        search-string-query
-        (if (:search_string json-search-params)
-          (let [search-string (:search_string json-search-params)]
-            (str "and ( dsa.filename ilike '%" search-string "%' "
-                 "or (dst.date_deleted is null and dst.value ilike '%" search-string "%') "
-                 "or u.email_address ilike '%" search-string "%' "
-                 "or cl.description ilike '%" search-string "%' "
-                 "or c.name ilike '%" search-string "%' "
-                 "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                 "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                 ") "))
+        or-search-string-query
+        (if-not (empty? (:or_search_strings json-search-params))
+          (let [or-search-string-list (:or_search_strings json-search-params)
+                or-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "or dsa.filename ilike '%" search-string "%' "
+                         "or u.email_address ilike '%" search-string "%' "
+                         "or cl.description ilike '%" search-string "%' "
+                         "or c.name ilike '%" search-string "%' "
+                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "or dst.tags ilike '%" search-string "%' "))
+                  or-search-string-list)]
+            (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
+          " ")
+
+        and-search-string-query
+        (if-not (empty?  (:and_search_strings json-search-params))
+          (let [and-search-string-list (:and_search_strings json-search-params)
+                and-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "and ( false "
+                         "  or dsa.filename ilike '%" search-string "%' "
+                         "  or u.email_address ilike '%" search-string "%' "
+                         "  or cl.description ilike '%" search-string "%' "
+                         "  or c.name ilike '%" search-string "%' "
+                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or dst.tags ilike '%" search-string "%' "
+                         ") "))
+                  and-search-string-list)]
+            (str (clojure.string/join and-search-string-query-list) " "))
+          " ")
+
+        not-search-string-query
+        (if-not (empty?  (:not_search_strings json-search-params))
+          (let [not-search-string-list (:not_search_strings json-search-params)
+                not-search-string-query-list
+                (map
+                  (fn [search-string]
+                    (str "and not ( false "
+                         "  or dsa.filename ilike '%" search-string "%' "
+                         "  or u.email_address ilike '%" search-string "%' "
+                         "  or (cl.description is not null and cl.description ilike '%" search-string "%') "
+                         "  or (c.name is not null and c.name ilike '%" search-string "%') "
+                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
+                         "  or (dst.tags ilike '%" search-string "%' and dst.tags is not null) "
+                         ") "))
+                  not-search-string-list)]
+            (str (clojure.string/join not-search-string-query-list) " "))
+          " ")
+
+        search-string-query (str
+                              or-search-string-query
+                              and-search-string-query
+                              not-search-string-query)
+
+        tag-name-query
+        (if (:tag_name json-search-params)
+          (str "and dst.description = '" (:tag_name json-search-params) "' ")
           " ")
 
         order-by-query
@@ -683,7 +747,7 @@
                         (:order json-search-params)
                         "desc ")]
             (str "order by " (:order_by json-search-params) " " order " "))
-          "order by dsa.date_created desc ")
+          "order by date_created desc")
 
         limit-query (if (:limit json-search-params)
                       (str "limit " (:limit json-search-params) " ")
@@ -693,24 +757,35 @@
                        (str "offset " (:offset json-search-params) " ")
                        " ")
 
-        query (str data-set-attachment-query
+        query (str "select * from ("
+                   data-set-attachment-query
                    search-string-query
+                   tag-name-query
+                   "order by data_set_attachment_id "
+                   " ) as dsa_table "
                    order-by-query
                    limit-query
                    offset-query)
 
         query-result-count (str data-set-attachment-query-count
-                                search-string-query)
+                                search-string-query
+                                tag-name-query)
 
-        query-own (str data-set-attachment-query
-                       "and u.email_address=? "
+        query-own (str "select * from ("
+                       data-set-attachment-query
                        search-string-query
+                       tag-name-query
+                       "and u.email_address=? "
+                       "order by data_set_attachment_id "
+                       ") as dsa_table "
                        order-by-query
                        limit-query
                        offset-query)
+
         query-own-result-count (str data-set-attachment-query-count
                                     "and u.email_address=? "
-                                    search-string-query)]
+                                    search-string-query
+                                    tag-name-query)]
     (if can-access
       (response {:response
                  {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)

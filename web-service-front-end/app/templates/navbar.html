@@ -8,13 +8,10 @@ user is logged on -->
         Upload File
         <i class="fa fa-upload"></i>
     </a>
-    <!-- Search Bar -->
-    <input  ng-show="nav.isLoggedIn"
-            placeholder="Search..."
-            type="text"
-            class="search mousetrap">
-    <!-- Search Button -->
-    <button ng-show="nav.isLoggedIn" class="search-button">Search</button>
+
+    <!-- Search Omnibox Directive -->
+    <omnibox></omnibox>
+
     <!-- File Explorer Link / Login/Logout -->
     <ul>
         <li ng-show="nav.isLoggedIn">
