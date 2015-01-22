@@ -385,6 +385,10 @@ module.exports = function (grunt) {
       restclient: {
         dest: 'bower_components/restclient/restclient.js',
         src: '../rest-client/dist/restclient.standalone.js'
+      },
+      documentation: {
+        dest: 'app/templates/documentation.html',
+        src: '../project-documentation/app/hydra-file-explorer.html'
       }
     },
 
@@ -455,6 +459,7 @@ module.exports = function (grunt) {
       'concurrent:server',
       'autoprefixer',
       'copy:restclient',
+      'copy:documentation',
       'connect:livereload',
       'watch'
     ]);
@@ -478,6 +483,7 @@ module.exports = function (grunt) {
     'wiredep',
     'concurrent:dev',
     'copy:restclient',
+    'copy:documentation',
     'useminPrepare',
     'autoprefixer',
     'concat',
@@ -496,6 +502,7 @@ module.exports = function (grunt) {
     'wiredep',
     'concurrent:staging',
     'copy:restclient',
+    'copy:documentation',
     'useminPrepare',
     'autoprefixer',
     'concat',
@@ -514,6 +521,7 @@ module.exports = function (grunt) {
     'wiredep',
     'concurrent:dist',
     'copy:restclient',
+    'copy:documentation',
     'useminPrepare',
     'autoprefixer',
     'concat',
