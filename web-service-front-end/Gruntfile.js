@@ -387,8 +387,15 @@ module.exports = function (grunt) {
         src: '../rest-client/dist/restclient.standalone.js'
       },
       documentation: {
-        dest: 'app/templates/documentation.html',
-        src: '../project-documentation/app/hydra-file-explorer.html'
+        files: [{
+          dest: 'app/templates/documentation.html',
+          src: '../project-documentation/app/hydra-file-explorer.html'
+        }, {
+          cwd: '../project-documentation/app/images/hydra-file-explorer/',
+          src: '{,*/}*.*',
+          dest: 'app/images/hydra-file-explorer/',
+          expand: true
+        }]
       }
     },
 
