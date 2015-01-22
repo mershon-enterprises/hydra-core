@@ -30,7 +30,7 @@ angular.module('webServiceApp', [
           loggedInOnly: true
         })
         .when('/manual', {
-          templateUrl: 'templates/manual.html',
+          templateUrl: 'templates/documentation.html',
           loggedInOnly: false
         })
         .otherwise({
