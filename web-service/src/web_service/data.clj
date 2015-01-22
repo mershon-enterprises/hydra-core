@@ -738,7 +738,7 @@
 
         tag-name-query
         (if (:tag_name json-search-params)
-          (str "and dst.description = '" (:tag_name json-search-params) "' ")
+          (str "and dst.tags ilike '%" (:tag_name json-search-params) "%' ")
           " ")
 
         order-by-query
