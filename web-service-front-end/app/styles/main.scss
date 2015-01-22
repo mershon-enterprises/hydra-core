@@ -589,4 +589,13 @@ omnibox {
   figure.large img {
     max-width: $default-figure-width * 2 !important;
   }
+
+  a {
+    color: $dark-red;
+    text-decoration: none;
+
+    &:hover{
+      color: $dark-red + $default-hover-offset;
+    }
+  }
 }
