@@ -282,12 +282,12 @@
                    " ), ?, ?, decode(?, 'base64'))")]
     (if (nil? attachment-info)
       false
-      (try
+      (sql/with-db-transaction
+        [conn db-spec]
         (println (format "Replacing '%s' with new contents in data-set '%s'"
                          filename
                          uuid))
-        (sql/with-db-transaction
-          [conn db-spec]
+        (try
           (let [is-deleted (do-delete-attachment email-address
                                                  uuid
                                                  filename
@@ -301,16 +301,16 @@
                                     (:mime_type attachment-info)
                                     new-contents]
                               :transaction? false)
-              true)))
-        (catch Exception e
-          (log/error e (format (str "There was an error replacing "
-                                    "attachment '%s' in data-set "
-                                    "'%s'")
-                               filename
-                               uuid))
-          (if (instance? SQLException e)
-            (log/error (.getCause e) "Caused by: "))
-          false)))))
+              true))
+          (catch Exception e
+            (log/error e (format (str "There was an error replacing "
+                                      "attachment '%s' in data-set "
+                                      "'%s'")
+                                 filename
+                                 uuid))
+            (if (instance? SQLException e)
+              (log/error (.getNextException e) "Caused by: "))
+            false))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -417,9 +417,9 @@
     (if can-access
       (if (empty? json-data)
         (status (response {:response "Cannot record empty data-set"}) 409)
-        (try
-          (sql/with-db-transaction
-            [conn db-spec]
+        (sql/with-db-transaction
+          [conn db-spec]
+          (try
             (let [keys (sql/db-do-prepared-return-keys conn
                                                        false ; no transaction
                                                        query
@@ -476,25 +476,25 @@
                                                       value]
                                                 :transaction? false)]
                       (if (not success)
-                        (throw Exception "Failed to insert new child row!"))))))))
-          (let [data-saved (data-set-get email-address uuid)]
-            ; broadcast the dataset including attachment binary data to
-            ; listeners
-            (let [with-attachments (merge (:response (:body data-saved))
-                                          {:data json-data})]
-              (amqp/broadcast "text/json"
-                              "dataset"
-                              (generate-string with-attachments)))
-            (status data-saved 201))
-          (catch Exception e
-            (log/error e (format (str "There was an error submitting a "
-                                      "data-set for user %s")
-                                 email-address))
-            ; rollback the transaction
-            (sql/db-set-rollback-only! conn)
-            (if (instance? SQLException e)
-              (log/error (.getCause e) "Caused by: "))
-            (status (response {:response "Failure"}) 409))))
+                        (throw Exception "Failed to insert new child row!")))))))
+            (let [data-saved (data-set-get email-address uuid)]
+              ; broadcast the dataset including attachment binary data to
+              ; listeners
+              (let [with-attachments (merge (:response (:body data-saved))
+                                            {:data json-data})]
+                (amqp/broadcast "text/json"
+                                "dataset"
+                                (generate-string with-attachments)))
+              (status data-saved 201))
+            (catch Exception e
+              (log/error e (format (str "There was an error submitting a "
+                                        "data-set for user %s")
+                                   email-address))
+              ; rollback the transaction
+              (sql/db-set-rollback-only! conn)
+              (if (instance? SQLException e)
+                (log/error (.getNextException e) "Caused by: "))
+              (status (response {:response "Failure"}) 409)))))
       (do
         (log/warn
           (format "User %s tried to submit data-set but lacks %s permission."
