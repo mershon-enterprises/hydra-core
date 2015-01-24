@@ -29,6 +29,10 @@ angular.module('webServiceApp', [
           controller: 'AttachmentUploadCtrl',
           loggedInOnly: true
         })
+        .when('/manual', {
+          templateUrl: 'templates/documentation.html',
+          loggedInOnly: false
+        })
         .otherwise({
           redirectTo: '/'
         });
