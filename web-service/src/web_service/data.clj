@@ -118,7 +118,8 @@
        "left join ( "
        "  select "
        "    data_set_id, "
-       "    string_agg(value, ', ') as tags "
+       "    string_agg(value, ', ') as tag_values, "
+       "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
@@ -141,7 +142,8 @@
        "left join ( "
        "  select "
        "    data_set_id, "
-       "    string_agg(value, ', ') as tags "
+       "    string_agg(value, ', ') as tag_values, "
+       "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
@@ -738,7 +740,7 @@
 
         tag-name-query
         (if (:tag_name json-search-params)
-          (str "and dst.tags ilike '%" (:tag_name json-search-params) "%' ")
+          (str "and dst.tag_names ilike '%" (:tag_name json-search-params) "%' ")
           " ")
 
         order-by-query
