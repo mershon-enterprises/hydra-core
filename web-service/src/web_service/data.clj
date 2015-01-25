@@ -690,7 +690,7 @@
                          "or c.name ilike '%" search-string "%' "
                          "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or dst.tags ilike '%" search-string "%' "))
+                         "or dst.tag_values ilike '%" search-string "%' "))
                   or-search-string-list)]
             (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
@@ -708,7 +708,7 @@
                          "  or c.name ilike '%" search-string "%' "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or dst.tags ilike '%" search-string "%' "
+                         "  or dst.tag_values ilike '%" search-string "%' "
                          ") "))
                   and-search-string-list)]
             (str (clojure.string/join and-search-string-query-list) " "))
@@ -727,7 +727,7 @@
                          "  or (c.name is not null and c.name ilike '%" search-string "%') "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or (dst.tags ilike '%" search-string "%' and dst.tags is not null) "
+                         "  or (dst.tag_values ilike '%" search-string "%' and dst.tag_values is not null) "
                          ") "))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
