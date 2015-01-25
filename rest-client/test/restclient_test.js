@@ -814,7 +814,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(13);
+    test.expect(14);
 
     var attachments = [];
     var datasetWithAttachmentUUID;
@@ -841,6 +841,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
           datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
         });
+
         // retrieved submitted mock attachments.
         return restclient.listAttachments(
           clientUUID,
@@ -854,10 +855,11 @@ exports['listAttachments'] = {
       }
     ).then(
       function(data) {
-        apiToken = data.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = data.entity['token'];
           checkResponse(test, data.entity);
+
           test.equal(data.status.code, 200, 'list data should succeed');
           test.ok(Array.isArray(data.entity['response']['attachments']),
             'data list should be an array');
@@ -883,12 +885,14 @@ exports['listAttachments'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'with-api-token-search-filename': function(test) {
-    test.expect(16);
+    test.expect(17);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
@@ -909,15 +913,16 @@ exports['listAttachments'] = {
         return restclient.listAttachments(
             clientUUID,
             apiToken,
-            {search_string: "this.csv"}
+            {or_search_strings: ["this.csv"]}
         );
       }
     ).then(
       function(getListResponse) {
-        apiToken = getListResponse.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
+
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -951,12 +956,14 @@ exports['listAttachments'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'with-api-token-search-primitive-value': function(test) {
-    test.expect(16);
+    test.expect(17);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -978,14 +985,14 @@ exports['listAttachments'] = {
         return restclient.listAttachments(
             clientUUID,
             apiToken,
-            {search_string: "thisvalue"}
+            {or_search_strings: ["thisvalue"]}
         );
       }
     ).then(
       function(getListResponse) {
-        apiToken = getListResponse.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
 
           test.equal(getListResponse.status.code, 200,
@@ -997,7 +1004,7 @@ exports['listAttachments'] = {
           test.ok(Array.isArray(getListResponse.entity['response']['attachments']),
             'attachment list should be an array');
           test.ok(getListResponse.entity['response']['attachments'].length > 0,
-            'there should be at least one attachments');
+            'there should be at least one attachment');
           test.ok(getListResponse.entity['response']['result_count'] > 0,
             'result count should be a least 1');
           test.ok('data_set_uuid' in getListResponse.entity['response']['attachments'][0],
@@ -1021,12 +1028,14 @@ exports['listAttachments'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'with-api-token-search-created-by': function(test) {
-    test.expect(16);
+    test.expect(17);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1046,14 +1055,14 @@ exports['listAttachments'] = {
         return restclient.listAttachments(
             clientUUID,
             apiToken,
-            {search_string: "admin"}
+            {or_search_strings: ["admin"]}
         );
       }
     ).then(
       function(getListResponse) {
-        apiToken = getListResponse.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
 
           test.equal(getListResponse.status.code, 200,
@@ -1089,12 +1098,14 @@ exports['listAttachments'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'with-api-token-search-tag-name-and-tag-value': function(test) {
-    test.expect(31);
+    test.expect(32);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1122,10 +1133,11 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponseTagName) {
-        apiToken = getListResponseTagName.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = getListResponseTagName.entity['token'];
           checkResponse(test, getListResponseTagName.entity);
+
           test.equal(getListResponseTagName.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponseTagName.entity['response'],
@@ -1152,14 +1164,14 @@ exports['listAttachments'] = {
         return restclient.listAttachments(
             clientUUID,
             apiToken,
-            {search_string: "thisValue"}
+            {or_search_strings: ["thisValue"]}
         );
       }
     ).then(
       function(getListResponseTagValue) {
-        apiToken = getListResponseTagValue.entity['token'];
 
         test.doesNotThrow( function() {
+          apiToken = getListResponseTagValue.entity['token'];
           checkResponse(test, getListResponseTagValue.entity);
 
           test.equal(getListResponseTagValue.status.code, 200,
@@ -1195,7 +1207,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
@@ -1526,7 +1540,9 @@ exports['getAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
@@ -1574,7 +1590,9 @@ exports['getAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
@@ -1609,7 +1627,9 @@ exports['getAttachment'] = {
       }
     ).then(
       function(limitedAccessLoginResponse) {
-        apiToken = limitedAccessLoginResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = limitedAccessLoginResponse.entity['token'];
+        });
 
         test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
@@ -1643,7 +1663,9 @@ exports['getAttachment'] = {
         //delete mock attachment
         goodLogin(
           function(adminLoginResponseData) {
-            apiToken = adminLoginResponseData.entity['token'];
+            test.doesNotThrow( function() {
+              apiToken = adminLoginResponseData.entity['token'];
+            });
 
             restclient.deleteData(
               clientUUID,
@@ -1651,7 +1673,9 @@ exports['getAttachment'] = {
               datasetWithAttachmentUUID
             ).then(
                 function(deleteDataResponse) {
-                  apiToken = deleteDataResponse.entity['token'];
+                  test.doesNotThrow( function() {
+                    apiToken = deleteDataResponse.entity['token'];
+                  });
 
                   test.equal(deleteDataResponse.status.code, 200,
                       'delete data should succeed');
@@ -1684,7 +1708,7 @@ exports['getAttachmentInfo'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(18);
+    test.expect(19);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1755,7 +1779,9 @@ exports['getAttachmentInfo'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
@@ -1782,7 +1808,7 @@ exports['getAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1832,12 +1858,14 @@ exports['getAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'file-not-found': function(test) {
-    test.expect(2);
+    test.expect(3);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1880,12 +1908,14 @@ exports['getAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(5);
+    test.expect(8);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1915,7 +1945,9 @@ exports['getAttachment'] = {
       }
     ).then(
       function(limitedAccessLoginResponse) {
-        apiToken = limitedAccessLoginResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = limitedAccessLoginResponse.entity['token'];
+        });
 
         test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
@@ -1950,7 +1982,9 @@ exports['getAttachment'] = {
         //
         goodLogin(
           function(adminLoginResponseData) {
-            apiToken = adminLoginResponseData.entity['token'];
+            test.doesNotThrow( function() {
+              apiToken = adminLoginResponseData.entity['token'];
+            });
 
             restclient.deleteData(
               clientUUID,
@@ -1958,7 +1992,9 @@ exports['getAttachment'] = {
               datasetWithAttachmentUUID
             ).then(
                 function(deleteDataResponse) {
-                apiToken = deleteDataResponse.entity['token'];
+                test.doesNotThrow( function() {
+                  apiToken = deleteDataResponse.entity['token'];
+                });
 
                 test.equal(deleteDataResponse.status.code, 200,
                     'delete data should succeed');
@@ -1991,7 +2027,7 @@ exports['replaceAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(5);
+    test.expect(7);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2026,7 +2062,9 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(replaceResponse) {
-        apiToken = replaceResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = replaceResponse.entity['token'];
+        });
 
         return restclient.getAttachment(
           clientUUID,
@@ -2059,13 +2097,15 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
       }
     );
   },
   'file-not-found': function(test) {
-    test.expect(2);
+    test.expect(3);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2110,7 +2150,9 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(deleteDataResponse) {
-        apiToken = deleteDataResponse.entity['token'];
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
         test.done();
     });
   }
