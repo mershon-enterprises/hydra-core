@@ -553,9 +553,9 @@ exports['submitData'] = {
           test.equal(data.entity['response']['data'][0]['value'],
             true,
             'data value should match submitted value');
-        });
 
-        createdUUID = data.entity['response']['uuid'];
+          createdUUID = data.entity['response']['uuid'];
+        });
 
         test.done();
       });
