@@ -1199,7 +1199,260 @@ exports['listAttachments'] = {
         test.done();
     });
   },
+  'with-api-token-search-delimiter-logic': function(test) {
+  //  test.expect(31);
 
+
+    var datasetWithAttachment1UUID;
+    var attachment1 = restclient.Attachment("file1.csv", "text/csv", "");
+    var primitive1 = restclient.PrimitiveData("text", "tag1", "value1");
+
+    var datasetWithAttachment2UUID;
+    var attachment2 = restclient.Attachment("file2.csv", "text/csv", "");
+    var primitive2 = restclient.PrimitiveData("text", "tag2", "value2");
+
+    var datasetWithAttachment3UUID;
+    var attachment3 = restclient.Attachment("file3.csv", "text/csv", "");
+    var primitive3 = restclient.PrimitiveData("text", "tag3", "value3");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment1, primitive1]
+    ).then(
+      function(submitResponse) {
+
+        test.doesNotThrow( function() {
+          datasetWithAttachment1UUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.submitData(
+          clientUUID,
+          apiToken,
+          new Date(),
+          'admin@example.com',
+          [attachment2, primitive2]
+          );
+      }
+    ).then(
+      function(submitResponse) {
+
+        test.doesNotThrow( function() {
+          datasetWithAttachment2UUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.submitData(
+          clientUUID,
+          apiToken,
+          new Date(),
+          'admin@example.com',
+          [attachment3, primitive3]
+          );
+      }
+    ).then(
+      function(submitResponse) {
+
+        test.doesNotThrow( function() {
+          datasetWithAttachment3UUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {or_search_strings: ["file"]}
+        );
+      }
+    ).then(
+      function(getListSearchResponse) {
+
+        test.doesNotThrow( function() {
+          apiToken = getListSearchResponse.entity['token'];
+          checkResponse(test, getListSearchResponse.entity);
+
+          test.equal(getListSearchResponse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in getListSearchResponse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in getListSearchResponse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(getListSearchResponse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.equal(getListSearchResponse.entity['response']['attachments'].length, 3,
+            'there should be exactly 3 attachments');
+          test.equal(getListSearchResponse.entity['response']['result_count'], 3,
+            'result count should be exactly 3');
+          test.ok('data_set_uuid' in getListSearchResponse.entity['response']['attachments'][0],
+            'data-set_uuid should be stated');
+          test.ok('date_created' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment date created should be stated');
+          test.ok('created_by' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment created-by should be stated');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+            'created_by should be "admin@example.com"');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            { or_search_strings: ["file"],
+              not_search_strings: ["value2"],
+            }
+        );
+      }
+    ).then(
+      function(getListSearchResponse) {
+
+        test.doesNotThrow( function() {
+          apiToken = getListSearchResponse.entity['token'];
+          checkResponse(test, getListSearchResponse.entity);
+
+          test.equal(getListSearchResponse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in getListSearchResponse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in getListSearchResponse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(getListSearchResponse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.equal(getListSearchResponse.entity['response']['attachments'].length, 2,
+            'there should be exactly 3 attachments');
+          test.equal(getListSearchResponse.entity['response']['result_count'], 2,
+            'result count should be exactly 3');
+          test.ok('data_set_uuid' in getListSearchResponse.entity['response']['attachments'][0],
+            'data-set_uuid should be stated');
+          test.ok('date_created' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment date created should be stated');
+          test.ok('created_by' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment created-by should be stated');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+            'created_by should be "admin@example.com"');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            { or_search_strings: ["file"],
+              and_search_strings: ["value3"],
+            }
+        );
+      }
+    ).then(
+      function(getListSearchResponse) {
+
+        test.doesNotThrow( function() {
+          apiToken = getListSearchResponse.entity['token'];
+          checkResponse(test, getListSearchResponse.entity);
+
+          test.equal(getListSearchResponse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in getListSearchResponse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in getListSearchResponse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(getListSearchResponse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.equal(getListSearchResponse.entity['response']['attachments'].length, 1,
+            'there should be exactly 1 attachments');
+          test.equal(getListSearchResponse.entity['response']['result_count'], 1,
+            'result count should be exactly 1');
+          test.ok('data_set_uuid' in getListSearchResponse.entity['response']['attachments'][0],
+            'data-set_uuid should be stated');
+          test.ok('date_created' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment date created should be stated');
+          test.ok('created_by' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment created-by should be stated');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['filename'] === 'file3.csv',
+            'filename should be called "file3.csv"');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+            'created_by should be "admin@example.com"');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            { or_search_strings: ["csv"],
+              and_search_strings: ["value1"],
+              not_search_strings: ["file2"],
+            }
+        );
+      }
+    ).then(
+      function(getListSearchResponse) {
+
+        test.doesNotThrow( function() {
+          apiToken = getListSearchResponse.entity['token'];
+          checkResponse(test, getListSearchResponse.entity);
+
+          test.equal(getListSearchResponse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in getListSearchResponse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in getListSearchResponse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(getListSearchResponse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.equal(getListSearchResponse.entity['response']['attachments'].length, 1,
+            'there should be exactly 1 attachments');
+          test.equal(getListSearchResponse.entity['response']['result_count'], 1,
+            'result count should be exactly 1');
+          test.ok('data_set_uuid' in getListSearchResponse.entity['response']['attachments'][0],
+            'data-set_uuid should be stated');
+          test.ok('date_created' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment date created should be stated');
+          test.ok('created_by' in getListSearchResponse.entity['response']['attachments'][0],
+            'attachment created-by should be stated');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['filename'] === 'file1.csv',
+            'filename should be called "file1.csv"');
+          test.ok(getListSearchResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+            'created_by should be "admin@example.com"');
+        });
+
+        // delete mock attachment1.
+        return restclient.deleteData(
+          clientUUID,
+          apiToken,
+          datasetWithAttachment1UUID
+        );
+      }
+    ).then(
+      function(deleteDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
+
+        // delete mock attachment2.
+        return restclient.deleteData(
+          clientUUID,
+          apiToken,
+          datasetWithAttachment2UUID
+        );
+      }
+    ).then(
+      function(deleteDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
+        // delete mock attachment3.
+        return restclient.deleteData(
+          clientUUID,
+          apiToken,
+          datasetWithAttachment3UUID
+        );
+      }
+    ).then(
+      function(deleteDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = deleteDataResponse.entity['token'];
+        });
+        test.done();
+      }
+    );
+  },
 };
 
 exports['getAttachment'] = {
