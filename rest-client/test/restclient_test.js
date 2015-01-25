@@ -187,7 +187,7 @@ exports['listAccessLevels'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
     restclient.listAccessLevels(
       clientUUID,
       apiToken
@@ -195,14 +195,16 @@ exports['listAccessLevels'] = {
       function(data) {
         test.equal(data.status.code, 200, 'access level list should succeed');
 
-        checkResponse(test, data.entity);
-        test.ok(Array.isArray(data.entity['response']),
-          'access level list should be an array');
-        test.ok(data.entity['response'].length > 0,
-          'at least one access level should exist');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.ok(Array.isArray(data.entity['response']),
+            'access level list should be an array');
+          test.ok(data.entity['response'].length > 0,
+            'at least one access level should exist');
 
-        test.notEqual(data.entity['response'].indexOf('Manage Clients'), -1,
-          'testing sentinel access level should exist');
+          test.notEqual(data.entity['response'].indexOf('Manage Clients'), -1,
+            'testing sentinel access level should exist');
+        });
         test.done();
       });
   }
@@ -274,7 +276,7 @@ exports['listClients'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
     restclient.listClients(
       clientUUID,
       apiToken
@@ -282,14 +284,16 @@ exports['listClients'] = {
       function(data) {
         test.equal(data.status.code, 200, 'client list should succeed');
 
-        checkResponse(test, data.entity);
-        test.ok(Array.isArray(data.entity['response']),
-          'client list should be an array');
-        test.ok(data.entity['response'].length > 0,
-          'at least one client should exist');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.ok(Array.isArray(data.entity['response']),
+            'client list should be an array');
+          test.ok(data.entity['response'].length > 0,
+            'at least one client should exist');
 
-        test.notEqual(data.entity['response'].indexOf('Chevron'), -1,
-          'testing sentinel client should exist');
+          test.notEqual(data.entity['response'].indexOf('Chevron'), -1,
+            'testing sentinel client should exist');
+        });
         test.done();
       });
   }
@@ -362,7 +366,7 @@ exports['listClientLocations'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
     restclient.listClientLocations(
       clientUUID,
       apiToken,
@@ -371,14 +375,16 @@ exports['listClientLocations'] = {
       function(data) {
         test.equal(data.status.code, 200, 'client list should succeed');
 
-        checkResponse(test, data.entity);
-        test.ok(Array.isArray(data.entity['response']),
-          'locations list should be an array');
-        test.ok(data.entity['response'].length > 0,
-          'at least one location should exist');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.ok(Array.isArray(data.entity['response']),
+            'locations list should be an array');
+          test.ok(data.entity['response'].length > 0,
+            'at least one location should exist');
 
-        test.notEqual(data.entity['response'].indexOf('Kern River'), -1,
-          'testing client sentinel location should exist');
+          test.notEqual(data.entity['response'].indexOf('Kern River'), -1,
+            'testing client sentinel location should exist');
+        });
         test.done();
       });
   }
@@ -637,7 +643,7 @@ exports['deleteData'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(5);
+    test.expect(6);
     restclient.deleteData(
       clientUUID,
       apiToken,
@@ -646,8 +652,10 @@ exports['deleteData'] = {
       function(data) {
         test.equal(data.status.code, 200, 'delete data should succeed');
 
-        checkResponse(test, data.entity);
-        test.equal(data.entity['response'], 'OK', 'success response');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.equal(data.entity['response'], 'OK', 'success response');
+        });
         test.done();
       });
   }
@@ -672,7 +680,7 @@ exports['listUsers'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
     restclient.listUsers(
       clientUUID,
       apiToken
@@ -680,14 +688,16 @@ exports['listUsers'] = {
       function(data) {
         test.equal(data.status.code, 200, 'list users should succeed');
 
-        checkResponse(test, data.entity);
-        test.ok(Array.isArray(data.entity['response']),
-          'user list should be an array');
-        test.ok(data.entity['response'].length > 0,
-          'at least one user should exist');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.ok(Array.isArray(data.entity['response']),
+            'user list should be an array');
+          test.ok(data.entity['response'].length > 0,
+            'at least one user should exist');
 
-        test.notEqual(data.entity['response'].indexOf('admin@example.com'), -1,
-          'VPN account should exist');
+          test.notEqual(data.entity['response'].indexOf('admin@example.com'), -1,
+            'VPN account should exist');
+        });
         test.done();
       });
   }
@@ -761,7 +771,7 @@ exports['listUserAccess'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
     restclient.listUserAccess(
       clientUUID,
       apiToken,
@@ -770,14 +780,16 @@ exports['listUserAccess'] = {
       function(data) {
         test.equal(data.status.code, 200, 'list user access should succeed');
 
-        checkResponse(test, data.entity);
-        test.ok(Array.isArray(data.entity['response']),
-          'user access list should be an array');
-        test.ok(data.entity['response'].length > 0,
-          'at least one user access should exist');
+        test.doesNotThrow( function() {
+          checkResponse(test, data.entity);
+          test.ok(Array.isArray(data.entity['response']),
+            'user access list should be an array');
+          test.ok(data.entity['response'].length > 0,
+            'at least one user access should exist');
 
-        test.notEqual(data.entity['response'].indexOf('Manage Users'), -1,
-          'Manage Users access level should exist');
+          test.notEqual(data.entity['response'].indexOf('Manage Users'), -1,
+            'Manage Users access level should exist');
+        });
         test.done();
       });
   }
@@ -944,7 +956,7 @@ exports['listAttachments'] = {
     });
   },
   'with-api-token-search-primitive-value': function(test) {
-    test.expect(15);
+    test.expect(16);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -958,8 +970,10 @@ exports['listAttachments'] = {
       [attachment, primitive]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.listAttachments(
             clientUUID,
@@ -1012,7 +1026,7 @@ exports['listAttachments'] = {
     });
   },
   'with-api-token-search-created-by': function(test) {
-    test.expect(15);
+    test.expect(16);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1025,8 +1039,10 @@ exports['listAttachments'] = {
       [attachment]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
         return restclient.listAttachments(
             clientUUID,
             apiToken,
@@ -1078,7 +1094,7 @@ exports['listAttachments'] = {
     });
   },
   'with-api-token-search-tag-name-and-tag-value': function(test) {
-    test.expect(30);
+    test.expect(31);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1092,8 +1108,11 @@ exports['listAttachments'] = {
       [attachment, primitive]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        apiToken = submitResponse.entity['token'];
+
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.listAttachments(
             clientUUID,
@@ -1104,7 +1123,6 @@ exports['listAttachments'] = {
     ).then(
       function(getListResponseTagName) {
         apiToken = getListResponseTagName.entity['token'];
-        console.log(getListResponseTagName.entity);
 
         test.doesNotThrow( function() {
           checkResponse(test, getListResponseTagName.entity);
@@ -1221,9 +1239,11 @@ exports['getAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.getAttachment(
             clientUUID,
@@ -1274,9 +1294,11 @@ exports['getAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.getAttachment(
             clientUUID,
@@ -1304,7 +1326,7 @@ exports['getAttachment'] = {
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1319,8 +1341,10 @@ exports['getAttachment'] = {
       [attachment]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
 
         //login as restricted user
         return restclient.adminAuthenticate(
@@ -1407,7 +1431,7 @@ exports['getAttachmentInfo'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(17);
+    test.expect(18);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1423,9 +1447,11 @@ exports['getAttachmentInfo'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.getAttachmentInfo(
             clientUUID,
@@ -1503,7 +1529,7 @@ exports['getAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(3);
+    test.expect(4);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1519,9 +1545,11 @@ exports['getAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.getAttachment(
             clientUUID,
@@ -1556,7 +1584,7 @@ exports['getAttachment'] = {
     });
   },
   'file-not-found': function(test) {
-    test.expect(1);
+    test.expect(2);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1572,9 +1600,11 @@ exports['getAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.getAttachment(
             clientUUID,
@@ -1602,7 +1632,7 @@ exports['getAttachment'] = {
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1617,8 +1647,10 @@ exports['getAttachment'] = {
       [attachment]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
 
         //login as restricted user
         return restclient.adminAuthenticate(
@@ -1706,7 +1738,7 @@ exports['replaceAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1725,9 +1757,11 @@ exports['replaceAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.replaceAttachment(
           clientUUID,
@@ -1778,7 +1812,7 @@ exports['replaceAttachment'] = {
     );
   },
   'file-not-found': function(test) {
-    test.expect(1);
+    test.expect(2);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1794,9 +1828,11 @@ exports['replaceAttachment'] = {
       [attachment, primitiveData]
     ).then(
       function(submitResponse) {
-        datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-        attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-        apiToken = submitResponse.entity['token'];
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
 
         return restclient.replaceAttachment(
           clientUUID,
