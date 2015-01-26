@@ -565,7 +565,24 @@ exports['submitData'] = {
 
         test.done();
       });
-  }
+  },
+  'some-good-some-bad-data': function(test) {
+    test.expect(1);
+    restclient.submitData(
+        clientUUID,
+        apiToken,
+        new Date(),
+        'admin@example.com',
+        [{type: 'boolean', description: 'test data', value: true},
+        {type: null, description: 'null data', value: null}]
+        ).then(
+          function(data) {
+            test.doesNotThrow( function() {
+              test.equal(data.status.code, 409, 'submit data should fail with code 409');
+              test.done();
+            });
+        });
+  },
 };
 
 exports['getData'] = {
