@@ -493,10 +493,9 @@
                                       "data-set for user %s")
                                  email-address))
             ; rollback the transaction
-            (sql/with-db-transaction [conn db-spec]
-              (sql/db-set-rollback-only! conn))
+            (sql/db-set-rollback-only! conn)
             (if (instance? SQLException e)
-              (log/error (.getNextException e) "Caused by: "))
+              (log/error (.getCause e) "Caused by: "))
             (status (response {:response "Failure"}) 409))))
       (do
         (log/warn
