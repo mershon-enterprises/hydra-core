@@ -138,6 +138,25 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
             //If there is a file to save...
             if ($scope.file) {
 
+                //Verify that the tag input fields are empty. If they are not,
+                //ask the user if they'd like to save the tag. If they say yes,
+                //do it.
+                var tagNameInput = $('#tag-name-input').val();
+                var tagValueInput = $('#tag-value-input').val();
+
+                console.log(tagNameInput);
+                console.log(tagValueInput);
+
+                if( tagNameInput !== '' ||
+                    tagValueInput !== '' ||
+                    tagNameInput !== null ||
+                    tagValueInput !== null ) {
+                    var ans = confirm('You have an unsaved tag. Save it?');
+                    if(ans) {
+                        $scope.addRow(tagNameInput, tagValueInput);
+                    }
+                }
+
                 //Make a new dataItems array that contains the tags as
                 //restclient.PrimitiveData objects without modifying $scope.tags
                 var dataItems = [];
