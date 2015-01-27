@@ -36,30 +36,29 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
 
-        //If someone clicks on a pagination button...
-        $(document).on('click', '.pages > li', function() {
-            //If it was the reset button, set the search params to a default
-            //value and clear the search box.
-            if($(this).html() === 'Reset') {
-                Preferences.reset();
+        //Change pagination options that will change number of items displayed
+        //at a time.
+        $scope.paginate = function(pageValue) {
+            if (pageValue === 'reset') {
+                $scope.searchParams = {
+                    or_search_strings: [],
+                    and_search_strings: [],
+                    not_search_strings: [],
+                    limit: 25,
+                    offset: 0,
+                    order_by: 'date_created',
+                    order: 'desc'
+                };
                 $('input.search').val('');
             }
-            //Otherwise, parse the value of the button as a search parameter.
             else {
-                $scope.searchParams.limit = parseInt($(this).html());
-                $scope.searchParams.limit = parseInt($(this).html());
+                $scope.searchParams.limit = pageValue;
             }
 
             $scope.paginationParams.currentPage = 1;
+        };
 
-            //Force UI Update.
-            $scope.$apply();
-        });
-
-        //Figure out which arrow it was, and alter the "offset" for
-        //query. This alters the 'starting row' for the returned set of
-        //data. "Limit" is the range of values we want, starting from the
-        //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
+        //Navigate through the paginated interface.
         $scope.navigate = function(direction) {
 
             var lastPage = $scope.paginationParams.paginationPages.slice(-1)[0];
