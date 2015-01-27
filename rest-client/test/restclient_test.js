@@ -567,21 +567,46 @@ exports['submitData'] = {
       });
   },
   'some-good-some-bad-data': function(test) {
-    test.expect(1);
+    test.expect(5);
+
+    var datasetWithAttachmentUUID;
+    var attachment = restclient.Attachment("goodFile.csv", "text/csv", "");
+
     restclient.submitData(
         clientUUID,
         apiToken,
         new Date(),
         'admin@example.com',
-        [{type: 'boolean', description: 'test data', value: true},
-        {type: null, description: 'null data', value: null}]
-        ).then(
-          function(data) {
-            test.doesNotThrow( function() {
-              test.equal(data.status.code, 409, 'submit data should fail with code 409');
-              test.done();
-            });
+        [ attachment,
+          {type: 'boolean', description: 'test data', value: true},
+          {type: null, description: 'null data', value: null}
+        ]
+    ).then(
+      function(submitDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = submitDataResponse.entity['token'] || apiToken;
+          test.equal(submitDataResponse.status.code, 409, 'submit data should fail with code 409');
         });
+
+        return restclient.listAttachments(
+          clientUUID,
+          apiToken,
+          { limit: 20,
+            offset: 10,
+            order_by: "date_created",
+            order: "desc" });
+      }
+    ).then(
+      function(listAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = listAttachmentResponse.entity['token'] || apiToken;
+          test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+            'should return exactly 0 attachments');
+          test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+            'should return result count of exactly 0 attachments');
+        });
+        test.done();
+    });
   },
 };
 
