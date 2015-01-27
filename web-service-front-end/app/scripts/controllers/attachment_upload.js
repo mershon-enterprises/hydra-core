@@ -144,9 +144,6 @@ angular.module('webServiceApp').controller('AttachmentUploadCtrl',
                 var tagNameInput = $('#tag-name-input').val();
                 var tagValueInput = $('#tag-value-input').val();
 
-                console.log(tagNameInput);
-                console.log(tagValueInput);
-
                 if( tagNameInput !== '' ||
                     tagValueInput !== '' ||
                     tagNameInput !== null ||
