@@ -60,34 +60,29 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //query. This alters the 'starting row' for the returned set of
         //data. "Limit" is the range of values we want, starting from the
         //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
-        $(document).on('click', '.navigation-arrow', function() {
+        $scope.navigate = function(direction) {
 
             var lastPage = $scope.paginationParams.paginationPages.slice(-1)[0];
 
-            if ($(this).children().hasClass('fa-angle-double-left')) {
+            if (direction === 'first') {
                 $scope.paginationParams.currentPage = 1;
-                $scope.updateCurrentPage();
             }
-            else if ($(this).children().hasClass('fa-angle-left')) {
+            else if (direction === 'prev') {
                 if (($scope.paginationParams.currentPage - 1) > 0) {
                     $scope.paginationParams.currentPage = $scope.paginationParams.currentPage - 1;
-                    $scope.updateCurrentPage();
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-right')) {
+            else if (direction === 'next') {
                 if (($scope.paginationParams.currentPage + 1) <= lastPage){
                     $scope.paginationParams.currentPage = $scope.paginationParams.currentPage + 1;
-                    $scope.updateCurrentPage();
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-double-right')) {
+            else if (direction === 'last') {
                 $scope.paginationParams.currentPage = lastPage;
-                $scope.updateCurrentPage();
             }
 
-            //Force UI Update.
-            $scope.$apply();
-        });
+            $scope.updateCurrentPage();
+        };
 
         $(document).on('change', '.current-page', function() {
             $scope.updateCurrentPage();
