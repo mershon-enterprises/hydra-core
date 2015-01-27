@@ -18,7 +18,7 @@ angular.module('webServiceApp').factory('Preferences', function () {
     };
 
     preferences.paginationParams = {
-        currentPage: 0,
+        currentPage: 1,
         paginationPages: []
     };
 

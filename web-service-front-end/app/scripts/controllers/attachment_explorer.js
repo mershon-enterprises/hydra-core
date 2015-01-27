@@ -83,13 +83,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             $scope.updateCurrentPage();
         };
 
-        $(document).on('change', '.current-page', function() {
-            $scope.updateCurrentPage();
-
-            //Force UI Update.
-            $scope.$apply();
-        });
-
+        //If the current page is updated, change the data that is displayed to the user.
         $scope.updateCurrentPage = function() {
             $scope.searchParams.offset = $scope.searchParams.limit * ($scope.paginationParams.currentPage - 1);
         };
@@ -255,6 +249,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             if (newValue === oldValue) { return; }
             $scope.getData();
             $scope.updateColumnHeaders();
+        }, true);
+
+        $scope.$watch('paginationParams.currentPage', function(newValue, oldValue) {
+            if (newValue === oldValue) { return; }
+            $scope.updateCurrentPage();
         }, true);
 
         $scope.$on(EVENTS.newSearch, function(event, args) {
