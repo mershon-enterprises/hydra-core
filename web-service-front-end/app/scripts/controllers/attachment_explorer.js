@@ -126,6 +126,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                     $scope.sortData();
                 }
                 NProgress.done();
+                $scope.updateColumnHeaders();
             },
             function (error) {
                 console.log('AttachmentExplorerCtrl promise error.');
@@ -252,7 +253,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
             $scope.getData();
-            $scope.updateColumnHeaders();
         }, true);
 
         //Update the view every time the user changes the current page.
@@ -274,7 +274,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //mark that the cache is ready for future reloads.
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.getData();
-            $scope.updateColumnHeaders();
         });
 
         //Whenever the page is loaded or refreshed, check if the cache
@@ -283,7 +282,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //unusuable state.
         if(RestService.getCacheValue('cacheReady')) {
             $scope.getData();
-            $scope.updateColumnHeaders();
         }
 
     }
