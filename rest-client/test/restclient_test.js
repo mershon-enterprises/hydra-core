@@ -170,9 +170,7 @@ exports['adminAuthenticate'] = {
 
 exports['listAccessLevels'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -212,9 +210,7 @@ exports['listAccessLevels'] = {
 
 exports['getAccessLevel'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -259,9 +255,7 @@ exports['getAccessLevel'] = {
 
 exports['listClients'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -301,9 +295,7 @@ exports['listClients'] = {
 
 exports['getClient'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -348,9 +340,7 @@ exports['getClient'] = {
 
 exports['listClientLocations'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -392,9 +382,7 @@ exports['listClientLocations'] = {
 
 exports['listData'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -445,9 +433,7 @@ exports['listData'] = {
 // validate against
 exports['submitData'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -599,7 +585,6 @@ exports['submitData'] = {
     ).then(
       function(listAttachmentResponse) {
         test.doesNotThrow( function() {
-          apiToken = listAttachmentResponse.entity['token'] || apiToken;
           test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
             'should return exactly 0 attachments');
           test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
@@ -612,9 +597,7 @@ exports['submitData'] = {
 
 exports['getData'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -667,9 +650,7 @@ exports['getData'] = {
 
 exports['deleteData'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -705,9 +686,7 @@ exports['deleteData'] = {
 
 exports['listUsers'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -747,9 +726,7 @@ exports['listUsers'] = {
 
 exports['getUser'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -795,9 +772,7 @@ exports['getUser'] = {
 
 exports['listUserAccess'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -839,9 +814,7 @@ exports['listUserAccess'] = {
 
 exports['listAttachments'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -856,7 +829,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(14);
+    test.expect(13);
 
     var attachments = [];
     var datasetWithAttachmentUUID;
@@ -926,15 +899,12 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'with-api-token-search-filename': function(test) {
-    test.expect(17);
+    test.expect(16);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
@@ -997,15 +967,12 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'with-api-token-search-primitive-value': function(test) {
-    test.expect(17);
+    test.expect(16);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1069,15 +1036,12 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'with-api-token-search-created-by': function(test) {
-    test.expect(17);
+    test.expect(16);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1139,15 +1103,12 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'with-api-token-search-tag-name-and-tag-value': function(test) {
-    test.expect(32);
+    test.expect(31);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
@@ -1248,10 +1209,7 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
@@ -1501,10 +1459,7 @@ exports['listAttachments'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
       }
     );
@@ -1513,9 +1468,7 @@ exports['listAttachments'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1581,10 +1534,7 @@ exports['getAttachment'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
@@ -1631,10 +1581,7 @@ exports['getAttachment'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
@@ -1715,10 +1662,6 @@ exports['getAttachment'] = {
               datasetWithAttachmentUUID
             ).then(
                 function(deleteDataResponse) {
-                  test.doesNotThrow( function() {
-                    apiToken = deleteDataResponse.entity['token'];
-                  });
-
                   test.equal(deleteDataResponse.status.code, 200,
                       'delete data should succeed');
                   test.done();
@@ -1731,9 +1674,7 @@ exports['getAttachment'] = {
 
 exports['getAttachmentInfo'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1750,7 +1691,7 @@ exports['getAttachmentInfo'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(19);
+    test.expect(18);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1820,10 +1761,7 @@ exports['getAttachmentInfo'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
@@ -1831,9 +1769,7 @@ exports['getAttachmentInfo'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1850,7 +1786,7 @@ exports['getAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(5);
+    test.expect(4);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1899,15 +1835,12 @@ exports['getAttachment'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'file-not-found': function(test) {
-    test.expect(3);
+    test.expect(2);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1949,15 +1882,12 @@ exports['getAttachment'] = {
         );
       }
     ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
+      function() {
         test.done();
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(8);
+    test.expect(7);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2033,13 +1963,9 @@ exports['getAttachment'] = {
               apiToken,
               datasetWithAttachmentUUID
             ).then(
-                function(deleteDataResponse) {
-                test.doesNotThrow( function() {
-                  apiToken = deleteDataResponse.entity['token'];
-                });
-
+              function(deleteDataResponse) {
                 test.equal(deleteDataResponse.status.code, 200,
-                    'delete data should succeed');
+                  'delete data should succeed');
                 test.done();
             });
         });
@@ -2049,9 +1975,7 @@ exports['getAttachment'] = {
 
 exports['replaceAttachment'] = {
   setUp: function(done) {
-    if (apiToken == null)
-      goodLogin();
-    done();
+    goodLogin( function(){ done(); });
   },
   'no-api-token': function(test) {
     test.expect(2);
