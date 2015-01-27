@@ -211,8 +211,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             RestService.updateCacheValue('data', $scope.data);
         };
 
-        //Update the up and down arrows that indicate sort direction based
-        //what the searchParameters currently are.
+        //Update the sort-direction arrows in every column. This functon
         $scope.updateColumnHeaders = function () {
             $scope.filename_show = false;
             $scope.bytes_show = false;
@@ -249,17 +248,23 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
         };
 
+        //Retrieve new data every time the searchParams updates.
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
             $scope.getData();
             $scope.updateColumnHeaders();
         }, true);
 
+        //Update the view every time the user changes the current page.
+        //Note, this fires the 'searchParams' watcher to acheieve this.
         $scope.$watch('paginationParams.currentPage', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
             $scope.updateCurrentPage();
         }, true);
 
+        //If you see a new search event from the navbar directive, update the
+        //view with new data. Note, this fires the 'searchParams' watcher to
+        //acheieve this.
         $scope.$on(EVENTS.newSearch, function(event, args) {
             $.extend($scope.searchParams, args);
             $scope.$apply();
