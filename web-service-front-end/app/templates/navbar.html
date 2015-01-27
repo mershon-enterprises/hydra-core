@@ -1,0 +1,29 @@
+<!-- Display a menu with various options that may only be visible is the
+user is logged on -->
+<nav>
+    <!-- Upload Link -->
+    <a  ng-show="nav.isLoggedIn"
+        class="upload-link"
+        ng-href="#/attachment_upload">
+        Upload File
+        <i class="fa fa-upload"></i>
+    </a>
+
+    <!-- Search Omnibox Directive -->
+    <omnibox></omnibox>
+
+    <!-- File Explorer Link / Login/Logout -->
+    <ul>
+        <li ng-show="nav.isLoggedIn">
+            <a  ng-href="#/attachment_explorer">
+                File Explorer<i class="fa fa-search"></i>
+            </a>
+        </li>
+        <li ng-show="nav.isLoggedIn" ng-controller="LogoutCtrl">
+            <a ng-click="logout()">
+                Logout
+                <i class="fa fa-sign-out"></i>
+            </a>
+        </li>
+    </ul>
+</nav>

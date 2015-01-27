@@ -43,6 +43,20 @@ CREATE EXTENSION IF NOT EXISTS adminpack WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION adminpack IS 'administrative functions for PostgreSQL';
 
 
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
 SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
@@ -512,6 +526,7 @@ ALTER SEQUENCE user_access_level_id_seq OWNED BY user_access_level.id;
 CREATE TABLE user_api_token (
     id bigint NOT NULL,
     api_token character varying(255) NOT NULL,
+    client_uuid uuid NOT NULL,
     date_created timestamp with time zone DEFAULT now() NOT NULL,
     expiration_date timestamp with time zone NOT NULL,
     user_id bigint NOT NULL
@@ -948,6 +963,14 @@ ALTER TABLE ONLY user_access_level
 
 ALTER TABLE ONLY user_api_token
     ADD CONSTRAINT user_api_token_api_token_key UNIQUE (api_token);
+
+
+--
+-- Name: user_api_token_client_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+--
+
+ALTER TABLE ONLY user_api_token
+    ADD CONSTRAINT user_api_token_client_uuid_key UNIQUE (client_uuid);
 
 
 --

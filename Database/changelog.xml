@@ -11,6 +11,8 @@
     <include file="changelogs/0002-client-tables.xml"/>
     <include file="changelogs/0003-data-tables.xml"/>
     <include file="changelogs/0004-revisions.xml"/>
+    <include file="changelogs/0005-api-token-client-uuid.xml"/>
+    <include file="changelogs/0006-filename-unique-if-not-deleted.xml"/>
     <!-- add child changelogs above this line -->
 
 </databaseChangeLog>

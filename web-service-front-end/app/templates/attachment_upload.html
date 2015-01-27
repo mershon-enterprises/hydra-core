@@ -1,0 +1,79 @@
+<div class="attachment-view">
+    <!-- Display file details -->
+    <div class="file-upload-table">
+        <table>
+            <tr>
+                <th>Filename</th>
+                <th>Author</th>
+                <th>Creation Date</th>
+                <th>File Size</th>
+                <th>Last Modified</th>
+                <th class="button-cell" rowspan=2>
+                    <button class="upload-button">Choose File</button>
+                    <input class="upload-input" type="file" file-model='file'>
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <input id="fileNameInput" type="text" ng-model="filename">
+                </td>
+                <td>{{createdBy}}</td>
+                <td>{{dateCreated | date : 'short'}}</td>
+                <td>
+                    <span ng-if="file">{{file.size | filesize}}</span>
+                </td>
+                <td>
+                    <span ng-if="file">
+                        {{file.lastModifiedDate | date : 'short'}}
+                    </span>
+                </td>
+            </tr>
+            <tr class="spacer" colspan="5"><td></td></tr>
+            <tr>
+                <th colspan="2">Tag Name</th>
+                <th colspan="3">Tag Value</th>
+                <th>Add/Remove</th>
+            </tr>
+            <!-- Display all tags in the scope after the restclient call. -->
+            <tr ng-repeat="tag in tags">
+                <td colspan="2">{{tag.description}}</td>
+                <td colspan="3">{{tag.value}}</td>
+                <td>
+                    <i  class="fa fa-minus"
+                        ng-click="removeRow(tag.description)">
+                    </i>
+                </td>
+            </tr>
+            <!-- Collect the new tag's description and value from the UI and
+            store them as $scope.description and $scope.value -->
+            <tr>
+                <td colspan="2">
+                    <input  class="tag-input tag-description"
+                            type="text"
+                            name="description"
+                            ng-model="description">
+                </td>
+                <td colspan="3">
+                    <input  class="tag-input tag-value mousetrap"
+                            type="text"
+                            name="value"
+                            ng-model="value">
+                </td>
+                <td>
+                    <i  class="fa fa-plus"
+                        ng-click="addRow(description, value)">
+                    </i>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Display save button if there is a file model in scope to save. -->
+    <div class="controls">
+        <button class="back" ng-click="back()">Back</button>
+        <button ng-show="file" class="file-action" ng-click="save()">
+            Save
+        </button>
+        <button ng-hide="file" class="inactive file-action">Save</button>
+    </div>
+</div>
