@@ -284,12 +284,15 @@
                    " ), ?, ?, decode(?, 'base64'))")]
     (if (nil? attachment-info)
       false
-      (try
+      (sql/with-db-transaction
+        [conn db-spec]
+      ;(try
         (println (format "Replacing '%s' with new contents in data-set '%s'"
                          filename
                          uuid))
-        (sql/with-db-transaction
-          [conn db-spec]
+        (try
+        ;(sql/with-db-transaction
+        ;  [conn db-spec]
           (let [is-deleted (do-delete-attachment email-address
                                                  uuid
                                                  filename
@@ -303,16 +306,16 @@
                                     (:mime_type attachment-info)
                                     new-contents]
                               :transaction? false)
-              true)))
-        (catch Exception e
-          (log/error e (format (str "There was an error replacing "
-                                    "attachment '%s' in data-set "
-                                    "'%s'")
-                               filename
-                               uuid))
-          (if (instance? SQLException e)
-            (log/error (.getCause e) "Caused by: "))
-          false)))))
+              true))
+          (catch Exception e
+            (log/error e (format (str "There was an error replacing "
+                                      "attachment '%s' in data-set "
+                                      "'%s'")
+                                 filename
+                                 uuid))
+            (if (instance? SQLException e)
+              (log/error (.getCause e) "Caused by: "))
+            false))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
