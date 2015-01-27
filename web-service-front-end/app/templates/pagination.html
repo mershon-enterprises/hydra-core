@@ -13,9 +13,10 @@
     <li class="navigation-arrow"><i class="fa fa-angle-double-left"></i></li>
     <li class="navigation-arrow"><i class="fa fa-angle-left"></i></li>
     <li>
-        <select ng-model="currentPage"
-                ng-init="currentPage = 1"
-                ng-options="p for p in paginationPages">
+        <select class="current-page"
+                ng-model="paginationParams.currentPage"
+                ng-init="paginationParams.currentPage = 1"
+                ng-options="p for p in paginationParams.paginationPages">
         </select>
     </li>
     <li class="navigation-arrow"><i class="fa fa-angle-right"></i></li>

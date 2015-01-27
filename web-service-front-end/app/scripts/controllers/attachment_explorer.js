@@ -10,6 +10,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $rootScope,
         $scope,
         NotificationService,
+        Preferences,
         RestService,
         Session,
         EVENTS
@@ -20,38 +21,27 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
     //If the user is logged in...
     if (Session.exists()) {
 
-        //Storage variables for the file this controller is operating on.
+        //Bind the search parameters used by this controller to the Preferences
+        //service, which will maintain those preferences between controller
+        //swaps.
+        $scope.searchParams = Preferences.searchParams;
+
+        //Bind the pagination preferences in the same way.
+        $scope.paginationParams = Preferences.paginationParams;
+
+        //View variables.
         $scope.data = null;
         $scope.resultCount = 0;
         $scope.resultCountLabel = '';
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
-        $scope.currentPage = 0;
-        $scope.paginationPages = [];
-
-        //Store the parameters for custom backend calls.
-        $scope.searchParams = {
-            or_search_strings: [],
-            and_search_strings: [],
-            not_search_strings: [],
-            limit: 25,
-            offset: 0,
-            order_by: 'date_created',
-            order: 'desc'
-        };
 
         //If someone clicks on a pagination button...
         $(document).on('click', '.pages > li', function() {
             //If it was the reset button, set the search params to a default
             //value and clear the search box.
             if($(this).html() === 'Reset') {
-                $scope.searchParams = {
-                    search_string: '',
-                    limit: 25,
-                    offset: 0,
-                    order_by: 'date_created',
-                    order: 'desc'
-                };
+                Preferences.reset();
                 $('input.search').val('');
             }
             //Otherwise, parse the value of the button as a search parameter.
@@ -60,7 +50,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 $scope.searchParams.limit = parseInt($(this).html());
             }
 
-            $scope.currentPage = 1;
+            $scope.paginationParams.currentPage = 1;
+
+            //Force UI Update.
             $scope.$apply();
         });
 
@@ -70,28 +62,43 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
         $(document).on('click', '.navigation-arrow', function() {
 
-            var lastPage = $scope.paginationPages.slice(-1)[0];
+            var lastPage = $scope.paginationParams.paginationPages.slice(-1)[0];
 
             if ($(this).children().hasClass('fa-angle-double-left')) {
-                $scope.currentPage = 1;
+                $scope.paginationParams.currentPage = 1;
+                $scope.updateCurrentPage();
             }
             else if ($(this).children().hasClass('fa-angle-left')) {
-                if (($scope.currentPage - 1) > 0) {
-                    $scope.currentPage = $scope.currentPage - 1;
+                if (($scope.paginationParams.currentPage - 1) > 0) {
+                    $scope.paginationParams.currentPage = $scope.paginationParams.currentPage - 1;
+                    $scope.updateCurrentPage();
                 }
             }
             else if ($(this).children().hasClass('fa-angle-right')) {
-                if (($scope.currentPage + 1) <= lastPage){
-                    $scope.currentPage = $scope.currentPage + 1;
+                if (($scope.paginationParams.currentPage + 1) <= lastPage){
+                    $scope.paginationParams.currentPage = $scope.paginationParams.currentPage + 1;
+                    $scope.updateCurrentPage();
                 }
             }
             else if ($(this).children().hasClass('fa-angle-double-right')) {
-                $scope.currentPage = lastPage;
+                $scope.paginationParams.currentPage = lastPage;
+                $scope.updateCurrentPage();
             }
 
             //Force UI Update.
             $scope.$apply();
         });
+
+        $(document).on('change', '.current-page', function() {
+            $scope.updateCurrentPage();
+
+            //Force UI Update.
+            $scope.$apply();
+        });
+
+        $scope.updateCurrentPage = function() {
+            $scope.searchParams.offset = $scope.searchParams.limit * ($scope.paginationParams.currentPage - 1);
+        };
 
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
@@ -108,9 +115,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                     //Calculate the page numbers for the pagination dropdown.
                     var temp = $scope.resultCount;
                     var i = 1;
-                    $scope.paginationPages = [];
+                    $scope.paginationParams.paginationPages = [];
                     while(temp > 0) {
-                        $scope.paginationPages.push(i);
+                        $scope.paginationParams.paginationPages.push(i);
                         temp = temp - $scope.searchParams.limit;
                         i = i+1;
                     }
@@ -254,11 +261,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             if (newValue === oldValue) { return; }
             $scope.getData();
             $scope.updateColumnHeaders();
-        }, true);
-
-        $scope.$watch('currentPage', function(newValue, oldValue) {
-            if (newValue === oldValue) { return; }
-            $scope.searchParams.offset = $scope.searchParams.limit * ($scope.currentPage - 1);
         }, true);
 
         $scope.$on(EVENTS.newSearch, function(event, args) {
