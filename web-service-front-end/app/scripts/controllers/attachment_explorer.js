@@ -68,12 +68,14 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
             else if (direction === 'prev') {
                 if (($scope.paginationParams.currentPage - 1) > 0) {
-                    $scope.paginationParams.currentPage = $scope.paginationParams.currentPage - 1;
+                    $scope.paginationParams.currentPage =
+                    $scope.paginationParams.currentPage - 1;
                 }
             }
             else if (direction === 'next') {
                 if (($scope.paginationParams.currentPage + 1) <= lastPage){
-                    $scope.paginationParams.currentPage = $scope.paginationParams.currentPage + 1;
+                    $scope.paginationParams.currentPage =
+                    $scope.paginationParams.currentPage + 1;
                 }
             }
             else if (direction === 'last') {
@@ -83,9 +85,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             $scope.updateCurrentPage();
         };
 
-        //If the current page is updated, change the data that is displayed to the user.
+        //If the current page is updated, change the data that is displayed to
+        //the user.
         $scope.updateCurrentPage = function() {
-            $scope.searchParams.offset = $scope.searchParams.limit * ($scope.paginationParams.currentPage - 1);
+            $scope.searchParams.offset = $scope.searchParams.limit *
+            ($scope.paginationParams.currentPage - 1);
         };
 
         //Retrieve data from the restservice, with query parameters specified
