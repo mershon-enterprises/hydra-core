@@ -36,6 +36,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
 
+        //NG-CLICK Functions ===================================================
+
         //ng-click function for the paginate buttons.
         //Sets items-per-page vaule that was clicked by the user.
         //Resets preferences and clears search bar if 'Reset' button is pressed.
@@ -80,50 +82,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             $scope.updateOffset();
         };
 
-        //Update the 'first item' offset based on the limit and currentPage.
-        $scope.updateOffset = function() {
-            $scope.searchParams.offset = $scope.searchParams.limit *
-            ($scope.paginationParams.currentPage - 1);
-        };
-
-        //Update the displayed result count and repopulate the select box with
-        //the new pagination page numbers. If an invalid result is found
-        //eg. "Displaying 500-600 of 135 items", reset the current page to 1.
-        $scope.updateResultCount = function () {
-
-            //Calculate the page numbers for the pagination dropdown.
-            var temp = $scope.resultCount;
-            var i = 1;
-            $scope.paginationParams.paginationPages = [];
-            while(temp > 0) {
-                $scope.paginationParams.paginationPages.push(i);
-                temp = temp - $scope.searchParams.limit;
-                i = i+1;
-            }
-
-            //reset the offset and currentPage to defaults if the offset
-            //is larger than the resultCount
-            if($scope.searchParams.offset >= $scope.resultCount) {
-               $scope.searchParams.offset = 0;
-               $scope.paginationParams.currentPage = 1;
-            }
-
-            //Update the view label with the new values.
-            $scope.resultCountLabel =
-                'Showing ' +
-                ($scope.searchParams.offset + 1) +
-                ' - ' +
-                Math.min(
-                    ($scope.searchParams.offset +
-                     $scope.searchParams.limit),
-                    $scope.resultCount) +
-                ' of ' + $scope.resultCount + ' Results';
-
-        };
+        //UI Functions =========================================================
 
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
-        $scope.getData = function () {
+        $scope.getTableData = function () {
             var deferred = $q.defer();
             NProgress.start();
             NProgress.inc();
@@ -147,8 +110,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         };
 
         //Sort the data into containers based on client/field combinations
-        //so the file-explorer-table directive can sort them all properly.
-        $scope.sortData = function () {
+        //so the file-explorer-table directive can display them all properly.
+        $scope.sortTableData = function () {
 
             var groups = {};
             groups.clients = {};
@@ -259,17 +222,56 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
         };
 
+        //Update the 'first item' offset based on the limit and currentPage.
+        $scope.updateOffset = function() {
+            $scope.searchParams.offset = $scope.searchParams.limit *
+            ($scope.paginationParams.currentPage - 1);
+        };
+
+        //Update the displayed result count and repopulate the select box with
+        //the new pagination page numbers. If an invalid result is found
+        //eg. "Displaying 500-600 of 135 items", reset the current page to 1.
+        $scope.updateResultCount = function () {
+
+            //Calculate the page numbers for the pagination dropdown.
+            var temp = $scope.resultCount;
+            var i = 1;
+            $scope.paginationParams.paginationPages = [];
+            while(temp > 0) {
+                $scope.paginationParams.paginationPages.push(i);
+                temp = temp - $scope.searchParams.limit;
+                i = i+1;
+            }
+
+            //reset the offset and currentPage to defaults if the offset
+            //is larger than the resultCount
+            if($scope.searchParams.offset >= $scope.resultCount) {
+               $scope.searchParams.offset = 0;
+               $scope.paginationParams.currentPage = 1;
+            }
+
+            //Update the view label with the new values.
+            $scope.resultCountLabel =
+                'Showing ' +
+                ($scope.searchParams.offset + 1) +
+                ' - ' +
+                Math.min(
+                    ($scope.searchParams.offset +
+                     $scope.searchParams.limit),
+                    $scope.resultCount) +
+                ' of ' + $scope.resultCount + ' Results';
+
+        };
+
         //Calls all functions required to update the UI after a user event.
         $scope.refreshFileExplorer = function() {
-            $scope.getData().then(
+            $scope.getTableData().then(
                 function() {
-                    $scope.sortData();
+                    $scope.sortTableData();
                     $scope.updateResultCount();
                     $scope.updateColumnHeaders();
                 },
                 function() {
-                    //Failed getData promise means existing data in cache will
-                    //be used, if any.
                 });
         };
 
