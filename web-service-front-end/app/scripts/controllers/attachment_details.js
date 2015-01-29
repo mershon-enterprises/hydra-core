@@ -409,10 +409,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 var tagNameInput = $('#tag-name-input').val();
                 var tagValueInput = $('#tag-value-input').val();
 
-                if( tagNameInput !== '' ||
-                    tagValueInput !== '' ||
-                    tagNameInput !== null ||
-                    tagValueInput !== null ) {
+                if( tagNameInput && tagValueInput ) {
                     var ans = confirm('You have an unsaved tag. Save it?');
                     if(ans) {
                         $scope.addRow(tagNameInput, tagValueInput);
