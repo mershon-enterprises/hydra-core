@@ -107,6 +107,11 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 i = i+1;
             }
 
+            if($scope.searchParams.offset >= $scope.resultCount) {
+               $scope.searchParams.offset = 0;
+               $scope.paginationParams.currentPage = 1;
+            }
+
             $scope.resultCountLabel =
                 'Showing ' +
                 ($scope.searchParams.offset + 1) +
