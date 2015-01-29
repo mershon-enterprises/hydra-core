@@ -1,8 +1,8 @@
 <ul class="pagination pages">
-    <li>25</li>
-    <li>50</li>
-    <li>100</li>
-    <li>Reset</li>
+    <li ng-click="paginate(25)">25</li>
+    <li ng-click="paginate(50)">50</li>
+    <li ng-click="paginate(100)">100</li>
+    <li ng-click="paginate('reset')">Reset</li>
 </ul>
 
 <span class="results">
@@ -10,14 +10,14 @@
 </span>
 
 <ul class="navigation-menu pagination">
-    <li class="navigation-arrow"><i class="fa fa-angle-double-left"></i></li>
-    <li class="navigation-arrow"><i class="fa fa-angle-left"></i></li>
+    <li class="navigation-arrow" ng-click="navigate('first')"><i class="fa fa-angle-double-left"></i></li>
+    <li class="navigation-arrow" ng-click="navigate('prev')"><i class="fa fa-angle-left"></i></li>
     <li>
-        <select ng-model="currentPage"
-                ng-init="currentPage = 1"
-                ng-options="p for p in paginationPages">
+        <select class="current-page"
+                ng-model="paginationParams.currentPage"
+                ng-options="p for p in paginationParams.paginationPages">
         </select>
     </li>
-    <li class="navigation-arrow"><i class="fa fa-angle-right"></i></li>
-    <li class="navigation-arrow"><i class="fa fa-angle-double-right"></i></li>
+    <li class="navigation-arrow" ng-click="navigate('next')"><i class="fa fa-angle-right"></i></li>
+    <li class="navigation-arrow" ng-click="navigate('last')"><i class="fa fa-angle-double-right"></i></li>
 </ul>
