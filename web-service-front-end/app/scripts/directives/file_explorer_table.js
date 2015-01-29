@@ -40,6 +40,28 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
             });
         };
 
+        //Sort the column with the given key in descending order. Or swap
+        //the sort order if it's already sorted.
+        $scope.sortColumn = function(key) {
+            //Get the key from the column and check if we are already sorting
+            //by that key.
+            if ($scope.searchParams.order_by === key) {
+                //If the order is desc, use asc.
+                if ($scope.searchParams.order === 'desc') {
+                    $scope.searchParams.order = 'asc';
+                }
+                //Otherwise, use desc.
+                else {
+                    $scope.searchParams.order = 'desc';
+                }
+            }
+            //Otherwise, set the ordering to that key and set it to desc.
+            else {
+                $scope.searchParams.order_by = key;
+                $scope.searchParams.order = 'desc';
+            }
+        };
+
         //If anyone clicks on a + or - in a table header, collapse or expand
         //the section the + or - is related to.
         $(document).on('click', '.toggle', function() {
@@ -112,30 +134,6 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
                 $scope.locationCollapseOptions[clientName+locationName] =
                 !$scope.locationCollapseOptions[clientName+locationName];
             }
-        });
-
-        //If someone clicks on the column headers, sort the column by desc order
-        //if it already is in desc, change it to asc order.
-        $(document).on('click', '.file-explorer-header * th', function() {
-            //Get the key from the column and check if we are already sorting
-            //by that key.
-            if ($scope.searchParams.order_by === $(this).attr('key')) {
-                //If the order is desc, use asc.
-                if ($scope.searchParams.order === 'desc') {
-                    $scope.searchParams.order = 'asc';
-                }
-                //Otherwise, use desc.
-                else {
-                    $scope.searchParams.order = 'desc';
-                }
-            }
-            //Otherwise, set the ordering to that key and set it to desc.
-            else {
-                $scope.searchParams.order_by = $(this).attr('key');
-                $scope.searchParams.order = 'desc';
-            }
-            //Force UI update.
-            $scope.$apply();
         });
 
         },

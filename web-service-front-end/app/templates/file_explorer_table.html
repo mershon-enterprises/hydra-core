@@ -1,20 +1,20 @@
 <table class="file-explorer-table file-explorer-header">
     <tr>
-        <th key="filename">
+        <th ng-click="sortColumn('filename')">
             Filename
             <div ng-if="filename_show">
                 <i ng-show="filename_asc" class="fa fa-angle-up"></i>
                 <i ng-hide="filename_asc" class="fa fa-angle-down"></i>
             </div>
         </th>
-        <th key="bytes">
+        <th ng-click="sortColumn('bytes')">
             File Size
             <div ng-if="bytes_show">
                 <i ng-show="bytes_asc" class="fa fa-angle-up"></i>
                 <i ng-hide="bytes_asc" class="fa fa-angle-down"></i>
             </div>
         </th>
-        <th key="created_by">
+        <th ng-click="sortColumn('created_by')">
             Author
             <div ng-if="created_by_show">
                 <i ng-show="created_by_asc" class="fa fa-angle-up">
@@ -23,7 +23,7 @@
                 </i>
             </div>
         </th>
-        <th key="date_created">
+        <th ng-click="sortColumn('date_created')">
             Creation Date
             <div ng-if="date_created_show">
                 <i ng-show="date_created_asc" class="fa fa-angle-up">
