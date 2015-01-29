@@ -44,8 +44,13 @@
         <tr>
             <!-- Display client name and toggle +/- for collapsing.  -->
             <th class="client-header" colspan="5">
-                <i  class="toggle fa fa-minus-square"
-                    client={{clientName}}>
+                <i  ng-show="clientCollapseOptions[clientName]"
+                    ng-click="toggleClient(clientName)"
+                    class="toggle fa fa-plus-square">
+                </i>
+                <i  ng-hide="clientCollapseOptions[clientName]"
+                    ng-click="toggleClient(clientName)"
+                    class="toggle fa fa-minus-square">
                 </i>
                 {{clientName}}
             </th>
@@ -61,7 +66,16 @@
             <!-- Display the location name and the toggle +/- for
             collapsing the location section. -->
             <th class="location-header" colspan="5">
-                <i  class="toggle fa fa-minus-square"
+                <i  ng-show="locationCollapseOptions[clientName+locationName]"
+                    ng-click="toggleLocation(locationName, clientName)"
+                    class="toggle fa fa-plus-square"
+                    location="{{locationName}}"
+                    parent-client="{{clientName}}"
+                >
+                </i>
+                <i  ng-hide="locationCollapseOptions[clientName+locationName]"
+                    ng-click="toggleLocation(locationName, clientName)"
+                    class="toggle fa fa-minus-square"
                     location="{{locationName}}"
                     parent-client="{{clientName}}"
                 >

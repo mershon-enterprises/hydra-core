@@ -62,79 +62,51 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
             }
         };
 
-        //If anyone clicks on a + or - in a table header, collapse or expand
-        //the section the + or - is related to.
-        $(document).on('click', '.toggle', function() {
-
-            var toggle = null;
-            var clientName = null;
-            var locationName = null;
-
-            //If it's a client header...
-            if($(this).attr('client')) {
-                //Remember this icon.
-                toggle = $(this);
-                //Get the client's name.
-                clientName = $(this).attr('client');
-                //For all locations...
-                $('.location-table').each(function() {
-                    //If the location is for the client we found earlier...
-                    if ($(this).attr('parent-client') === clientName) {
-                        //If the section is collapsed, expand it.
-                        //If the section is expanded, collapse it.
-                        if ($scope.clientCollapseOptions[clientName]) {
-                            $(this).show();
-                            //And then change the + to -
-                            toggle.removeClass('fa-plus-square').addClass(
-                                                            'fa-minus-square');
-                        }
-                        else {
-                            $(this).hide();
-                            //Or vice-versa.
-                            toggle.removeClass('fa-minus-square').addClass(
-                                                            'fa-plus-square');
-                        }
+        //Toggle all rows that are related to the clientName
+        $scope.toggleClient = function(clientName) {
+            //For all locations...
+            $('.location-table').each(function() {
+                //If the location is for the client we found earlier...
+                if ($(this).attr('parent-client') === clientName) {
+                    //If the section is collapsed, expand it.
+                    //If the section is expanded, collapse it.
+                    if ($scope.clientCollapseOptions[clientName]) {
+                        $(this).show();
                     }
-                });
-                //Remember the change we made.
-                $scope.clientCollapseOptions[clientName] =
-                !$scope.clientCollapseOptions[clientName];
-            }
-
-            //If this a location row...
-            if($(this).attr('location')) {
-                //Remember this icon.
-                toggle = $(this);
-                //Get the client's name.
-                clientName = $(this).attr('parent-client');
-                //Get the location name.
-                locationName = $(this).attr('location');
-                //For all data rows...
-                $('.data-row').each(function() {
-                    //If this row is related to the client and location...
-                    if (($(this).attr('parent-client') === clientName) &&
-                        ($(this).attr('location') === locationName))
-                    {
-                        //If the section is collapsed, expand it.
-                        //If the section is expanded, collapse it.
-                        if ($scope.locationCollapseOptions[clientName+
-                                                                locationName]) {
-                            $(this).show();
-                            toggle.removeClass('fa-plus-square').addClass(
-                                                            'fa-minus-square');
-                        }
-                        else {
-                            $(this).hide();
-                            toggle.removeClass('fa-minus-square').addClass(
-                                                            'fa-plus-square');
-                        }
+                    else {
+                        $(this).hide();
                     }
-                });
-                //Remember the change we made.
-                $scope.locationCollapseOptions[clientName+locationName] =
-                !$scope.locationCollapseOptions[clientName+locationName];
-            }
-        });
+                }
+            });
+            //Remember the change we made.
+            $scope.clientCollapseOptions[clientName] =
+            !$scope.clientCollapseOptions[clientName];
+        };
+
+        //Toggle all rows that are of the specified locationName related to the
+        //parentClient
+        $scope.toggleLocation = function(locationName, parentClient) {
+            //For all data rows...
+            $('.data-row').each(function() {
+                //If this row is related to the client and location...
+                if (($(this).attr('parent-client') === parentClient) &&
+                    ($(this).attr('location') === locationName))
+                {
+                    //If the section is collapsed, expand it.
+                    //If the section is expanded, collapse it.
+                    if ($scope.locationCollapseOptions[parentClient+
+                                                            locationName]) {
+                        $(this).show();
+                    }
+                    else {
+                        $(this).hide();
+                    }
+                }
+            });
+            //Remember the change we made.
+            $scope.locationCollapseOptions[parentClient+locationName] =
+            !$scope.locationCollapseOptions[parentClient+locationName];
+        };
 
         },
         controllerAs: 'fet'
