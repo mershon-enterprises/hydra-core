@@ -220,8 +220,6 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
 
             //Data has been sorted.
             $scope.data = groups;
-            //Update the cache.
-            RestService.updateCacheValue('data', $scope.data);
         };
 
         //Update the sort-direction arrows in every column.
