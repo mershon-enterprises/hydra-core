@@ -22,6 +22,11 @@ angular.module('webServiceApp').factory('Preferences', function () {
         paginationPages: []
     };
 
+    //Resets the stored preferences to their defaults.
+    //Caution : Do not rebind new objects onto this service's variables.
+    //ex. preferences.searchParams = {...}
+    //Doing so will detach this services from whatever controller is using it.
+    //That's why we need to set all of the object properties manually.
     preferences.reset = function() {
         preferences.searchParams.or_search_strings = [];
         preferences.searchParams.and_search_strings = [];
