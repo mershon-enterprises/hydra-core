@@ -9,6 +9,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
     function (
         $rootScope,
         $scope,
+        $q,
         NotificationService,
         Preferences,
         RestService,
@@ -127,25 +128,26 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
+            var deferred = $q.defer();
             NProgress.start();
             NProgress.inc();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
                 NProgress.set(0.75);
                 if (success[0] === EVENTS.promiseSuccess) {
+                    deferred.resolve();
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
-                    $scope.updateResultCount();
-                    $scope.sortData();
                 }
                 NProgress.done();
-                $scope.updateColumnHeaders();
             },
             function (error) {
+                deferred.reject();
                 console.log('AttachmentExplorerCtrl promise error.');
                 console.log(error);
                 NProgress.set(0.0);
             });
+            return deferred.promise;
         };
 
         //Sort the data into containers based on client/field combinations.
@@ -262,10 +264,23 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
         };
 
+        $scope.refreshFileExplorer = function() {
+            $scope.getData().then(
+                function() {
+                    $scope.sortData();
+                    $scope.updateResultCount();
+                    $scope.updateColumnHeaders();
+                },
+                function() {
+                    //Failed getData promise means existing data in cache will
+                    //be used, if any.
+                });
+        };
+
         //Retrieve new data every time the searchParams updates.
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
-            $scope.getData();
+            $scope.refreshFileExplorer();
         }, true);
 
         //Update the view every time the user changes the current page.
@@ -286,7 +301,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //If the cache is ready, force a reload of the page and
         //mark that the cache is ready for future reloads.
         $scope.$on(EVENTS.cacheReady, function() {
-            $scope.getData();
+            $scope.refreshFileExplorer();
         });
 
         //Whenever the page is loaded or refreshed, check if the cache
@@ -294,7 +309,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //conditions with the api-token that could put the app into an
         //unusuable state.
         if(RestService.getCacheValue('cacheReady')) {
-            $scope.getData();
+            $scope.refreshFileExplorer();
         }
 
     }
