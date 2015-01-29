@@ -92,6 +92,33 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             ($scope.paginationParams.currentPage - 1);
         };
 
+        //Update the displayed item count of the results and repopulate the
+        //select box with the new pagination page numbers. If an invalid
+        //result is found eg. "Displaying 500-600 of 135 items", reset
+        //the current page to 1.
+        $scope.updateResultCount = function () {
+            //Calculate the page numbers for the pagination dropdown.
+            var temp = $scope.resultCount;
+            var i = 1;
+            $scope.paginationParams.paginationPages = [];
+            while(temp > 0) {
+                $scope.paginationParams.paginationPages.push(i);
+                temp = temp - $scope.searchParams.limit;
+                i = i+1;
+            }
+
+            $scope.resultCountLabel =
+                'Showing ' +
+                ($scope.searchParams.offset + 1) +
+                ' - ' +
+                Math.min(
+                    ($scope.searchParams.offset +
+                     $scope.searchParams.limit),
+                    $scope.resultCount) +
+                ' of ' + $scope.resultCount + ' Results';
+
+        };
+
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
         $scope.getData = function () {
@@ -103,26 +130,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 if (success[0] === EVENTS.promiseSuccess) {
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
-
-                    //Calculate the page numbers for the pagination dropdown.
-                    var temp = $scope.resultCount;
-                    var i = 1;
-                    $scope.paginationParams.paginationPages = [];
-                    while(temp > 0) {
-                        $scope.paginationParams.paginationPages.push(i);
-                        temp = temp - $scope.searchParams.limit;
-                        i = i+1;
-                    }
-
-                    $scope.resultCountLabel =
-                        'Showing ' +
-                        ($scope.searchParams.offset + 1) +
-                        ' - ' +
-                        Math.min(
-                            ($scope.searchParams.offset +
-                             $scope.searchParams.limit),
-                            $scope.resultCount) +
-                        ' of ' + $scope.resultCount + ' Results';
+                    $scope.updateResultCount();
                     $scope.sortData();
                 }
                 NProgress.done();
