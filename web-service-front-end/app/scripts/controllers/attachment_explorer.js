@@ -23,8 +23,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
     if (Session.exists()) {
 
         //Bind the search parameters used by this controller to the Preferences
-        //service, which will maintain those preferences between controller
-        //swaps.
+        //service, which will maintain those preferences between controllers.
         $scope.searchParams = Preferences.searchParams;
 
         //Bind the pagination preferences in the same way.
@@ -37,8 +36,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
 
-        //Change pagination options that will change number of items displayed
-        //at a time.
+        //ng-click function for the paginate buttons.
+        //Sets items-per-page vaule that was clicked by the user.
+        //Resets preferences and clears search bar if 'Reset' button is pressed.
         $scope.paginate = function(pageValue) {
             if (pageValue === 'reset') {
                 Preferences.reset();
@@ -51,7 +51,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             $scope.paginationParams.currentPage = 1;
         };
 
-        //Navigate through the paginated interface.
+        //ng-click function for navigation buttons.
+        //Navigates the page forward or back depending on which button was
+        //pressed.
         $scope.navigate = function(direction) {
 
             var lastPage = $scope.paginationParams.paginationPages.slice(-1)[0];
@@ -75,21 +77,20 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 $scope.paginationParams.currentPage = lastPage;
             }
 
-            $scope.updateCurrentPage();
+            $scope.updateOffset();
         };
 
-        //If the current page is updated, change the data that is displayed to
-        //the user.
-        $scope.updateCurrentPage = function() {
+        //Update the 'first item' offset based on the limit and currentPage.
+        $scope.updateOffset = function() {
             $scope.searchParams.offset = $scope.searchParams.limit *
             ($scope.paginationParams.currentPage - 1);
         };
 
-        //Update the displayed item count of the results and repopulate the
-        //select box with the new pagination page numbers. If an invalid
-        //result is found eg. "Displaying 500-600 of 135 items", reset
-        //the current page to 1.
+        //Update the displayed result count and repopulate the select box with
+        //the new pagination page numbers. If an invalid result is found
+        //eg. "Displaying 500-600 of 135 items", reset the current page to 1.
         $scope.updateResultCount = function () {
+
             //Calculate the page numbers for the pagination dropdown.
             var temp = $scope.resultCount;
             var i = 1;
@@ -100,11 +101,14 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 i = i+1;
             }
 
+            //reset the offset and currentPage to defaults if the offset
+            //is larger than the resultCount
             if($scope.searchParams.offset >= $scope.resultCount) {
                $scope.searchParams.offset = 0;
                $scope.paginationParams.currentPage = 1;
             }
 
+            //Update the view label with the new values.
             $scope.resultCountLabel =
                 'Showing ' +
                 ($scope.searchParams.offset + 1) +
@@ -142,7 +146,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             return deferred.promise;
         };
 
-        //Sort the data into containers based on client/field combinations.
+        //Sort the data into containers based on client/field combinations
+        //so the file-explorer-table directive can sort them all properly.
         $scope.sortData = function () {
 
             var groups = {};
@@ -207,7 +212,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                     }
                     //If they have no client (and implicitly no location...)
                     else if (!(value.client)) {
-                        //Sort into special "noClient" client.
+                        //Sort into special "No Client" client.
                         groups.noClient.push(value);
                     }
                 });
@@ -219,7 +224,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             RestService.updateCacheValue('data', $scope.data);
         };
 
-        //Update the sort-direction arrows in every column. This functon
+        //Update the sort-direction arrows in every column.
         $scope.updateColumnHeaders = function () {
             $scope.filename_show = false;
             $scope.bytes_show = false;
@@ -256,6 +261,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
         };
 
+        //Calls all functions required to update the UI after a user event.
         $scope.refreshFileExplorer = function() {
             $scope.getData().then(
                 function() {
@@ -269,6 +275,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 });
         };
 
+        // WATCHERS ============================================================
+
         //Retrieve new data every time the searchParams updates.
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
@@ -279,7 +287,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //Note, this fires the 'searchParams' watcher to acheieve this.
         $scope.$watch('paginationParams.currentPage', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
-            $scope.updateCurrentPage();
+            $scope.updateOffset();
         }, true);
 
         //If you see a new search event from the navbar directive, update the
@@ -295,6 +303,8 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $scope.$on(EVENTS.cacheReady, function() {
             $scope.refreshFileExplorer();
         });
+
+        // CACHE ===============================================================
 
         //Whenever the page is loaded or refreshed, check if the cache
         //is ready and populate the page if it is. This eliminates race
