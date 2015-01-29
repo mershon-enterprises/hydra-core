@@ -599,9 +599,21 @@
                    "  select id from data_set where uuid::character varying=?) "
                    "and description=?")]
     (if can-access
-      (if (sql/execute! (db) [query email-address data-set-uuid description])
-        (status (response {:response "OK"}) 200 )
-        (status (response {:response "Failure"}) 409))
+      (sql/with-db-transaction
+        [conn db-spec]
+        (try
+          (sql/execute! (db) [query email-address data-set-uuid description])
+          (status (response {:response "OK"}) 200 )
+
+          (catch Exception e
+            (log/error e (format (str "There was an error submitting a "
+                                      "data-set for user %s")
+                                 email-address))
+            ; rollback the transaction
+            (sql/db-set-rollback-only! conn)
+            (if (instance? SQLException e)
+                  (log/error (.getNextException e) "Caused by: "))
+                (status (response {:response "Failure"}) 409))))
       (access-denied constants/manage-data))))
 
 ; list up data_sets in the database, as an HTTP response

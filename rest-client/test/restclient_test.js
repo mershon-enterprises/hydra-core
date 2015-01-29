@@ -762,6 +762,102 @@ exports['deleteData'] = {
   }
 };
 
+exports['deleteTag'] = {
+  setUp: function(done) {
+    goodLogin( function(){ done(); });
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.deleteTag(
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'delete data should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(8);
+
+    var datasetWithAttachmentUUID;
+    var attachment = restclient.Attachment("testDeleteTag.csv", "text/csv", "");
+    var primitive = restclient.PrimitiveData("text", "deletedTag", "deletedValue");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitive]
+    ).then(
+      function(submitDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = submitDataResponse.entity['token'];
+          datasetWithAttachmentUUID = submitDataResponse.entity['response']['uuid'];
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {or_search_strings: ["deletedvalue"]}
+        );
+      }
+    ).then(
+      function(listAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = listAttachmentResponse.entity['token'];
+        });
+
+
+        return restclient.deleteTag(
+          clientUUID,
+          apiToken,
+          "deletedTag",
+          "text"
+        );
+      }
+    ).then(
+      function(deleteTagResponse) {
+        test.doesNotThrow( function() {
+          test.equal(deleteTagResponse.status.code, 200, 'delete data should succeed with 20o status');
+          checkResponse(test, deleteTagResponse.entity);
+          test.equal(deleteTagResponse.entity['response'], 'OK', 'success response');
+        });
+
+        // delete mock attachments.
+        return restclient.deleteData(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID
+        );
+      }
+    ).then(
+      function() {
+        test.done();
+    });
+  },
+  'bad-parameters': function(test) {
+    test.expect(3);
+    restclient.deleteTag(
+        clientUUID,
+        apiToken,
+        null,
+        null,
+      null
+    ).then(
+      function(deleteTagResponse) {
+        test.doesNotThrow( function() {
+          test.equal(deleteTagResponse.status.code, 409, 'deleteTag should fail with 409 status');
+          test.equal(deleteTagResponse.entity['response'], 'Failure', 'response should be Failure');
+        });
+        test.done()
+      });
+  },
+};
+
 exports['listUsers'] = {
   setUp: function(done) {
     goodLogin( function(){
