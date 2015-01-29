@@ -77,14 +77,14 @@
             location="{{locationName}}"
             ng-repeat="row in location"
             >
-            <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
-            <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
-            <td ng-click="viewDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-            <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
             </td>
             <td>
                 <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
-                <i ng-click="viewDetails(row.unique_key)" class="fa fa-cog"></i>
+                <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
             </td>
         </tr>
     </table>
@@ -95,13 +95,13 @@
         <th class="client-header" colspan="5"></i>No Client</th>
     </tr>
     <tr class="data-row" ng-repeat="row in data.noClient">
-        <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
-        <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
-        <td ng-click="viewDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-        <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
         <td>
             <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
-            <i ng-click="viewDetails(row.unique_key)" class="fa fa-cog"></i>
+            <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
         </td>
     </tr>
 </table>

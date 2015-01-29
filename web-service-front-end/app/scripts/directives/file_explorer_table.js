@@ -9,7 +9,9 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
         templateUrl: 'templates/file_explorer_table.html',
         controller: function ($rootScope, $scope, RestService, EVENTS, NotificationService) {
 
-        $scope.viewDetails = function(ukey) {
+        //Navigate to the attachment details view for the file with the given
+        //ukey.
+        $scope.viewFileDetails = function(ukey) {
             //Store the ukey for this file into the rootScope so the details
             //controller can use it.
             $rootScope.ukey = ukey;
