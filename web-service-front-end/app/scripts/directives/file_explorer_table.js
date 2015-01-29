@@ -9,12 +9,14 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
         templateUrl: 'templates/file_explorer_table.html',
         controller: function ($rootScope, $scope, RestService, EVENTS, NotificationService) {
 
-        //If anyone clicks on a <td> that has file data in it, take them
-        //to the details view by forwarding the click event to the file
-        //details button for that row.
-        $(document).on('click', '.data-cell', function() {
-            $(this).parent('tr').find('.fa-cog').click();
-        });
+        $scope.viewDetails = function(ukey) {
+            //Store the ukey for this file into the rootScope so the details
+            //controller can use it.
+            $rootScope.ukey = ukey;
+
+            //Navigate to that controller.
+            window.location.href = '#/attachment_details';
+        };
 
         //If anyone clicks on a + or - in a table header, collapse or expand
         //the section the + or - is related to.
@@ -134,14 +136,7 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
             });
         });
 
-        //If someone clicks the properties button on a row...
-        $(document).on('click', '.fa-cog', function(){
-            //Store the ukey for this file into the rootScope so the details
-            //controller can use it.
-            $rootScope.ukey = $(this).attr('ukey');
-            //Navigate us to that controller.
-            window.location.href = '#/attachment_details';
-        });
+
 
         },
         controllerAs: 'fet'
