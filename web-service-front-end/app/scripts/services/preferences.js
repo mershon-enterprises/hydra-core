@@ -22,5 +22,18 @@ angular.module('webServiceApp').factory('Preferences', function () {
         paginationPages: []
     };
 
+    preferences.reset = function() {
+        preferences.searchParams.or_search_strings = [];
+        preferences.searchParams.and_search_strings = [];
+        preferences.searchParams.not_search_strings = [];
+        preferences.searchParams.limit = 25;
+        preferences.searchParams.offset = 0;
+        preferences.searchParams.order_by = 'date_created';
+        preferences.searchParams.order = 'desc';
+
+        preferences.currentPage = 1;
+        preferences.paginationPages = [];
+    };
+
     return preferences;
 });

@@ -41,15 +41,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //at a time.
         $scope.paginate = function(pageValue) {
             if (pageValue === 'reset') {
-                $scope.searchParams = {
-                    or_search_strings: [],
-                    and_search_strings: [],
-                    not_search_strings: [],
-                    limit: 25,
-                    offset: 0,
-                    order_by: 'date_created',
-                    order: 'desc'
-                };
+                Preferences.reset();
                 $('input.search').val('');
             }
             else {
