@@ -18,6 +18,26 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
             window.location.href = '#/attachment_details';
         };
 
+        //Downloads the file for the given ukey.
+        $scope.downloadFile = function(ukey) {
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentURL(ukey).then(
+            function(success){
+                //If you got it, set the browser to that URL to have the
+                //browser start file-download.
+                if(success[0] === EVENTS.promiseSuccess) {
+                window.location.href = success[1];
+            }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
+            });
+        };
+
         //If anyone clicks on a + or - in a table header, collapse or expand
         //the section the + or - is related to.
         $(document).on('click', '.toggle', function() {
@@ -115,28 +135,6 @@ angular.module('webServiceApp').directive('fileExplorerTable', function() {
             //Force UI update.
             $scope.$apply();
         });
-
-        //If someone clicks the download button on a row...
-        $(document).on('click', '.fa-download', function() {
-            //Call the RestService to get the URL for that file in the
-            //backend.
-            RestService.getAttachmentURL($(this).attr('ukey')).then(
-            function(success){
-                //If you got it, set the browser to that URL to have the
-                //browser start file-download.
-                if(success[0] === EVENTS.promiseSuccess) {
-                window.location.href = success[1];
-            }
-            },
-            function(){
-                NotificationService.error(
-                    'Critical Error',
-                    'Please contact support.'
-                );
-            });
-        });
-
-
 
         },
         controllerAs: 'fet'

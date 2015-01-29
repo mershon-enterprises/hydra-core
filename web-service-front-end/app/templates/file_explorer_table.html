@@ -83,7 +83,7 @@
             <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
             </td>
             <td>
-                <i class="fa fa-download" ukey="{{row.unique_key}}"></i>
+                <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
                 <i ng-click="viewDetails(row.unique_key)" class="fa fa-cog"></i>
             </td>
         </tr>
@@ -100,7 +100,7 @@
         <td ng-click="viewDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
         <td ng-click="viewDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
         <td>
-            <i class="fa fa-download" ukey="{{row.unique_key}}"></i>
+            <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
             <i ng-click="viewDetails(row.unique_key)" class="fa fa-cog"></i>
         </td>
     </tr>
