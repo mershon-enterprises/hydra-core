@@ -57,6 +57,55 @@ var checkResponse = function(test, bodyJSON) {
   apiToken = bodyJSON['token'];
 };
 
+var submitMockData = function(dataList) {
+    return restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      dataList
+    );
+};
+
+var deleteAllMockData = function(callback) {
+  var mockDataSetUUIDList;
+
+  restclient.listAttachments(
+    clientUUID,
+    apiToken
+  ).then(
+    function(listAttachmentsResponse){
+      apiToken = listAttachmentsResponse.entity['token'];
+      return async.map(listAttachmentsResponse.entity['response']['attachments'],
+        function(x, callback) {
+          callback(null, x['data_set_uuid'])
+        },
+        function(err, results) {
+          mockDataSetUUIDList = results.filter(
+            function(elem, pos) {
+              return results.indexOf(elem) == pos;
+          });
+      });
+    }
+  ).then(
+    function(){
+      async.eachSeries(mockDataSetUUIDList,
+        function(uuid, callback) {
+          restclient.deleteData(
+            clientUUID,
+            apiToken,
+            uuid
+          ).then(function(deleteDataResposne){
+            apiToken = deleteDataResposne.entity['token'];
+            callback(uuid);
+          });
+        },
+        function(){
+          callback(mockDataSetUUIDList);
+        });
+  });
+};
+
 exports['version'] = {
   setUp: function(done) {
     // setup here
