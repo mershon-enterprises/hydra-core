@@ -220,7 +220,9 @@ exports['adminAuthenticate'] = {
 
 exports['listAccessLevels'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -260,7 +262,9 @@ exports['listAccessLevels'] = {
 
 exports['getAccessLevel'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -305,7 +309,9 @@ exports['getAccessLevel'] = {
 
 exports['listClients'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -345,7 +351,9 @@ exports['listClients'] = {
 
 exports['getClient'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -390,7 +398,9 @@ exports['getClient'] = {
 
 exports['listClientLocations'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -432,7 +442,9 @@ exports['listClientLocations'] = {
 
 exports['listData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -483,7 +495,9 @@ exports['listData'] = {
 // validate against
 exports['submitData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -647,7 +661,9 @@ exports['submitData'] = {
 
 exports['getData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -700,7 +716,9 @@ exports['getData'] = {
 
 exports['deleteData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -736,7 +754,9 @@ exports['deleteData'] = {
 
 exports['listUsers'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -776,7 +796,9 @@ exports['listUsers'] = {
 
 exports['getUser'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -822,7 +844,9 @@ exports['getUser'] = {
 
 exports['listUserAccess'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -864,7 +888,9 @@ exports['listUserAccess'] = {
 
 exports['listAttachments'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1518,7 +1544,9 @@ exports['listAttachments'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1698,33 +1726,16 @@ exports['getAttachment'] = {
       function(getNotFoundResponse) {
         test.equal(getNotFoundResponse.status.code, 404,
           'get attachment should fail with 401');
-
-        //delete mock attachment
-        goodLogin(
-          function(adminLoginResponseData) {
-            test.doesNotThrow( function() {
-              apiToken = adminLoginResponseData.entity['token'];
-            });
-
-            restclient.deleteData(
-              clientUUID,
-              apiToken,
-              datasetWithAttachmentUUID
-            ).then(
-                function(deleteDataResponse) {
-                  test.equal(deleteDataResponse.status.code, 200,
-                      'delete data should succeed');
-                  test.done();
-                }
-            );
-        });
+        test.done();
     });
   }
 };
 
 exports['getAttachmentInfo'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1819,7 +1830,9 @@ exports['getAttachmentInfo'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -2025,7 +2038,9 @@ exports['getAttachment'] = {
 
 exports['replaceAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
