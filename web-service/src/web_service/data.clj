@@ -286,13 +286,10 @@
       false
       (sql/with-db-transaction
         [conn db-spec]
-      ;(try
         (println (format "Replacing '%s' with new contents in data-set '%s'"
                          filename
                          uuid))
         (try
-        ;(sql/with-db-transaction
-        ;  [conn db-spec]
           (let [is-deleted (do-delete-attachment email-address
                                                  uuid
                                                  filename
