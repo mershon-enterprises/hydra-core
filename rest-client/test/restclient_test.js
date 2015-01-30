@@ -976,12 +976,7 @@ exports['listAttachments'] = {
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData([attachment]
     ).then(
       function(submitResponse) {
 
@@ -1025,7 +1020,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
         test.done();
     });
   },
@@ -1036,12 +1030,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "description", "findThisValue");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitive]
+    submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1094,12 +1083,7 @@ exports['listAttachments'] = {
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1142,7 +1126,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
         test.done();
     });
   },
@@ -1153,12 +1136,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitive]
+    submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
 
@@ -1259,12 +1237,7 @@ exports['listAttachments'] = {
     var attachment3 = restclient.Attachment("file3.csv", "text/csv", "");
     var primitive3 = restclient.PrimitiveData("text", "tag3", "value3");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment1, primitive1]
+    submitMockData( [attachment1, primitive1]
     ).then(
       function(submitResponse) {
 
@@ -1273,13 +1246,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.submitData(
-          clientUUID,
-          apiToken,
-          new Date(),
-          'admin@example.com',
-          [attachment2, primitive2]
-          );
+        return submitMockData( [attachment2, primitive2]);
       }
     ).then(
       function(submitResponse) {
@@ -1289,13 +1256,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.submitData(
-          clientUUID,
-          apiToken,
-          new Date(),
-          'admin@example.com',
-          [attachment3, primitive3]
-          );
+        return submitMockData( [attachment3, primitive3]);
       }
     ).then(
       function(submitResponse) {
@@ -1491,12 +1452,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1535,12 +1491,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1572,12 +1523,7 @@ exports['getAttachment'] = {
         attachment = restclient.Attachment("restricted.csv", "text/csv", "");
 
     //submit attachment as admin
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1661,12 +1607,7 @@ exports['getAttachmentInfo'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1748,12 +1689,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1793,12 +1729,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1829,13 +1760,7 @@ exports['getAttachment'] = {
         datasetWithAttachmentUUID,
         attachment = restclient.Attachment("restricted.csv", "text/csv", "");
 
-    //submit attachment as admin
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1942,12 +1867,7 @@ exports['replaceAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -2017,12 +1937,7 @@ exports['replaceAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
