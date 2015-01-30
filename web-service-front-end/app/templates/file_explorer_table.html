@@ -1,20 +1,20 @@
 <table class="file-explorer-table file-explorer-header">
     <tr>
-        <th key="filename">
+        <th ng-click="sortColumn('filename')">
             Filename
             <div ng-if="filename_show">
                 <i ng-show="filename_asc" class="fa fa-angle-up"></i>
                 <i ng-hide="filename_asc" class="fa fa-angle-down"></i>
             </div>
         </th>
-        <th key="bytes">
+        <th ng-click="sortColumn('bytes')">
             File Size
             <div ng-if="bytes_show">
                 <i ng-show="bytes_asc" class="fa fa-angle-up"></i>
                 <i ng-hide="bytes_asc" class="fa fa-angle-down"></i>
             </div>
         </th>
-        <th key="created_by">
+        <th ng-click="sortColumn('created_by')">
             Author
             <div ng-if="created_by_show">
                 <i ng-show="created_by_asc" class="fa fa-angle-up">
@@ -23,7 +23,7 @@
                 </i>
             </div>
         </th>
-        <th key="date_created">
+        <th ng-click="sortColumn('date_created')">
             Creation Date
             <div ng-if="date_created_show">
                 <i ng-show="date_created_asc" class="fa fa-angle-up">
@@ -44,8 +44,13 @@
         <tr>
             <!-- Display client name and toggle +/- for collapsing.  -->
             <th class="client-header" colspan="5">
-                <i  class="toggle fa fa-minus-square"
-                    client={{clientName}}>
+                <i  ng-show="clientCollapseOptions[clientName]"
+                    ng-click="toggleClient(clientName)"
+                    class="toggle fa fa-plus-square">
+                </i>
+                <i  ng-hide="clientCollapseOptions[clientName]"
+                    ng-click="toggleClient(clientName)"
+                    class="toggle fa fa-minus-square">
                 </i>
                 {{clientName}}
             </th>
@@ -61,7 +66,16 @@
             <!-- Display the location name and the toggle +/- for
             collapsing the location section. -->
             <th class="location-header" colspan="5">
-                <i  class="toggle fa fa-minus-square"
+                <i  ng-show="locationCollapseOptions[clientName+locationName]"
+                    ng-click="toggleLocation(locationName, clientName)"
+                    class="toggle fa fa-plus-square"
+                    location="{{locationName}}"
+                    parent-client="{{clientName}}"
+                >
+                </i>
+                <i  ng-hide="locationCollapseOptions[clientName+locationName]"
+                    ng-click="toggleLocation(locationName, clientName)"
+                    class="toggle fa fa-minus-square"
                     location="{{locationName}}"
                     parent-client="{{clientName}}"
                 >
@@ -77,14 +91,14 @@
             location="{{locationName}}"
             ng-repeat="row in location"
             >
-            <td class="data-cell">{{row.filename}}</td>
-            <td class="data-cell">{{row.bytes | filesize}}</td>
-            <td class="data-cell author">{{row.created_by}}</td>
-            <td class="data-cell">{{row.date_created | date : 'short'}}
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
             </td>
             <td>
-                <i class="fa fa-download" ukey="{{row.unique_key}}"></i>
-                <i class="fa fa-cog" ukey="{{row.unique_key}}"></i>
+                <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
+                <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
             </td>
         </tr>
     </table>
@@ -95,13 +109,13 @@
         <th class="client-header" colspan="5"></i>No Client</th>
     </tr>
     <tr class="data-row" ng-repeat="row in data.noClient">
-        <td class="data-cell">{{row.filename}}</td>
-        <td class="data-cell">{{row.bytes | filesize}}</td>
-        <td class="data-cell author">{{row.created_by}}</td>
-        <td class="data-cell">{{row.date_created | date : 'short'}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
         <td>
-            <i class="fa fa-download" ukey="{{row.unique_key}}"></i>
-            <i class="fa fa-cog" ukey="{{row.unique_key}}"></i>
+            <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
+            <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
         </td>
     </tr>
 </table>
