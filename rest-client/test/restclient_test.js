@@ -967,15 +967,6 @@ exports['listAttachments'] = {
           test.ok('filename' in data.entity['response']['attachments'][0],
             'attachment filename should be stated');
         });
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1035,15 +1026,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1103,16 +1085,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1171,15 +1143,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1277,15 +1240,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1502,40 +1456,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachment1.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment1UUID
-        );
-      }
-    ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
-
-        // delete mock attachment2.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment2UUID
-        );
-      }
-    ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
-        // delete mock attachment3.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment3UUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
       }
     );
@@ -1603,16 +1523,6 @@ exports['getAttachment'] = {
         test.equal(headers['Content-Type'],
           "text/csv",
           'invalid Content-Disposition text');
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1651,15 +1561,6 @@ exports['getAttachment'] = {
         test.equal(getResponse.status.code, 404,
           'get attachment should fail with 404');
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1813,16 +1714,6 @@ exports['getAttachmentInfo'] = {
           test.ok(getInfoResponse.entity['response'][0]['primitive_text_data'][0]['value'] === 'testValue',
             'primitive text data value should be "testValue"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1890,15 +1781,6 @@ exports['getAttachment'] = {
           "text/csv",
           'invalid Content-Disposition text');
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1937,15 +1819,6 @@ exports['getAttachment'] = {
         test.equal(getResponse.status.code, 404,
           'get attachment should fail with 404');
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
