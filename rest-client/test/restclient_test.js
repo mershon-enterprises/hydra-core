@@ -23,6 +23,7 @@ restclient.endpointUrl = 'http://localhost:3000';
     test.ifError(value)
 */
 
+var async = require('async');
 var apiToken = null;
 var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
