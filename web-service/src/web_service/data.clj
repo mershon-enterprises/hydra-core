@@ -118,7 +118,8 @@
        "left join ( "
        "  select "
        "    data_set_id, "
-       "    string_agg(value, ', ') as tags "
+       "    string_agg(value, ', ') as tag_values, "
+       "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
@@ -141,7 +142,8 @@
        "left join ( "
        "  select "
        "    data_set_id, "
-       "    string_agg(value, ', ') as tags "
+       "    string_agg(value, ', ') as tag_values, "
+       "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
@@ -309,7 +311,7 @@
                                  filename
                                  uuid))
             (if (instance? SQLException e)
-              (log/error (.getNextException e) "Caused by: "))
+              (log/error (.getCause e) "Caused by: "))
             false))))))
 
 
@@ -417,66 +419,79 @@
     (if can-access
       (if (empty? json-data)
         (status (response {:response "Cannot record empty data-set"}) 409)
-        (sql/with-db-transaction
-          [conn db-spec]
-          (try
-            (let [keys (sql/db-do-prepared-return-keys conn
-                                                       false ; no transaction
-                                                       query
-                                                       [uuid
-                                                        date-created
-                                                        created-by])
-                  id (:id keys)]
-              ; iterate child elements of 'data' and add to the database also
-              (doseq [data-element json-data]
-                (let [type (:type data-element)]
-                  ; treat attachments and primitive data differently
-                  (if (= type "attachment")
-                    ; TODO refactor this and data-set-attachment-submit to use
-                    ; same shared private function
-                    (let [filename (:filename data-element)
-                          mime-type (:mime_type data-element)
-                          contents (:contents data-element)
-                          query (str "insert into public.data_set_attachment "
-                                     "(data_set_id, date_created, created_by, "
-                                     "filename, mime_type, contents) "
-                                     "values (?,?::timestamp with time zone, ("
-                                     " select id from public.user where email_address=?"
-                                     "),?,?,decode(?, 'base64'))")
-                          success (sql/execute! conn [query
-                                                      id
-                                                      date-created
-                                                      created-by
-                                                      filename
-                                                      mime-type
-                                                      contents]
-                                                :transaction? false)]
-                      (if (not success)
-                        (throw Exception "Failed to insert new attachment!")))
-                    ; TODO -- refactor this and data-set-primitive-submit to use
-                    ; same shared private function
-                    (let [type (:type data-element)
-                          description (:description data-element)
-                          value (:value data-element)
-                          query (str "insert into public.data_set_" type " "
-                                     "(data_set_id, date_created, created_by, "
-                                     "description, value) values "
-                                     "(?,?::timestamp with time zone,("
-                                     " select id from public.user where email_address=?"
-                                     "),?,?"
-                                     (if (= type "date") ; cast dates correctly
-                                       "::timestamp with time zone"
-                                       "")
-                                     ")")
-                          success (sql/execute! conn [query
-                                                      id
-                                                      date-created
-                                                      created-by
-                                                      description
-                                                      value]
-                                                :transaction? false)]
-                      (if (not success)
-                        (throw Exception "Failed to insert new child row!")))))))
+        (let [success
+          (sql/with-db-transaction
+           [conn db-spec]
+           (try
+             (let [keys (sql/db-do-prepared-return-keys conn
+                                                        false ; no transaction
+                                                        query
+                                                        [uuid
+                                                         date-created
+                                                         created-by])
+                   id (:id keys)]
+               ; iterate child elements of 'data' and add to the database also
+               (doseq [data-element json-data]
+                 (let [type (:type data-element)]
+                   ; treat attachments and primitive data differently
+                   (if (= type "attachment")
+                     ; TODO refactor this and data-set-attachment-submit to use
+                     ; same shared private function
+                     (let [filename (:filename data-element)
+                           mime-type (:mime_type data-element)
+                           contents (:contents data-element)
+                           query (str "insert into public.data_set_attachment "
+                                      "(data_set_id, date_created, created_by, "
+                                      "filename, mime_type, contents) "
+                                      "values (?,?::timestamp with time zone, ("
+                                      " select id from public.user where email_address=?"
+                                      "),?,?,decode(?, 'base64'))")
+                           success (sql/execute! conn [query
+                                                       id
+                                                       date-created
+                                                       created-by
+                                                       filename
+                                                       mime-type
+                                                       contents]
+                                                 :transaction? false)]
+                       (if (not success)
+                         (throw Exception "Failed to insert new attachment!")))
+                     ; TODO -- refactor this and data-set-primitive-submit to use
+                     ; same shared private function
+                     (let [type (:type data-element)
+                           description (:description data-element)
+                           value (:value data-element)
+                           query (str "insert into public.data_set_" type " "
+                                      "(data_set_id, date_created, created_by, "
+                                      "description, value) values "
+                                      "(?,?::timestamp with time zone,("
+                                      " select id from public.user where email_address=?"
+                                      "),?,?"
+                                      (if (= type "date") ; cast dates correctly
+                                        "::timestamp with time zone"
+                                        "")
+                                      ")")
+                           success (sql/execute! conn [query
+                                                       id
+                                                       date-created
+                                                       created-by
+                                                       description
+                                                       value]
+                                                 :transaction? false)]
+                       (if (not success)
+                         (throw Exception "Failed to insert new child row!"))))))
+               true)
+             (catch Exception e
+               (log/error e (format (str "There was an error submitting a "
+                                         "data-set for user %s")
+                                    email-address))
+               ; rollback the transaction
+               (sql/db-set-rollback-only! conn)
+               (if (instance? SQLException e)
+                 (log/error (.getNextException e) "Caused by: ")
+                 false))))]
+
+          (if success
             (let [data-saved (data-set-get email-address uuid)]
               ; broadcast the dataset including attachment binary data to
               ; listeners
@@ -486,15 +501,7 @@
                                 "dataset"
                                 (generate-string with-attachments)))
               (status data-saved 201))
-            (catch Exception e
-              (log/error e (format (str "There was an error submitting a "
-                                        "data-set for user %s")
-                                   email-address))
-              ; rollback the transaction
-              (sql/db-set-rollback-only! conn)
-              (if (instance? SQLException e)
-                (log/error (.getNextException e) "Caused by: "))
-              (status (response {:response "Failure"}) 409)))))
+            (status (response {:response "Failure"}) 409))))
       (do
         (log/warn
           (format "User %s tried to submit data-set but lacks %s permission."
@@ -688,7 +695,7 @@
                          "or c.name ilike '%" search-string "%' "
                          "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or dst.tags ilike '%" search-string "%' "))
+                         "or dst.tag_values ilike '%" search-string "%' "))
                   or-search-string-list)]
             (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
@@ -706,7 +713,7 @@
                          "  or c.name ilike '%" search-string "%' "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or dst.tags ilike '%" search-string "%' "
+                         "  or dst.tag_values ilike '%" search-string "%' "
                          ") "))
                   and-search-string-list)]
             (str (clojure.string/join and-search-string-query-list) " "))
@@ -725,7 +732,7 @@
                          "  or (c.name is not null and c.name ilike '%" search-string "%') "
                          "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
                          "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or (dst.tags ilike '%" search-string "%' and dst.tags is not null) "
+                         "  or (dst.tag_values ilike '%" search-string "%' and dst.tag_values is not null) "
                          ") "))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
@@ -738,7 +745,7 @@
 
         tag-name-query
         (if (:tag_name json-search-params)
-          (str "and dst.tags ilike '%" (:tag_name json-search-params) "%' ")
+          (str "and dst.tag_names ilike '%" (:tag_name json-search-params) "%' ")
           " ")
 
         order-by-query
