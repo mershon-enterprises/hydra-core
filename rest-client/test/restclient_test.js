@@ -75,12 +75,15 @@ var deleteAllMockData = function(callback) {
     apiToken
   ).then(
     function(listAttachmentsResponse){
+      // update the api token
       apiToken = listAttachmentsResponse.entity['token'];
+      //Get all undeleted dataset uuids
       return async.map(listAttachmentsResponse.entity['response']['attachments'],
         function(x, callback) {
           callback(null, x['data_set_uuid'])
         },
         function(err, results) {
+          //remove duplicate uuids from list
           mockDataSetUUIDList = results.filter(
             function(elem, pos) {
               return results.indexOf(elem) == pos;
@@ -89,6 +92,7 @@ var deleteAllMockData = function(callback) {
     }
   ).then(
     function(){
+      //delete all datasets
       async.eachSeries(mockDataSetUUIDList,
         function(uuid, callback) {
           restclient.deleteData(
@@ -112,17 +116,19 @@ exports['version'] = {
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.version().then(
       function(data) {
-        test.equal(data.status.code, 200, 'get version should succeed');
-        try {
-          test.ok('version' in data.entity,
-            'version should be stated');
-        } catch (e) {
-          console.log(e.message);
-          console.log("Body was: " + JSON.stringify(data.entity));
-        }
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 200, 'get version should succeed');
+          try {
+            test.ok('version' in data.entity,
+              'version should be stated');
+          } catch (e) {
+            console.log(e.message);
+            console.log("Body was: " + JSON.stringify(data.entity));
+          }
+        });
         test.done();
       });
   }
@@ -134,15 +140,17 @@ exports['authenticate'] = {
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.authenticate(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'login should fail');
-        test.equal(data.entity, 'Invalid credentials', 'login body text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'login should fail');
+          test.equal(data.entity, 'Invalid credentials', 'login body text');
+        });
         test.done();
       });
   },
@@ -150,10 +158,9 @@ exports['authenticate'] = {
     test.expect(9);
     goodLogin(
       function(data) {
-        test.equal(data.status.code, 200, 'login should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'login should succeed');
           test.notEqual('email_address' in data.entity['response'],
             'login response email address should be stated');
           test.notEqual('first_name' in data.entity['response'],
@@ -174,7 +181,7 @@ exports['adminAuthenticate'] = {
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.adminAuthenticate(
       null,
       null,
@@ -182,8 +189,10 @@ exports['adminAuthenticate'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'login should fail');
-        test.equal(data.entity, 'Invalid credentials', 'login body text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'login should fail');
+          test.equal(data.entity, 'Invalid credentials', 'login body text');
+        });
         test.done();
       });
   },
@@ -196,10 +205,9 @@ exports['adminAuthenticate'] = {
       'basicuser@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'login should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'login should succeed');
           test.notEqual('email_address' in data.entity['response'],
             'login response email address should be stated');
           test.notEqual('first_name' in data.entity['response'],
@@ -225,14 +233,16 @@ exports['listAccessLevels'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listAccessLevels(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'access level list should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'access level list should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -243,15 +253,13 @@ exports['listAccessLevels'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'access level list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'access level list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'access level list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one access level should exist');
-
           test.notEqual(data.entity['response'].indexOf('Manage Clients'), -1,
             'testing sentinel access level should exist');
         });
@@ -267,15 +275,17 @@ exports['getAccessLevel'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAccessLevel(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'access level get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'access level get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -288,17 +298,15 @@ exports['getAccessLevel'] = {
       'Manage Clients'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'access level get should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'access level get should succeed');
           test.ok('description' in data.entity['response'],
             'description should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
-
           test.equal(data.entity['response']['description'], 'Manage Clients',
             'testing sentinel access level should match');
         });
@@ -314,14 +322,16 @@ exports['listClients'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listClients(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'client list get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'client list get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -332,15 +342,13 @@ exports['listClients'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'client list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'client list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'client list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one client should exist');
-
           test.notEqual(data.entity['response'].indexOf('Chevron'), -1,
             'testing sentinel client should exist');
         });
@@ -356,15 +364,17 @@ exports['getClient'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getClient(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get client get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get client get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -377,17 +387,15 @@ exports['getClient'] = {
       'Chevron'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get client should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get client should succeed');
           test.ok('name' in data.entity['response'],
             'name should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
-
           test.equal(data.entity['response']['name'], 'Chevron',
             'testing sentinel client name should match');
         });
@@ -403,15 +411,17 @@ exports['listClientLocations'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listClientLocations(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list client locations get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list client locations get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -423,10 +433,9 @@ exports['listClientLocations'] = {
       'Chevron'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'client list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'client list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'locations list should be an array');
           test.ok(data.entity['response'].length > 0,
@@ -447,14 +456,16 @@ exports['listData'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listData(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -465,10 +476,9 @@ exports['listData'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list data should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'data list should be an array');
           test.ok(data.entity['response'].length > 0,
@@ -500,7 +510,7 @@ exports['submitData'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.submitData(
       null,
       null,
@@ -509,8 +519,10 @@ exports['submitData'] = {
       [restclient.PrimitiveData('boolean', 'placeholder', false)]
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'submit data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'submit data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -580,10 +592,9 @@ exports['submitData'] = {
       [{type: 'boolean', description: 'test data', value: true}]
     ).then(
       function(data) {
-        test.equal(data.status.code, 201, 'submit data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 201, 'submit data should succeed');
           test.ok('uuid' in data.entity['response'],
             'data-set uuid should be stated');
           test.ok('date_created' in data.entity['response'],
@@ -596,7 +607,6 @@ exports['submitData'] = {
             'data-set data should be an array');
           test.equal(data.entity['response']['data'].length, 1,
             'one data item should exist');
-
           test.equal(data.entity['response']['created_by'],
             'admin@example.com',
             'email should match submitted value');
@@ -609,15 +619,13 @@ exports['submitData'] = {
           test.equal(data.entity['response']['data'][0]['value'],
             true,
             'data value should match submitted value');
-
           createdUUID = data.entity['response']['uuid'];
         });
-
         test.done();
       });
   },
   'some-good-some-bad-data': function(test) {
-    test.expect(5);
+    test.expect(6);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("goodFile.csv", "text/csv", "");
@@ -634,8 +642,10 @@ exports['submitData'] = {
     ).then(
       function(submitDataResponse) {
         test.doesNotThrow( function() {
-          apiToken = submitDataResponse.entity['token'] || apiToken;
-          test.equal(submitDataResponse.status.code, 409, 'submit data should fail with code 409');
+          test.doesNotThrow( function() {
+            apiToken = submitDataResponse.entity['token'] || apiToken;
+            test.equal(submitDataResponse.status.code, 409, 'submit data should fail with code 409');
+          });
         });
 
         return restclient.listAttachments(
@@ -666,15 +676,17 @@ exports['getData'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getData(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -687,10 +699,9 @@ exports['getData'] = {
       createdUUID
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get data should succeed');
           test.ok('uuid' in data.entity['response'],
             'data-set uuid should be stated');
           test.ok('date_created' in data.entity['response'],
@@ -703,12 +714,10 @@ exports['getData'] = {
             'data-set data should be an array');
           test.ok(data.entity['response']['data'].length > 0,
             'at least one data item should exist');
-
           test.equal(data.entity['response']['uuid'],
             createdUUID,
             'testing sentinel data-set uuid should match');
         });
-
         test.done();
       });
   }
@@ -721,15 +730,17 @@ exports['deleteData'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.deleteData(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'delete data should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'delete data should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -741,10 +752,9 @@ exports['deleteData'] = {
       createdUUID
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'delete data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'delete data should succeed');
           test.equal(data.entity['response'], 'OK', 'success response');
         });
         test.done();
@@ -759,14 +769,16 @@ exports['listUsers'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listUsers(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list users should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list users should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -777,15 +789,13 @@ exports['listUsers'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list users should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list users should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'user list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one user should exist');
-
           test.notEqual(data.entity['response'].indexOf('admin@example.com'), -1,
             'VPN account should exist');
         });
@@ -801,15 +811,17 @@ exports['getUser'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getUser(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get user should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get user should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -821,22 +833,19 @@ exports['getUser'] = {
       'admin@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get user should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get user should succeed');
           test.ok('email_address' in data.entity['response'],
             'email_address should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
-
           test.equal(data.entity['response']['email_address'],
             'admin@example.com',
             'email should match request value');
         });
-
         test.done();
       });
   }
@@ -849,15 +858,17 @@ exports['listUserAccess'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listUserAccess(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list user access should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list user access should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -869,15 +880,13 @@ exports['listUserAccess'] = {
       'admin@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list user access should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list user access should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'user access list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one user access should exist');
-
           test.notEqual(data.entity['response'].indexOf('Manage Users'), -1,
             'Manage Users access level should exist');
         });
@@ -893,14 +902,16 @@ exports['listAttachments'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listAttachments(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -946,11 +957,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(data) {
-
         test.doesNotThrow( function() {
           apiToken = data.entity['token'];
           checkResponse(test, data.entity);
-
           test.equal(data.status.code, 200, 'list data should succeed');
           test.ok(Array.isArray(data.entity['response']['attachments']),
             'data list should be an array');
@@ -992,11 +1001,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -1046,11 +1053,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -1098,11 +1103,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -1153,11 +1156,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponseTagName) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponseTagName.entity['token'];
           checkResponse(test, getListResponseTagName.entity);
-
           test.equal(getListResponseTagName.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponseTagName.entity['response'],
@@ -1189,11 +1190,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponseTagValue) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponseTagValue.entity['token'];
           checkResponse(test, getListResponseTagValue.entity);
-
           test.equal(getListResponseTagValue.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponseTagValue.entity['response'],
@@ -1240,7 +1239,6 @@ exports['listAttachments'] = {
     submitMockData( [attachment1, primitive1]
     ).then(
       function(submitResponse) {
-
         test.doesNotThrow( function() {
           datasetWithAttachment1UUID = submitResponse.entity['response']['uuid'];
           apiToken = submitResponse.entity['token'];
@@ -1274,11 +1272,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1311,11 +1307,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1348,11 +1342,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1388,11 +1380,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1438,8 +1428,10 @@ exports['getAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -1470,15 +1462,17 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          "text/csv",
-          'invalid Content-Disposition text');
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            "text/csv",
+            'invalid Content-Disposition text');
+        });
         test.done();
     });
   },
@@ -1509,9 +1503,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        test.equal(getResponse.status.code, 404,
-          'get attachment should fail with 404');
-
+        test.doesNotThrow( function() {
+          test.equal(getResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
         test.done();
     });
   },
@@ -1543,10 +1538,9 @@ exports['getAttachment'] = {
       function(limitedAccessLoginResponse) {
         test.doesNotThrow( function() {
           apiToken = limitedAccessLoginResponse.entity['token'];
-        });
-
-        test.equal(limitedAccessLoginResponse.status.code, 200,
+          test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
+        });
 
         //try to retreive attachment as resticted user
         return restclient.getAttachment(
@@ -1558,8 +1552,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getRestrictedResponse) {
-        test.equal(getRestrictedResponse.status.code, 401,
-          'get attachment should fail with 401');
+        test.doesNotThrow( function() {
+          test.equal(getRestrictedResponse.status.code, 401,
+            'get attachment should fail with 401');
+        });
 
         //try to retrieve attachment that doesn't exist as restricted user
         return restclient.getAttachment(
@@ -1571,8 +1567,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getNotFoundResponse) {
-        test.equal(getNotFoundResponse.status.code, 404,
-          'get attachment should fail with 401');
+        test.doesNotThrow( function() {
+          test.equal(getNotFoundResponse.status.code, 404,
+            'get attachment should fail with 401');
+        });
         test.done();
     });
   }
@@ -1585,7 +1583,7 @@ exports['getAttachmentInfo'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAttachmentInfo(
       null,
       null,
@@ -1593,8 +1591,10 @@ exports['getAttachmentInfo'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -1627,7 +1627,6 @@ exports['getAttachmentInfo'] = {
       function(getInfoResponse) {
         test.doesNotThrow( function() {
           checkResponse(test, getInfoResponse.entity);
-
           test.equal(getInfoResponse.status.code, 200,
             'list data should succeed');
           test.ok(Array.isArray(getInfoResponse.entity['response']),
@@ -1667,7 +1666,7 @@ exports['getAttachment'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAttachment(
       null,
       null,
@@ -1675,13 +1674,15 @@ exports['getAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
   'with-api-token': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1707,21 +1708,22 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          "text/csv",
-          'invalid Content-Disposition text');
-
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            "text/csv",
+            'invalid Content-Disposition text');
+        });
         test.done();
     });
   },
   'file-not-found': function(test) {
-    test.expect(2);
+    test.expect(3);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1747,14 +1749,15 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        test.equal(getResponse.status.code, 404,
-          'get attachment should fail with 404');
-
+        test.doesNotThrow( function() {
+          test.equal(getResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
         test.done();
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(7);
+    test.expect(10);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1780,10 +1783,9 @@ exports['getAttachment'] = {
       function(limitedAccessLoginResponse) {
         test.doesNotThrow( function() {
           apiToken = limitedAccessLoginResponse.entity['token'];
-        });
-
-        test.equal(limitedAccessLoginResponse.status.code, 200,
+          test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
+        });
 
         //try to retreive attachment as resticted user
         return restclient.getAttachment(
@@ -1795,8 +1797,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getRestrictedResponse) {
-        test.equal(getRestrictedResponse.status.code, 401,
-          'get attachment should fail with 401');
+        test.doesNotThrow( function() {
+          test.equal(getRestrictedResponse.status.code, 401,
+            'get attachment should fail with 401');
+        });
 
         //try to retrieve attachment that doesn't exist as restricted user
         return restclient.getAttachment(
@@ -1808,11 +1812,12 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getNotFoundResponse) {
-        test.equal(getNotFoundResponse.status.code, 404,
-          'get attachment should fail with 404');
+        test.doesNotThrow( function() {
+          test.equal(getNotFoundResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
 
         //delete mock attachment
-        //
         goodLogin(
           function(adminLoginResponseData) {
             test.doesNotThrow( function() {
@@ -1825,8 +1830,10 @@ exports['getAttachment'] = {
               datasetWithAttachmentUUID
             ).then(
               function(deleteDataResponse) {
-                test.equal(deleteDataResponse.status.code, 200,
-                  'delete data should succeed');
+                test.doesNotThrow( function() {
+                  test.equal(deleteDataResponse.status.code, 200,
+                    'delete data should succeed');
+                });
                 test.done();
             });
         });
@@ -1841,7 +1848,7 @@ exports['replaceAttachment'] = {
     });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.replaceAttachment(
       null,
       null,
@@ -1850,13 +1857,15 @@ exports['replaceAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'replace attachment should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'replace attachment should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1899,18 +1908,20 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          'text/csv',
-          'invalid Content-Disposition text');
-        test.equal(getResponse.entity,
-          'new',
-          'file contents should have changed!');
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            'text/csv',
+            'invalid Content-Disposition text');
+          test.equal(getResponse.entity,
+            'new',
+            'file contents should have changed!');
+          });
 
         // delete mock attachments.
         return restclient.deleteData(
@@ -1929,7 +1940,7 @@ exports['replaceAttachment'] = {
     );
   },
   'file-not-found': function(test) {
-    test.expect(3);
+    test.expect(4);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1956,9 +1967,10 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(replaceNotFoundResponse) {
-
-        test.equal(replaceNotFoundResponse.status.code, 404,
-          'replace attachment should fail with 404');
+        test.doesNotThrow( function() {
+          test.equal(replaceNotFoundResponse.status.code, 404,
+            'replace attachment should fail with 404');
+        });
 
         // delete mock attachments.
         return restclient.deleteData(
