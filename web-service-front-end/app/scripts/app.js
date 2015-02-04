@@ -59,16 +59,10 @@ angular.module('webServiceApp', [
       promiseFailed: 'promise-failed',
       badStatus: 'bad-status',
       newSearch: 'new-search',
-      sessionTimeout: 'auth-session-timeout',
-      notAuthorized: 'auth-not-authorized'
     })
     .constant('STATUS_CODES', {
       ok: 200,
       created: 201,
-      movedPermanently: 301,
-      badRequest: 400,
       unauthorized: 401,
-      forbidden: 403,
-      notFound: 404,
-      internalServerError: 500
+      forbidden: 403
     });
