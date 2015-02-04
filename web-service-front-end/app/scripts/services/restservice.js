@@ -657,6 +657,12 @@ angular.module('webServiceApp').factory('RestService',
 
     restService.statusHandler = function (methodName, statusCode) {
         console.log(methodName + ' returned bad status code : ' + statusCode);
+        if (statusCode === STATUS_CODES.notAuthorized ||
+            statusCode === STATUS_CODES.forbidden) {
+
+            $rootScope.$broadcast(EVENTS.logoutAction);
+
+        }
     };
 
 //CACHE ========================================================================
