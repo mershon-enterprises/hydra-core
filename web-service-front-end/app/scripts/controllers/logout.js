@@ -15,4 +15,8 @@ angular.module('webServiceApp').controller('LogoutCtrl',
         return $location.path('/');
     };
 
+    $rootScope.on(EVENTS.logoutAction, function() {
+        $scope.logout();
+    });
+
 });

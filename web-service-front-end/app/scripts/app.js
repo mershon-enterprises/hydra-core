@@ -51,6 +51,7 @@ angular.module('webServiceApp', [
     .constant('EVENTS', {
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
+      logoutAction: 'logout-action',
       logoutSuccess: 'auth-logout-success',
       cacheReset: 'cache-reset',
       cacheReady: 'cache-ready',
