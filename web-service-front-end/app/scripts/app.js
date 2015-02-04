@@ -67,7 +67,7 @@ angular.module('webServiceApp', [
       created: 201,
       movedPermanently: 301,
       badRequest: 400,
-      notAuthorized: 401,
+      unauthorized: 401,
       forbidden: 403,
       notFound: 404,
       internalServerError: 500
