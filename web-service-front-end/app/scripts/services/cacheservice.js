@@ -1,21 +1,28 @@
 'use strict';
 
 //CACHE ========================================================================
-//The cache is a where data retrived from the restclient are stored in memory.
+//The CacheService provides an interface between the data collected from the
+//restClient/restService and the Angular localStorageService. It allows
+//persistence of data that should be only collected once.
 angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q, localStorageService, RestService, EVENTS) {
 
     var cacheService = {};
 
-    //Create the cache keys in localstorage.
+    //Create keys for our application in localStorage. If the keys are created
+    //broadcast to anything waiting for a valid cache that the cache is ready.
     cacheService.createCache = function () {
+        //Create the empty keys in localstorage.
         localStorageService.set('accessLevels', null);
         localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
+
+        //Ask the cache to refresh itself by invoking many restService calls
+        //to populate the above keys.
         cacheService.refreshCache().then(
             function(success) {
                 //Once the cache is ready, signal to the rest of the app
-                //that restclient calls may be used.
+                //that the cache is in a valid state.
                 if (success) {
                     cacheService.updateCacheValue('cacheReady', true);
                     $rootScope.$broadcast(EVENTS.cacheReady);
@@ -28,8 +35,8 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
             });
     };
 
-    //Invoke all restservice methods to repopulate the cache with new values
-    //from the restAPI. Returns a promise.
+    //Refreshes the cache by invoking many restclient/restservice methods
+    //and updating localStorage with the values returned to it.
     var refreshing = false;
     cacheService.refreshCache = function () {
         var deferred = $q.defer();
@@ -79,7 +86,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         return deferred.promise;
     };
 
-    //Updates a cache value in localstorage with a given key.
+    //Updates a cache value in localStorage with a given key.
     cacheService.updateCacheValue = function (key, data) {
         if (key === 'accessLevels') {
             localStorageService.set('accessLevels', data);
@@ -95,7 +102,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         }
     };
 
-    //Returns a cache value from localstorage with a given key.
+    //Returns a cache value from localStorage with a given key.
     cacheService.getCacheValue = function (key) {
         if (key === 'accessLevels') {
             return localStorageService.get('accessLevels');
@@ -114,7 +121,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         }
     };
 
-    //Destroy the cache values and their keys from local storage.
+    //Destroy the cache values and their keys from localStorage.
     cacheService.destroyCache = function () {
         localStorageService.set('accessLevels', null);
         localStorageService.set('cacheReady', null);
@@ -126,6 +133,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         localStorageService.remove('users');
     };
 
+    //Checks if localStorage keys for our app exist.
     cacheService.exists = function() {
         if (localStorageService.keys().length === 0) {
             return false;
@@ -133,7 +141,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         return true;
     };
 
-    //Reset the cache if the reset event is broadcast.
+    //Create the cache if the create event is broadcast.
     $rootScope.$on(EVENTS.cacheCreate, function() {
         cacheService.createCache();
     });
@@ -144,7 +152,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         cacheService.createCache();
     });
 
-    //Update the cache with the given key and value.
+    //Update the cache if the update event is broadcast.
     $rootScope.$on(EVENTS.cacheUpdate, function(event, update) {
         var key = update[0];
         var value = update[1];
