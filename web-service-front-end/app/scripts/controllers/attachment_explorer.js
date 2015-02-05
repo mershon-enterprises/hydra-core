@@ -10,6 +10,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         $rootScope,
         $scope,
         $q,
+        CacheService,
         NotificationService,
         Preferences,
         RestService,
@@ -310,7 +311,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
         //is ready and populate the page if it is. This eliminates race
         //conditions with the api-token that could put the app into an
         //unusuable state.
-        if(RestService.getCacheValue('cacheReady')) {
+        if(CacheService.getCacheValue('cacheReady')) {
             $scope.refreshFileExplorer();
         }
 
