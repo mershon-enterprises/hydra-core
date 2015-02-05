@@ -19,4 +19,8 @@ angular.module('webServiceApp').controller('LogoutCtrl',
         $scope.logout();
     });
 
+    if(!CacheService.exists()) {
+        $scope.logout();
+    }
+
 });

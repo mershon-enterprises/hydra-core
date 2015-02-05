@@ -126,6 +126,13 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         localStorageService.remove('users');
     };
 
+    cacheService.exists = function() {
+        if (localStorageService.keys().length === 0) {
+            return false;
+        }
+        return true;
+    };
+
     //Reset the cache if the reset event is broadcast.
     $rootScope.$on(EVENTS.cacheCreate, function() {
         cacheService.createCache();
