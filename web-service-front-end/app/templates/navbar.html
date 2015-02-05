@@ -2,7 +2,7 @@
 user is logged on -->
 <nav>
     <!-- Upload Link -->
-    <a  ng-show="nav.isLoggedIn"
+    <a ng-show="nav.isLoggedIn"
         class="upload-link"
         ng-href="#/attachment_upload">
         Upload File
@@ -15,7 +15,7 @@ user is logged on -->
     <!-- File Explorer Link / Login/Logout -->
     <ul>
         <li ng-show="nav.isLoggedIn">
-            <a  ng-href="#/attachment_explorer">
+            <a class="file-explorer-link" ng-href="#/attachment_explorer">
                 File Explorer<i class="fa fa-search"></i>
             </a>
         </li>
