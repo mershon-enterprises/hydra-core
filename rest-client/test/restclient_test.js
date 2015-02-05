@@ -23,6 +23,7 @@ restclient.endpointUrl = 'http://localhost:3000';
     test.ifError(value)
 */
 
+var async = require('async');
 var apiToken = null;
 var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
@@ -56,23 +57,78 @@ var checkResponse = function(test, bodyJSON) {
   apiToken = bodyJSON['token'];
 };
 
+var submitMockData = function(dataList) {
+    return restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      dataList
+    );
+};
+
+var deleteAllMockData = function(callback) {
+  var mockDataSetUUIDList;
+
+  restclient.listAttachments(
+    clientUUID,
+    apiToken
+  ).then(
+    function(listAttachmentsResponse){
+      // update the api token
+      apiToken = listAttachmentsResponse.entity['token'];
+      //Get all undeleted dataset uuids
+      return async.map(listAttachmentsResponse.entity['response']['attachments'],
+        function(x, callback) {
+          callback(null, x['data_set_uuid'])
+        },
+        function(err, results) {
+          //remove duplicate uuids from list
+          mockDataSetUUIDList = results.filter(
+            function(elem, pos) {
+              return results.indexOf(elem) == pos;
+          });
+      });
+    }
+  ).then(
+    function(){
+      //delete all datasets
+      async.eachSeries(mockDataSetUUIDList,
+        function(uuid, callback) {
+          restclient.deleteData(
+            clientUUID,
+            apiToken,
+            uuid
+          ).then(function(deleteDataResposne){
+            apiToken = deleteDataResposne.entity['token'];
+            callback(uuid);
+          });
+        },
+        function(){
+          callback(mockDataSetUUIDList);
+        });
+  });
+};
+
 exports['version'] = {
   setUp: function(done) {
     // setup here
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.version().then(
       function(data) {
-        test.equal(data.status.code, 200, 'get version should succeed');
-        try {
-          test.ok('version' in data.entity,
-            'version should be stated');
-        } catch (e) {
-          console.log(e.message);
-          console.log("Body was: " + JSON.stringify(data.entity));
-        }
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 200, 'get version should succeed');
+          try {
+            test.ok('version' in data.entity,
+              'version should be stated');
+          } catch (e) {
+            console.log(e.message);
+            console.log("Body was: " + JSON.stringify(data.entity));
+          }
+        });
         test.done();
       });
   }
@@ -84,15 +140,17 @@ exports['authenticate'] = {
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.authenticate(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'login should fail');
-        test.equal(data.entity, 'Invalid credentials', 'login body text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'login should fail');
+          test.equal(data.entity, 'Invalid credentials', 'login body text');
+        });
         test.done();
       });
   },
@@ -100,10 +158,9 @@ exports['authenticate'] = {
     test.expect(9);
     goodLogin(
       function(data) {
-        test.equal(data.status.code, 200, 'login should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'login should succeed');
           test.notEqual('email_address' in data.entity['response'],
             'login response email address should be stated');
           test.notEqual('first_name' in data.entity['response'],
@@ -124,7 +181,7 @@ exports['adminAuthenticate'] = {
     done();
   },
   'no-args': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.adminAuthenticate(
       null,
       null,
@@ -132,8 +189,10 @@ exports['adminAuthenticate'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'login should fail');
-        test.equal(data.entity, 'Invalid credentials', 'login body text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'login should fail');
+          test.equal(data.entity, 'Invalid credentials', 'login body text');
+        });
         test.done();
       });
   },
@@ -146,10 +205,9 @@ exports['adminAuthenticate'] = {
       'basicuser@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'login should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'login should succeed');
           test.notEqual('email_address' in data.entity['response'],
             'login response email address should be stated');
           test.notEqual('first_name' in data.entity['response'],
@@ -170,17 +228,21 @@ exports['adminAuthenticate'] = {
 
 exports['listAccessLevels'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listAccessLevels(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'access level list should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'access level list should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -191,15 +253,13 @@ exports['listAccessLevels'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'access level list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'access level list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'access level list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one access level should exist');
-
           test.notEqual(data.entity['response'].indexOf('Manage Clients'), -1,
             'testing sentinel access level should exist');
         });
@@ -210,18 +270,22 @@ exports['listAccessLevels'] = {
 
 exports['getAccessLevel'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAccessLevel(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'access level get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'access level get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -234,17 +298,15 @@ exports['getAccessLevel'] = {
       'Manage Clients'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'access level get should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'access level get should succeed');
           test.ok('description' in data.entity['response'],
             'description should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
-
           test.equal(data.entity['response']['description'], 'Manage Clients',
             'testing sentinel access level should match');
         });
@@ -255,17 +317,21 @@ exports['getAccessLevel'] = {
 
 exports['listClients'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listClients(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'client list get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'client list get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -276,15 +342,13 @@ exports['listClients'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'client list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'client list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'client list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one client should exist');
-
           test.notEqual(data.entity['response'].indexOf('Chevron'), -1,
             'testing sentinel client should exist');
         });
@@ -295,18 +359,22 @@ exports['listClients'] = {
 
 exports['getClient'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getClient(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get client get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get client get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -319,17 +387,15 @@ exports['getClient'] = {
       'Chevron'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get client should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get client should succeed');
           test.ok('name' in data.entity['response'],
             'name should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
-
           test.equal(data.entity['response']['name'], 'Chevron',
             'testing sentinel client name should match');
         });
@@ -340,18 +406,22 @@ exports['getClient'] = {
 
 exports['listClientLocations'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listClientLocations(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list client locations get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list client locations get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -363,10 +433,9 @@ exports['listClientLocations'] = {
       'Chevron'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'client list should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'client list should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'locations list should be an array');
           test.ok(data.entity['response'].length > 0,
@@ -382,17 +451,21 @@ exports['listClientLocations'] = {
 
 exports['listData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listData(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -403,10 +476,9 @@ exports['listData'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list data should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'data list should be an array');
           test.ok(data.entity['response'].length > 0,
@@ -433,10 +505,12 @@ exports['listData'] = {
 // validate against
 exports['submitData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.submitData(
       null,
       null,
@@ -445,8 +519,10 @@ exports['submitData'] = {
       [restclient.PrimitiveData('boolean', 'placeholder', false)]
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'submit data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'submit data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -516,10 +592,9 @@ exports['submitData'] = {
       [{type: 'boolean', description: 'test data', value: true}]
     ).then(
       function(data) {
-        test.equal(data.status.code, 201, 'submit data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 201, 'submit data should succeed');
           test.ok('uuid' in data.entity['response'],
             'data-set uuid should be stated');
           test.ok('date_created' in data.entity['response'],
@@ -532,7 +607,6 @@ exports['submitData'] = {
             'data-set data should be an array');
           test.equal(data.entity['response']['data'].length, 1,
             'one data item should exist');
-
           test.equal(data.entity['response']['created_by'],
             'admin@example.com',
             'email should match submitted value');
@@ -545,15 +619,13 @@ exports['submitData'] = {
           test.equal(data.entity['response']['data'][0]['value'],
             true,
             'data value should match submitted value');
-
           createdUUID = data.entity['response']['uuid'];
         });
-
         test.done();
       });
   },
   'some-good-some-bad-data': function(test) {
-    test.expect(5);
+    test.expect(6);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("goodFile.csv", "text/csv", "");
@@ -570,8 +642,10 @@ exports['submitData'] = {
     ).then(
       function(submitDataResponse) {
         test.doesNotThrow( function() {
-          apiToken = submitDataResponse.entity['token'] || apiToken;
-          test.equal(submitDataResponse.status.code, 409, 'submit data should fail with code 409');
+          test.doesNotThrow( function() {
+            apiToken = submitDataResponse.entity['token'] || apiToken;
+            test.equal(submitDataResponse.status.code, 409, 'submit data should fail with code 409');
+          });
         });
 
         return restclient.listAttachments(
@@ -597,18 +671,22 @@ exports['submitData'] = {
 
 exports['getData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getData(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -621,10 +699,9 @@ exports['getData'] = {
       createdUUID
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get data should succeed');
           test.ok('uuid' in data.entity['response'],
             'data-set uuid should be stated');
           test.ok('date_created' in data.entity['response'],
@@ -637,12 +714,10 @@ exports['getData'] = {
             'data-set data should be an array');
           test.ok(data.entity['response']['data'].length > 0,
             'at least one data item should exist');
-
           test.equal(data.entity['response']['uuid'],
             createdUUID,
             'testing sentinel data-set uuid should match');
         });
-
         test.done();
       });
   }
@@ -650,18 +725,22 @@ exports['getData'] = {
 
 exports['deleteData'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.deleteData(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'delete data should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'delete data should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -673,10 +752,9 @@ exports['deleteData'] = {
       createdUUID
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'delete data should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'delete data should succeed');
           test.equal(data.entity['response'], 'OK', 'success response');
         });
         test.done();
@@ -686,17 +764,21 @@ exports['deleteData'] = {
 
 exports['listUsers'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listUsers(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list users should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list users should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -707,15 +789,13 @@ exports['listUsers'] = {
       apiToken
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list users should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list users should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'user list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one user should exist');
-
           test.notEqual(data.entity['response'].indexOf('admin@example.com'), -1,
             'VPN account should exist');
         });
@@ -726,18 +806,22 @@ exports['listUsers'] = {
 
 exports['getUser'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getUser(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'get user should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'get user should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -749,22 +833,19 @@ exports['getUser'] = {
       'admin@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'get user should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'get user should succeed');
           test.ok('email_address' in data.entity['response'],
             'email_address should be stated');
           test.ok('date_created' in data.entity['response'],
             'date created should be stated');
           test.ok('date_modified' in data.entity['response'],
             'date modified should be stated');
-
           test.equal(data.entity['response']['email_address'],
             'admin@example.com',
             'email should match request value');
         });
-
         test.done();
       });
   }
@@ -772,18 +853,22 @@ exports['getUser'] = {
 
 exports['listUserAccess'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listUserAccess(
       null,
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list user access should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list user access should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -795,15 +880,13 @@ exports['listUserAccess'] = {
       'admin@example.com'
     ).then(
       function(data) {
-        test.equal(data.status.code, 200, 'list user access should succeed');
-
         test.doesNotThrow( function() {
           checkResponse(test, data.entity);
+          test.equal(data.status.code, 200, 'list user access should succeed');
           test.ok(Array.isArray(data.entity['response']),
             'user access list should be an array');
           test.ok(data.entity['response'].length > 0,
             'at least one user access should exist');
-
           test.notEqual(data.entity['response'].indexOf('Manage Users'), -1,
             'Manage Users access level should exist');
         });
@@ -814,17 +897,21 @@ exports['listUserAccess'] = {
 
 exports['listAttachments'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.listAttachments(
       null,
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -870,11 +957,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(data) {
-
         test.doesNotThrow( function() {
           apiToken = data.entity['token'];
           checkResponse(test, data.entity);
-
           test.equal(data.status.code, 200, 'list data should succeed');
           test.ok(Array.isArray(data.entity['response']['attachments']),
             'data list should be an array');
@@ -891,15 +976,6 @@ exports['listAttachments'] = {
           test.ok('filename' in data.entity['response']['attachments'][0],
             'attachment filename should be stated');
         });
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -909,12 +985,7 @@ exports['listAttachments'] = {
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("findThis.csv", "text/csv", "");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData([attachment]
     ).then(
       function(submitResponse) {
 
@@ -930,11 +1001,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -958,16 +1027,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -978,12 +1037,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "description", "findThisValue");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitive]
+    submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -999,11 +1053,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -1027,16 +1079,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1046,12 +1088,7 @@ exports['listAttachments'] = {
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1066,11 +1103,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponse.entity['token'];
           checkResponse(test, getListResponse.entity);
-
           test.equal(getListResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponse.entity['response'],
@@ -1094,16 +1129,6 @@ exports['listAttachments'] = {
           test.ok(getListResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
             'created_by should be "admin@example.com"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1114,12 +1139,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("test.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitive]
+    submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
 
@@ -1136,11 +1156,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponseTagName) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponseTagName.entity['token'];
           checkResponse(test, getListResponseTagName.entity);
-
           test.equal(getListResponseTagName.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponseTagName.entity['response'],
@@ -1172,11 +1190,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListResponseTagValue) {
-
         test.doesNotThrow( function() {
           apiToken = getListResponseTagValue.entity['token'];
           checkResponse(test, getListResponseTagValue.entity);
-
           test.equal(getListResponseTagValue.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListResponseTagValue.entity['response'],
@@ -1201,15 +1217,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1229,27 +1236,15 @@ exports['listAttachments'] = {
     var attachment3 = restclient.Attachment("file3.csv", "text/csv", "");
     var primitive3 = restclient.PrimitiveData("text", "tag3", "value3");
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment1, primitive1]
+    submitMockData( [attachment1, primitive1]
     ).then(
       function(submitResponse) {
-
         test.doesNotThrow( function() {
           datasetWithAttachment1UUID = submitResponse.entity['response']['uuid'];
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.submitData(
-          clientUUID,
-          apiToken,
-          new Date(),
-          'admin@example.com',
-          [attachment2, primitive2]
-          );
+        return submitMockData( [attachment2, primitive2]);
       }
     ).then(
       function(submitResponse) {
@@ -1259,13 +1254,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.submitData(
-          clientUUID,
-          apiToken,
-          new Date(),
-          'admin@example.com',
-          [attachment3, primitive3]
-          );
+        return submitMockData( [attachment3, primitive3]);
       }
     ).then(
       function(submitResponse) {
@@ -1283,11 +1272,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1320,11 +1307,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1357,11 +1342,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1397,11 +1380,9 @@ exports['listAttachments'] = {
       }
     ).then(
       function(getListSearchResponse) {
-
         test.doesNotThrow( function() {
           apiToken = getListSearchResponse.entity['token'];
           checkResponse(test, getListSearchResponse.entity);
-
           test.equal(getListSearchResponse.status.code, 200,
             'list data should succeed');
           test.ok('attachments' in getListSearchResponse.entity['response'],
@@ -1426,40 +1407,6 @@ exports['listAttachments'] = {
             'created_by should be "admin@example.com"');
         });
 
-        // delete mock attachment1.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment1UUID
-        );
-      }
-    ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
-
-        // delete mock attachment2.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment2UUID
-        );
-      }
-    ).then(
-      function(deleteDataResponse) {
-        test.doesNotThrow( function() {
-          apiToken = deleteDataResponse.entity['token'];
-        });
-        // delete mock attachment3.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachment3UUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
       }
     );
@@ -1468,7 +1415,9 @@ exports['listAttachments'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -1479,8 +1428,10 @@ exports['getAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -1493,12 +1444,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1516,25 +1462,17 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          "text/csv",
-          'invalid Content-Disposition text');
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            "text/csv",
+            'invalid Content-Disposition text');
+        });
         test.done();
     });
   },
@@ -1547,12 +1485,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1570,18 +1503,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        test.equal(getResponse.status.code, 404,
-          'get attachment should fail with 404');
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
+        test.doesNotThrow( function() {
+          test.equal(getResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
         test.done();
     });
   },
@@ -1593,12 +1518,7 @@ exports['getAttachment'] = {
         attachment = restclient.Attachment("restricted.csv", "text/csv", "");
 
     //submit attachment as admin
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1618,10 +1538,9 @@ exports['getAttachment'] = {
       function(limitedAccessLoginResponse) {
         test.doesNotThrow( function() {
           apiToken = limitedAccessLoginResponse.entity['token'];
-        });
-
-        test.equal(limitedAccessLoginResponse.status.code, 200,
+          test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
+        });
 
         //try to retreive attachment as resticted user
         return restclient.getAttachment(
@@ -1633,8 +1552,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getRestrictedResponse) {
-        test.equal(getRestrictedResponse.status.code, 401,
-          'get attachment should fail with 401');
+        test.doesNotThrow( function() {
+          test.equal(getRestrictedResponse.status.code, 401,
+            'get attachment should fail with 401');
+        });
 
         //try to retrieve attachment that doesn't exist as restricted user
         return restclient.getAttachment(
@@ -1646,38 +1567,23 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getNotFoundResponse) {
-        test.equal(getNotFoundResponse.status.code, 404,
-          'get attachment should fail with 401');
-
-        //delete mock attachment
-        goodLogin(
-          function(adminLoginResponseData) {
-            test.doesNotThrow( function() {
-              apiToken = adminLoginResponseData.entity['token'];
-            });
-
-            restclient.deleteData(
-              clientUUID,
-              apiToken,
-              datasetWithAttachmentUUID
-            ).then(
-                function(deleteDataResponse) {
-                  test.equal(deleteDataResponse.status.code, 200,
-                      'delete data should succeed');
-                  test.done();
-                }
-            );
+        test.doesNotThrow( function() {
+          test.equal(getNotFoundResponse.status.code, 404,
+            'get attachment should fail with 401');
         });
+        test.done();
     });
   }
 };
 
 exports['getAttachmentInfo'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAttachmentInfo(
       null,
       null,
@@ -1685,8 +1591,10 @@ exports['getAttachmentInfo'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
@@ -1699,12 +1607,7 @@ exports['getAttachmentInfo'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1724,7 +1627,6 @@ exports['getAttachmentInfo'] = {
       function(getInfoResponse) {
         test.doesNotThrow( function() {
           checkResponse(test, getInfoResponse.entity);
-
           test.equal(getInfoResponse.status.code, 200,
             'list data should succeed');
           test.ok(Array.isArray(getInfoResponse.entity['response']),
@@ -1752,16 +1654,6 @@ exports['getAttachmentInfo'] = {
           test.ok(getInfoResponse.entity['response'][0]['primitive_text_data'][0]['value'] === 'testValue',
             'primitive text data value should be "testValue"');
         });
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
         test.done();
     });
   },
@@ -1769,10 +1661,12 @@ exports['getAttachmentInfo'] = {
 
 exports['getAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.getAttachment(
       null,
       null,
@@ -1780,13 +1674,15 @@ exports['getAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'list data get should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'list data get should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
   'with-api-token': function(test) {
-    test.expect(4);
+    test.expect(5);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1794,12 +1690,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1817,30 +1708,22 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          "text/csv",
-          'invalid Content-Disposition text');
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            "text/csv",
+            'invalid Content-Disposition text');
+        });
         test.done();
     });
   },
   'file-not-found': function(test) {
-    test.expect(2);
+    test.expect(3);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -1848,12 +1731,7 @@ exports['getAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1871,35 +1749,21 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        test.equal(getResponse.status.code, 404,
-          'get attachment should fail with 404');
-
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
-        );
-      }
-    ).then(
-      function() {
+        test.doesNotThrow( function() {
+          test.equal(getResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
         test.done();
     });
   },
   'file-restricted-access': function(test) {
-    test.expect(7);
+    test.expect(10);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
         attachment = restclient.Attachment("restricted.csv", "text/csv", "");
 
-    //submit attachment as admin
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment]
+    submitMockData( [attachment]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -1919,10 +1783,9 @@ exports['getAttachment'] = {
       function(limitedAccessLoginResponse) {
         test.doesNotThrow( function() {
           apiToken = limitedAccessLoginResponse.entity['token'];
-        });
-
-        test.equal(limitedAccessLoginResponse.status.code, 200,
+          test.equal(limitedAccessLoginResponse.status.code, 200,
             'login should succeed');
+        });
 
         //try to retreive attachment as resticted user
         return restclient.getAttachment(
@@ -1934,8 +1797,10 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getRestrictedResponse) {
-        test.equal(getRestrictedResponse.status.code, 401,
-          'get attachment should fail with 401');
+        test.doesNotThrow( function() {
+          test.equal(getRestrictedResponse.status.code, 401,
+            'get attachment should fail with 401');
+        });
 
         //try to retrieve attachment that doesn't exist as restricted user
         return restclient.getAttachment(
@@ -1947,11 +1812,12 @@ exports['getAttachment'] = {
       }
     ).then(
       function(getNotFoundResponse) {
-        test.equal(getNotFoundResponse.status.code, 404,
-          'get attachment should fail with 404');
+        test.doesNotThrow( function() {
+          test.equal(getNotFoundResponse.status.code, 404,
+            'get attachment should fail with 404');
+        });
 
         //delete mock attachment
-        //
         goodLogin(
           function(adminLoginResponseData) {
             test.doesNotThrow( function() {
@@ -1964,8 +1830,10 @@ exports['getAttachment'] = {
               datasetWithAttachmentUUID
             ).then(
               function(deleteDataResponse) {
-                test.equal(deleteDataResponse.status.code, 200,
-                  'delete data should succeed');
+                test.doesNotThrow( function() {
+                  test.equal(deleteDataResponse.status.code, 200,
+                    'delete data should succeed');
+                });
                 test.done();
             });
         });
@@ -1975,10 +1843,12 @@ exports['getAttachment'] = {
 
 exports['replaceAttachment'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
-    test.expect(2);
+    test.expect(3);
     restclient.replaceAttachment(
       null,
       null,
@@ -1987,13 +1857,15 @@ exports['replaceAttachment'] = {
       null
     ).then(
       function(data) {
-        test.equal(data.status.code, 401, 'replace attachment should fail');
-        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'replace attachment should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
         test.done();
       });
   },
   'with-api-token': function(test) {
-    test.expect(7);
+    test.expect(8);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2004,12 +1876,7 @@ exports['replaceAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -2041,18 +1908,20 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(getResponse) {
-        var headers = getResponse.headers;
-        test.equal(getResponse.status.code, 200,
-          'get attachment should succeed');
-        test.equal(headers['Content-Disposition'],
-          "attachment;filename='test.csv'",
-          'invalid Content-Disposition text');
-        test.equal(headers['Content-Type'],
-          'text/csv',
-          'invalid Content-Disposition text');
-        test.equal(getResponse.entity,
-          'new',
-          'file contents should have changed!');
+        test.doesNotThrow( function() {
+          var headers = getResponse.headers;
+          test.equal(getResponse.status.code, 200,
+            'get attachment should succeed');
+          test.equal(headers['Content-Disposition'],
+            "attachment;filename='test.csv'",
+            'invalid Content-Disposition text');
+          test.equal(headers['Content-Type'],
+            'text/csv',
+            'invalid Content-Disposition text');
+          test.equal(getResponse.entity,
+            'new',
+            'file contents should have changed!');
+          });
 
         // delete mock attachments.
         return restclient.deleteData(
@@ -2071,7 +1940,7 @@ exports['replaceAttachment'] = {
     );
   },
   'file-not-found': function(test) {
-    test.expect(3);
+    test.expect(4);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2079,12 +1948,7 @@ exports['replaceAttachment'] = {
         primitiveData =
           restclient.PrimitiveData('text', 'testTextDescription','testValue');
 
-    restclient.submitData(
-      clientUUID,
-      apiToken,
-      new Date(),
-      'admin@example.com',
-      [attachment, primitiveData]
+    submitMockData( [attachment, primitiveData]
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
@@ -2103,9 +1967,10 @@ exports['replaceAttachment'] = {
       }
     ).then(
       function(replaceNotFoundResponse) {
-
-        test.equal(replaceNotFoundResponse.status.code, 404,
-          'replace attachment should fail with 404');
+        test.doesNotThrow( function() {
+          test.equal(replaceNotFoundResponse.status.code, 404,
+            'replace attachment should fail with 404');
+        });
 
         // delete mock attachments.
         return restclient.deleteData(
