@@ -607,3 +607,7 @@ omnibox {
     }
   }
 }
+
+.ng-modal-dialog {
+  @include gray-box(1em);
+}
