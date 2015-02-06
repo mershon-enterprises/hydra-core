@@ -764,7 +764,9 @@ exports['deleteData'] = {
 
 exports['deleteTag'] = {
   setUp: function(done) {
-    goodLogin( function(){ done(); });
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
   },
   'no-api-token': function(test) {
     test.expect(2);
@@ -780,7 +782,7 @@ exports['deleteTag'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(8);
+    test.expect(11);
 
     var datasetWithAttachmentUUID;
     var attachment = restclient.Attachment("testDeleteTag.csv", "text/csv", "");
@@ -809,33 +811,41 @@ exports['deleteTag'] = {
       function(listAttachmentResponse) {
         test.doesNotThrow( function() {
           apiToken = listAttachmentResponse.entity['token'];
+          datasetWithAttachmentUUID =
+            listAttachmentResponse.entity['response']['attachments'][0]['data_set_uuid'];
+          test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+            'should return exactly 0 attachments');
         });
-
 
         return restclient.deleteTag(
           clientUUID,
           apiToken,
-          "deletedTag",
-          "text"
+          datasetWithAttachmentUUID,
+          "text",
+          "deletedTag"
         );
       }
     ).then(
       function(deleteTagResponse) {
         test.doesNotThrow( function() {
-          test.equal(deleteTagResponse.status.code, 200, 'delete data should succeed with 20o status');
+          apiToken = deleteTagResponse.entity['token'];
+          test.equal(deleteTagResponse.status.code, 200, 'delete data should succeed with 200 status');
           checkResponse(test, deleteTagResponse.entity);
           test.equal(deleteTagResponse.entity['response'], 'OK', 'success response');
         });
 
-        // delete mock attachments.
-        return restclient.deleteData(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {or_search_strings: ["deletedvalue"]}
         );
       }
     ).then(
-      function() {
+      function(listAttachentResponse) {
+        test.doesNotThrow( function() {
+          test.equal(listAttachentResponse.entity['response']['attachments'].length, 0,
+            'should return exactly 0 attachments');
+        });
         test.done();
     });
   },
