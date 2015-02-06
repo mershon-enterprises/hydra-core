@@ -166,6 +166,15 @@
                                     uuid
                                     filename
                                     new_contents))
+              (PUT "/share" [api_token client_uuid shared_email_address start_date exp_date]
+                   (guard-with-user api_token
+                                    client_uuid
+                                    data-set-attachment-grant-sharable-access
+                                    uuid
+                                    filename
+                                    shared_email_address
+                                    start_date
+                                    exp_date))
               (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
