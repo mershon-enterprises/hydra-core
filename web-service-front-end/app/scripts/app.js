@@ -2,11 +2,12 @@
 
 angular.module('webServiceApp', [
       'ngRoute',    // Basic Angular Routing
+      'ngModal', //Modal Directive
       'LocalStorageModule', // Angular Localstorage
       'file-model', //Angular File Directives
       'ui.date' //Integration with jQueryUI Datepicker
     ])
-    .config(function ($routeProvider, localStorageServiceProvider) {
+    .config(function ($routeProvider, localStorageServiceProvider, ngModalDefaultsProvider) {
       //Routes. When user visits various URLs, navigate them to specific views
       //and bring controllers into scope. "loggedInOnly" means the route cannot
       //be visited if the user has no session.
@@ -40,6 +41,9 @@ angular.module('webServiceApp', [
       //Add a prefix to everything saved in localstorage to prevent collissions
       //with other applications.
       localStorageServiceProvider.setPrefix('pi-hydra');
+
+      //Change default settings about ngModal directive.
+      ngModalDefaultsProvider.set('closeButtonHtml', '<i class="fa fa-times"></i>');
     })
     //Constants to be used in the application instead of strings that can
     //be mistyped.

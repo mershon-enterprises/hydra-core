@@ -35,6 +35,11 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         var currentDate = new Date();
         $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
 
+        $scope.dialogShown = false;
+        $scope.toggleDialogModal = function() {
+            $scope.dialogShown = !$scope.dialogShown;
+        };
+
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
         //input field.

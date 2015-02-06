@@ -115,11 +115,14 @@
 
         <button     id="share-button"
                     class="file-action"
-                    ng-click="generateShareLink()">Share</button>
+                    ng-click="toggleDialogModal()">Share</button>
 
         <input  class="upload-input"
                 type="file"
                 file-model='file'>
-
     </div>
+
+    <modal-dialog show='dialogShown' dialog-title='Share File' height='75%' width='50%'>
+        <p>Dialog content goes in here</p>
+    </modal-dialog>
 </div>
