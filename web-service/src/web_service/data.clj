@@ -808,8 +808,15 @@
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (response {:response
-                 {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                  :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}}))))
+                 {:attachments (sql/query (db) [query-own
+                                                email-address
+                                                email-address]
+                                          :row-fn format-data-set-attachment)
+                  :result_count (:count (first
+                                          (sql/query
+                                            (db) [query-own-result-count
+                                                  email-address
+                                                  email-address ])))}}))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
