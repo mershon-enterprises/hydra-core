@@ -463,9 +463,10 @@ omnibox {
 .attachment-view {
   @include gray-box(1em);
   padding: $default-padding * 2 $default-padding * 4 !important;
+  position: relative;
 
   table {
-    margin: $default-margin auto;
+    margin: 0 auto;
     width: 90%;
   }
 
@@ -544,7 +545,12 @@ omnibox {
 }
 
 .controls {
+  height: 58px;
+  margin: $default-margin/2;
   .download-button {
+    position: absolute;
+    left: 45%;
+    top: 30px;
     background-color: $dark-green !important;
     &:hover {
       background-color: $dark-green + $default-hover-offset !important;
