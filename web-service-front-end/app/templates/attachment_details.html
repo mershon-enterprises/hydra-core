@@ -1,13 +1,21 @@
 <div class="attachment-view">
-    <!-- Display file details -->
+
+    <div class="controls">
+
+        <button class="back" ng-click="back()">Back</button>
+
+        <button     class="download-button"
+                    ng-click="downloadFile()">Download</button>
+
+    </div>
+
     <table class="file-details-table">
         <tr>
             <th colspan="2">Filename</th>
             <th>Author</th>
             <th>Creation Date</th>
             <th rowspan="2" class="button-cell">
-                <button class="download-button"
-                        ng-click="downloadFile()">Download</button>
+                <button class="upload-button file-action">Replace</button>
             </th>
         </tr>
         <tr>
@@ -20,30 +28,6 @@
             <td>
                 {{dateCreated | date : 'short'}}
             </td>
-        </tr>
-        <tr class="spacer">
-            <td colspan="5"></td>
-        </tr>
-        <tr>
-            <th colspan="3">Share Link</th>
-            <th>Expiration Date</th>
-            <th rowspan="2" class="button-cell">
-                <button id="share-button"
-                        ng-click="generateShareLink()">Share</button>
-            </th>
-        </tr>
-        <tr>
-            <td colspan="3">
-                <textarea class="share-url">
-                </textarea>
-            </td>
-            <td>
-                <input
-                        class="exp-date-field"
-                        ui-date="dateOptions"
-                        type="text"
-                        ng-model="expirationDate">
-                </td>
         </tr>
         <tr class="spacer">
             <td colspan="5"></td>
@@ -122,8 +106,6 @@
 
     <div class="controls">
 
-        <button class="back" ng-click="back()">Back</button>
-
         <!-- Again, confirm before file deletion. -->
         <button class="file-action"
                 confirmed-click="deleteFile()"
@@ -131,7 +113,9 @@
                 >Delete
         </button>
 
-        <button class="upload-button file-action">Replace</button>
+        <button     id="share-button"
+                    class="file-action"
+                    ng-click="generateShareLink()">Share</button>
 
         <input  class="upload-input"
                 type="file"
