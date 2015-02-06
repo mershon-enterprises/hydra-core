@@ -5,7 +5,6 @@ angular.module('webServiceApp', [
       'ngModal', //Modal Directive
       'LocalStorageModule', // Angular Localstorage
       'file-model', //Angular File Directives
-      'ui.date' //Integration with jQueryUI Datepicker
     ])
     .config(function ($routeProvider, localStorageServiceProvider, ngModalDefaultsProvider) {
       //Routes. When user visits various URLs, navigate them to specific views
