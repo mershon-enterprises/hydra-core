@@ -122,7 +122,11 @@
                 file-model='file'>
     </div>
 
-    <modal-dialog show='dialogShown' dialog-title='Share File' height='75%' width='50%'>
+    <modal-dialog show='dialogShown' dialog-title='Share File' width='50%'>
         <p>Dialog content goes in here</p>
+        <div class="controls">
+            <button class="back" ng-click="toggleDialogModal()">Cancel</button>
+            <button class="file-action">Save</button>
+        </div>
     </modal-dialog>
 </div>
