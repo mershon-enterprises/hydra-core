@@ -123,7 +123,38 @@
     </div>
 
     <modal-dialog show='dialogShown' dialog-title='Share File' width='50%'>
-        <p>Dialog content goes in here</p>
+            <table class="file-details-table">
+                <tr>
+                    <th>All Authenticated Users</th>
+                </tr>
+                <tr>
+                    <td>
+                        Content for Section 1
+                    </td>
+                </tr>
+                <tr class="spacer">
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Anyone with the URL</th>
+                </tr>
+                <tr>
+                    <td>
+                        Content for Section 2
+                    </td>
+                </tr>
+                <tr class="spacer">
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Specific Users</th>
+                </tr>
+                <tr>
+                    <td>
+                        Content for Section 3
+                    </td>
+                </tr>
+            </table>
         <div class="controls">
             <button class="back" ng-click="toggleDialogModal()">Cancel</button>
             <button class="file-action">Save</button>
