@@ -536,28 +536,34 @@ omnibox {
     .fa-check {
       font-size: 5em;
     }
+
+    .share-url {
+      width: 90%;
+    }
   }
 
-  .back {
-    float: left;
-  }
 
-  .file-action {
-    margin-left: $default-margin;
-    float: right;
-  }
-}
+  .controls {
+    height: 58px;
+    margin: $default-margin/2;
 
-.controls {
-  height: 58px;
-  margin: $default-margin/2;
-  .download-button {
-    position: absolute;
-    left: 45%;
-    top: 30px;
-    background-color: $dark-green !important;
-    &:hover {
-      background-color: $dark-green + $default-hover-offset !important;
+    .download-button {
+      position: absolute;
+      left: 45%;
+      top: 30px;
+      background-color: $dark-green !important;
+      &:hover {
+        background-color: $dark-green + $default-hover-offset !important;
+      }
+    }
+
+    .back {
+      float: left;
+    }
+
+    .file-action {
+      margin-left: $default-margin;
+      float: right;
     }
   }
 }

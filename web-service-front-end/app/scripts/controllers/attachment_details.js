@@ -27,13 +27,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
-        $scope.dateOptions = {
-            dateFormat: 'yy-mm-dd',
-            defaultDate: +7,
-            minDate: new Date()
-        };
-        var currentDate = new Date();
-        $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
+        $scope.shareLink = null;
 
         $scope.dialogShown = false;
         $scope.toggleDialogModal = function() {
@@ -131,6 +125,27 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         'Please contact support.'
                     );
                 }
+            });
+
+            var expirationDate = moment().format('YYYY[-]MM[-]DD');
+
+            //Call the RestService to get the URL for that file in the
+            //backend.
+            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
+            function(success){
+                if(success[0] === EVENTS.promiseSuccess) {
+                    var uri = window.location.protocol + '//' +
+                              window.location.host +
+                              success[1];
+                    $('.share-url').val(uri);
+                    //window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+                }
+            },
+            function(){
+                NotificationService.error(
+                    'Critical Error',
+                    'Please contact support.'
+                );
             });
         }
 
@@ -426,36 +441,40 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         //Share link URL button
         $scope.generateShareLink = function () {
-            //Disable the button to avoid corrupting the API token
-            $('#share-button').prop('disabled', true);
 
-            //Call the RestService to get the URL for that file in the
-            //backend.
-            var expirationDate = $('.exp-date-field').val();
-            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
-            function(success){
-                if(success[0] === EVENTS.promiseSuccess) {
-                    var uri = window.location.protocol + '//' +
-                              window.location.host +
-                              success[1];
-                    $('.share-url').val(uri);
-                    window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+            var currentDate = new Date();
+            var expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
+            moment.format('yy-mm-dd');
 
-                    //Re-enable the share button
-                    $('#share-button').prop('disabled', false);
-            }
-            },
-            function(){
-                NotificationService.error(
-                    'Critical Error',
-                    'Please contact support.'
-                );
+            console.log(expirationDate);
+            console.log(moment.format('yy-mm-dd'));
 
-                //Re-enable the share button
-                $('#share-button').prop('disabled', false);
-            });
+            // //Call the RestService to get the URL for that file in the
+            // //backend.
+            // RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
+            // function(success){
+            //     if(success[0] === EVENTS.promiseSuccess) {
+            //         var uri = window.location.protocol + '//' +
+            //                   window.location.host +
+            //                   success[1];
+            //         $('.share-url').val(uri);
+            //         window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+
+            //         //Re-enable the share button
+            //         $('#share-button').prop('disabled', false);
+            // }
+            // },
+            // function(){
+            //     NotificationService.error(
+            //         'Critical Error',
+            //         'Please contact support.'
+            //     );
+
+            //     //Re-enable the share button
+            //     $('#share-button').prop('disabled', false);
+            // });
+
         };
 
     }
-
 });
