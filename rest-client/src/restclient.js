@@ -271,6 +271,20 @@
     });
   };
 
+  exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, sharedEmailAddress, startDate, expDate) {
+    return rest({
+      method: 'PUT',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/share",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        shared_email_address: sharedEmailAddress,
+        start_date: startDate,
+        exp_date: expDate
+      }
+    });
+  };
+
   exports.renameAttachment = function(clientUUID, apiToken, uuid, filename, newFilename) {
     return rest({
       method: 'PUT',
