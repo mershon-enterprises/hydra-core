@@ -622,14 +622,23 @@ omnibox {
   @include gray-box(1em);
 }
 
+
 .selectize-input {
   div {
-      background-color: $dark-green !important;
-      color: $off-white !important;
-      padding: $default-padding/3 $default-padding !important;
-      @include rounded( $default-rounding,
-                      $default-rounding,
-                      $default-rounding,
-                      $default-rounding);
+    background-color: $dark-green !important;
+    color: $off-white !important;
+    @include rounded( $default-rounding,
+                    $default-rounding,
+                    $default-rounding,
+                    $default-rounding);
+  }
+  span{
+    margin: $default-margin/8 !important;
+  }
+}
+
+.selectize-dropdown-content {
+  span{
+    margin: $default-margin/8 !important;
   }
 }

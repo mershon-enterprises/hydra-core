@@ -503,7 +503,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     var name = formatName(item);
                     return '<div>' +
                     (name ? '<span class="name">' + escape(name) + '</span>' : '') +
-                    (item.email ? '<span class="email">' + escape(item.email) + '</span>' : '') +
+                    (item.email ? '<span class="email">[' + escape(item.email) + ']</span>' : '') +
                     '</div>';
                 },
                 option: function(item, escape) {
@@ -512,7 +512,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     var caption = name ? item.email : null;
                     return '<div>' +
                     '<span class="label">' + escape(label) + '</span>' +
-                    (caption ? '<span class="caption">' + escape(caption) + '</span>' : '') +
+                    (caption ? '<span class="caption">[' + escape(caption) + ']</span>' : '') +
                     '</div>';
                 }
             },
