@@ -411,23 +411,16 @@ angular.module('webServiceApp').factory('RestService',
         x.onreadystatechange = function() {
             var statusCode = x.status;
 
-            if (statusCode < 200 || statusCode >= 300) {
-                deferred.reject([EVENTS.promiseFailed]);
-                console.log('restclient.submitData promise failed');
-            }
-            else {
+            if (statusCode === STATUS_CODES.created) {
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
                 Session.updateToken(jsonResponse.token);
-
-                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
-                    deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.submitData succeeded');
-                }
-                else {
-                    deferred.reject([EVENTS.badStatus, statusCode]);
-                    restService.statusHandler('submitData', statusCode);
-                }
+                deferred.resolve([EVENTS.promiseSuccess]);
+                console.log('restService.submitData succeeded');
+            }
+            else {
+                deferred.reject([EVENTS.badStatus]);
+                restService.statusHandler('submitData', statusCode);
             }
 
             NProgress.done();
@@ -550,23 +543,16 @@ angular.module('webServiceApp').factory('RestService',
         x.onreadystatechange = function() {
             var statusCode = x.status;
 
-            if (statusCode < 200 || statusCode >= 300) {
-                deferred.reject([EVENTS.promiseFailed]);
-                console.log('restclient.replaceAttachment promise failed');
-            }
-            else {
+            if (statusCode === STATUS_CODES.ok) {
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
                 Session.updateToken(jsonResponse.token);
-
-                if (statusCode === STATUS_CODES.ok || statusCode === STATUS_CODES.created) {
-                    deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.replaceAttachment succeeded');
-                }
-                else {
-                    deferred.reject([EVENTS.badStatus, statusCode]);
-                    restService.statusHandler('replaceAttachment', statusCode);
-                }
+                deferred.resolve([EVENTS.promiseSuccess]);
+                console.log('restService.replaceAttachment succeeded');
+            }
+            else {
+                deferred.reject([EVENTS.badStatus]);
+                restService.statusHandler('replaceAttachment', statusCode);
             }
 
             NProgress.done();
