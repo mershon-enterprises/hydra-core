@@ -2,11 +2,16 @@
   "name": "webservice",
   "version": "0.0.0",
   "description": "AngularJS frontend for the clojure web-service.",
-  "repository" :
-  { "type" : "git"
-  , "url" : "http://github.com/npm/npm.git"
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/npm/npm.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "imagemin-gifsicle": "^4.1.0",
+    "imagemin-jpegtran": "^4.1.0",
+    "imagemin-optipng": "^4.2.0",
+    "imagemin-pngquant": "^4.0.0"
+  },
   "devDependencies": {
     "download": "=3.1.1",
     "grunt": "^0.4.5",
