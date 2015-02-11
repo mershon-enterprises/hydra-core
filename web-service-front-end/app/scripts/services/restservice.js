@@ -412,6 +412,9 @@ angular.module('webServiceApp').factory('RestService',
             var statusCode = x.status;
 
             if (statusCode === STATUS_CODES.created) {
+                // Remove this handler so we don't accidentally re-fire.
+                x.onreadystatechange = null;
+
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
                 Session.updateToken(jsonResponse.token);
@@ -419,6 +422,9 @@ angular.module('webServiceApp').factory('RestService',
                 console.log('restService.submitData succeeded');
             }
             else {
+                // Remove this handler so we don't accidentally re-fire.
+                x.onreadystatechange = null;
+
                 deferred.reject([EVENTS.badStatus]);
                 restService.statusHandler('submitData', statusCode);
             }
@@ -544,6 +550,9 @@ angular.module('webServiceApp').factory('RestService',
             var statusCode = x.status;
 
             if (statusCode === STATUS_CODES.ok) {
+                // Remove this handler so we don't accidentally re-fire.
+                x.onreadystatechange = null;
+
                 //Parse out the data from the restclient response.
                 var jsonResponse = JSON.parse(x.responseText);
                 Session.updateToken(jsonResponse.token);
@@ -551,6 +560,9 @@ angular.module('webServiceApp').factory('RestService',
                 console.log('restService.replaceAttachment succeeded');
             }
             else {
+                // Remove this handler so we don't accidentally re-fire.
+                x.onreadystatechange = null;
+
                 deferred.reject([EVENTS.badStatus]);
                 restService.statusHandler('replaceAttachment', statusCode);
             }
