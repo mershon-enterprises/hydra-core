@@ -27,6 +27,27 @@ var async = require('async');
 var apiToken = null;
 var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
+
+var limitedLogin= function(callback) {
+  restclient.adminAuthenticate(
+    clientUUID,
+    'admin@example.com',
+    'adminpassword',
+    'basicuser@example.com'
+  ).then(
+    function(data) {
+      // update the api token
+      try {
+        apiToken = data.entity['token'];
+
+        callback(data);
+      } catch (e) {
+        console.log(e.message);
+        console.log("Body was: " + JSON.stringify(data.entity));
+      }
+    });
+};
+
 var goodLogin = function(callback) {
   restclient.authenticate(
     clientUUID,
