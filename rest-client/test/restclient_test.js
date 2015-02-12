@@ -1242,7 +1242,7 @@ exports['listAttachments'] = {
     });
   },
   'with-api-token-search-delimiter-logic': function(test) {
-  //  test.expect(31);
+    test.expect(61);
 
 
     var datasetWithAttachment1UUID;
