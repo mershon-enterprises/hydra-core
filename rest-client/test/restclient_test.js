@@ -93,18 +93,18 @@ var deleteAllMockData = function(callback) {
   ).then(
     function(){
       //delete all datasets
-      async.eachSeries(mockDataSetUUIDList,
+      return async.eachSeries(mockDataSetUUIDList,
         function(uuid, callback) {
-          restclient.deleteData(
+          return restclient.deleteData(
             clientUUID,
             apiToken,
             uuid
           ).then(function(deleteDataResposne){
             apiToken = deleteDataResposne.entity['token'];
-            callback(uuid);
+            return callback();
           });
         },
-        function(){
+        function(err){
           callback(mockDataSetUUIDList);
         });
   });
