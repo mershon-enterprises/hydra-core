@@ -27,6 +27,27 @@ var async = require('async');
 var apiToken = null;
 var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
+
+var limitedLogin= function(callback) {
+  restclient.adminAuthenticate(
+    clientUUID,
+    'admin@example.com',
+    'adminpassword',
+    'basicuser@example.com'
+  ).then(
+    function(data) {
+      // update the api token
+      try {
+        apiToken = data.entity['token'];
+
+        callback(data);
+      } catch (e) {
+        console.log(e.message);
+        console.log("Body was: " + JSON.stringify(data.entity));
+      }
+    });
+};
+
 var goodLogin = function(callback) {
   restclient.authenticate(
     clientUUID,
@@ -93,18 +114,18 @@ var deleteAllMockData = function(callback) {
   ).then(
     function(){
       //delete all datasets
-      async.eachSeries(mockDataSetUUIDList,
+      return async.eachSeries(mockDataSetUUIDList,
         function(uuid, callback) {
-          restclient.deleteData(
+          return restclient.deleteData(
             clientUUID,
             apiToken,
             uuid
           ).then(function(deleteDataResposne){
             apiToken = deleteDataResposne.entity['token'];
-            callback(uuid);
+            return callback();
           });
         },
-        function(){
+        function(err){
           callback(mockDataSetUUIDList);
         });
   });
@@ -1221,7 +1242,7 @@ exports['listAttachments'] = {
     });
   },
   'with-api-token-search-delimiter-logic': function(test) {
-  //  test.expect(31);
+    test.expect(61);
 
 
     var datasetWithAttachment1UUID;

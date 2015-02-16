@@ -754,7 +754,7 @@
                         (:order json-search-params)
                         "desc ")]
             (str "order by " (:order_by json-search-params) " " order " "))
-          "order by date_created desc")
+          "order by date_created desc ")
 
         limit-query (if (:limit json-search-params)
                       (str "limit " (:limit json-search-params) " ")
