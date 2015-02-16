@@ -55,23 +55,20 @@ angular.module('webServiceApp', [
     .constant('EVENTS', {
       loginSuccess: 'auth-login-success',
       loginFailed: 'auth-login-failed',
+      logoutAction: 'logout-action',
       logoutSuccess: 'auth-logout-success',
+      cacheCreate: 'cache-create',
       cacheReset: 'cache-reset',
       cacheReady: 'cache-ready',
+      cacheUpdate: 'cache-update',
       promiseSuccess: 'promise-success',
       promiseFailed: 'promise-failed',
       badStatus: 'bad-status',
       newSearch: 'new-search',
-      sessionTimeout: 'auth-session-timeout',
-      notAuthorized: 'auth-not-authorized'
     })
     .constant('STATUS_CODES', {
       ok: 200,
       created: 201,
-      movedPermanently: 301,
-      badRequest: 400,
-      notAuthorized: 401,
-      forbidden: 403,
-      notFound: 404,
-      internalServerError: 500
+      unauthorized: 401,
+      forbidden: 403
     });

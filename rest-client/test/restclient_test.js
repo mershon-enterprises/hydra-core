@@ -783,6 +783,112 @@ exports['deleteData'] = {
   }
 };
 
+exports['deleteTag'] = {
+  setUp: function(done) {
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
+  },
+  'no-api-token': function(test) {
+    test.expect(2);
+    restclient.deleteTag(
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.equal(data.status.code, 401, 'delete data should fail');
+        test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(11);
+
+    var datasetWithAttachmentUUID;
+    var attachment = restclient.Attachment("testDeleteTag.csv", "text/csv", "");
+    var primitive = restclient.PrimitiveData("text", "deletedTag", "deletedValue");
+
+    restclient.submitData(
+      clientUUID,
+      apiToken,
+      new Date(),
+      'admin@example.com',
+      [attachment, primitive]
+    ).then(
+      function(submitDataResponse) {
+        test.doesNotThrow( function() {
+          apiToken = submitDataResponse.entity['token'];
+          datasetWithAttachmentUUID = submitDataResponse.entity['response']['uuid'];
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {or_search_strings: ["deletedvalue"]}
+        );
+      }
+    ).then(
+      function(listAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = listAttachmentResponse.entity['token'];
+          datasetWithAttachmentUUID =
+            listAttachmentResponse.entity['response']['attachments'][0]['data_set_uuid'];
+          test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+            'should return exactly 0 attachments');
+        });
+
+        return restclient.deleteTag(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          "text",
+          "deletedTag"
+        );
+      }
+    ).then(
+      function(deleteTagResponse) {
+        test.doesNotThrow( function() {
+          apiToken = deleteTagResponse.entity['token'];
+          test.equal(deleteTagResponse.status.code, 200, 'delete data should succeed with 200 status');
+          checkResponse(test, deleteTagResponse.entity);
+          test.equal(deleteTagResponse.entity['response'], 'OK', 'success response');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {or_search_strings: ["deletedvalue"]}
+        );
+      }
+    ).then(
+      function(listAttachentResponse) {
+        test.doesNotThrow( function() {
+          test.equal(listAttachentResponse.entity['response']['attachments'].length, 0,
+            'should return exactly 0 attachments');
+        });
+        test.done();
+    });
+  },
+  'bad-parameters': function(test) {
+    test.expect(3);
+    restclient.deleteTag(
+        clientUUID,
+        apiToken,
+        null,
+        null,
+      null
+    ).then(
+      function(deleteTagResponse) {
+        test.doesNotThrow( function() {
+          test.equal(deleteTagResponse.status.code, 409, 'deleteTag should fail with 409 status');
+          test.equal(deleteTagResponse.entity['response'], 'Failure', 'response should be Failure');
+        });
+        test.done()
+      });
+  },
+};
+
 exports['listUsers'] = {
   setUp: function(done) {
     goodLogin( function(){
