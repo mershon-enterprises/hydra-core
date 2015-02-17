@@ -64,6 +64,9 @@ angular.module('webServiceApp').factory('RestService',
                                     permissions
                     );
 
+                    //Collect the version of the app to be displayed in the UI.
+                    restService.version();
+
                     //Create the cache for this user's data
                     $rootScope.$broadcast(EVENTS.cacheCreate);
 
@@ -88,6 +91,39 @@ angular.module('webServiceApp').factory('RestService',
         //Return promise wrapper.
         return deferred.promise;
 
+    };
+
+    //Returns the access levels available to the current user.
+    restService.version = function () {
+
+        var deferred = $q.defer();
+
+        restclient.version().then(
+
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    var jsonResponse = response.entity.version;
+
+                    $rootScope.$broadcast(EVENTS.cacheUpdate, ['version', jsonResponse]);
+
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log('restclient.version succeeded');
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('version', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.version promise failed: ' + error);
+            });
+
+        return deferred.promise;
     };
 
     //Returns the access levels available to the current user.

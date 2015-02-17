@@ -16,6 +16,7 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
+        localStorageService.set('version', null);
 
         //Ask the cache to refresh itself by invoking many restService calls
         //to populate the above keys.
@@ -100,6 +101,9 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         else if (key === 'users') {
             localStorageService.set('users', data);
         }
+        else if (key === 'version') {
+            localStorageService.set('version', data);
+        }
     };
 
     //Returns a cache value from localStorage with a given key.
@@ -119,6 +123,9 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         else if (key === 'clientUUID') {
             return localStorageService.get('clientUUID');
         }
+        else if (key === 'version') {
+            return localStorageService.get('version');
+        }
     };
 
     //Destroy the cache values and their keys from localStorage.
@@ -127,10 +134,12 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
         localStorageService.set('cacheReady', null);
         localStorageService.set('clients', null);
         localStorageService.set('users', null);
+        localStorageService.set('version', null);
         localStorageService.remove('accessLevels');
         localStorageService.remove('cacheReady');
         localStorageService.remove('clients');
         localStorageService.remove('users');
+        localStorageService.remove('version');
     };
 
     //Checks if localStorage keys for our app exist.
