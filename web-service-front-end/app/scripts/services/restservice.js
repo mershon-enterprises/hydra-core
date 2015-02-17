@@ -64,9 +64,6 @@ angular.module('webServiceApp').factory('RestService',
                                     permissions
                     );
 
-                    //Collect the version of the app to be displayed in the UI.
-                    restService.version();
-
                     //Create the cache for this user's data
                     $rootScope.$broadcast(EVENTS.cacheCreate);
 
