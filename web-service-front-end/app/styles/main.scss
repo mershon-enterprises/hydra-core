@@ -157,6 +157,19 @@ header {
     width: 400px;
   }
 
+  .title {
+    position: absolute;
+    top: 0px;
+    left: 30px;
+  }
+
+  .version {
+    position: absolute;
+    top: 30px;
+    left: 35px;
+    font-size: 0.5em !important;
+  }
+
   .helpIcon {
     position: absolute;
     top: 25px;
