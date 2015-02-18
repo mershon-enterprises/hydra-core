@@ -19,6 +19,9 @@ angular.module('webServiceApp').controller('LoginCtrl',
         password: ''
     };
 
+    //Collect the version of the app to be displayed in the UI.
+    RestService.version();
+
     //Call RestService with given credentials.
     $scope.login = function (credentials) {
         NProgress.start();
