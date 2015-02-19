@@ -1117,7 +1117,8 @@
                    "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
                    "  where ds.uuid::character varying=? "; data_set_uuid
                    "  and dsa.filename=? "                ; filename
-                   "  and dsa.date_deleted is null) "
+                   "  and dsa.date_deleted is null "
+                   "  and saa.date_deleted is null) "
                    ") ")
     add-user-access-success (sql/execute! (db) [query
                                                 user-email-address
