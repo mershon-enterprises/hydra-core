@@ -800,11 +800,11 @@
                        "  u.email_address=? "
                        "  or dsa.id in ( "
                        "    select attachment_id "
-                       "    from public.shared_attachment_access as saa "
-                       "    inner join public.shared_attachment_permitted_user_email_address as uea "
-                       "      on saa.id = uea.shared_attachment_access_id "
-                       "    where uea.user_email_address=? "
-                       "    and saa.date_deleted is null "
+                       "    from public.data_set_attachment_shared_access as asa "
+                       "    inner join public.data_set_attachment_shared_access_user as sau "
+                       "      on asa.id = sau.attachment_shared_access_id "
+                       "    where sau.user_email_address=? "
+                       "    and asa.date_deleted is null "
                        "  ) "
                        ") "
                        "order by data_set_attachment_id "
@@ -818,11 +818,11 @@
                                     "   u.email_address=? "
                                     "   or dsa.id in ( "
                                     "     select attachment_id "
-                                    "     from public.shared_attachment_access as saa "
-                                    "     inner join public.shared_attachment_permitted_user_email_address as uea "
-                                    "     on saa.id = uea.shared_attachment_access_id "
-                                    "     where uea.user_email_address=? "
-                                    "     and saa.date_deleted is null "
+                                    "     from public.data_set_attachment_shared_access as asa "
+                                    "     inner join public.data_set_attachment_shared_access_user  as sau"
+                                    "     on asa.id = sau.attachment_shared_access_id "
+                                    "     where sau.user_email_address=? "
+                                    "     and asa.date_deleted is null "
                                     "   ) "
                                     ") "
                                     search-string-query
@@ -1020,7 +1020,7 @@
                                uuid))
           (access-denied constants/manage-data)))))))
 
-(defn data-set-attachment-add-shared-access
+(defn data-set-attachment-share
   [email-address data-set-uuid filename start-date exp-date user_email_list]
   (log-detail email-address
               constants/session-activity
@@ -1031,7 +1031,7 @@
         can-access (contains? access constants/manage-data)
 
         delete-current-shared-access-query
-        (str "update shared_attachment_access "
+        (str "update data_set_attachment_shared_access "
              "set date_deleted = now() "
              "where attachment_id = ( "
              "   select dsa.id from public.data_set_attachment as dsa "
@@ -1045,7 +1045,7 @@
                             data-set-uuid
                             filename])
 
-        query (str "insert into shared_attachment_access ( "
+        query (str "insert into data_set_attachment_shared_access ( "
                    "  attachment_id, "
                    "  start_date, "
                    "  expiration_date "
@@ -1076,20 +1076,20 @@
 
     (doseq [user-email json-data]
       (let [add-user-access-query
-            (str "insert into shared_attachment_permitted_user_email_address( "
+            (str "insert into data_set_attachment_shared_access_user( "
                  "  user_email_address, "
-                 "  shared_attachment_access_id "
+                 "  attachment_shared_access_id "
                  ") "
                  "values( "
                  "?, "                                  ;user email address
-                 "( select saa.id "
-                 "  from public.shared_attachment_access as saa "
-                 "  inner join public.data_set_attachment as dsa on saa.attachment_id = dsa.id "
+                 "( select asa.id "
+                 "  from public.data_set_attachment_shared_access as asa "
+                 "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
                  "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
                  "  where ds.uuid::character varying=? "; data_set_uuid
                  "  and dsa.filename=? "                ; filename
                  "  and dsa.date_deleted is null "
-                 "  and saa.date_deleted is null) "
+                 "  and asa.date_deleted is null) "
                  ") ")
             add-user-access-success (sql/execute! (db) [add-user-access-query
                                                         user-email
@@ -1099,29 +1099,29 @@
       (status (response {:response "OK"}) 200 )
       (status (response {:response "Failure"}) 409))))
 
-(defn data-set-attachment-grant-user-shared-access
-  [email-address data-set-uuid filename user-email-address]
+(defn date-set-attachment-shared-access-user-add
+  [email-address data-set-uuid filename user-email]
   (log-detail email-address
               constants/session-activity
               (str constants/session-add-shared-attachment-permitted-user-email-address
-                   user-email-address " to data-set(" data-set-uuid ") - " filename))
-  (let [query (str "insert into shared_attachment_permitted_user_email_address( "
+                   user-email " to data-set(" data-set-uuid ") - " filename))
+  (let [query (str "insert into data_set_attachment_shared_access_user( "
                    "  user_email_address, "
-                   "  shared_attachment_access_id "
+                   "  attachment_shared_access_id "
                    ") "
                    "values( "
                    "?, "                                  ;user email
-                   "( select saa.id "
-                   "  from public.shared_attachment_access as saa "
-                   "  inner join public.data_set_attachment as dsa on saa.attachment_id = dsa.id "
+                   "( select asa.id "
+                   "  from public.data_set_attachment_shared_access as asa "
+                   "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
                    "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
                    "  where ds.uuid::character varying=? "; data_set_uuid
                    "  and dsa.filename=? "                ; filename
                    "  and dsa.date_deleted is null "
-                   "  and saa.date_deleted is null) "
+                   "  and asa.date_deleted is null) "
                    ") ")
     add-user-access-success (sql/execute! (db) [query
-                                                user-email-address
+                                                user-email
                                                 data-set-uuid
                                                 filename ])]
     (if add-user-access-success

@@ -271,14 +271,14 @@
     });
   };
 
-  exports.grantUserSharedAccess= function(clientUUID, apiToken, uuid, filename, sharedEmailAddress) {
+  exports.shareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmail) {
     return rest({
       method: 'PUT',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/grant-user-shared-access",
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/share-with-user",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        shared_email_address: sharedEmailAddress
+        user_email: userEmail
       }
     });
   };
@@ -286,7 +286,7 @@
   exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, startDate, expDate, userEmailList) {
     return rest({
       method: 'PUT',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/add-shared-access",
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/share",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,

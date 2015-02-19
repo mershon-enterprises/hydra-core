@@ -2284,7 +2284,7 @@ exports['shareAttachment'] = {
   }
 };
 
-exports['grantUserSharedAccess'] = {
+exports['shareAttachmentWithUser'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2292,7 +2292,7 @@ exports['grantUserSharedAccess'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.grantUserSharedAccess(
+    restclient.shareAttachmentWithUser(
       null,
       null,
       null,
@@ -2341,7 +2341,7 @@ exports['grantUserSharedAccess'] = {
           apiToken = shareAttachmentResponse.entity['token'];
         });
 
-        return restclient.grantUserSharedAccess(
+        return restclient.shareAttachmentWithUser(
           clientUUID,
           apiToken,
           datasetWithAttachmentUUID,
