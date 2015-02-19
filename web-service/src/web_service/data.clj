@@ -797,10 +797,10 @@
                        search-string-query
                        tag-name-query
                        "and u.email_address=? "
-                       "or id in ( "
+                       "or dsa.id in ( "
                        "  select attachment_id "
                        "  from public.shared_file_access "
-                       "  where email_address=? )"
+                       "  where email_address=? ) "
                        "order by data_set_attachment_id "
                        ") as dsa_table "
                        order-by-query
@@ -809,10 +809,10 @@
 
         query-own-result-count (str data-set-attachment-query-count
                                     "and u.email_address=? "
-                                    "or id in ( "
+                                    "or dsa.id in ( "
                                     "  select attachment_id "
                                     "  from public.shared_file_access "
-                                    "  where email_address=? )"
+                                    "  where email_address=? ) "
                                     search-string-query
                                     tag-name-query)]
     (if can-access
