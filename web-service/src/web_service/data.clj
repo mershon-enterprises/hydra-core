@@ -1008,13 +1008,12 @@
                                uuid))
           (access-denied constants/manage-data)))))))
 
-(defn data-set-attachment-grant-sharable-access
+(defn data-set-attachment-add-shared-access
   [email-address data-set-uuid filename shared-email-address start-date exp-date]
   (log-detail email-address
               constants/session-activity
-              (str constants/session-add-sharable-attachment-access
-                   "to data-set(" data-set-uuid ") - " filename "with "
-                   shared-email-address))
+              (str constants/session-add-shared-attachment-access
+                   "to data-set(" data-set-uuid ") - " filename))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)

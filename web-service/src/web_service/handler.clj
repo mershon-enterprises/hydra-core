@@ -166,10 +166,10 @@
                                     uuid
                                     filename
                                     new_contents))
-              (PUT "/share" [api_token client_uuid shared_email_address start_date exp_date]
+              (PUT "/add-shared-access" [api_token client_uuid shared_email_address start_date exp_date]
                    (guard-with-user api_token
                                     client_uuid
-                                    data-set-attachment-grant-sharable-access
+                                    data-set-attachment-add-shared-access
                                     uuid
                                     filename
                                     shared_email_address
