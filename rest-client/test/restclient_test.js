@@ -2383,3 +2383,135 @@ exports['shareAttachmentWithUser'] = {
     });
   }
 };
+
+//exports.unshareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmail) {
+exports['unshareAttachmentWithUser'] = {
+  setUp: function(done) {
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
+  },
+  'no-api-token': function(test) {
+    test.expect(3);
+    restclient.unshareAttachmentWithUser(
+      null,
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'replace attachment should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(11);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename,
+          new Date(),
+          null,
+          ["basicuser@example.com" ]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = shareAttachmentResponse.entity['token'];
+          test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
+        });
+
+        return limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+            return restclient.listAttachments(
+              clientUUID,
+              apiToken
+            ).then(
+              function(listAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  apiToken = listAttachmentResponse.entity['token'];
+                  checkResponse(test, listAttachmentResponse.entity);
+                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+                    'should return exactly 1 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
+                    'should return result count of exactly 1 attachments');
+                });
+            });
+        });
+      }
+    ).then(
+      function() {
+        return goodLogin (
+          function(goodLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = goodLoginResponse.entity['token'];
+            });
+
+            return restclient.unshareAttachmentWithUser(
+              clientUUID,
+              apiToken,
+              datasetWithAttachmentUUID,
+              attachmentFilename,
+              "basicuser@example.com"
+            ).then(
+              function(unshareAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  test.equal(unshareAttachmentResponse.status.code, 200, 'login should succeed');
+                });
+            });
+        });
+      }
+    ).then(
+      function() {
+        return limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+            return restclient.listAttachments(
+              clientUUID,
+              apiToken
+            ).then(
+              function(listAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  apiToken = listAttachmentResponse.entity['token'];
+                  checkResponse(test, listAttachmentResponse.entity);
+                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+                    'should return exactly 1 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+                    'should return result count of exactly 1 attachments');
+                  test.done()
+                });
+            });
+        });
+    });
+  }
+};
