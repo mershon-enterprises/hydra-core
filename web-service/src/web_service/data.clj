@@ -799,7 +799,7 @@
                        "and u.email_address=? "
                        "or dsa.id in ( "
                        "  select attachment_id "
-                       "  from public.shared_file_access "
+                       "  from public.shared_attachment_access "
                        "  where email_address=? ) "
                        "order by data_set_attachment_id "
                        ") as dsa_table "
@@ -811,7 +811,7 @@
                                     "and u.email_address=? "
                                     "or dsa.id in ( "
                                     "  select attachment_id "
-                                    "  from public.shared_file_access "
+                                    "  from public.shared_attachment_access "
                                     "  where email_address=? ) "
                                     search-string-query
                                     tag-name-query)]
@@ -1019,7 +1019,7 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
         query (str
-                "insert into shared_file_access ( "
+                "insert into shared_attachment_access ( "
                 "  attachment_id, "
                 "  email_address, "
                 "  expiration_date "

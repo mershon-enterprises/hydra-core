@@ -2124,7 +2124,7 @@ exports['addAttachmentSharedUser'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.addAttachmentSharedUser(
+    restclient.grantUserSharedAccess(
       null,
       null,
       null,
@@ -2157,7 +2157,7 @@ exports['addAttachmentSharedUser'] = {
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.addAttachmentSharedUser(
+        return restclient.grantUserSharedAccess(
           clientUUID,
           apiToken,
           datasetWithAttachmentUUID,

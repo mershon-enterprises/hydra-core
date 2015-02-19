@@ -271,10 +271,10 @@
     });
   };
 
-  exports.addAttachmentSharedUser= function(clientUUID, apiToken, uuid, filename, sharedEmailAddress) {
+  exports.grantUserSharedAccess= function(clientUUID, apiToken, uuid, filename, sharedEmailAddress) {
     return rest({
       method: 'PUT',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/add-shared-user",
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/grant-user-shared-access",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
