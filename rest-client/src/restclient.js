@@ -283,14 +283,14 @@
     });
   };
 
-  exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, sharedEmailAddress, startDate, expDate) {
+  exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, startDate, expDate, userEmailList) {
     return rest({
       method: 'PUT',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/share",
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/add-shared-access",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        shared_email_address: sharedEmailAddress,
+        user_email_list: userEmailList,
         start_date: startDate,
         exp_date: expDate
       }

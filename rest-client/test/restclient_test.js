@@ -2116,7 +2116,7 @@ exports['replaceAttachment'] = {
   }
 };
 
-exports['addAttachmentSharedUser'] = {
+exports['grantUserSharedAccess'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
