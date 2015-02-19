@@ -152,7 +152,23 @@ header {
   background-color: $dark-red;
   color: $off-white;
   font-size: 2em;
-  line-height: 2em;
+
+  .hydra-logo {
+    width: 400px;
+  }
+
+  .title {
+    position: absolute;
+    top: 0px;
+    left: 30px;
+  }
+
+  .version {
+    position: absolute;
+    top: 30px;
+    left: 35px;
+    font-size: 0.5em !important;
+  }
 
   .helpIcon {
     position: absolute;
