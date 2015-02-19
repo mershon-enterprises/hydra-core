@@ -796,11 +796,17 @@
                        data-set-attachment-query
                        search-string-query
                        tag-name-query
-                       "and u.email_address=? "
-                       "or dsa.id in ( "
-                       "  select attachment_id "
-                       "  from public.shared_attachment_access "
-                       "  where email_address=? ) "
+                       "and ( "
+                       "  u.email_address=? "
+                       "  or dsa.id in ( "
+                       "    select attachment_id "
+                       "    from public.shared_attachment_access as saa "
+                       "    inner join public.shared_attachment_permitted_user_email_address as uea "
+                       "      on saa.id = uea.shared_attachment_access_id "
+                       "    where uea.user_email_address=? "
+                       "    and saa.date_deleted is null "
+                       "  ) "
+                       ") "
                        "order by data_set_attachment_id "
                        ") as dsa_table "
                        order-by-query
@@ -808,11 +814,17 @@
                        offset-query)
 
         query-own-result-count (str data-set-attachment-query-count
-                                    "and u.email_address=? "
-                                    "or dsa.id in ( "
-                                    "  select attachment_id "
-                                    "  from public.shared_attachment_access "
-                                    "  where email_address=? ) "
+                                    "and ( "
+                                    "   u.email_address=? "
+                                    "   or dsa.id in ( "
+                                    "     select attachment_id "
+                                    "     from public.shared_attachment_access as saa "
+                                    "     inner join public.shared_attachment_permitted_user_email_address as uea "
+                                    "     on saa.id = uea.shared_attachment_access_id "
+                                    "     where uea.user_email_address=? "
+                                    "     and saa.date_deleted is null "
+                                    "   ) "
+                                    ") "
                                     search-string-query
                                     tag-name-query)]
     (if can-access
