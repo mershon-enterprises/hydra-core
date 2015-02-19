@@ -290,9 +290,9 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        user_email_list: userEmailList,
-        start_date: startDate,
-        exp_date: expDate
+        start_date: (startDate instanceof Date) ? startDate.toISOString() : null,
+        exp_date: (expDate instanceof Date) ? expDate.toISOString() : null,
+        user_email_list: JSON.stringify(userEmailList)
       }
     });
   };

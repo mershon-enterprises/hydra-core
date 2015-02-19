@@ -2116,7 +2116,7 @@ exports['replaceAttachment'] = {
   }
 };
 
-exports['grantUserSharedAccess'] = {
+exports['shareAttachment'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2124,10 +2124,13 @@ exports['grantUserSharedAccess'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.grantUserSharedAccess(
+    restclient.shareAttachment(
       null,
       null,
       null,
+      null,
+      null,
+      new Date(),
       null,
       null
     ).then(
@@ -2140,6 +2143,7 @@ exports['grantUserSharedAccess'] = {
       });
   },
   'with-api-token': function(test) {
+    test.expect(12);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2157,23 +2161,24 @@ exports['grantUserSharedAccess'] = {
           apiToken = submitResponse.entity['token'];
         });
 
-        return restclient.grantUserSharedAccess(
+        return restclient.shareAttachment(
           clientUUID,
           apiToken,
           datasetWithAttachmentUUID,
           attachmentFilename,
-          "basicuser@example.com"
+          new Date(),
+          null,
+          ["basicuser@example.com"]
         );
       }
     ).then(
-      function(replaceResponse) {
+      function(shareAttachmentResponse) {
         test.doesNotThrow( function() {
-          apiToken = replaceResponse.entity['token'];
+          apiToken = shareAttachmentResponse.entity['token'];
         });
 
         limitedLogin (
           function(limitLoginResponse) {
-            //console.log(limitLoginResponse);
             test.doesNotThrow( function() {
               apiToken = limitLoginResponse.entity['token'];
             });
@@ -2182,17 +2187,16 @@ exports['grantUserSharedAccess'] = {
               apiToken
             ).then(
               function(listAttachmentResponse) {
-                //console.log(listAttachmentResponse);
                 test.doesNotThrow( function() {
                   checkResponse(test, listAttachmentResponse.entity);
                   test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
                   test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
-                    'should return exactly 0 attachments');
+                    'should return exactly 1 attachments');
                   test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
-                    'should return result count of exactly 0 attachments');
-                  test.ok(listAttachmentResponse.entity['response']['attachments'][0]['filename'] === 'share.csv',
-                    'filename should be called "test.csv"');
-                  test.ok(listAttachmentResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+                    'should return result count of exactly 1 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
+                    'filename should be called "shared.csv"');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
                     'created_by should be "admin@example.com"');
                 });
                 test.done();
