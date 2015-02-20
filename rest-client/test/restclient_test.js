@@ -29,7 +29,7 @@ var clientUUID = "00000000-0000-0000-0000-000000000000";
 var createdUUID = null;
 
 var limitedLogin= function(callback) {
-  restclient.adminAuthenticate(
+  return restclient.adminAuthenticate(
     clientUUID,
     'admin@example.com',
     'adminpassword',
@@ -49,7 +49,7 @@ var limitedLogin= function(callback) {
 };
 
 var goodLogin = function(callback) {
-  restclient.authenticate(
+  return restclient.authenticate(
     clientUUID,
     "admin@example.com",
     "adminpassword"
@@ -2408,7 +2408,7 @@ exports['unshareAttachmentWithUser'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(13);
+    test.expect(21);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2448,7 +2448,7 @@ exports['unshareAttachmentWithUser'] = {
             test.doesNotThrow( function() {
               apiToken = limitLoginResponse.entity['token'];
             });
-            return restclient.listAttachments(
+            restclient.listAttachments(
               clientUUID,
               apiToken
             ).then(
@@ -2458,9 +2458,9 @@ exports['unshareAttachmentWithUser'] = {
                   checkResponse(test, listAttachmentResponse.entity);
                   test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
                   test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
-                    'should return exactly 1 attachments');
+                    'should return exactly 1 after attachment is shared');
                   test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
-                    'should return result count of exactly 1 attachments');
+                    'should return result count of exactly 1 after attachment is shared');
                 });
             });
         });
@@ -2473,7 +2473,7 @@ exports['unshareAttachmentWithUser'] = {
               apiToken = goodLoginResponse.entity['token'];
             });
 
-            return restclient.unshareAttachmentWithUser(
+            restclient.unshareAttachmentWithUser(
               clientUUID,
               apiToken,
               datasetWithAttachmentUUID,
@@ -2489,7 +2489,7 @@ exports['unshareAttachmentWithUser'] = {
       }
     ).then(
       function() {
-        return limitedLogin (
+        limitedLogin (
           function(limitLoginResponse) {
             test.doesNotThrow( function() {
               apiToken = limitLoginResponse.entity['token'];
