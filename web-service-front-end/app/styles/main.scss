@@ -23,6 +23,8 @@ $default-padding: 10px;
 $default-margin: 20px;
 $default-rounding: 20px;
 $default-hover-offset: #222222;
+$default-figure-width: 400px;
+$default-figcaption-height: 20px;
 
 /* Mixins */
 @mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
@@ -548,4 +550,31 @@ omnibox {
     margin-left: $default-margin;
     float: right;
   }
+}
+
+#documentation {
+    figure img {
+      max-width: $default-figure-width;
+    }
+
+    figure.medium {
+      max-width: $default-figure-width * 1.5;
+    }
+
+    figure.medium img {
+      max-width: $default-figure-width * 1.5;
+    }
+
+    figure.large {
+      max-width: $default-figure-width * 2;
+    }
+
+    figure.large img {
+      max-width: $default-figure-width * 2;
+    }
+
+    figcaption {
+      height: $default-figcaption-height;
+      font-size: .75em;
+    }
 }
