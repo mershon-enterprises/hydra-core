@@ -1099,7 +1099,7 @@
       (status (response {:response "OK"}) 200 )
       (status (response {:response "Failure"}) 409))))
 
-(defn date-set-attachment-shared-access-user-add
+(defn data-set-attachment-shared-access-user-add
   [email-address data-set-uuid filename user-email]
   (log-detail email-address
               constants/session-activity

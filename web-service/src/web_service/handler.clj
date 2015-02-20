@@ -178,7 +178,13 @@
               (PUT "/share-with-user" [api_token client_uuid user_email]
                    (guard-with-user api_token
                                     client_uuid
-                                    date-set-attachment-shared-access-user-add                                    uuid
+                                    data-set-attachment-shared-access-user-add                                    uuid
+                                    filename
+                                    user_email))
+              (PUT "/unshare-with-user" [api_token client_uuid user_email]
+                   (guard-with-user api_token
+                                    client_uuid
+                                    data-set-attachment-shared-access-user-add                                    uuid
                                     filename
                                     user_email))
               (POST "/" [] (not-implemented "Submit data attachment"))

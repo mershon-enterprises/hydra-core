@@ -2384,7 +2384,6 @@ exports['shareAttachmentWithUser'] = {
   }
 };
 
-//exports.unshareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmail) {
 exports['unshareAttachmentWithUser'] = {
   setUp: function(done) {
     goodLogin( function(){
