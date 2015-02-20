@@ -1085,6 +1085,25 @@ exports['listAttachments'] = {
         test.done();
     });
   },
+  'with-api-token-sql-injection-attempt': function(test) {
+    restclient.listAttachments(
+      clientUUID,
+      apiToken,
+      {
+        limit: " 20; insert into public.user (email_address) values('SQL INJECTION!!!'); --",
+        offset: 10,
+        search_string: "something",
+        order_by: "date_created",
+        order: "desc"
+      }
+    ).then(
+      function(listAttachmentsResponse) {
+        test.equal(listAttachmentsResponse.status.code, 400,
+          'list data should fail with "malformed" response');
+        test.done();
+      }
+    );
+  },
   'with-api-token-search-filename': function(test) {
     test.expect(16);
 
