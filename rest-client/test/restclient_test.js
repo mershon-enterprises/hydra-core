@@ -2408,7 +2408,7 @@ exports['unshareAttachmentWithUser'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(11);
+    test.expect(13);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2504,9 +2504,9 @@ exports['unshareAttachmentWithUser'] = {
                   checkResponse(test, listAttachmentResponse.entity);
                   test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
                   test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
-                    'should return exactly 1 attachments');
+                    'should return 0 attachments');
                   test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
-                    'should return result count of exactly 1 attachments');
+                    'should return result count of exactly 0 attachments');
                   test.done()
                 });
             });

@@ -805,6 +805,7 @@
                        "      on asa.id = sau.attachment_shared_access_id "
                        "    where sau.user_email_address=? "
                        "    and asa.date_deleted is null "
+                       "    and sau.date_deleted is null "
                        "  ) "
                        ") "
                        "order by data_set_attachment_id "
@@ -823,6 +824,7 @@
                                     "     on asa.id = sau.attachment_shared_access_id "
                                     "     where sau.user_email_address=? "
                                     "     and asa.date_deleted is null "
+                                    "     and sau.date_deleted is null "
                                     "   ) "
                                     ") "
                                     search-string-query
