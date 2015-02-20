@@ -1127,3 +1127,32 @@
     (if add-user-access-success
       (status (response {:response "OK"}) 200 )
       (status (response {:response "Failure"}) 409))))
+
+(defn date-set-attachment-shared-access-user-remove
+  [email-address data-set-uuid filename user-email]
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-add-shared-attachment-permitted-user-email-address
+                   user-email " to data-set(" data-set-uuid ") - " filename))
+  (let [query (str
+                "update data_set_attachment_shared_access_user "
+                "set date_deleted = now() "
+                "where id = ( "
+                "   select sau.id "
+                "   from data_set_attachment_shared_access_user as sau "
+                "   inner join data_set_attachment_shared_access as asa "
+                "     on asa.id = sau.attachment_shared_access_id "
+                "   inner join data_set_attachment as dsa "
+                "     on dsa.id = asa.attachment_id "
+                "   inner join data_set as ds on ds.id = dsa.data_set_id "
+                "   where sau.user_email_address=? "  ;user-email
+                "   and ds.uuid::character varying=? ";data-set-uuid
+                "   and dsa.filename=? "              ;filename
+                ")")
+    remove-user-access-success (sql/execute! (db) [query
+                                                user-email
+                                                data-set-uuid
+                                                filename ])]
+    (if remove-user-access-success
+      (status (response {:response "OK"}) 200 )
+      (status (response {:response "Failure"}) 409))))
