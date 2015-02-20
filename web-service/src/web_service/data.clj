@@ -689,6 +689,8 @@
               constants/session-activity
               constants/session-list-datasets)
 
+  ; FIXME -- use a short random string to ensure that random-tag can't be
+  ; guessed and bypassed
   (let [random-tag "$asdf$"
         access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
