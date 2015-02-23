@@ -2,36 +2,24 @@
         ng-options="item.id as item.label for item in shareOptions">
 </select>
 
-<table class="file-details-table">
-    <tr>
-        <th>All Authenticated Users</th>
-    </tr>
-    <tr>
-        <td>
-            <i class="fa fa-check"></i>
-        </td>
-    </tr>
-    <tr class="spacer">
-        <td></td>
-    </tr>
-    <tr>
-        <th>Anyone with the URL</th>
-    </tr>
-    <tr>
-        <td>
-            <textarea class="share-url"></textarea>
-        </td>
-    </tr>
-    <tr class="spacer">
-        <td></td>
-    </tr>
-    <tr>
-        <th>Specific Users</th>
-    </tr>
-    <tr>
-        <td>
-            <select placeholder="Enter email addresses..."
-                selectize="selectizeOptions"></select>
-        </td>
-    </tr>
-</table>
+<div ng-switch="shareMode" class="share">
+
+    <div ng-switch-when="none">
+        <h1>Not Shared</h1>
+    </div>
+
+    <div ng-switch-when="all">
+        <h1>All Registered Users</h1>
+    </div>
+
+    <div ng-switch-when="url">
+        <h1>Anyone with the URL</h1>
+        <textarea class="share-url"></textarea>
+    </div>
+
+    <div ng-switch-when="specific">
+        <h1>Specific Users</h1>
+        <select placeholder="Enter email addresses..."
+            selectize="selectizeOptions"></select>
+    </div>
+</div>
