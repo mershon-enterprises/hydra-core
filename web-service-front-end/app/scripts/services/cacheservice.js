@@ -102,7 +102,6 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
             localStorageService.set('users', data);
         }
         else if (key === 'version') {
-            $rootScope.version = data;
             localStorageService.set('version', data);
         }
     };

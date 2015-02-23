@@ -107,7 +107,7 @@ angular.module('webServiceApp').factory('RestService',
 
                     $rootScope.$broadcast(EVENTS.cacheUpdate, ['version', jsonResponse]);
 
-                    deferred.resolve([EVENTS.promiseSuccess]);
+                    deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
                     console.log('restclient.version succeeded');
                 }
                 else {
