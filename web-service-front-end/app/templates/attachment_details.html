@@ -123,39 +123,9 @@
     </div>
 
     <modal-dialog show='dialogShown' dialog-title='Share File' width='50%'>
-            <table class="file-details-table">
-                <tr>
-                    <th>All Authenticated Users</th>
-                </tr>
-                <tr>
-                    <td>
-                        <i class="fa fa-check"></i>
-                    </td>
-                </tr>
-                <tr class="spacer">
-                    <td></td>
-                </tr>
-                <tr>
-                    <th>Anyone with the URL</th>
-                </tr>
-                <tr>
-                    <td>
-                        <textarea class="share-url"></textarea>
-                    </td>
-                </tr>
-                <tr class="spacer">
-                    <td></td>
-                </tr>
-                <tr>
-                    <th>Specific Users</th>
-                </tr>
-                <tr>
-                    <td>
-                        <select placeholder="Enter email addresses..."
-                            selectize="selectizeOptions"></select>
-                    </td>
-                </tr>
-            </table>
+
+        <share></share>
+
         <div class="controls">
             <button class="back" ng-click="toggleDialogModal()">Cancel</button>
             <button class="file-action">Save</button>
