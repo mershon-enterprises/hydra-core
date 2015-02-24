@@ -184,20 +184,19 @@
                                         start_date
                                         exp_date
                                         user_email_list))
-                  (PUT "/users" [api_token client_uuid user_email_list]
+                  (PUT "/" [api_token client_uuid user_email_list]
                        (guard-with-user api_token
                                         client_uuid
-                                        data-set-attachment-shared-access-user-add
+                                        data-set-attachment-shared-access-user-update
                                         uuid
                                         filename
                                         user_email_list))
-                  (DELETE "/users" [api_token client_uuid user_email_list]
+                  (DELETE "/" [api_token client_uuid]
                           (guard-with-user api_token
                                            client_uuid
-                                           date-set-attachment-shared-access-user-remove
+                                           date-set-attachment-shared-access-delete
                                            uuid
-                                           filename
-                                           user_email_list))))))))))
+                                           filename))))))))))
   (context
     "/attachments" []
       (defroutes document-routes

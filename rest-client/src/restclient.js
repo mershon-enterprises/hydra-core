@@ -271,32 +271,6 @@
     });
   };
 
-  exports.shareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmailList) {
-    return rest({
-      method: 'PUT',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing/users",
-      params: {
-        client_uuid: clientUUID,
-        api_token: apiToken,
-        user_email_list: JSON.stringify(
-          (userEmailList instanceof Array) ? userEmailList : [userEmailList])
-      }
-    });
-  };
-
-  exports.unshareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmailList) {
-    return rest({
-      method: 'DELETE',
-      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing/users",
-      params: {
-        client_uuid: clientUUID,
-        api_token: apiToken,
-        user_email_list: JSON.stringify(
-          (userEmailList instanceof Array) ? userEmailList : [userEmailList])
-      }
-    });
-  };
-
   exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, startDate, expDate, userEmailList) {
     return rest({
       method: 'POST',
@@ -307,6 +281,30 @@
         start_date: (startDate instanceof Date) ? startDate.toISOString() : null,
         exp_date: (expDate instanceof Date) ? expDate.toISOString() : null,
         user_email_list: JSON.stringify(userEmailList)
+      }
+    });
+  };
+
+  exports.shareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmailList) {
+    return rest({
+      method: 'PUT',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        user_email_list: JSON.stringify(
+          (userEmailList instanceof Array) ? userEmailList : [userEmailList])
+      }
+    });
+  };
+
+  exports.stopSharingAttachment= function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
       }
     });
   };
