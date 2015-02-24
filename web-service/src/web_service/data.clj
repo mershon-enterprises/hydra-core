@@ -457,7 +457,7 @@
                                                        contents]
                                                  :transaction? false)]
                        (if (not success)
-                         (throw Exception "Failed to insert new attachment!")))
+                         (throw (Exception. "Failed to insert new attachment!"))))
                      ; TODO -- refactor this and data-set-primitive-submit to use
                      ; same shared private function
                      (let [type (:type data-element)
@@ -481,7 +481,7 @@
                                                        value]
                                                  :transaction? false)]
                        (if (not success)
-                         (throw Exception "Failed to insert new child row!"))))))
+                         (throw (Exception. "Failed to insert new child row!")))))))
                true)
              (catch Exception e
                (log/error e (format (str "There was an error submitting a "
