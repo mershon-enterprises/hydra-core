@@ -6,20 +6,22 @@
 <div ng-switch="shareMode" class="share">
 
     <section ng-switch-when="none">
-        <h1>Not Shared</h1>
+        <h1>This file will be no longer shared.</h1>
+        <i class="fa fa-times"></i>
     </section>
 
     <section ng-switch-when="all">
-        <h1>All Registered Users</h1>
+        <h1>This file will be shared with all users.</h1>
+        <i class="fa fa-check"></i>
     </section>
 
     <section ng-switch-when="url">
-        <h1>Anyone with the URL</h1>
+        <h1>Anyone with this share URL will be able to access the file.</h1>
         <textarea class="share-url"></textarea>
     </section>
 
     <section ng-switch-when="specific">
-        <h1>Specific Users</h1>
+        <h1>Enter the emails of the users who may access this file.</h1>
         <select placeholder="Enter email addresses..."
             selectize="selectizeOptions"></select>
     </section>

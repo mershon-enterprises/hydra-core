@@ -639,6 +639,15 @@ omnibox {
     height: 300px;
     width: 5%;
 
+    i {
+      font-size: 10em;
+    }
+
+    textarea {
+      height: 150px;
+      width: 60%;
+    }
+
     section {
       width: 90%;
       margin: 0 auto;
