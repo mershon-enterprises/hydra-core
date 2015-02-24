@@ -2402,14 +2402,14 @@ exports['shareAttachmentWithUser'] = {
         });
     });
   },
-  'sharing-filename-does-not-exist-failure': function(test) {
-    test.expect(11);
+  'sharing-file-that-does-not-exist': function(test) {
+    test.expect(2);
 
     restclient.shareAttachmentWithUser(
       clientUUID,
       apiToken,
       "00000000-0000-0000-0000-000000000000",
-      "doesNotExit.csv",
+      "doesNotExist.csv",
       new Date(),
       null,
       "basicuser@example.com"
