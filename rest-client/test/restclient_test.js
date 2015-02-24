@@ -2283,7 +2283,7 @@ exports['shareAttachment'] = {
     });
   },
   'sharing-filename-does-not-exist-failure': function(test) {
-    test.expect(11);
+    test.expect(1);
 
     restclient.shareAttachment(
       clientUUID,

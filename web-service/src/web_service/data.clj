@@ -1085,28 +1085,34 @@
                  (if (not add-shared-access-success)
                    (throw (Exception. "Failed to add new attachment shared access!"))))
 
-              (doseq [user-email json-data]
-                (let [add-user-access-query
-                      (str "insert into data_set_attachment_shared_access_user( "
-                           "  user_email_address, "
-                           "  attachment_shared_access_id "
-                           ") "
-                           "values( "
-                           "?, "    ;user email address
-                           "( select asa.id "
-                           "  from public.data_set_attachment_shared_access as asa "
-                           "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
-                           "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
-                           "  where ds.uuid::character varying=? "; data_set_uuid
-                           "  and dsa.filename=? "                ; filename
-                           "  and dsa.date_deleted is null "
-                           "  and asa.date_deleted is null) "
-                           ") ")
-                      add-user-access-success (sql/execute!
-                                                conn [add-user-access-query
-                                                      user-email
-                                                      data-set-uuid
-                                                      filename ])]))
+              (let [attachment-shared-access-id-query
+                    (str "select asa.id "
+                         "  from public.data_set_attachment_shared_access as asa "
+                         "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
+                         "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
+                         "  where ds.uuid::character varying=? "; data_set_uuid
+                         "  and dsa.filename=? "                ; filename
+                         "  and dsa.date_deleted is null "
+                         "  and asa.date_deleted is null ")
+
+                    attachment-shared-access-id
+                    (:id (first (sql/query conn [attachment-shared-access-id-query
+                                                 data-set-uuid
+                                                 filename])))]
+
+                (doseq [user-email json-data]
+                  (let [add-user-access-query
+                        (str "insert into data_set_attachment_shared_access_user( "
+                             "  user_email_address, "
+                             "  attachment_shared_access_id "
+                             ") "
+                             "values( "
+                             "?, "    ;user email address
+                             "?)")    ;attachment shared access id
+                        add-user-access-success
+                        (sql/execute! conn [add-user-access-query
+                                            user-email
+                                            attachment-shared-access-id])])))
               (status (response {:response "OK"}) 200 )
               (catch Exception e
                 (log/error e (format (str "There was an error sharing the "
