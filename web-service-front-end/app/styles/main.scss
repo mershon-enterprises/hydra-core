@@ -618,27 +618,53 @@ omnibox {
   }
 }
 
+
+
 .ng-modal-dialog {
+
   @include gray-box(1em);
-}
+  display: table;
+  width: 50%;
 
+  .ng-modal-dialog-content {
+    width: 100%;
+    share {
+      width: 100%;
+    }
+  }
 
-.selectize-input {
-  div {
-    background-color: $dark-green !important;
-    color: $off-white !important;
-    @include rounded( $default-rounding,
-                    $default-rounding,
-                    $default-rounding,
-                    $default-rounding);
-  }
-  span{
-    margin: $default-margin/8 !important;
-  }
-}
+  .share {
+    display: table-cell;
+    vertical-align: middle;
+    height: 300px;
+    width: 5%;
 
-.selectize-dropdown-content {
-  span{
-    margin: $default-margin/8 !important;
+    section {
+      width: 90%;
+      margin: 0 auto;
+    }
   }
+
+  .share-mode-select {
+    height: 30px;
+    font-size: 1.2em;
+  }
+
+  .selectize-input {
+    div {
+      background-color: $dark-green !important;
+      color: $off-white !important;
+      display: inline-block;
+    }
+    span{
+      margin: $default-margin/8 !important;
+    }
+  }
+
+  .selectize-dropdown-content {
+    span{
+      margin: $default-margin/8 !important;
+    }
+  }
+
 }

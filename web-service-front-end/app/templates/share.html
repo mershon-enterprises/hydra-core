@@ -1,25 +1,26 @@
-<select ng-model="shareMode"
+<select class="share-mode-select"
+        ng-model="shareMode"
         ng-options="item.id as item.label for item in shareOptions">
 </select>
 
 <div ng-switch="shareMode" class="share">
 
-    <div ng-switch-when="none">
+    <section ng-switch-when="none">
         <h1>Not Shared</h1>
-    </div>
+    </section>
 
-    <div ng-switch-when="all">
+    <section ng-switch-when="all">
         <h1>All Registered Users</h1>
-    </div>
+    </section>
 
-    <div ng-switch-when="url">
+    <section ng-switch-when="url">
         <h1>Anyone with the URL</h1>
         <textarea class="share-url"></textarea>
-    </div>
+    </section>
 
-    <div ng-switch-when="specific">
+    <section ng-switch-when="specific">
         <h1>Specific Users</h1>
         <select placeholder="Enter email addresses..."
             selectize="selectizeOptions"></select>
-    </div>
+    </section>
 </div>
