@@ -2285,60 +2285,20 @@ exports['shareAttachment'] = {
   'sharing-filename-does-not-exist-failure': function(test) {
     test.expect(11);
 
-    var attachmentFilename,
-        datasetWithAttachmentUUID,
-        attachment = restclient.Attachment("shared.csv",
-            "text/csv",
-            "b3JpZ2luYWw=" // "original"
-    );
-
-    submitMockData( [attachment]
-    ).then(
-      function(submitResponse) {
-        test.doesNotThrow( function() {
-          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-          apiToken = submitResponse.entity['token'];
-        });
-
-        return restclient.shareAttachment(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID,
-          "wrontName.csv",
-          new Date(),
-          null,
-          ["basicuser@example.com"]
-        );
-      }
+    restclient.shareAttachment(
+      clientUUID,
+      apiToken,
+      "00000000-0000-0000-0000-000000000000",
+      "doesNotExist.csv",
+      new Date(),
+      null,
+      ["basicuser@example.com"]
     ).then(
       function(shareAttachmentResponse) {
         test.doesNotThrow( function() {
           test.equal(shareAttachmentResponse.status.code, 404,
             'Sharing attachment should fail with 404 response');
-          apiToken = shareAttachmentResponse.entity['token'];
-        });
-
-        limitedLogin (
-          function(limitLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-            restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
-                    'should return exactly 0 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
-                    'should return result count of exactly 0 attachments');
-                });
-                test.done();
-            });
+          test.done();
         });
     });
   },
@@ -2441,7 +2401,28 @@ exports['shareAttachmentWithUser'] = {
             });
         });
     });
-  }
+  },
+  'sharing-filename-does-not-exist-failure': function(test) {
+    test.expect(11);
+
+    restclient.shareAttachmentWithUser(
+      clientUUID,
+      apiToken,
+      "00000000-0000-0000-0000-000000000000",
+      "doesNotExit.csv",
+      new Date(),
+      null,
+      "basicuser@example.com"
+    ).then(
+      function(shareAttachmentWithUserResponse) {
+        test.doesNotThrow( function() {
+          test.equal(shareAttachmentWithUserResponse.status.code, 404,
+            'Sharing attachment should fail with 404 response');
+          apiToken = shareAttachmentWithUserResponse.entity['token'];
+        });
+        test.done();
+    });
+  },
 };
 
 exports['unshareAttachmentWithUser'] = {
@@ -2572,5 +2553,27 @@ exports['unshareAttachmentWithUser'] = {
             });
         });
     });
-  }
+  },
+  'sharing-filename-does-not-exist-failure': function(test) {
+    test.expect(2);
+
+    restclient.shareAttachment(
+      clientUUID,
+      apiToken,
+      "00000000-0000-0000-0000-000000000000",
+      "doesNotExist.csv",
+      new Date(),
+      null,
+      "basicuser@example.com"
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          test.equal(shareAttachmentResponse.status.code, 404,
+            'Sharing attachment should fail with 404 response');
+          apiToken = shareAttachmentResponse.entity['token'];
+        });
+        test.done();
+
+    });
+  },
 };
