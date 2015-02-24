@@ -137,7 +137,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     var uri = window.location.protocol + '//' +
                               window.location.host +
                               success[1];
-                    $('.share-url').val(uri);
+                    $scope.shareLink = uri;
                     //window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
                 }
             },

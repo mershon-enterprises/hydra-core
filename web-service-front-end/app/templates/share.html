@@ -17,7 +17,7 @@
 
     <section ng-switch-when="url">
         <h1>Anyone with this share URL will be able to access the file.</h1>
-        <textarea class="share-url"></textarea>
+        <textarea class="share-url" ng-model="shareLink"></textarea>
     </section>
 
     <section ng-switch-when="specific">
