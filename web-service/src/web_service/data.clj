@@ -1201,30 +1201,71 @@
               (status (response {:response "Failure"}) 409))))))))
 
 (defn date-set-attachment-shared-access-user-remove
-  [email-address data-set-uuid filename user-email]
+  [email-address data-set-uuid filename user-email-list]
   (log-detail email-address
               constants/session-activity
               (str constants/session-add-shared-attachment-permitted-user-email-address
-                   user-email " to data-set(" data-set-uuid ") - " filename))
-  (let [query (str
-                "update data_set_attachment_shared_access_user "
-                "set date_deleted = now() "
-                "where id = ( "
-                "   select sau.id "
-                "   from data_set_attachment_shared_access_user as sau "
-                "   inner join data_set_attachment_shared_access as asa "
-                "     on asa.id = sau.attachment_shared_access_id "
-                "   inner join data_set_attachment as dsa "
-                "     on dsa.id = asa.attachment_id "
-                "   inner join data_set as ds on ds.id = dsa.data_set_id "
-                "   where sau.user_email_address=? "  ;user-email
-                "   and ds.uuid::character varying=? ";data-set-uuid
-                "   and dsa.filename=? "              ;filename
-                ")")
-    remove-user-access-success (sql/execute! (db) [query
-                                                user-email
-                                                data-set-uuid
-                                                filename ])]
-    (if remove-user-access-success
-      (status (response {:response "OK"}) 200 )
-      (status (response {:response "Failure"}) 409))))
+                   user-email-list " to data-set(" data-set-uuid ") - " filename))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)
+
+        attachment-id-query
+        (str "select dsa.id from public.data_set_attachment as dsa "
+             "inner join public.user as u on dsa.created_by = u.id "
+             "inner join public.data_set as ds on dsa.data_set_id = ds.id "
+             "where ds.uuid::character varying=? "  ; data_set_uuid
+             "and dsa.filename=? "                  ; filename
+             "and dsa.date_deleted is null "
+             (if (not can-access) " and u.email_address=? "))
+
+        attachment-id (if can-access
+                        (:id (first (sql/query (db) [attachment-id-query
+                                                     data-set-uuid
+                                                     filename])))
+                        (:id (first (sql/query (db) [attachment-id-query
+                                                     data-set-uuid
+                                                     filename
+                                                     email-address]))))]
+
+    (if (not attachment-id)
+      (status (response {:response "Unable to unshare file. File not found."}) 404)
+      (let [attachment-shared-access-id-query
+            (str "select asa.id "
+                 "from public.data_set_attachment_shared_access as asa "
+                 "where asa.attachment_id=? "
+                 "and asa.date_deleted is null ")
+
+            attachment-shared-access-id
+            (:id (first (sql/query (db) [attachment-shared-access-id-query
+                                         attachment-id])))
+
+            json-data (try (parse-string user-email-list true)
+                        (catch Exception e
+                          (println (str "Failed to parse 'user_email_list' as JSON string"))
+                          ; return an empty data-set
+                          []))]
+
+        (sql/with-db-transaction
+          [conn db-spec]
+          (try
+            (doseq [user-email json-data]
+              (let [remove-user-access-query
+                    (str "update data_set_attachment_shared_access_user as sau"
+                         "set sau.date_deleted = now() "
+                         "where sau.id = ?"
+                         "sau.attachment_id in ? ")]
+                (sql/execute! conn [remove-user-access-query
+                                    attachment-shared-access-id
+                                    user-email])))
+            (status (response {:response "OK"}) 200 )
+            (catch Exception e
+              (log/error e (format (str "There was an error sharing the "
+                                        "attachment for user %s")
+                                   email-address))
+              ; rollback the transaction
+              (sql/db-set-rollback-only! conn)
+              (if (instance? SQLException e)
+                (log/error (.getNextException e) "Caused by: ")
+                (log/error e "Caused by: "))
+              (status (response {:response "Failure"}) 409))))))))
