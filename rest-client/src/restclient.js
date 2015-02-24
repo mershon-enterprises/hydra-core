@@ -283,14 +283,15 @@
     });
   };
 
-  exports.unshareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmail) {
+  exports.unshareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmailList) {
+
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/unshare-with-user",
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        user_email: userEmail
+        user_email_list: (userEmailList instanceof Array) ? userEmailList : [userEmailList]
       }
     });
   };
