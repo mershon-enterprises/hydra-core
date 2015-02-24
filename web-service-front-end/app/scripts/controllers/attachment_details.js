@@ -484,6 +484,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         };
 
         $scope.selectizeOptions = {
+            plugins: ['remove_button'],
             persist: false,
             maxItems: null,
             valueField: 'email',
