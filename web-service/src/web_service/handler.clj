@@ -166,35 +166,38 @@
                                     uuid
                                     filename
                                     new_contents))
-              (PUT "/share" [api_token client_uuid start_date exp_date user_email_list]
-                   (guard-with-user api_token
-                                    client_uuid
-                                    data-set-attachment-share
-                                    uuid
-                                    filename
-                                    start_date
-                                    exp_date
-                                    user_email_list))
-              (PUT "/share-with-user" [api_token client_uuid user_email]
-                   (guard-with-user api_token
-                                    client_uuid
-                                    data-set-attachment-shared-access-user-add
-                                    uuid
-                                    filename
-                                    user_email))
-              (PUT "/unshare-with-user" [api_token client_uuid user_email]
-                   (guard-with-user api_token
-                                    client_uuid
-                                    date-set-attachment-shared-access-user-remove
-                                    uuid
-                                    filename
-                                    user_email))
-              (POST "/" [] (not-implemented "Submit data attachment"))
+                            (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
                                        client_uuid
                                        data-set-attachment-delete
-                                       uuid filename))))))))
+                                       uuid filename))
+              (context
+                "/sharing" []
+                (defroutes document-routes
+                  (POST "/" [api_token client_uuid start_date exp_date user_email_list]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-sharing
+                                        uuid
+                                        filename
+                                        start_date
+                                        exp_date
+                                        user_email_list))
+                  (PUT "/users" [api_token client_uuid user_email_list]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-shared-access-user-add
+                                        uuid
+                                        filename
+                                        user_email_list))
+                  (DELETE "/users" [api_token client_uuid user_email_list]
+                          (guard-with-user api_token
+                                           client_uuid
+                                           date-set-attachment-shared-access-user-remove
+                                           uuid
+                                           filename
+                                           user_email_list))))))))))
   (context
     "/attachments" []
       (defroutes document-routes

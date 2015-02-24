@@ -1022,7 +1022,7 @@
                                uuid))
           (access-denied constants/manage-data)))))))
 
-(defn data-set-attachment-share
+(defn data-set-attachment-sharing
   [email-address data-set-uuid filename start-date exp-date user_email_list]
   (log-detail email-address
               constants/session-activity
