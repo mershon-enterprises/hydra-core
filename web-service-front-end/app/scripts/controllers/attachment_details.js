@@ -485,7 +485,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         $scope.selectizeOptions = {
             plugins: ['remove_button'],
-            persist: false,
+            persist: true,
             maxItems: null,
             valueField: 'email',
             labelField: 'name',
@@ -495,9 +495,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 {field: 'last_name', direction: 'asc'}
             ],
             options: [
-                {email: 'nikola@tesla.com', first_name: 'Nikola', last_name: 'Tesla'},
-                {email: 'brian@thirdroute.com', first_name: 'Brian', last_name: 'Reavis'},
-                {email: 'someone@gmail.com'}
+
             ],
             render: {
                 item: function(item, escape) {
