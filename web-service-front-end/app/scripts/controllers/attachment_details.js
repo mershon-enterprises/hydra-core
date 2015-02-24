@@ -439,43 +439,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             $location.path('/attachment_explorer');
         };
 
-        //Share link URL button
-        $scope.generateShareLink = function () {
-
-            var currentDate = new Date();
-            var expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
-            moment.format('yy-mm-dd');
-
-            console.log(expirationDate);
-            console.log(moment.format('yy-mm-dd'));
-
-            // //Call the RestService to get the URL for that file in the
-            // //backend.
-            // RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
-            // function(success){
-            //     if(success[0] === EVENTS.promiseSuccess) {
-            //         var uri = window.location.protocol + '//' +
-            //                   window.location.host +
-            //                   success[1];
-            //         $('.share-url').val(uri);
-            //         window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
-
-            //         //Re-enable the share button
-            //         $('#share-button').prop('disabled', false);
-            // }
-            // },
-            // function(){
-            //     NotificationService.error(
-            //         'Critical Error',
-            //         'Please contact support.'
-            //     );
-
-            //     //Re-enable the share button
-            //     $('#share-button').prop('disabled', false);
-            // });
-
-        };
-
         /* Selectize */
         var REGEX_EMAIL = '([a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@' + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
 
