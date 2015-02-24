@@ -2282,7 +2282,7 @@ exports['shareAttachment'] = {
         });
     });
   },
-  'sharing-attachment-failure': function(test) {
+  'sharing-filename-does-not-exist-failure': function(test) {
     test.expect(11);
 
     var attachmentFilename,

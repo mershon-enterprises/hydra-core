@@ -1033,32 +1033,23 @@
         (str "select dsa.id from public.data_set_attachment as dsa "
              "     inner join public.data_set as ds on dsa.data_set_id = ds.id "
              "     inner join public.user as u on dsa.created_by = u.id "
-             "     where u.email_address=? "           ; email_address
-             "     and ds.uuid::character varying=? "  ; data_set_uuid
-             "     and dsa.filename=? ")
+             "     where u.email_address=? "          ; email_address
+             "     and ds.uuid::character varying=? " ; data_set_uuid
+             "     and dsa.filename=? "               ; filename
+             "     and dsa.date_deleted is null ")
 
         delete-active-atachment-shared-access-query
         (str "update data_set_attachment_shared_access "
              "set date_deleted = now() "
-             "where attachment_id = ( "
-             "   select dsa.id from public.data_set_attachment as dsa "
-             "   inner join public.data_set as ds on dsa.data_set_id = ds.id "
-             "   where ds.uuid::character varying=? "
-             "   and dsa.filename=? "
-             ") ")
+             "where attachment_id=? ") ;attachment_id
+
         new-active-atachment-shared-access-query
         (str "insert into data_set_attachment_shared_access ( "
              "  attachment_id, "
              "  start_date, "
-             "  expiration_date "
-             ") "
+             "  expiration_date) "
              "values( "
-             "  (  select dsa.id from public.data_set_attachment as dsa "
-             "     inner join public.data_set as ds on dsa.data_set_id = ds.id "
-             "     inner join public.user as u on dsa.created_by = u.id "
-             "     where u.email_address=? "           ; email_address
-             "     and ds.uuid::character varying=? "  ; data_set_uuid
-             "     and dsa.filename=? ), "             ; attachment filename
+             "  ?, "                           ; attachment id
              "  ?::timestamp with time zone, " ; start_date
              "  ?::timestamp with time zone "  ; expiration_date
              ")")
@@ -1072,64 +1063,61 @@
         can-access (contains? access constants/manage-data)]
 
     (if can-access
-      (sql/with-db-transaction
-        [conn db-spec]
-        (try
-          (do
-          (if (not (sql/execute! (db) [attachemnt-id-query
-                              email-address
-                              data-set-uuid
-                              filename]))
-            (throw Exception "Failed to end attachment shared access!"))
-          (let [delete-current-shared-access-success
-                (sql/execute! conn [delete-active-atachment-shared-access-query
-                                    data-set-uuid
-                                    filename])]
-             (if (not delete-current-shared-access-success)
-               (throw Exception "Failed to end attachment shared access!")))
+      (let [attachment-id (:id (first (sql/query (db) [attachment-id-query
+                                                       email-address
+                                                       data-set-uuid
+                                                       filename])))]
+        (if (not attachment-id)
+          (status (response {:response "Unable to share file. File not found."}) 404)
+          (sql/with-db-transaction
+            [conn db-spec]
+            (try
+              (let [delete-current-shared-access-success
+                    (sql/execute! conn [delete-active-atachment-shared-access-query
+                                        attachment-id])]
+                 (if (not delete-current-shared-access-success)
+                   (throw (Exception."Failed to delete current attachment shared access!"))))
+              (let [add-shared-access-success
+                    (sql/execute! conn [new-active-atachment-shared-access-query
+                                        attachment-id
+                                        start-date
+                                        exp-date])]
+                 (if (not add-shared-access-success)
+                   (throw (Exception. "Failed to add new attachment shared access!"))))
 
-          (let [add-shared-access-success
-                (sql/execute! conn [new-active-atachment-shared-access-query
-                                    email-address
-                                    data-set-uuid
-                                    filename
-                                    start-date
-                                    exp-date])]
-             (if (not add-shared-access-success)
-               (throw Exception "Failed to end attachment shared access!")))
-
-          (doseq [user-email json-data]
-            (let [add-user-access-query
-                  (str "insert into data_set_attachment_shared_access_user( "
-                       "  user_email_address, "
-                       "  attachment_shared_access_id "
-                       ") "
-                       "values( "
-                       "?, "    ;user email address
-                       "( select asa.id "
-                       "  from public.data_set_attachment_shared_access as asa "
-                       "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
-                       "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
-                       "  where ds.uuid::character varying=? "; data_set_uuid
-                       "  and dsa.filename=? "                ; filename
-                       "  and dsa.date_deleted is null "
-                       "  and asa.date_deleted is null) "
-                       ") ")
-                  add-user-access-success (sql/execute!
-                                            conn [add-user-access-query
-                                                  user-email
-                                                  data-set-uuid
-                                                  filename ])]))
-          (status (response {:response "OK"}) 200 ))
-          (catch Exception e
-            (log/error e (format (str "There was an error sharing the "
-                                      "attachment for user %s")
-                                    email-address))
-            ; rollback the transaction
-            (sql/db-set-rollback-only! conn)
-            (if (instance? SQLException e)
-              (log/error (.getNextException e) "Caused by: ")
-              false))))
+              (doseq [user-email json-data]
+                (let [add-user-access-query
+                      (str "insert into data_set_attachment_shared_access_user( "
+                           "  user_email_address, "
+                           "  attachment_shared_access_id "
+                           ") "
+                           "values( "
+                           "?, "    ;user email address
+                           "( select asa.id "
+                           "  from public.data_set_attachment_shared_access as asa "
+                           "  inner join public.data_set_attachment as dsa on asa.attachment_id = dsa.id "
+                           "  inner join public.data_set as ds on ds.id = dsa.data_set_id "
+                           "  where ds.uuid::character varying=? "; data_set_uuid
+                           "  and dsa.filename=? "                ; filename
+                           "  and dsa.date_deleted is null "
+                           "  and asa.date_deleted is null) "
+                           ") ")
+                      add-user-access-success (sql/execute!
+                                                conn [add-user-access-query
+                                                      user-email
+                                                      data-set-uuid
+                                                      filename ])]))
+              (status (response {:response "OK"}) 200 )
+              (catch Exception e
+                (log/error e (format (str "There was an error sharing the "
+                                          "attachment for user %s")
+                                        email-address))
+                ; rollback the transaction
+                (sql/db-set-rollback-only! conn)
+                (if (instance? SQLException e)
+                  (log/error (.getNextException e) "Caused by: ")
+                  (log/error e "Caused by: "))
+                (status (response {:response "Failure"}) 409))))))
       (access-denied constants/manage-data))))
 
 (defn data-set-attachment-shared-access-user-add
