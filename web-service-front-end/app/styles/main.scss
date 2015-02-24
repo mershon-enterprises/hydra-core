@@ -642,6 +642,10 @@ omnibox {
     section {
       width: 90%;
       margin: 0 auto;
+
+      h1 {
+        margin-top: 0;
+      }
     }
   }
 
@@ -652,9 +656,12 @@ omnibox {
 
   .selectize-input {
     div {
-      background-color: $dark-green !important;
+      background-color: $dark-red !important;
       color: $off-white !important;
-      display: inline-block;
+      @include rounded( $default-rounding/6,
+                    $default-rounding/6,
+                    $default-rounding/6,
+                    $default-rounding/6);
     }
     span{
       margin: $default-margin/8 !important;
