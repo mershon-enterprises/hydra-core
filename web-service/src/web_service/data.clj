@@ -1133,7 +1133,6 @@
               (str constants/session-add-shared-attachment-permitted-user-email-address
                    user-email-list " to data-set(" data-set-uuid ") - " filename))
 
-
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 

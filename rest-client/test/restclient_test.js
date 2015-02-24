@@ -2423,6 +2423,51 @@ exports['shareAttachmentWithUser'] = {
         test.done();
     });
   },
+  'sharing-non-owned-attachment-fails': function(test) {
+    test.expect(4);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+
+            restclient.shareAttachmentWithUser(
+              clientUUID,
+              apiToken,
+              "00000000-0000-0000-0000-000000000000",
+              "doesNotExist.csv",
+              new Date(),
+              null,
+              "basicuser@example.com"
+            ).then(
+              function(shareAttachmentWithUserResponse) {
+                test.doesNotThrow( function() {
+                  test.equal(shareAttachmentWithUserResponse.status.code, 404,
+                    'Sharing attachment should fail with 404 response');
+                });
+                test.done();
+            });
+        });
+    });
+  },
 };
 
 exports['unshareAttachmentWithUser'] = {
