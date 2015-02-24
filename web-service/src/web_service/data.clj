@@ -1029,7 +1029,7 @@
               (str constants/session-add-shared-attachment-access
                    "to data-set(" data-set-uuid ") - " filename))
 
-  (let [attachemnt-id-query
+  (let [attachment-id-query
         (str "select dsa.id from public.data_set_attachment as dsa "
              "     inner join public.data_set as ds on dsa.data_set_id = ds.id "
              "     inner join public.user as u on dsa.created_by = u.id "

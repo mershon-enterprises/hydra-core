@@ -2281,7 +2281,67 @@ exports['shareAttachment'] = {
             });
         });
     });
-  }
+  },
+  'sharing-attachment-failure': function(test) {
+    test.expect(11);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          "wrontName.csv",
+          new Date(),
+          null,
+          ["basicuser@example.com"]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          test.equal(shareAttachmentResponse.status.code, 404,
+            'Sharing attachment should fail with 404 response');
+          apiToken = shareAttachmentResponse.entity['token'];
+        });
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+            restclient.listAttachments(
+              clientUUID,
+              apiToken
+            ).then(
+              function(listAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  checkResponse(test, listAttachmentResponse.entity);
+                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+                    'should return exactly 0 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+                    'should return result count of exactly 0 attachments');
+                });
+                test.done();
+            });
+        });
+    });
+  },
 };
 
 exports['shareAttachmentWithUser'] = {
