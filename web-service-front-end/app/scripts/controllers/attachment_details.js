@@ -138,7 +138,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                               window.location.host +
                               success[1];
                     $scope.shareLink = uri;
-                    //window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
                 }
             },
             function(){
@@ -148,6 +147,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 );
             });
         }
+
+        $scope.copyURLtoClipboard = function() {
+            window.prompt('Copy to clipboard: Ctrl+C, Enter', $scope.shareLink);
+        };
 
         // Watches for keystrokes in the filename input field.
         $('#fileName').keyup(function (event) {
