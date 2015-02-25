@@ -2550,6 +2550,86 @@ exports['shareAttachmentWithUser'] = {
   },
 };
 
+exports['getAttachmentSharedUserEmailList'] = {
+  setUp: function(done) {
+    goodLogin( function(){
+      deleteAllMockData( function(callback) { done(); });
+    });
+  },
+  'no-api-token': function(test) {
+    test.expect(3);
+    restclient.getAttachmentSharedUserEmailList(
+      null,
+      null,
+      null,
+      null
+    ).then(
+      function(data) {
+        test.doesNotThrow( function() {
+          test.equal(data.status.code, 401, 'replace attachment should fail');
+          test.equal(data.entity, 'Access Denied: Invalid API Token', 'invalid api token text');
+        });
+        test.done();
+      });
+  },
+  'with-api-token': function(test) {
+    test.expect(10);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename,
+          new Date(),
+          null,
+          ["basicuser@example.com"]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = shareAttachmentResponse.entity['token'];
+          test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
+        });
+
+        return restclient.getAttachmentSharedUserEmailList(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename
+        );
+      }
+    ).then(
+      function(getAttachmentSharedUserListResponse) {
+        test.doesNotThrow( function() {
+          checkResponse(test, getAttachmentSharedUserListResponse.entity);
+          test.equal(getAttachmentSharedUserListResponse.status.code, 200, 'login should succeed');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'].length, 1,
+            'should return exactly 1 after email in email_list');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'][0], 'basicuser@example.com',
+            'first element in email_list should be \'basicuser@example.com\'');
+        });
+        test.done()
+    });
+  },
+};
+
 exports['stopSharingAttachment'] = {
   setUp: function(done) {
     goodLogin( function(){

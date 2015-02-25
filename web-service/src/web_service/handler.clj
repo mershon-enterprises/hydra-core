@@ -175,6 +175,12 @@
               (context
                 "/sharing" []
                 (defroutes document-routes
+                  (GET "/" [api_token client_uuid]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-shared-access-user-list
+                                        uuid
+                                        filename))
                   (POST "/" [api_token client_uuid start_date exp_date user_email_list]
                        (guard-with-user api_token
                                         client_uuid

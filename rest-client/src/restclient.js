@@ -298,6 +298,17 @@
     });
   };
 
+  exports.getAttachmentSharedUserEmailList= function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
   exports.stopSharingAttachment= function(clientUUID, apiToken, uuid, filename) {
     return rest({
       method: 'DELETE',
