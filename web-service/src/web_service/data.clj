@@ -1042,7 +1042,7 @@
              (if (not can-access) " and u.email_address=? ")  ; email address
              "and dsa.date_deleted is null ")
 
-        ; if admin search all attachment, else search only own sttachments
+        ; if admin search all attachment, else search only own attachments
         attachment-id (if can-access
                         (:id (first (sql/query (db) [attachment-id-query
                                                      data-set-uuid
@@ -1060,7 +1060,8 @@
           (let [delete-atachment-shared-access-query
                 (str "update data_set_attachment_shared_access "
                      "set date_deleted = now() "
-                     "where attachment_id=? ") ;attachment_id
+                     "where date_deleted is null "
+                     "and attachment_id=? ") ;attachment_id
 
                 create-atachment-shared-access-query
                 (str "insert into data_set_attachment_shared_access ( "
@@ -1080,7 +1081,7 @@
                                 attachment-id
                                 start-date
                                 exp-date]))
-                
+
           (let [attachment-shared-access-id-query
                 (str "select asa.id "
                      "from public.data_set_attachment_shared_access as asa "
@@ -1091,12 +1092,12 @@
                      "where asa.attachment_id=? "    ; attachment id
                      "and dsa.date_deleted is null "
                      "and asa.date_deleted is null ")
-                
+
                 ; get data_set_attachment_shared_access_id
                 attachment-shared-access-id
                 (:id (first (sql/query conn [attachment-shared-access-id-query
                                             attachment-id])))
-        
+
                 email-list (try (parse-string user_email_list true)
                              (catch Exception e
                                (println (str "Failed to parse 'user_email_list' as JSON string"))
@@ -1111,7 +1112,7 @@
                          "values( "
                          "?, "    ;user email address
                          "?)")]   ;attachment shared access id
-                
+
                 ; add data_set_attachment-shared_access_user row for each email
                 (sql/execute! conn [add-user-access-query
                                     user-email
@@ -1138,6 +1139,7 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
+        ; get attahcment id
         attachment-id-query
         (str "select dsa.id from public.data_set_attachment as dsa "
              "inner join public.user as u on dsa.created_by = u.id "
@@ -1145,8 +1147,9 @@
              "where ds.uuid::character varying=? "            ;data_set_uuid
              "and dsa.filename=? "                            ;filename
              (if (not can-access) " and u.email_address=? ")  ;email address
-             "and dsa.date_deleted is null ") 
+             "and dsa.date_deleted is null ")
 
+        ; if admin search all attachment, else search only own attachments
         attachment-id (if can-access
                         (:id (first (sql/query (db) [attachment-id-query
                                                      data-set-uuid
@@ -1167,6 +1170,7 @@
                               ; return an empty data-set
                               []))
 
+                ; arbitrary number of parameters for IN clause of prepared query
                 in-clause-parameters
                 (loop [i (- (count email-list) 1)
                        in-clause "?"]
@@ -1174,39 +1178,42 @@
                     in-clause
                     (recur (dec i) (str in-clause ",?"))))
 
-                unshare-with-user-query
+                delete-shared-attachment-user-query
                 (str "update data_set_attachment_shared_access_user "
                      "set date_deleted = now() "
-                     "where id=? "
+                     "where date_deleted is null "
+                     "and id=? "                  ; attachment shared access id
                      "and user_email_address in (" in-clause-parameters ") ")
 
                 attachment-shared-access-id-query
                 (str "select asa.id "
                      "from public.data_set_attachment_shared_access as asa "
-                     "where asa.attachment_id=? "
+                     "where asa.attachment_id=? "; attachment id
                      "and asa.date_deleted is null ")
 
                 attachment-shared-access-id
                 (:id (first (sql/query conn [attachment-shared-access-id-query
                                              attachment-id])))]
 
-            (sql/execute! conn (into [] (flatten [unshare-with-user-query
+            ; delete all shared access users for current attachment shared access
+            (sql/execute! conn (into [] (flatten [delete-shared-attachment-user-query
                                                   attachment-shared-access-id
                                                   email-list])))
             (doseq [user-email email-list]
               (let [add-user-access-query
                     (str "insert into data_set_attachment_shared_access_user( "
                          "  user_email_address, "
-                         "  attachment_shared_access_id "
-                         ") "
+                         "  attachment_shared_access_id) "
                          "values( "
                          "?, "    ;user email address
-                         "?)")    ;attachment shared access id
-                    add-user-access-success
-                    (sql/execute! conn [add-user-access-query
+                         "?)")]   ;attachment shared access id
+
+                ; add data_set_attachment_shared_access_users for each email
+                ; from update email list
+                (sql/execute! conn [add-user-access-query
                                         user-email
-                                        attachment-shared-access-id])]))
-            (status (response {:response "OK"}) 200 ))
+                                        attachment-shared-access-id]))))
+          (status (response {:response "OK"}) 200 )
           (catch Exception e
             (log/error e (format (str "There was an error sharing the "
                                       "attachment for user %s")
@@ -1228,6 +1235,7 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
+        ; get attahcment id
         attachment-id-query
         (str "select dsa.id from public.data_set_attachment as dsa "
              "inner join public.user as u on dsa.created_by = u.id "
@@ -1237,6 +1245,7 @@
              "and dsa.date_deleted is null "
              (if (not can-access) " and u.email_address=? "))
 
+        ; if admin search all attachment, else search only own attachments
         attachment-id (if can-access
                         (:id (first (sql/query (db) [attachment-id-query
                                                      data-set-uuid
@@ -1251,21 +1260,22 @@
       (sql/with-db-transaction
         [conn db-spec]
         (try
-          (let [attachment-shared-access-id-query
+          (let [remove-user-access-query
+                (str "update data_set_attachment_shared_access_user "
+                     "set date_deleted = now() "
+                     "where date_deleted is null "
+                     "and attachment_shared_access_id = ? ")  ; attachment shared_access id
+
+                attachment-shared-access-id-query
                 (str "select asa.id "
                      "from public.data_set_attachment_shared_access as asa "
-                     "where asa.attachment_id=? "
+                     "where asa.attachment_id=? "             ; attachment id
                      "and asa.date_deleted is null ")
 
                 attachment-shared-access-id
                 (:id (first (sql/query (db) [attachment-shared-access-id-query
-                                             attachment-id])))
-
-                remove-user-access-query
-                (str "update data_set_attachment_shared_access_user "
-                     "set date_deleted = now() "
-                     "where attachment_shared_access_id = ? ")]
-
+                                             attachment-id])))]
+            ; delete all shared access user for attachement shared access
             (sql/execute! conn [remove-user-access-query
                                 attachment-shared-access-id]))
           (status (response {:response "OK"}) 200 )
