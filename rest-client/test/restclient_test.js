@@ -2204,7 +2204,7 @@ exports['shareAttachment'] = {
         });
     });
   },
-  'submitted-share-access-replaces-current': function(test) {
+  'creating-new-share-access-replaces-current': function(test) {
     test.expect(26);
 
     var attachmentFilename,
@@ -2316,7 +2316,7 @@ exports['shareAttachment'] = {
         });
     });
   },
-  'sharing-filename-does-not-exist-failure': function(test) {
+  'failure-when-sharing-a-filename-that-does-not-exist': function(test) {
     test.expect(1);
 
     restclient.shareAttachment(
@@ -2333,6 +2333,52 @@ exports['shareAttachment'] = {
           test.equal(shareAttachmentResponse.status.code, 404,
             'Sharing attachment should fail with 404 response');
           test.done();
+        });
+    });
+  },
+  'failure-when-sharing-attachment-you-do-not-own': function(test) {
+    test.expect(4);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+
+            restclient.shareAttachment(
+              clientUUID,
+              apiToken,
+
+              datasetWithAttachmentUUID,
+              "shared.csv",
+              new Date(),
+              null,
+              "basicuser@example.com"
+            ).then(
+              function(shareAttachmentWithUserResponse) {
+                test.doesNotThrow( function() {
+                  test.equal(shareAttachmentWithUserResponse.status.code, 404,
+                    'Sharing attachment should fail with 404 response');
+                });
+                test.done();
+            });
         });
     });
   },
@@ -2436,7 +2482,7 @@ exports['shareAttachmentWithUser'] = {
         });
     });
   },
-  'sharing-file-that-does-not-exist': function(test) {
+  'failure-when-sharing-filename-that-does-not-exist': function(test) {
     test.expect(2);
 
     restclient.shareAttachmentWithUser(
@@ -2457,7 +2503,7 @@ exports['shareAttachmentWithUser'] = {
         test.done();
     });
   },
-  'sharing-non-owned-attachment-fails': function(test) {
+  'failure-when-sharing-attachment-you-do-not-own': function(test) {
     test.expect(4);
 
     var attachmentFilename,
@@ -2486,8 +2532,8 @@ exports['shareAttachmentWithUser'] = {
             restclient.shareAttachmentWithUser(
               clientUUID,
               apiToken,
-              "00000000-0000-0000-0000-000000000000",
-              "doesNotExist.csv",
+              datasetWithAttachmentUUID,
+              "shared.csv",
               new Date(),
               null,
               "basicuser@example.com"
@@ -2631,7 +2677,7 @@ exports['stopSharingAttachment'] = {
         });
     });
   },
-  'sharing-filename-does-not-exist-failure': function(test) {
+  'failure-when-trying-to-stop-sharing-filename-that-does-not-exist': function(test) {
     test.expect(2);
 
     restclient.shareAttachment(
@@ -2647,7 +2693,51 @@ exports['stopSharingAttachment'] = {
           apiToken = shareAttachmentResponse.entity['token'];
         });
         test.done();
+    });
+  },
+  'failure-when-trying-to-stop-sharing-attachment-you-do-not-own': function(test) {
+    test.expect(4);
 
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+
+            restclient.stopSharingAttachment(
+              clientUUID,
+              apiToken,
+              datasetWithAttachmentUUID,
+              "shared.csv",
+              new Date(),
+              null,
+              "basicuser@example.com"
+            ).then(
+              function(stopSharingAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  test.equal(stopSharingAttachmentResponse.status.code, 404,
+                    'Sharing attachment should fail with 404 response');
+                });
+                test.done();
+            });
+        });
     });
   },
 };
