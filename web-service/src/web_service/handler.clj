@@ -194,7 +194,7 @@
                   (DELETE "/" [api_token client_uuid]
                           (guard-with-user api_token
                                            client_uuid
-                                           date-set-attachment-shared-access-delete
+                                           data-set-attachment-shared-access-delete
                                            uuid
                                            filename))))))))))
   (context

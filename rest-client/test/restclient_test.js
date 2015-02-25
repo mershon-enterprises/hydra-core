@@ -2205,7 +2205,7 @@ exports['shareAttachment'] = {
     });
   },
   'submitted-share-access-replaces-current': function(test) {
-    test.expect(13);
+    test.expect(26);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2239,23 +2239,7 @@ exports['shareAttachment'] = {
           apiToken = shareAttachmentResponse.entity['token'];
         });
 
-        return restclient.shareAttachment(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID,
-          attachmentFilename,
-          new Date(),
-          null,
-          ["basicuser@example.com"]
-        );
-      }
-    ).then(
-      function(shareAttachmentResponse2) {
-        test.doesNotThrow( function() {
-          apiToken = shareAttachmentResponse2.entity['token'];
-        });
-
-        limitedLogin (
+        return limitedLogin (
           function(limitLoginResponse) {
             test.doesNotThrow( function() {
               apiToken = limitLoginResponse.entity['token'];
@@ -2276,6 +2260,56 @@ exports['shareAttachment'] = {
                     'filename should be called "shared.csv"');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
                     'created_by should be "admin@example.com"');
+                });
+            });
+        });
+      }
+    ).then(
+      function() {
+        return goodLogin(
+          function(goodLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = goodLoginResponse.entity['token'];
+            });
+
+            restclient.shareAttachment(
+                clientUUID,
+                apiToken,
+                datasetWithAttachmentUUID,
+                attachmentFilename,
+                new Date(),
+                null,
+                []
+            ).then(
+              function(shareAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  checkResponse(test, shareAttachmentResponse.entity);
+                  apiToken = shareAttachmentResponse.entity['token'];
+                  test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
+                });
+            });
+        });
+      }
+    ).then(
+      function() {
+        return limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+
+            restclient.listAttachments(
+              clientUUID,
+              apiToken
+            ).then(
+              function(listAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  checkResponse(test, listAttachmentResponse.entity);
+                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+                    'should return exactly 0 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+                    'should return result count of exactly 0 attachments');
                 });
                 test.done();
             });
@@ -2470,7 +2504,7 @@ exports['shareAttachmentWithUser'] = {
   },
 };
 
-exports['unshareAttachmentWithUser'] = {
+exports['stopSharingAttachment'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2478,8 +2512,7 @@ exports['unshareAttachmentWithUser'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.unshareAttachmentWithUser(
-      null,
+    restclient.stopSharingAttachment(
       null,
       null,
       null,
@@ -2559,16 +2592,15 @@ exports['unshareAttachmentWithUser'] = {
               apiToken = goodLoginResponse.entity['token'];
             });
 
-            restclient.unshareAttachmentWithUser(
+            restclient.stopSharingAttachment(
               clientUUID,
               apiToken,
               datasetWithAttachmentUUID,
-              attachmentFilename,
-              "basicuser@example.com"
+              attachmentFilename
             ).then(
-              function(unshareAttachmentResponse) {
+              function(stopSharingAttachmentResponse) {
                 test.doesNotThrow( function() {
-                  test.equal(unshareAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(stopSharingAttachmentResponse.status.code, 200, 'login should succeed');
                 });
             });
         });
@@ -2606,10 +2638,7 @@ exports['unshareAttachmentWithUser'] = {
       clientUUID,
       apiToken,
       "00000000-0000-0000-0000-000000000000",
-      "doesNotExist.csv",
-      new Date(),
-      null,
-      "basicuser@example.com"
+      "doesNotExist.csv"
     ).then(
       function(shareAttachmentResponse) {
         test.doesNotThrow( function() {
