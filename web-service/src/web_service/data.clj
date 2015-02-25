@@ -5,11 +5,13 @@
         [web-service.user-helpers]
         [web-service.authentication])
   (:require [clojure.java.jdbc :as sql]
+            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
             [web-service.constants :as constants])
-  (:import java.sql.SQLException))
+  (:import java.sql.SQLException
+           org.apache.commons.lang.RandomStringUtils))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -121,6 +123,7 @@
        "    string_agg(value, ', ') as tag_values, "
        "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
+       "  where date_deleted is null "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
@@ -145,6 +148,7 @@
        "    string_agg(value, ', ') as tag_values, "
        "    string_agg(description, ', ') as tag_names "
        "  from data_set_text "
+       "  where date_deleted is null "
        "  group by data_set_id "
        ") as dst on ds.id = dst.data_set_id "
        "left join public.user as u "
@@ -597,9 +601,21 @@
                    "  select id from data_set where uuid::character varying=?) "
                    "and description=?")]
     (if can-access
-      (if (sql/execute! (db) [query email-address data-set-uuid description])
-        (status (response {:response "OK"}) 200 )
-        (status (response {:response "Failure"}) 409))
+      (sql/with-db-transaction
+        [conn db-spec]
+        (try
+          (sql/execute! (db) [query email-address data-set-uuid description])
+          (status (response {:response "OK"}) 200 )
+
+          (catch Exception e
+            (log/error e (format (str "There was an error submitting a "
+                                      "data-set for user %s")
+                                 email-address))
+            ; rollback the transaction
+            (sql/db-set-rollback-only! conn)
+            (if (instance? SQLException e)
+                  (log/error (.getNextException e) "Caused by: "))
+                (status (response {:response "Failure"}) 409))))
       (access-denied constants/manage-data))))
 
 ; list up data_sets in the database, as an HTTP response
@@ -674,14 +690,18 @@
               constants/session-activity
               constants/session-list-datasets)
 
-  (let [access (set (get-user-access email-address))
+  (let [wrap (fn [x wrapper] (str wrapper x wrapper))
+        dollar-quote (wrap (RandomStringUtils/randomAlphabetic 5) "$")
+        escape (fn [x] (wrap x dollar-quote))
+        fuzzy (fn [x] (wrap x "%"))
+        access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         json-search-params (try
-                    (parse-string search-params true)
-                    (catch Exception e
-                      (println (str "Failed to parse 'search-params' as JSON string"))
-                      ; return an empty data-set
-                      []))
+                             (parse-string search-params true)
+                             (catch Exception e
+                               (println (str "Failed to parse 'search-params' as JSON string"))
+                               ; return an empty data-set
+                               []))
 
         or-search-string-query
         (if-not (empty? (:or_search_strings json-search-params))
@@ -689,13 +709,14 @@
                 or-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "or dsa.filename ilike '%" search-string "%' "
-                         "or u.email_address ilike '%" search-string "%' "
-                         "or cl.description ilike '%" search-string "%' "
-                         "or c.name ilike '%" search-string "%' "
-                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "or dst.tag_values ilike '%" search-string "%' "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "or dsa.filename ilike " escaped " "
+                           "or u.email_address ilike " escaped " "
+                           "or cl.description ilike " escaped " "
+                           "or c.name ilike " escaped " "
+                           "or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "or dst.tag_values ilike " escaped " ")))
                   or-search-string-list)]
             (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
@@ -706,15 +727,16 @@
                 and-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "and ( false "
-                         "  or dsa.filename ilike '%" search-string "%' "
-                         "  or u.email_address ilike '%" search-string "%' "
-                         "  or cl.description ilike '%" search-string "%' "
-                         "  or c.name ilike '%" search-string "%' "
-                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or dst.tag_values ilike '%" search-string "%' "
-                         ") "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "and ( false "
+                           "  or dsa.filename ilike " escaped " "
+                           "  or u.email_address ilike " escaped " "
+                           "  or cl.description ilike " escaped " "
+                           "  or c.name ilike " escaped " "
+                           "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or dst.tag_values ilike " escaped " "
+                           ") ")))
                   and-search-string-list)]
             (str (clojure.string/join and-search-string-query-list) " "))
           " ")
@@ -725,15 +747,16 @@
                 not-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "and not ( false "
-                         "  or dsa.filename ilike '%" search-string "%' "
-                         "  or u.email_address ilike '%" search-string "%' "
-                         "  or (cl.description is not null and cl.description ilike '%" search-string "%') "
-                         "  or (c.name is not null and c.name ilike '%" search-string "%') "
-                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike '%" search-string "%' "
-                         "  or (dst.tag_values ilike '%" search-string "%' and dst.tag_values is not null) "
-                         ") "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "and not ( false "
+                           "  or dsa.filename ilike " escaped " "
+                           "  or u.email_address ilike " escaped " "
+                           "  or (cl.description is not null and cl.description ilike " escaped ") "
+                           "  or (c.name is not null and c.name ilike " escaped ") "
+                           "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or (dst.tag_values ilike " escaped " and dst.tag_values is not null) "
+                           ") ")))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
           " ")
@@ -745,23 +768,27 @@
 
         tag-name-query
         (if (:tag_name json-search-params)
-          (str "and dst.tag_names ilike '%" (:tag_name json-search-params) "%' ")
+          (str "and dst.tag_names ilike " (escape (:tag_name json-search-params)) " ")
           " ")
 
         order-by-query
         (if (:order_by json-search-params)
-          (let [order (if(:order json-search-params)
-                        (:order json-search-params)
-                        "desc ")]
-            (str "order by " (:order_by json-search-params) " " order " "))
+          (let [order (if (and (:order json-search-params)
+                               (= (:order json-search-params "asc")))
+                        "asc"
+                        "desc")]
+            (str "order by \"" (string/replace (:order_by json-search-params)
+                                               "\""
+                                               "")
+                 "\" " order " "))
           "order by date_created desc")
 
         limit-query (if (:limit json-search-params)
-                      (str "limit " (:limit json-search-params) " ")
+                      (str "limit " (escape (:limit json-search-params)) " ")
                       " ")
 
         offset-query (if (:offset json-search-params)
-                       (str "offset " (:offset json-search-params) " ")
+                       (str "offset " (escape (:offset json-search-params)) " ")
                        " ")
 
         query (str "select * from ("
@@ -794,14 +821,19 @@
                                     search-string-query
                                     tag-name-query)]
     (if can-access
-      (response {:response
-                 {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
-                  :result_count (:count (first (sql/query (db) [query-result-count])))}})
-      ; if the user cannot access all data, try to at least show them their own
-      ; data instead
-      (response {:response
-                 {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                  :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}}))))
+      (try
+        (response {:response
+                   {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
+                    :result_count (:count (first (sql/query (db) [query-result-count])))}})
+        ; if the user cannot access all data, try to at least show them their own
+        ; data instead
+        (response {:response
+                   {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
+                    :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}})
+
+        (catch Exception e
+          (log/error e (str "There was an error listing attachments"))
+          (status (response {:response "Failure"}) 400))))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
