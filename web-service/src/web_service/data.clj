@@ -692,6 +692,9 @@
   ; FIXME -- use a short random string to ensure that random-tag can't be
   ; guessed and bypassed
   (let [random-tag "$asdf$"
+        wrap (fn [x wrapper] (str wrapper x wrapper))
+        escape (fn [x] (wrap x random-tag))
+        fuzzy (fn [x] (wrap x "%"))
         access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
         json-search-params (try
@@ -707,13 +710,14 @@
                 or-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "or dsa.filename ilike " random-tag "%" search-string "%" random-tag " "
-                         "or u.email_address ilike " random-tag "%" search-string "%" random-tag " "
-                         "or cl.description ilike " random-tag "%" search-string "%" random-tag " "
-                         "or c.name ilike " random-tag "%" search-string "%" random-tag " "
-                         "or to_char(ds.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "or dst.tag_values ilike " random-tag "%" search-string "%" random-tag " "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "or dsa.filename ilike " escaped " "
+                           "or u.email_address ilike " escaped " "
+                           "or cl.description ilike " escaped " "
+                           "or c.name ilike " escaped " "
+                           "or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "or dst.tag_values ilike " escaped " ")))
                   or-search-string-list)]
             (str "and ( false " (clojure.string/join or-search-string-query-list) ") "))
           " ")
@@ -724,15 +728,16 @@
                 and-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "and ( false "
-                         "  or dsa.filename ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or u.email_address ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or cl.description ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or c.name ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or dst.tag_values ilike " random-tag "%" search-string "%" random-tag " "
-                         ") "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "and ( false "
+                           "  or dsa.filename ilike " escaped " "
+                           "  or u.email_address ilike " escaped " "
+                           "  or cl.description ilike " escaped " "
+                           "  or c.name ilike " escaped " "
+                           "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or dst.tag_values ilike " escaped " "
+                           ") ")))
                   and-search-string-list)]
             (str (clojure.string/join and-search-string-query-list) " "))
           " ")
@@ -743,15 +748,16 @@
                 not-search-string-query-list
                 (map
                   (fn [search-string]
-                    (str "and not ( false "
-                         "  or dsa.filename ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or u.email_address ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or (cl.description is not null and cl.description ilike " random-tag "%" search-string "%" random-tag ") "
-                         "  or (c.name is not null and c.name ilike " random-tag "%" search-string "%" random-tag ") "
-                         "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " random-tag "%" search-string "%" random-tag " "
-                         "  or (dst.tag_values ilike " random-tag "%" search-string "%" random-tag " and dst.tag_values is not null) "
-                         ") "))
+                    (let [escaped (escape (fuzzy search-string))]
+                      (str "and not ( false "
+                           "  or dsa.filename ilike " escaped " "
+                           "  or u.email_address ilike " escaped " "
+                           "  or (cl.description is not null and cl.description ilike " escaped ") "
+                           "  or (c.name is not null and c.name ilike " escaped ") "
+                           "  or to_char(ds.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or to_char(dsa.date_created, 'YYYY-MM-DD') ilike " escaped " "
+                           "  or (dst.tag_values ilike " escaped " and dst.tag_values is not null) "
+                           ") ")))
                   not-search-string-list)]
             (str (clojure.string/join not-search-string-query-list) " "))
           " ")
@@ -763,7 +769,7 @@
 
         tag-name-query
         (if (:tag_name json-search-params)
-          (str "and dst.tag_names ilike " random-tag (:tag_name json-search-params) random-tag " ")
+          (str "and dst.tag_names ilike " (escape (:tag_name json-search-params)) " ")
           " ")
 
         order-by-query
@@ -779,11 +785,11 @@
           "order by date_created desc")
 
         limit-query (if (:limit json-search-params)
-                      (str "limit " random-tag (:limit json-search-params) random-tag " ")
+                      (str "limit " (escape (:limit json-search-params)) " ")
                       " ")
 
         offset-query (if (:offset json-search-params)
-                       (str "offset " random-tag (:offset json-search-params) random-tag " ")
+                       (str "offset " (escape (:offset json-search-params)) " ")
                        " ")
 
         query (str "select * from ("
