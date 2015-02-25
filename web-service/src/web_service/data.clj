@@ -10,7 +10,8 @@
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
             [web-service.constants :as constants])
-  (:import java.sql.SQLException))
+  (:import java.sql.SQLException
+           org.apache.commons.lang.RandomStringUtils))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -689,11 +690,9 @@
               constants/session-activity
               constants/session-list-datasets)
 
-  ; FIXME -- use a short random string to ensure that random-tag can't be
-  ; guessed and bypassed
-  (let [random-tag "$asdf$"
-        wrap (fn [x wrapper] (str wrapper x wrapper))
-        escape (fn [x] (wrap x random-tag))
+  (let [wrap (fn [x wrapper] (str wrapper x wrapper))
+        dollar-quote (wrap (RandomStringUtils/randomAlphabetic 5) "$")
+        escape (fn [x] (wrap x dollar-quote))
         fuzzy (fn [x] (wrap x "%"))
         access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-data))
