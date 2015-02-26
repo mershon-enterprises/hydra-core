@@ -31,6 +31,7 @@ angular.module('webServiceApp', [
         })
         .when('/manual', {
           templateUrl: 'templates/documentation.html',
+          controller: 'DocumentationCtrl',
           loggedInOnly: false
         })
         .otherwise({
