@@ -30,6 +30,23 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            $scope.shareFile = function() {
+                switch ($scope.shareMode) {
+                    case "none":
+                        console.log("None!");
+                    break;
+                    case "all":
+                        console.log("All!");
+                    break;
+                    case "url":
+                        console.log("URL!");
+                    break;
+                    case "specific":
+                        console.log("Specific!");
+                    break;
+                }
+            };
+
         }
     };
 });
