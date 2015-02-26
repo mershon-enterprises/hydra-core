@@ -26,3 +26,11 @@
             selectize="selectizeOptions"></select>
     </section>
 </div>
+
+<div class="controls">
+    <button class="back" ng-click="toggleDialogModal()">Cancel</button>
+    <span ng-switch="shareMode">
+        <button ng-click="copyURLtoClipboard()" ng-switch-when="url">Copy?</button>
+    </span>
+    <button class="file-action">Save</button>
+</div>
