@@ -1,16 +1,22 @@
 'use strict';
 
-//Navbar Directive
+//Share Directive
 
-//Controls the display of various navigation elements and binds navigation hotkeys.
+//Provides logic for file-sharing modal box. Coupled with the attachment_details
+//controller
 angular.module('webServiceApp').directive('share', function() {
     return {
         restrict: 'E',
         templateUrl: 'templates/share.html',
-        controller: function ($scope) {
+        controller: function ($scope, NotificationService, RestService) {
 
+            //Tracks the method of sharing selected by the user with ng-model on
+            //the UI select box.
             $scope.shareMode = 'none';
 
+            //List the options that will be available in that select box. When
+            //the user selects a label, the id of the option will be stored as
+            //$scope.shareMode.
             $scope.shareOptions = [
                 {
                     'id': 'none',
@@ -30,19 +36,33 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            //When the user clicks the save button, perform logic based on which
+            //shareMode we are currently in.
             $scope.shareFile = function() {
                 switch ($scope.shareMode) {
-                    case "none":
-                        console.log("None!");
+                    case 'none':
+                        RestService.stopSharingAttachment($scope.ukey).then(
+                        function(){
+                            NotificationService.success(
+                                'Success',
+                                'Your file is no longer shared.'
+                            );
+                        },
+                        function(){
+                            NotificationService.error(
+                                'Critical Error',
+                                'Please contact support.'
+                            );
+                        });
                     break;
-                    case "all":
-                        console.log("All!");
+                    case 'all':
+                        console.log('All!');
                     break;
-                    case "url":
-                        console.log("URL!");
+                    case 'url':
+                        console.log('URL!');
                     break;
-                    case "specific":
-                        console.log("Specific!");
+                    case 'specific':
+                        console.log('Specific!');
                     break;
                 }
             };

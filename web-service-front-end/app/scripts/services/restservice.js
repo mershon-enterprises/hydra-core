@@ -410,6 +410,48 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Stop sharing an attachment with all users.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.stopSharingAttachment = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.stopSharingAttachment(   clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response[0]]
+                    );
+                    console.log('restclient.stopSharingAttachment succeeded');
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('stopSharingAttachment', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.stopSharingAttachment promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Submits a new attachment to the backend.
     restService.submitData = function(dateCreated, createdBy, dataItems) {
 
