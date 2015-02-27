@@ -2401,6 +2401,68 @@ exports['shareAttachment'] = {
         });
     });
   },
+  'share-with-everyone-delimiter': function(test) {
+    test.expect(12);
+
+    var attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename,
+          new Date(),
+          null,
+          ["*"]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = shareAttachmentResponse.entity['token'];
+        });
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              apiToken = limitLoginResponse.entity['token'];
+            });
+            restclient.listAttachments(
+              clientUUID,
+              apiToken
+            ).then(
+              function(listAttachmentResponse) {
+                test.doesNotThrow( function() {
+                  checkResponse(test, listAttachmentResponse.entity);
+                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+                    'should return exactly 1 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
+                    'should return result count of exactly 1 attachments');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
+                    'filename should be called "shared.csv"');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
+                    'created_by should be "admin@example.com"');
+                });
+                test.done();
+            });
+        });
+    });
+  },
 };
 
 exports['getSharedAttachments'] = {
