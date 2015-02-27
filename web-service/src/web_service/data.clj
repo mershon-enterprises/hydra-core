@@ -1361,6 +1361,11 @@
                      "where date_deleted is null "
                      "and attachment_shared_access_id = ? ")  ; attachment shared_access id
 
+                remove-shared-attachment-access-query
+                (str "update data_set_attachment_shared_access "
+                     "set date_deleted = now() "
+                     "and id=? ")      ; attachment shared_access id
+
                 attachment-shared-access-id-query
                 (str "select asa.id "
                      "from public.data_set_attachment_shared_access as asa "
@@ -1370,8 +1375,10 @@
                 attachment-shared-access-id
                 (:id (first (sql/query (db) [attachment-shared-access-id-query
                                              attachment-id])))]
-            ; delete all shared access user for attachement shared access
+
             (sql/execute! conn [remove-user-access-query
+                                attachment-shared-access-id])
+            (sql/execute! conn [remove-shared-attachment-access-query
                                 attachment-shared-access-id]))
           (status (response {:response "OK"}) 200 )
           (catch Exception e
