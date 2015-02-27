@@ -28,6 +28,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.file = null;
         $scope.fileData = null;
         $scope.shareLink = null;
+        $scope.emailShareList = [];
 
         $scope.dialogShown = false;
         $scope.toggleDialogModal = function() {
@@ -460,9 +461,15 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 {field: 'first_name', direction: 'asc'},
                 {field: 'last_name', direction: 'asc'}
             ],
-            options: [
-
-            ],
+            onItemAdd: function(value) {
+                $scope.emailShareList.push(value);
+            },
+            onItemRemove: function(value) {
+                var index = $scope.emailShareList.indexOf(value);
+                if (index > -1) {
+                    $scope.emailShareList.splice(index, 1);
+                }
+            },
             render: {
                 item: function(item, escape) {
                     var name = formatName(item);

@@ -39,11 +39,15 @@ angular.module('webServiceApp').directive('share', function() {
             //When the user clicks the save button, perform logic based on which
             //shareMode we are currently in.
             $scope.shareFile = function() {
+
+                var successFlag = false;
+
                 switch ($scope.shareMode) {
 
                     case 'none':
                         RestService.stopSharingAttachment($scope.ukey).then(
                         function(){
+                            successFlag = true;
                             NotificationService.success(
                                 'Success',
                                 'Your file is no longer shared.'
@@ -60,6 +64,7 @@ angular.module('webServiceApp').directive('share', function() {
                     case 'all':
                         RestService.shareAttachment($scope.ukey, '1970-01-01', '2015-12-12', '*').then(
                         function(){
+                            successFlag = true;
                             NotificationService.success(
                                 'Success',
                                 'Your file is shared with all users.'
@@ -78,11 +83,36 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'specific':
-                        console.log('Specific!');
+                        console.log($scope.emailShareList);
+                        if($scope.emailShareList.length === 0) {
+                            NotificationService.info(
+                                'No Emails Entered',
+                                'Enter some email addresses first.'
+                            );
+                        }
+                        else {
+                            RestService.shareAttachment($scope.ukey, '1970-01-01', '2015-12-12', $scope.emailShareList).then(
+                            function(){
+                                successFlag = true;
+                                NotificationService.success(
+                                    'Success',
+                                    'Your file is shared with all users.'
+                                );
+                            },
+                            function(){
+                                NotificationService.error(
+                                    'Critical Error',
+                                    'Please contact support.'
+                                );
+                            });
+                        }
                     break;
-
                 }
-                $scope.toggleDialogModal();
+
+                if (successFlag) {
+                    $scope.toggleDialogModal();
+                }
+
             };
 
         }
