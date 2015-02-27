@@ -91,6 +91,37 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     //Returns the access levels available to the current user.
+    restService.version = function () {
+
+        var deferred = $q.defer();
+
+        restclient.version().then(
+
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    var jsonResponse = response.entity.version;
+
+                    deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
+                    console.log('restclient.version succeeded');
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('version', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.version promise failed: ' + error);
+            });
+
+        return deferred.promise;
+    };
+
+    //Returns the access levels available to the current user.
     restService.listAccessLevels = function () {
 
         var deferred = $q.defer();
