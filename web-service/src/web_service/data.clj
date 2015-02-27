@@ -1364,7 +1364,7 @@
                 remove-shared-attachment-access-query
                 (str "update data_set_attachment_shared_access "
                      "set date_deleted = now() "
-                     "and id=? ")      ; attachment shared_access id
+                     "where id=? ")      ; attachment shared_access id
 
                 attachment-shared-access-id-query
                 (str "select asa.id "
