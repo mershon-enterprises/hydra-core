@@ -1239,7 +1239,7 @@
               (log/error e "Caused by: "))
             (status (response {:response "Failure"}) 409)))))))
 
-(defn data-set-attachment-shared-access-user-list
+(defn data-set-attachment-shared-access-info
   [email-address data-set-uuid filename]
   (log-detail email-address
               constants/session-activity
@@ -1266,7 +1266,15 @@
                         (:id (first (sql/query (db) [attachment-id-query
                                                      data-set-uuid
                                                      filename
-                                                     email-address]))))]
+                                                     email-address]))))
+        attachment-shared-access-query
+        (str "select "
+             "  asa.start_date, "
+             "  asa.expiration_date, "
+             "  asa.date_created "
+             "from public.data_set_attachment_shared_access as asa "
+             "where asa.attachment_id=? "; attachment id
+             "and asa.date_deleted is null ")]
     (if (not attachment-id)
       (status (response {:response "Unable to share file. File not found."}) 404)
       (try
@@ -1279,11 +1287,25 @@
                    "  on dsa.id = asa.attachment_id "
                    "where asa.attachment_id=? "   ; attachment id
                    "and asa.date_deleted is null "
-                   "and dsa.date_deleted is null ")]
+                   "and dsa.date_deleted is null ")
 
+              attachment-shared-access (first (sql/query
+                                                (db)
+                                                [attachment-shared-access-query
+                                                 attachment-id]))
+
+              is-shared (if attachment-shared-access true false)
+
+              sharing-info (if is-shared
+                             attachment-shared-access
+                             {:start_date nil
+                              :expiration_date nil
+                              :date_created nil})]
           (response
             {:response
-             {:email_list (sql/query (db)
+             {:is_shared is-shared
+              :sharing_info sharing-info
+              :email_list (sql/query (db)
                                      [shared-access-user-query
                                       attachment-id] :row-fn
                                      (fn [row]

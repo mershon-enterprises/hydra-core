@@ -178,7 +178,7 @@
                   (GET "/" [api_token client_uuid]
                        (guard-with-user api_token
                                         client_uuid
-                                        data-set-attachment-shared-access-user-list
+                                        data-set-attachment-shared-access-info
                                         uuid
                                         filename))
                   (POST "/" [api_token client_uuid start_date exp_date user_email_list]

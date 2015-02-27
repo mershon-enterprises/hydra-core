@@ -2716,7 +2716,7 @@ exports['shareAttachmentWithUser'] = {
   },
 };
 
-exports['getAttachmentSharedUserEmailList'] = {
+exports['getAttachmentSharingInfo'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2724,7 +2724,7 @@ exports['getAttachmentSharedUserEmailList'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.getAttachmentSharedUserEmailList(
+    restclient.getAttachmentSharingInfo(
       null,
       null,
       null,
@@ -2739,14 +2739,19 @@ exports['getAttachmentSharedUserEmailList'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(10);
+    test.expect(13);
 
-    var attachmentFilename,
+    var startDate = new Date(),
+        expDate = new Date(),
+        attachmentFilename,
         datasetWithAttachmentUUID,
         attachment = restclient.Attachment("shared.csv",
             "text/csv",
             "b3JpZ2luYWw=" // "original"
     );
+
+    startDate.setMilliseconds(0);
+    expDate.setMilliseconds(0);
 
     submitMockData( [attachment]
     ).then(
@@ -2762,8 +2767,8 @@ exports['getAttachmentSharedUserEmailList'] = {
           apiToken,
           datasetWithAttachmentUUID,
           attachmentFilename,
-          new Date(),
-          null,
+          expDate,
+          startDate,
           ["basicuser@example.com"]
         );
       }
@@ -2774,7 +2779,7 @@ exports['getAttachmentSharedUserEmailList'] = {
           test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
         });
 
-        return restclient.getAttachmentSharedUserEmailList(
+        return restclient.getAttachmentSharingInfo(
           clientUUID,
           apiToken,
           datasetWithAttachmentUUID,
@@ -2786,14 +2791,72 @@ exports['getAttachmentSharedUserEmailList'] = {
         test.doesNotThrow( function() {
           checkResponse(test, getAttachmentSharedUserListResponse.entity);
           test.equal(getAttachmentSharedUserListResponse.status.code, 200, 'login should succeed');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['is_shared'], true,
+            'should return true');
           test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'].length, 1,
             'should return exactly 1 after email in email_list');
-          test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'][0], 'basicuser@example.com',
+          test.equal(new Date(getAttachmentSharedUserListResponse.entity['response']['sharing_info']["start_date"]).toISOString(),
+            startDate.toISOString(),
+            'start_date date should be the same as' + startDate.toISOString());
+          test.equal(new Date(getAttachmentSharedUserListResponse.entity['response']['sharing_info']["expiration_date"]).toISOString(),
+            startDate.toISOString(),
+            'expiration_date date should be the same as' + expDate.toISOString());
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'][0],
+            'basicuser@example.com',
             'first element in email_list should be \'basicuser@example.com\'');
         });
         test.done()
     });
   },
+  'sharing-info-on-non-shared-attachment': function(test) {
+    test.expect(10);
+
+    var startDate = new Date(),
+        expDate = new Date(),
+        attachmentFilename,
+        datasetWithAttachmentUUID,
+        attachment = restclient.Attachment("shared.csv",
+            "text/csv",
+            "b3JpZ2luYWw=" // "original"
+    );
+
+    startDate.setMilliseconds(0);
+    expDate.setMilliseconds(0);
+
+    submitMockData( [attachment]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.getAttachmentSharingInfo(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          attachmentFilename
+        );
+      }
+    ).then(
+      function(getAttachmentSharedUserListResponse) {
+        test.doesNotThrow( function() {
+          checkResponse(test, getAttachmentSharedUserListResponse.entity);
+          test.equal(getAttachmentSharedUserListResponse.status.code, 200, 'login should succeed');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['is_shared'], false,
+            'should return false');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'].length, 0,
+            'should return exactly 0 after email in email_list');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['sharing_info']["start_date"], null,
+            'start_date date null');
+          test.equal(getAttachmentSharedUserListResponse.entity['response']['sharing_info']["expiration_date"], null,
+            'expiration_date null');
+        });
+        test.done()
+    });
+  },
+
 };
 
 exports['stopSharingAttachment'] = {

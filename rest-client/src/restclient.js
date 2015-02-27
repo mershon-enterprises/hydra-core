@@ -309,7 +309,7 @@
     });
   };
 
-  exports.getAttachmentSharedUserEmailList= function(clientUUID, apiToken, uuid, filename) {
+  exports.getAttachmentSharingInfo= function(clientUUID, apiToken, uuid, filename) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
