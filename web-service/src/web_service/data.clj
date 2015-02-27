@@ -933,27 +933,46 @@
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete
   [email-address uuid filename]
-  ;TODO check if uuid and filename exits otherwise throw exception
-
   ; log the activity in the session
   (log-detail email-address
               constants/session-activity
               (str constants/session-delete-dataset-attachment " " uuid))
 
+  ;check if uuid and filename exits otherwise throw exception
   (let [access (set (get-user-access email-address))
-        can-access (contains? access constants/manage-data)]
-    (if can-access
-      (if (do-delete-attachment email-address uuid filename)
-        (status (response {:response "OK"}) 200 )
-        (status (response {:response "Failure"}) 409))
-      (do
-        (log/debug (format (str "User %s tried to delete attachment '%s' "
-                                "from data-set '%s' but lacks access")
-                           email-address
-                           filename
-                           uuid))
-        (access-denied constants/manage-data)))))
+        can-access (contains? access constants/manage-data)
 
+        attachment-id-query
+        (str "select dsa.id from public.data_set_attachment as dsa "
+             "inner join public.data_set as ds on dsa.data_set_id = ds.id "
+             "inner join public.user as u on dsa.created_by = u.id "
+             "where ds.uuid::character varying=? "            ; data_set_uuid
+             "and dsa.filename=? "                            ; filename
+             (if (not can-access) " and u.email_address=? ")  ; email address
+             "and dsa.date_deleted is null ")
+
+        ; if admin search all attachment, else search only own attachments
+        attachment-id (if can-access
+                        (:id (first (sql/query (db) [attachment-id-query
+                                                     data-set-uuid
+                                                     filename])))
+                        (:id (first (sql/query (db) [attachment-id-query
+                                                     data-set-uuid
+                                                     filename
+                                                     email-address]))))]
+    (if (not attachment-id)
+      (status (response {:response "Unable to share file. File not found."}) 404)
+      (if can-access
+        (if (do-delete-attachment email-address uuid filename)
+          (status (response {:response "OK"}) 200 )
+          (status (response {:response "Failure"}) 409))
+        (do
+          (log/debug (format (str "User %s tried to delete attachment '%s' "
+                                  "from data-set '%s' but lacks access")
+                             email-address
+                             filename
+                             uuid))
+          (access-denied constants/manage-data))))))
 
 ; rename the specified data set attachment filename
 (defn data-set-attachment-filename-rename
@@ -1153,7 +1172,6 @@
               constants/session-activity
               (str constants/session-get-shared-attachment-user-list " "
                    "for data-set(" data-set-uuid ") - " filename))
-  ;TODO proper logging
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
