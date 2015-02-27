@@ -210,8 +210,14 @@
            (guard-with-user api_token client_uuid data-set-attachment-list search_params))
         (PUT "/" [] (not-allowed "Update-all data attachments"))
         (POST "/" [] (not-allowed "Sumbit-all  data attachemnts"))
-        (DELETE "/" [] (not-allowed "Delete-all data attachments"))))
-
+        (DELETE "/" [] (not-allowed "Delete-all data attachments"))
+        (context
+          "/sharing" []
+          (defroutes document-routes
+            (GET "/" [api_token client_uuid]
+                 (guard-with-user api_token
+                                  client_uuid
+                                  shared-data-set-attachment-list))))))
   (context
     "/users" []
     (defroutes document-routes
