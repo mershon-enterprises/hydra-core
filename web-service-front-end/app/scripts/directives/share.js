@@ -83,7 +83,9 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'specific':
-                        console.log($scope.emailShareList);
+                        var startDate = new Date(Date.now());
+                        var expDate = new Date('12/12/2015');
+
                         if($scope.emailShareList.length === 0) {
                             NotificationService.info(
                                 'No Emails Entered',
@@ -91,7 +93,7 @@ angular.module('webServiceApp').directive('share', function() {
                             );
                         }
                         else {
-                            RestService.shareAttachment($scope.ukey, '1970-01-01', '2015-12-12', $scope.emailShareList).then(
+                            RestService.shareAttachment($scope.ukey, startDate, expDate, $scope.emailShareList).then(
                             function(){
                                 successFlag = true;
                                 NotificationService.success(
