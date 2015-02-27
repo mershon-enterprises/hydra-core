@@ -1003,7 +1003,7 @@
   [email-address uuid filename exp-date]
   (log-detail email-address
               constants/session-activity
-              (str constants/session-generate-sharable-download-link " "
+              (str constants/session-add-sharable-download-link " "
                    uuid " " filename))
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
@@ -1045,7 +1045,7 @@
   (log-detail email-address
               constants/session-activity
               (str constants/session-add-shared-attachment-access
-                   "to data-set(" data-set-uuid ") - " filename))
+                   "for data-set(" data-set-uuid ") - " filename))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
@@ -1149,8 +1149,11 @@
 
 (defn data-set-attachment-shared-access-user-list
   [email-address data-set-uuid filename]
+  (log-detail email-address
+              constants/session-activity
+              (str constants/session-get-shared-attachment-user-list " "
+                   "for data-set(" data-set-uuid ") - " filename))
   ;TODO proper logging
-
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
@@ -1207,9 +1210,9 @@
   [email-address data-set-uuid filename user-email-list]
   (log-detail email-address
               constants/session-activity
-              (str constants/session-add-shared-attachment-permitted-user-email-address
-                   user-email-list " to data-set(" data-set-uuid ") - " filename))
-
+              (str constants/session-update-shared-attachment-user-list 
+                   "to " user-email-list
+                   " for data-set(" data-set-uuid ") - " filename))
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
@@ -1303,7 +1306,7 @@
   [email-address data-set-uuid filename]
   (log-detail email-address
               constants/session-activity
-              (str constants/session-add-shared-attachment-permitted-user-email-address
+              (str constants/session-delete-shared-attachment-access
                    email-address " to data-set(" data-set-uuid ") - " filename))
 
   (let [access (set (get-user-access email-address))
