@@ -932,13 +932,13 @@
 
 ; delete the specified data set attachment by dataset uuid and filename
 (defn data-set-attachment-delete
-  [email-address uuid filename]
+  [email-address data-set-uuid filename]
   ; log the activity in the session
   (log-detail email-address
               constants/session-activity
-              (str constants/session-delete-dataset-attachment " " uuid))
+              (str constants/session-delete-dataset-attachment " " data-set-uuid))
 
-  ;check if uuid and filename exits otherwise throw exception
+  ;check if data-set-uuid and filename exits otherwise throw exception
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
 
@@ -963,7 +963,7 @@
     (if (not attachment-id)
       (status (response {:response "Unable to share file. File not found."}) 404)
       (if can-access
-        (if (do-delete-attachment email-address uuid filename)
+        (if (do-delete-attachment email-address data-set-uuid filename)
           (status (response {:response "OK"}) 200 )
           (status (response {:response "Failure"}) 409))
         (do
@@ -971,7 +971,7 @@
                                   "from data-set '%s' but lacks access")
                              email-address
                              filename
-                             uuid))
+                             data-set-uuid))
           (access-denied constants/manage-data))))))
 
 ; rename the specified data set attachment filename
