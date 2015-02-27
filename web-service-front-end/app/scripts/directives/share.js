@@ -65,6 +65,7 @@ angular.module('webServiceApp').directive('share', function() {
                         console.log('Specific!');
                     break;
                 }
+                $scope.toggleDialogModal();
             };
 
         }
