@@ -27,6 +27,30 @@
     </section>
 </div>
 
+<div ng-switch="shareMode" class="duration">
+
+    <section ng-switch-when="all">
+        <select class="share-mode-select"
+            ng-model="duration"
+            ng-options="item.id as item.label for item in durationOptions">
+         </select>
+    </section>
+
+    <section ng-switch-when="url">
+        <select class="share-mode-select"
+            ng-model="duration"
+            ng-options="item.id as item.label for item in durationOptions">
+         </select>
+    </section>
+
+    <section ng-switch-when="specific">
+        <select class="share-mode-select"
+            ng-model="duration"
+            ng-options="item.id as item.label for item in durationOptions">
+         </select>
+    </section>
+</div>
+
 <div class="controls">
     <button class="back" ng-click="toggleDialogModal()">Cancel</button>
     <span ng-switch="shareMode">

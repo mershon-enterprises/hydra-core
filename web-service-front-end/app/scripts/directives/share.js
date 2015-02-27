@@ -36,11 +36,53 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            $scope.duration = 'forever';
+
+            //List the options that will be available in for duration.
+            $scope.durationOptions = [
+                {
+                    'id': 'forever',
+                    'label': 'No Duration'
+                },
+                {
+                    'id': 'week',
+                    'label': 'One Week'
+                },
+                {
+                    'id': 'month',
+                    'label': 'One Month'
+                },
+                {
+                    'id': 'year',
+                    'label': 'One Year'
+                }
+            ];
+
             //When the user clicks the save button, perform logic based on which
             //shareMode we are currently in.
             $scope.shareFile = function() {
 
                 var successFlag = false;
+                var startDate = new Date(Date.now());
+                var expDate = null;
+
+                switch ($scope.duration) {
+                    case 'forever':
+                        expDate = null;
+                    break;
+
+                    case 'week':
+                        expDate = new Date(moment().add(7, 'days'));
+                    break;
+
+                    case 'month':
+                        expDate = new Date(moment().add(30, 'days'));
+                    break;
+
+                    case 'year':
+                        expDate = new Date(moment().add(365, 'days'));
+                    break;
+                }
 
                 switch ($scope.shareMode) {
 
@@ -62,7 +104,7 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'all':
-                        RestService.shareAttachment($scope.ukey, '1970-01-01', '2015-12-12', '*').then(
+                        RestService.shareAttachment($scope.ukey, startDate, expDate, '*').then(
                         function(){
                             successFlag = true;
                             NotificationService.success(
@@ -83,8 +125,6 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'specific':
-                        var startDate = new Date(Date.now());
-                        var expDate = new Date('12/12/2015');
 
                         if($scope.emailShareList.length === 0) {
                             NotificationService.info(
