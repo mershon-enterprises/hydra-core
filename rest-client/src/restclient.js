@@ -285,7 +285,7 @@
     });
   };
 
-  exports.getSharedAttachments= function(clientUUID, apiToken) {
+  exports.listSharedAttachments= function(clientUUID, apiToken) {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + "/attachments/sharing",
@@ -296,7 +296,7 @@
     });
   };
 
-  exports.shareAttachmentWithUser= function(clientUUID, apiToken, uuid, filename, userEmailList) {
+  exports.updateSharedAttachmentUserList= function(clientUUID, apiToken, uuid, filename, userEmailList) {
     return rest({
       method: 'PUT',
       path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",

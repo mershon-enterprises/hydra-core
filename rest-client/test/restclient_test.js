@@ -2465,7 +2465,7 @@ exports['shareAttachment'] = {
   },
 };
 
-exports['getSharedAttachments'] = {
+exports['listSharedAttachments'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2473,7 +2473,7 @@ exports['getSharedAttachments'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.getSharedAttachments(
+    restclient.listSharedAttachments(
       null,
       null,
       null,
@@ -2528,7 +2528,7 @@ exports['getSharedAttachments'] = {
             test.doesNotThrow( function() {
               apiToken = limitLoginResponse.entity['token'];
             });
-            restclient.getSharedAttachments(
+            restclient.listSharedAttachments(
               clientUUID,
               apiToken
             ).then(
@@ -2550,7 +2550,7 @@ exports['getSharedAttachments'] = {
   },
 };
 
-exports['shareAttachmentWithUser'] = {
+exports['updateSharedAttachmentUserList'] = {
   setUp: function(done) {
     goodLogin( function(){
       deleteAllMockData( function(callback) { done(); });
@@ -2558,7 +2558,7 @@ exports['shareAttachmentWithUser'] = {
   },
   'no-api-token': function(test) {
     test.expect(3);
-    restclient.shareAttachmentWithUser(
+    restclient.updateSharedAttachmentUserList(
       null,
       null,
       null,
@@ -2607,7 +2607,7 @@ exports['shareAttachmentWithUser'] = {
           apiToken = shareAttachmentResponse.entity['token'];
         });
 
-        return restclient.shareAttachmentWithUser(
+        return restclient.updateSharedAttachmentUserList(
           clientUUID,
           apiToken,
           datasetWithAttachmentUUID,
@@ -2651,7 +2651,7 @@ exports['shareAttachmentWithUser'] = {
   'failure-when-sharing-filename-that-does-not-exist': function(test) {
     test.expect(2);
 
-    restclient.shareAttachmentWithUser(
+    restclient.updateSharedAttachmentUserList(
       clientUUID,
       apiToken,
       "00000000-0000-0000-0000-000000000000",
@@ -2695,7 +2695,7 @@ exports['shareAttachmentWithUser'] = {
               apiToken = limitLoginResponse.entity['token'];
             });
 
-            restclient.shareAttachmentWithUser(
+            restclient.updateSharedAttachmentUserList(
               clientUUID,
               apiToken,
               datasetWithAttachmentUUID,
