@@ -410,6 +410,51 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Share an attachment with all users or a subset of users.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.shareAttachment = function (ukey, startDate, expDate, userEmailList) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.shareAttachment(             clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename,
+                                                startDate,
+                                                expDate,
+                                                userEmailList
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response[0]]
+                    );
+                    console.log('restclient.shareAttachment succeeded');
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('shareAttachment', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.shareAttachment promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Stop sharing an attachment with all users.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.stopSharingAttachment = function (ukey) {

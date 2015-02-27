@@ -40,6 +40,7 @@ angular.module('webServiceApp').directive('share', function() {
             //shareMode we are currently in.
             $scope.shareFile = function() {
                 switch ($scope.shareMode) {
+
                     case 'none':
                         RestService.stopSharingAttachment($scope.ukey).then(
                         function(){
@@ -55,15 +56,31 @@ angular.module('webServiceApp').directive('share', function() {
                             );
                         });
                     break;
+
                     case 'all':
-                        console.log('All!');
+                        RestService.shareAttachment($scope.ukey, '1970-01-01', '2015-12-12', '*').then(
+                        function(){
+                            NotificationService.success(
+                                'Success',
+                                'Your file is shared with all users.'
+                            );
+                        },
+                        function(){
+                            NotificationService.error(
+                                'Critical Error',
+                                'Please contact support.'
+                            );
+                        });
                     break;
+
                     case 'url':
                         console.log('URL!');
                     break;
+
                     case 'specific':
                         console.log('Specific!');
                     break;
+
                 }
                 $scope.toggleDialogModal();
             };
