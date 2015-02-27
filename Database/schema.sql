@@ -16,42 +16,42 @@ COMMENT ON DATABASE postgres IS 'default administrative connection database';
 
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: adminpack; Type: EXTENSION; Schema: -; Owner:
+-- Name: adminpack; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS adminpack WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION adminpack; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION adminpack; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION adminpack IS 'administrative functions for PostgreSQL';
 
 
 --
--- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner:
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
@@ -64,7 +64,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: client; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: client; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE client (
@@ -99,7 +99,7 @@ ALTER SEQUENCE client_id_seq OWNED BY client.id;
 
 
 --
--- Name: client_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: client_location; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE client_location (
@@ -142,7 +142,7 @@ ALTER SEQUENCE client_location_id_seq OWNED BY client_location.id;
 
 
 --
--- Name: data_set; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set (
@@ -166,7 +166,7 @@ COMMENT ON TABLE data_set IS 'describes a collection of data';
 
 
 --
--- Name: data_set_attachment; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_attachment; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_attachment (
@@ -213,7 +213,101 @@ ALTER SEQUENCE data_set_attachment_id_seq OWNED BY data_set_attachment.id;
 
 
 --
--- Name: data_set_boolean; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_attachment_shared_access; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE data_set_attachment_shared_access (
+    id bigint NOT NULL,
+    attachment_id bigint NOT NULL,
+    start_date timestamp with time zone DEFAULT now() NOT NULL,
+    expiration_date timestamp with time zone,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_deleted timestamp with time zone
+);
+
+
+ALTER TABLE public.data_set_attachment_shared_access OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_shared_access_attachment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_attachment_shared_access_attachment_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_attachment_shared_access_attachment_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_shared_access_attachment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_attachment_shared_access_attachment_id_seq OWNED BY data_set_attachment_shared_access.attachment_id;
+
+
+--
+-- Name: data_set_attachment_shared_access_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_attachment_shared_access_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_attachment_shared_access_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_shared_access_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_attachment_shared_access_id_seq OWNED BY data_set_attachment_shared_access.id;
+
+
+--
+-- Name: data_set_attachment_shared_access_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE data_set_attachment_shared_access_user (
+    id bigint NOT NULL,
+    user_email_address character varying(255) NOT NULL,
+    date_created timestamp with time zone DEFAULT now() NOT NULL,
+    date_deleted timestamp with time zone,
+    attachment_shared_access_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.data_set_attachment_shared_access_user OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_shared_access_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_set_attachment_shared_access_user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.data_set_attachment_shared_access_user_id_seq OWNER TO postgres;
+
+--
+-- Name: data_set_attachment_shared_access_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_set_attachment_shared_access_user_id_seq OWNED BY data_set_attachment_shared_access_user.id;
+
+
+--
+-- Name: data_set_boolean; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_boolean (
@@ -259,7 +353,7 @@ ALTER SEQUENCE data_set_boolean_id_seq OWNED BY data_set_boolean.id;
 
 
 --
--- Name: data_set_date; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_date; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_date (
@@ -326,7 +420,7 @@ ALTER SEQUENCE data_set_id_seq OWNED BY data_set.id;
 
 
 --
--- Name: data_set_integer; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_integer; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_integer (
@@ -372,7 +466,7 @@ ALTER SEQUENCE data_set_integer_id_seq OWNED BY data_set_integer.id;
 
 
 --
--- Name: data_set_real; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_real; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_real (
@@ -418,7 +512,7 @@ ALTER SEQUENCE data_set_real_id_seq OWNED BY data_set_real.id;
 
 
 --
--- Name: data_set_text; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_text; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE data_set_text (
@@ -464,7 +558,7 @@ ALTER SEQUENCE data_set_text_id_seq OWNED BY data_set_text.id;
 
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE "user" (
@@ -478,7 +572,7 @@ CREATE TABLE "user" (
 ALTER TABLE public."user" OWNER TO postgres;
 
 --
--- Name: user_access_level; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_access_level; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_access_level (
@@ -520,7 +614,7 @@ ALTER SEQUENCE user_access_level_id_seq OWNED BY user_access_level.id;
 
 
 --
--- Name: user_api_token; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_api_token; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_api_token (
@@ -578,7 +672,7 @@ ALTER SEQUENCE user_id_seq OWNED BY "user".id;
 
 
 --
--- Name: user_session; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_session; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_session (
@@ -601,7 +695,7 @@ COMMENT ON TABLE user_session IS 'tracks client-side session activity for each u
 
 
 --
--- Name: user_session_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_session_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_session_detail (
@@ -666,7 +760,7 @@ ALTER SEQUENCE user_session_id_seq OWNED BY user_session.id;
 
 
 --
--- Name: user_to_user_access_level; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_to_user_access_level; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_to_user_access_level (
@@ -734,6 +828,27 @@ ALTER TABLE ONLY data_set ALTER COLUMN id SET DEFAULT nextval('data_set_id_seq':
 --
 
 ALTER TABLE ONLY data_set_attachment ALTER COLUMN id SET DEFAULT nextval('data_set_attachment_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access ALTER COLUMN id SET DEFAULT nextval('data_set_attachment_shared_access_id_seq'::regclass);
+
+
+--
+-- Name: attachment_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access ALTER COLUMN attachment_id SET DEFAULT nextval('data_set_attachment_shared_access_attachment_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access_user ALTER COLUMN id SET DEFAULT nextval('data_set_attachment_shared_access_user_id_seq'::regclass);
 
 
 --
@@ -814,7 +929,7 @@ ALTER TABLE ONLY user_to_user_access_level ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
--- Name: client_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: client_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY client
@@ -822,7 +937,7 @@ ALTER TABLE ONLY client
 
 
 --
--- Name: data_set_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: data_set_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set
@@ -830,7 +945,7 @@ ALTER TABLE ONLY data_set
 
 
 --
--- Name: pk_client; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_client; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY client
@@ -838,7 +953,7 @@ ALTER TABLE ONLY client
 
 
 --
--- Name: pk_client_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_client_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY client_location
@@ -846,7 +961,7 @@ ALTER TABLE ONLY client_location
 
 
 --
--- Name: pk_data_set; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set
@@ -854,7 +969,7 @@ ALTER TABLE ONLY data_set
 
 
 --
--- Name: pk_data_set_attachment; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_attachment; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_attachment
@@ -862,7 +977,23 @@ ALTER TABLE ONLY data_set_attachment
 
 
 --
--- Name: pk_data_set_boolean; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_attachment_shared_access_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access
+    ADD CONSTRAINT pk_data_set_attachment_shared_access_id PRIMARY KEY (id);
+
+
+--
+-- Name: pk_data_set_attachment_shared_access_user; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access_user
+    ADD CONSTRAINT pk_data_set_attachment_shared_access_user PRIMARY KEY (id);
+
+
+--
+-- Name: pk_data_set_boolean; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_boolean
@@ -870,7 +1001,7 @@ ALTER TABLE ONLY data_set_boolean
 
 
 --
--- Name: pk_data_set_date; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_date; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_date
@@ -878,7 +1009,7 @@ ALTER TABLE ONLY data_set_date
 
 
 --
--- Name: pk_data_set_integer; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_integer; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_integer
@@ -886,7 +1017,7 @@ ALTER TABLE ONLY data_set_integer
 
 
 --
--- Name: pk_data_set_real; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_real; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_real
@@ -894,7 +1025,7 @@ ALTER TABLE ONLY data_set_real
 
 
 --
--- Name: pk_data_set_text; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_data_set_text; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY data_set_text
@@ -902,7 +1033,7 @@ ALTER TABLE ONLY data_set_text
 
 
 --
--- Name: pk_user; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY "user"
@@ -910,7 +1041,7 @@ ALTER TABLE ONLY "user"
 
 
 --
--- Name: pk_user_access_level; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user_access_level; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_access_level
@@ -918,7 +1049,7 @@ ALTER TABLE ONLY user_access_level
 
 
 --
--- Name: pk_user_api_token; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user_api_token; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_api_token
@@ -926,7 +1057,7 @@ ALTER TABLE ONLY user_api_token
 
 
 --
--- Name: pk_user_session; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user_session; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_session
@@ -934,7 +1065,7 @@ ALTER TABLE ONLY user_session
 
 
 --
--- Name: pk_user_session_detail; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user_session_detail; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_session_detail
@@ -942,7 +1073,7 @@ ALTER TABLE ONLY user_session_detail
 
 
 --
--- Name: pk_user_to_user_access_level; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: pk_user_to_user_access_level; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_to_user_access_level
@@ -950,7 +1081,7 @@ ALTER TABLE ONLY user_to_user_access_level
 
 
 --
--- Name: user_access_level_description_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_access_level_description_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_access_level
@@ -958,7 +1089,7 @@ ALTER TABLE ONLY user_access_level
 
 
 --
--- Name: user_api_token_api_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_api_token_api_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_api_token
@@ -966,7 +1097,7 @@ ALTER TABLE ONLY user_api_token
 
 
 --
--- Name: user_api_token_client_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_api_token_client_uuid_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_api_token
@@ -974,7 +1105,7 @@ ALTER TABLE ONLY user_api_token
 
 
 --
--- Name: user_email_address_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
+-- Name: user_email_address_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY "user"
@@ -982,12 +1113,25 @@ ALTER TABLE ONLY "user"
 
 
 --
+-- Name: only_one_row_with_null_date_deleted_per_attachment_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX only_one_row_with_null_date_deleted_per_attachment_id ON data_set_attachment_shared_access USING btree (attachment_id) WHERE (date_deleted IS NULL);
+
+
+--
+-- Name: only_one_row_with_null_date_deleted_per_attachment_shared_acces; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX only_one_row_with_null_date_deleted_per_attachment_shared_acces ON data_set_attachment_shared_access_user USING btree (attachment_shared_access_id, user_email_address) WHERE (date_deleted IS NULL);
+
+
+--
 -- Name: fk_api_token_to_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_api_token
-    ADD CONSTRAINT fk_api_token_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_api_token_to_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -995,8 +1139,7 @@ ALTER TABLE ONLY user_api_token
 --
 
 ALTER TABLE ONLY data_set_attachment
-    ADD CONSTRAINT fk_attachment_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_attachment_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1004,8 +1147,7 @@ ALTER TABLE ONLY data_set_attachment
 --
 
 ALTER TABLE ONLY data_set_attachment
-    ADD CONSTRAINT fk_attachment_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_attachment_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1013,8 +1155,15 @@ ALTER TABLE ONLY data_set_attachment
 --
 
 ALTER TABLE ONLY data_set_attachment
-    ADD CONSTRAINT fk_attachment_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_attachment_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_attachment_shared_access_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access_user
+    ADD CONSTRAINT fk_attachment_shared_access_id FOREIGN KEY (attachment_shared_access_id) REFERENCES data_set_attachment_shared_access(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1022,8 +1171,7 @@ ALTER TABLE ONLY data_set_attachment
 --
 
 ALTER TABLE ONLY data_set_boolean
-    ADD CONSTRAINT fk_boolean_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_boolean_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1031,8 +1179,7 @@ ALTER TABLE ONLY data_set_boolean
 --
 
 ALTER TABLE ONLY data_set_boolean
-    ADD CONSTRAINT fk_boolean_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_boolean_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1040,8 +1187,15 @@ ALTER TABLE ONLY data_set_boolean
 --
 
 ALTER TABLE ONLY data_set_boolean
-    ADD CONSTRAINT fk_boolean_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_boolean_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: fk_data_set_attachment_shared_access_attachment_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_set_attachment_shared_access
+    ADD CONSTRAINT fk_data_set_attachment_shared_access_attachment_id FOREIGN KEY (attachment_id) REFERENCES data_set_attachment(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1049,8 +1203,7 @@ ALTER TABLE ONLY data_set_boolean
 --
 
 ALTER TABLE ONLY data_set
-    ADD CONSTRAINT fk_data_set_client_location FOREIGN KEY (client_location_id) REFERENCES client_location(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_data_set_client_location FOREIGN KEY (client_location_id) REFERENCES client_location(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1058,8 +1211,7 @@ ALTER TABLE ONLY data_set
 --
 
 ALTER TABLE ONLY data_set
-    ADD CONSTRAINT fk_data_set_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_data_set_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1067,8 +1219,7 @@ ALTER TABLE ONLY data_set
 --
 
 ALTER TABLE ONLY data_set
-    ADD CONSTRAINT fk_data_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_data_set_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1076,8 +1227,7 @@ ALTER TABLE ONLY data_set
 --
 
 ALTER TABLE ONLY data_set_date
-    ADD CONSTRAINT fk_date_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_date_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1085,8 +1235,7 @@ ALTER TABLE ONLY data_set_date
 --
 
 ALTER TABLE ONLY data_set_date
-    ADD CONSTRAINT fk_date_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_date_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1094,8 +1243,7 @@ ALTER TABLE ONLY data_set_date
 --
 
 ALTER TABLE ONLY data_set_date
-    ADD CONSTRAINT fk_date_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_date_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1103,8 +1251,7 @@ ALTER TABLE ONLY data_set_date
 --
 
 ALTER TABLE ONLY user_session_detail
-    ADD CONSTRAINT fk_detail_to_session FOREIGN KEY (session_id) REFERENCES user_session(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_detail_to_session FOREIGN KEY (session_id) REFERENCES user_session(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1112,8 +1259,7 @@ ALTER TABLE ONLY user_session_detail
 --
 
 ALTER TABLE ONLY data_set_integer
-    ADD CONSTRAINT fk_integer_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_integer_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1121,8 +1267,7 @@ ALTER TABLE ONLY data_set_integer
 --
 
 ALTER TABLE ONLY data_set_integer
-    ADD CONSTRAINT fk_integer_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_integer_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1130,8 +1275,7 @@ ALTER TABLE ONLY data_set_integer
 --
 
 ALTER TABLE ONLY data_set_integer
-    ADD CONSTRAINT fk_integer_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_integer_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1139,8 +1283,7 @@ ALTER TABLE ONLY data_set_integer
 --
 
 ALTER TABLE ONLY client_location
-    ADD CONSTRAINT fk_location_to_client FOREIGN KEY (client_id) REFERENCES client(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_location_to_client FOREIGN KEY (client_id) REFERENCES client(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1148,8 +1291,7 @@ ALTER TABLE ONLY client_location
 --
 
 ALTER TABLE ONLY data_set_real
-    ADD CONSTRAINT fk_real_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_real_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1157,8 +1299,7 @@ ALTER TABLE ONLY data_set_real
 --
 
 ALTER TABLE ONLY data_set_real
-    ADD CONSTRAINT fk_real_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_real_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1166,8 +1307,7 @@ ALTER TABLE ONLY data_set_real
 --
 
 ALTER TABLE ONLY data_set_real
-    ADD CONSTRAINT fk_real_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_real_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1175,8 +1315,7 @@ ALTER TABLE ONLY data_set_real
 --
 
 ALTER TABLE ONLY user_session
-    ADD CONSTRAINT fk_session_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_session_to_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1184,8 +1323,7 @@ ALTER TABLE ONLY user_session
 --
 
 ALTER TABLE ONLY data_set_text
-    ADD CONSTRAINT fk_text_created_by FOREIGN KEY (created_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_text_created_by FOREIGN KEY (created_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1193,8 +1331,7 @@ ALTER TABLE ONLY data_set_text
 --
 
 ALTER TABLE ONLY data_set_text
-    ADD CONSTRAINT fk_text_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_text_data_set FOREIGN KEY (data_set_id) REFERENCES data_set(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1202,8 +1339,7 @@ ALTER TABLE ONLY data_set_text
 --
 
 ALTER TABLE ONLY data_set_text
-    ADD CONSTRAINT fk_text_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_text_deleted_by FOREIGN KEY (deleted_by) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1211,8 +1347,7 @@ ALTER TABLE ONLY data_set_text
 --
 
 ALTER TABLE ONLY user_to_user_access_level
-    ADD CONSTRAINT fk_user_access_level_to_access_level FOREIGN KEY (access_level_id) REFERENCES user_access_level(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_user_access_level_to_access_level FOREIGN KEY (access_level_id) REFERENCES user_access_level(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -1220,8 +1355,17 @@ ALTER TABLE ONLY user_to_user_access_level
 --
 
 ALTER TABLE ONLY user_to_user_access_level
-    ADD CONSTRAINT fk_user_access_level_to_user FOREIGN KEY (user_id) REFERENCES "user"(id)
-    ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT fk_user_access_level_to_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
