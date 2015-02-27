@@ -2426,7 +2426,7 @@ exports['getSharedAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(10);
+    test.expect(12);
 
     var datasetWithAttachmentUUID,
         attachment = restclient.Attachment("shared.csv",
@@ -2474,8 +2474,7 @@ exports['getSharedAttachments'] = {
                 test.doesNotThrow( function() {
                   checkResponse(test, getSharedAttachmentsResponse.entity);
                   test.equal(getSharedAttachmentsResponse.status.code, 200, 'login should succeed');
-
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
+                  test.equal(getSharedAttachmentsResponse.entity['response']['result_count'], 1,
                     'should return result count of exactly 1 after attachment is shared');
                   test.ok(getSharedAttachmentsResponse.entity['response']['attachments'][0]['filename'] === 'shared.csv',
                     'filename should be called "shared.csv"');

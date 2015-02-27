@@ -864,6 +864,77 @@
           (log/error e (str "There was an error listing attachments"))
           (status (response {:response "Failure"}) 400)))))
 
+(defn shared-data-set-attachment-list
+  [email-address]
+  ; log the activity in the session
+  (log-detail email-address
+              constants/session-activity
+              constants/session-get-shared-attachment-user-list)
+
+  (let [access (set (get-user-access email-address))
+        can-access (or (contains? access constants/manage-data)
+                       (contains? access constants/view-attachments))
+        shared-data-set-attachment-list-query
+        (str "select "
+             "  dsa.filename as filename, "
+             "  dsa.mime_type as mime_type, "
+             "  octet_length(dsa.contents) as bytes, "
+             "  dsa.date_created as date_created, "
+             "  u.email_address as created_by, "
+             "  c.name as client, "
+             "  cl.description as location, "
+             "  ds.uuid as data_set_uuid "
+             "from public.data_set_attachment_shared_access_user as sau "
+             "inner join public.data_set_attachment_shared_access asa "
+             "  on sau.attachment_shared_access_id = asa.id "
+             "inner join public.data_set_attachment as dsa "
+             "  on asa.attachment_id = dsa.id "
+             "inner join data_set as ds "
+             "  on ds.id = dsa.data_set_id "
+             "inner join public.user as u on u.id = dsa.created_by "
+             "left join public.client_location as cl "
+             "  on ds.client_location_id = cl.id "
+             "left join public.client as c "
+             "  on cl.client_id = c.id "
+             "where asa.date_deleted is null "
+             "and dsa.date_deleted is null "
+             "and sau.date_deleted is null "
+             (if (not can-access) "and sau.user_email_address=? "))   ; email address
+
+        shared-data-set-attachment-list-count-query
+        (str "select "
+             "  count(distinct dsa.id) "
+             "from public.data_set_attachment_shared_access_user as sau "
+             "inner join public.data_set_attachment_shared_access asa "
+             "  on sau.attachment_shared_access_id = asa.id "
+             "inner join public.data_set_attachment as dsa "
+             "  on asa.attachment_id = dsa.id "
+             "where asa.date_deleted is null "
+             "and dsa.date_deleted is null "
+             "and sau.date_deleted is null "
+             (if (not can-access) "and sau.user_email_address=? "))]  ; email address
+
+    (try
+      (if can-access
+        (response {:response
+                   {:attachments (sql/query
+                                   (db) [shared-data-set-attachment-list-query]
+                                   :row-fn format-data-set-attachment)
+                    :result_count
+                    (:count (first (sql/query
+                                     (db) [shared-data-set-attachment-list-count-query])))}})
+        (response {:response
+                   {:attachments (sql/query
+                                   (db) [shared-data-set-attachment-list-query
+                                         email-address]
+                                   :row-fn format-data-set-attachment)
+                    :result_count (:count (first (sql/query
+                                                   (db) [shared-data-set-attachment-list-count-query
+                                                         email-address])))}}))
+      (catch Exception e
+        (log/error e (str "There was an error listing shard attachments"))
+        (status (response {:response "Failure"}) 409)))))
+
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
   [email-address uuid filename]
