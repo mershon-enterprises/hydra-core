@@ -58,6 +58,16 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            $scope.showDuration = false;
+            $scope.checkForDuration = function() {
+                if ($scope.shareMode === 'none') {
+                    $scope.showDuration = false;
+                }
+                else {
+                    $scope.showDuration = true;
+                }
+            };
+
             //When the user clicks the save button, perform logic based on which
             //shareMode we are currently in.
             $scope.shareFile = function() {
@@ -72,15 +82,15 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'week':
-                        expDate = new Date(moment().add(7, 'days'));
+                        expDate = moment().add(7, 'days').toDate();
                     break;
 
                     case 'month':
-                        expDate = new Date(moment().add(30, 'days'));
+                        expDate = moment().add(30, 'days').toDate();
                     break;
 
                     case 'year':
-                        expDate = new Date(moment().add(365, 'days'));
+                        expDate = moment().add(365, 'days').toDate();
                     break;
                 }
 
