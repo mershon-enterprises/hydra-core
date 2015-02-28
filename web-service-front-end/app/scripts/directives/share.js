@@ -36,9 +36,10 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            //Tracks how long the current file will be shared.
             $scope.duration = 'forever';
 
-            //List the options that will be available in for duration.
+            //List the options that will be available for duration.
             $scope.durationOptions = [
                 {
                     'id': 'forever',
@@ -58,6 +59,8 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
+            //Small check that determines if the duration box should be displayed
+            //based on share mode.
             $scope.showDuration = false;
             $scope.checkForDuration = function() {
                 if ($scope.shareMode === 'none') {
@@ -76,6 +79,7 @@ angular.module('webServiceApp').directive('share', function() {
                 var startDate = new Date(Date.now());
                 var expDate = null;
 
+                //Determine expiration date based on duration selected.
                 switch ($scope.duration) {
                     case 'forever':
                         expDate = null;
@@ -94,6 +98,7 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
                 }
 
+                //Call rest service depending on which share mode we're in.
                 switch ($scope.shareMode) {
 
                     case 'none':
@@ -161,6 +166,7 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
                 }
 
+                //If a successful share result has happened, close the modal.
                 if (successFlag) {
                     $scope.toggleDialogModal();
                 }
