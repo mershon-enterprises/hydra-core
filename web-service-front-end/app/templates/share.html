@@ -17,9 +17,9 @@
     </section>
 
     <section ng-switch-when="url">
-        <h1 ng-hide="share-url">Select the duration this file will be shared.</h1>
-        <h1 ng-show="share-url">Anyone with this share URL will be able to access the file.</h1>
-        <textarea ng-show="share-url" class="share-url" ng-model="shareLink"></textarea>
+        <h1 ng-hide="shareLink">Select the duration this file will be shared.</h1>
+        <h1 ng-show="shareLink">Anyone with this share URL will be able to access the file.</h1>
+        <textarea ng-show="shareLink" class="share-url" ng-model="shareLink"></textarea>
     </section>
 
     <section ng-switch-when="specific">
@@ -42,8 +42,8 @@
 <div class="controls">
     <button class="back" ng-click="toggleDialogModal()">Cancel</button>
     <span ng-switch="shareMode">
-        <button ng-hide="share-url" ng-click="generateShareURL()" ng-switch-when="url">Create Link</button>
-        <button ng-show="share-url" ng-click="copyURLtoClipboard()" ng-switch-when="url">Copy?</button>
+        <button ng-click="generateShareURL()" ng-switch-when="url">Create Link</button>
+        <button ng-show="shareLink" ng-click="copyURLtoClipboard()" ng-switch-when="url">Copy?</button>
     </span>
     <button ng-click="shareFile()" class="file-action">Save</button>
 </div>

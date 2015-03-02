@@ -167,6 +167,10 @@ angular.module('webServiceApp').directive('share', function() {
                         });
                     break;
 
+                    case 'url':
+                        $scope.toggleDialogModal();
+                    break;
+
                     case 'specific':
 
                         if($scope.emailShareList.length === 0) {
@@ -193,6 +197,9 @@ angular.module('webServiceApp').directive('share', function() {
                         }
                     break;
                 }
+
+                //If the modal closes, always clear the old shareLink.
+                $scope.shareLink = null;
 
             };
 
