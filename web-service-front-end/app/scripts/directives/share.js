@@ -75,7 +75,6 @@ angular.module('webServiceApp').directive('share', function() {
             //shareMode we are currently in.
             $scope.shareFile = function() {
 
-                var successFlag = false;
                 var startDate = new Date(Date.now());
                 var expDate = null;
 
@@ -104,7 +103,7 @@ angular.module('webServiceApp').directive('share', function() {
                     case 'none':
                         RestService.stopSharingAttachment($scope.ukey).then(
                         function(){
-                            successFlag = true;
+                            $scope.toggleDialogModal();
                             NotificationService.success(
                                 'Success',
                                 'Your file is no longer shared.'
@@ -121,7 +120,7 @@ angular.module('webServiceApp').directive('share', function() {
                     case 'all':
                         RestService.shareAttachment($scope.ukey, startDate, expDate, '*').then(
                         function(){
-                            successFlag = true;
+                            $scope.toggleDialogModal();
                             NotificationService.success(
                                 'Success',
                                 'Your file is shared with all users.'
@@ -150,7 +149,7 @@ angular.module('webServiceApp').directive('share', function() {
                         else {
                             RestService.shareAttachment($scope.ukey, startDate, expDate, $scope.emailShareList).then(
                             function(){
-                                successFlag = true;
+                                $scope.toggleDialogModal();
                                 NotificationService.success(
                                     'Success',
                                     'Your file is shared with all users.'
@@ -164,11 +163,6 @@ angular.module('webServiceApp').directive('share', function() {
                             });
                         }
                     break;
-                }
-
-                //If a successful share result has happened, close the modal.
-                if (successFlag) {
-                    $scope.toggleDialogModal();
                 }
 
             };
