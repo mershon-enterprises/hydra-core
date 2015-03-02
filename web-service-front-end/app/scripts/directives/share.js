@@ -71,6 +71,32 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             };
 
+            $scope.generateShareURL = function() {
+                //Call the RestService to get the URL for that file in the
+                //backend.
+                RestService.getAttachmentDownloadLink($scope.ukey, expDate).then(
+                function(success){
+                    var uri = window.location.protocol + '//' +
+                              window.location.host +
+                              success[1];
+                    $scope.shareLink = uri;
+                    NotificationService.success(
+                        'Success',
+                        'Share link has been generated.'
+                    );
+                },
+                function(){
+                    NotificationService.error(
+                        'Critical Error',
+                        'Please contact support.'
+                    );
+                });
+            };
+
+            $scope.copyURLtoClipboard = function() {
+                window.prompt('Copy to clipboard: Ctrl+C, Enter', $scope.shareLink);
+            };
+
             //When the user clicks the save button, perform logic based on which
             //shareMode we are currently in.
             $scope.shareFile = function() {
@@ -135,7 +161,7 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'url':
-                        console.log('URL!');
+
                     break;
 
                     case 'specific':

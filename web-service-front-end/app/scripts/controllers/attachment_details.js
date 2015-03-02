@@ -127,31 +127,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     );
                 }
             });
-
-            var expirationDate = moment().format('YYYY[-]MM[-]DD');
-
-            //Call the RestService to get the URL for that file in the
-            //backend.
-            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
-            function(success){
-                if(success[0] === EVENTS.promiseSuccess) {
-                    var uri = window.location.protocol + '//' +
-                              window.location.host +
-                              success[1];
-                    $scope.shareLink = uri;
-                }
-            },
-            function(){
-                NotificationService.error(
-                    'Critical Error',
-                    'Please contact support.'
-                );
-            });
         }
-
-        $scope.copyURLtoClipboard = function() {
-            window.prompt('Copy to clipboard: Ctrl+C, Enter', $scope.shareLink);
-        };
 
         // Watches for keystrokes in the filename input field.
         $('#fileName').keyup(function (event) {
