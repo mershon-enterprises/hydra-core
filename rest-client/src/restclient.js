@@ -266,7 +266,7 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        exp_date: expDate
+        exp_date: (expDate instanceof Date) ? expDate.toISOString() : null
       }
     });
   };
