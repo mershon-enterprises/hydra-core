@@ -24,8 +24,10 @@
 
     <section ng-switch-when="specific">
         <h1>Enter the emails of the users who may access this file.</h1>
-        <select placeholder="Enter email addresses..."
-            selectize="selectizeOptions"></select>
+        <selectize  config="selectizeConfig"
+                    options="selectizeOptions"
+                    ng-model="selectizeModel">
+        </selectize>
     </section>
 </div>
 

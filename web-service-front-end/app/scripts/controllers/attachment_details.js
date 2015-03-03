@@ -29,6 +29,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.fileData = null;
         $scope.shareLink = null;
         $scope.emailShareList = [];
+        $scope.sharingInfo = {
+            'startDate': null,
+            'expDate': null,
+        };
 
         $scope.dialogShown = false;
         $scope.toggleDialogModal = function() {
@@ -129,12 +133,31 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
 
             RestService.getAttachmentSharingInfo($scope.ukey).then(
-            function(success) {
-                console.log(success);
-            },
-            function(error) {
-                console.log(error);
-            });
+                function(success) {
+                    $scope.isShared = success[1].is_shared;
+
+                    if($scope.isShared) {
+                        var index = success[1].email_list.indexOf('*');
+                        if (index === -1) {
+                            $.each(success[1].email_list, function(index, value) {
+                                $scope.selectizeOptions.push({'name':'', 'email': value});
+                            });
+                        }
+
+                        $scope.sharingInfo.startDate = success[1].sharing_info.start_date;
+                        $scope.sharingInfo.expDate = success[1].sharing_info.expiration_date;
+                    }
+
+
+                },
+                function(error) {
+                    if(error[0] === EVENTS.promiseFailed) {
+                        NotificationService.error(
+                            'Critical Error',
+                            'Please contact support.'
+                        );
+                    }
+                });
         }
 
         // Watches for keystrokes in the filename input field.
@@ -428,13 +451,19 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         };
 
         /* Selectize */
+
+        $scope.selectizeModel = {};
+
+        $scope.selectizeOptions = [];
+
         var REGEX_EMAIL = '([a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@' + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
 
         var formatName = function(item) {
             return $.trim((item.first_name || '') + ' ' + (item.last_name || ''));
         };
 
-        $scope.selectizeOptions = {
+        $scope.selectizeConfig = {
+            placeholder: 'Enter email addresses...',
             plugins: ['remove_button'],
             persist: true,
             maxItems: null,
@@ -446,7 +475,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 {field: 'last_name', direction: 'asc'}
             ],
             onItemAdd: function(value) {
-                $scope.emailShareList.push(value);
+                var index = $scope.emailShareList.indexOf(value);
+                if (index === -1) {
+                    $scope.emailShareList.push(value);
+                }
             },
             onItemRemove: function(value) {
                 var index = $scope.emailShareList.indexOf(value);
