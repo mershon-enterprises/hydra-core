@@ -100,6 +100,8 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             };
 
+            //Generate share URL had to be seperate from the other rest client
+            //calls because it could be invoked multiple times in the UX.
             $scope.generateShareURL = function() {
 
                 //Due to a caveat of the backend, we cannot set a share URL to
@@ -130,6 +132,7 @@ angular.module('webServiceApp').directive('share', function() {
                 });
             };
 
+            //Opens browser prompt to help user copy the giant shareLink
             $scope.copyURLtoClipboard = function() {
                 window.prompt('Copy to clipboard: Ctrl+C, Enter', $scope.shareLink);
             };
@@ -193,7 +196,7 @@ angular.module('webServiceApp').directive('share', function() {
                                 $scope.toggleDialogModal();
                                 NotificationService.success(
                                     'Success',
-                                    'Your file is shared with all users.'
+                                    'Your file is shared with the specified users.'
                                 );
                             },
                             function(){
