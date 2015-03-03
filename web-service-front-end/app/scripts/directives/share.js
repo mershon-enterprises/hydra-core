@@ -101,6 +101,14 @@ angular.module('webServiceApp').directive('share', function() {
             };
 
             $scope.generateShareURL = function() {
+
+                //Due to a caveat of the backend, we cannot set a share URL to
+                //have a null expiration date. So set the date to... very far
+                //away.
+                if($scope.expDate === null) {
+                    $scope.expDate = $scope.expDate = moment().add(1000, 'years').toDate();
+                }
+
                 //Call the RestService to get the URL for that file in the
                 //backend.
                 RestService.getAttachmentDownloadLink($scope.ukey, $scope.expDate).then(
