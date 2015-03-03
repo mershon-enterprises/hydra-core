@@ -127,6 +127,14 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     );
                 }
             });
+
+            RestService.getAttachmentSharingInfo($scope.ukey).then(
+            function(success) {
+                console.log(success);
+            },
+            function(error) {
+                console.log(error);
+            });
         }
 
         // Watches for keystrokes in the filename input field.

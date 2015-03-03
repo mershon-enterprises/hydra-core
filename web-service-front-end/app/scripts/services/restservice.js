@@ -410,6 +410,49 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    //Get the current sharing state of a file and details about when the file
+    //was shared.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.getAttachmentSharingInfo = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.getAttachmentSharingInfo(    clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response]
+                    );
+                    console.log('restclient.getAttachmentSharingInfo succeeded');
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('getAttachmentSharingInfo', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentSharingInfo promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
     //Share an attachment with all users or a subset of users.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.shareAttachment = function (ukey, startDate, expDate, userEmailList) {
