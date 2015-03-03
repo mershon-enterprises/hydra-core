@@ -148,6 +148,7 @@ angular.module('webServiceApp').directive('share', function() {
                         RestService.stopSharingAttachment($scope.ukey).then(
                         function(){
                             $scope.toggleDialogModal();
+                            $scope.collectFileInfo();
                             NotificationService.success(
                                 'Success',
                                 'Your file is no longer shared.'
@@ -165,6 +166,7 @@ angular.module('webServiceApp').directive('share', function() {
                         RestService.shareAttachment($scope.ukey, $scope.startDate, $scope.expDate, '*').then(
                         function(){
                             $scope.toggleDialogModal();
+                            $scope.collectFileInfo();
                             NotificationService.success(
                                 'Success',
                                 'Your file is shared with all users.'
@@ -194,6 +196,7 @@ angular.module('webServiceApp').directive('share', function() {
                             RestService.shareAttachment($scope.ukey, $scope.startDate, $scope.expDate, $scope.emailShareList).then(
                             function(){
                                 $scope.toggleDialogModal();
+                                $scope.collectFileInfo();
                                 NotificationService.success(
                                     'Success',
                                     'Your file is shared with the specified users.'
@@ -211,7 +214,6 @@ angular.module('webServiceApp').directive('share', function() {
 
                 //If the modal closes, always clear the old shareLink.
                 $scope.shareLink = null;
-
             };
 
         }

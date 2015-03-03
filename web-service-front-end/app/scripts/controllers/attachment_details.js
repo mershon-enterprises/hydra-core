@@ -101,17 +101,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             }
         });
 
-        //The user should not be visiting this view unless sent from the
-        //attachment explorer controller. $rootscope.ukey will be populated if
-        //they were.
-        if (!$rootScope.ukey) {
-            //Return user to attachment explorer.
-            $location.path('/attachment_explorer');
-        }
-        //If the ukey is in the $rootScope, the user has visted this view in the
-        //correct way. Invoke the RestService to get the file data from the
-        //backend and store them in the $scope variables.
-        else {
+        $scope.collectFileInfo = function() {
             RestService.getAttachmentInfo($rootScope.ukey).then(
             function(success) {
                 if (success[0] === EVENTS.promiseSuccess) {
@@ -135,7 +125,13 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
             RestService.getAttachmentSharingInfo($scope.ukey).then(
                 function(success) {
+                    console.log(success);
                     $scope.isShared = success[1].is_shared;
+                    $scope.shareLabel = '';
+                    $scope.sharingInfo = {
+                        'startDate': null,
+                        'expDate': null,
+                    };
 
                     if($scope.isShared) {
                         var index = success[1].email_list.indexOf('*');
@@ -154,7 +150,9 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                             $scope.shareLabel = 'everyone';
                         }
                         $scope.sharingInfo.startDate = moment(success[1].sharing_info.start_date).format('YYYY[-]MM[-]DD');
-                        $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
+                        if(success[1].sharing_info.expiration_date) {
+                            $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
+                        }
                     }
                     else {
                         $scope.shareLabel = 'no one';
@@ -168,7 +166,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         );
                     }
                 });
-        }
+        };
 
         // Watches for keystrokes in the filename input field.
         $('#fileName').keyup(function (event) {
@@ -539,6 +537,20 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             return false;
             }
         };
+
+        //The user should not be visiting this view unless sent from the
+        //attachment explorer controller. $rootscope.ukey will be populated if
+        //they were.
+        if (!$rootScope.ukey) {
+            //Return user to attachment explorer.
+            $location.path('/attachment_explorer');
+        }
+        //If the ukey is in the $rootScope, the user has visted this view in the
+        //correct way. Invoke the RestService to get the file data from the
+        //backend and store them in the $scope variables.
+        else {
+            $scope.collectFileInfo();
+        }
 
     }
 });
