@@ -106,9 +106,11 @@
 
     <section class="share-info">
         <p>This file is currently shared with {{shareLabel}}.</p>
-        <p ng-show="sharingInfo.startDate">It was shared on {{sharingInfo.startDate}}.</p>
-        <p ng-show="sharingInfo.expDate">It will expire on {{sharingInfo.expDate}}.</p>
-        <p ng-hide="sharingInfo.expDate">It will never expire.</p>
+        <span ng-show="isShared">
+            <p ng-show="sharingInfo.startDate">It was shared on {{sharingInfo.startDate}}.</p>
+            <p ng-show="sharingInfo.expDate">It will expire on {{sharingInfo.expDate}}.</p>
+            <p ng-hide="sharingInfo.expDate">It will never expire.</p>
+        </span>
     </section>
 
     <div class="controls">
