@@ -125,7 +125,6 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
             RestService.getAttachmentSharingInfo($scope.ukey).then(
                 function(success) {
-                    console.log(success);
                     $scope.isShared = success[1].is_shared;
                     $scope.shareLabel = '';
                     $scope.sharingInfo = {
