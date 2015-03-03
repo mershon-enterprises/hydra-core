@@ -87,15 +87,15 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'week':
-                        $scope.expDate = moment().add(7, 'days').toDate();
+                        $scope.expDate = moment().add(1, 'weeks').toDate();
                     break;
 
                     case 'month':
-                        $scope.expDate = moment().add(30, 'days').toDate();
+                        $scope.expDate = moment().add(1, 'months').toDate();
                     break;
 
                     case 'year':
-                        $scope.expDate = moment().add(365, 'days').toDate();
+                        $scope.expDate = moment().add(1, 'years').toDate();
                     break;
                 }
             };
