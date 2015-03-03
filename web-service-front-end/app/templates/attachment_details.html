@@ -104,6 +104,12 @@
         </tr>
     </table>
 
+    <section class="share-info">
+        <p>This file is currently shared with {{shareLabel}}.</p>
+        <p ng-show="sharingInfo.startDate">It was shared on {{sharingInfo.startDate}}.</p>
+        <p ng-show="sharingInfo.expDate">It will expire on {{sharingInfo.expDate}}.</p>
+    </section>
+
     <div class="controls">
 
         <!-- Again, confirm before file deletion. -->

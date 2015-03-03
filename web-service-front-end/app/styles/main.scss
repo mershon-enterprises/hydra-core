@@ -560,6 +560,14 @@ omnibox {
     }
   }
 
+  .share-info {
+    float: left;
+    text-align: left;
+    p {
+        margin: $default-margin/4;
+    }
+  }
+
 
   .controls {
     height: 58px;

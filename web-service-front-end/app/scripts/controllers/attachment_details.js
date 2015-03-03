@@ -33,6 +33,7 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             'startDate': null,
             'expDate': null,
         };
+        $scope.shareLabel = '';
 
         $scope.dialogShown = false;
         $scope.toggleDialogModal = function() {
@@ -141,14 +142,23 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         if (index === -1) {
                             $.each(success[1].email_list, function(index, value) {
                                 $scope.selectizeOptions.push({'name':'', 'email': value});
+                                if (index !== success[1].email_list.length - 1){
+                                    $scope.shareLabel += (value + ', ');
+                                }
+                                else {
+                                    $scope.shareLabel += (value);
+                                }
                             });
                         }
-
-                        $scope.sharingInfo.startDate = success[1].sharing_info.start_date;
-                        $scope.sharingInfo.expDate = success[1].sharing_info.expiration_date;
+                        else {
+                            $scope.shareLabel = 'everyone';
+                        }
+                        $scope.sharingInfo.startDate = moment(success[1].sharing_info.start_date).format('YYYY[-]MM[-]DD');
+                        $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
                     }
-
-
+                    else {
+                        $scope.shareLabel = 'no one';
+                    }
                 },
                 function(error) {
                     if(error[0] === EVENTS.promiseFailed) {
