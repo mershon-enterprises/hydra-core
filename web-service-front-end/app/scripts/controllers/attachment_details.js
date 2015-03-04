@@ -27,14 +27,16 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
-        $scope.shareLink = null;
         $scope.emailShareList = [];
+
+        //UI expressions for displaying the share info for the file.
         $scope.sharingInfo = {
             'startDate': null,
             'expDate': null,
         };
         $scope.shareLabel = '';
 
+        //Manages whether or not the share modal is displayed.
         $scope.dialogShown = false;
         $scope.toggleDialogModal = function() {
             $scope.dialogShown = !$scope.dialogShown;

@@ -112,6 +112,7 @@ angular.module('webServiceApp').directive('share', function() {
             //element via ng-model. The resulting URL will always appear there.
             //This function could not be in shareFile() because the link could
             //be generated multiple times before the user was finished.
+            $scope.shareLink = null;
             $scope.generateShareURL = function() {
 
                 //Due to a caveat of the backend, we cannot set a share URL to
