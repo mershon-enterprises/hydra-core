@@ -708,15 +708,14 @@ angular.module('webServiceApp').factory('RestService',
         }, false);
 
         x.onreadystatechange = function() {
-            var statusCode = x.status;
 
+            var statusCode = x.status;
             if (statusCode === STATUS_CODES.ok) {
+
                 // Remove this handler so we don't accidentally re-fire.
                 x.onreadystatechange = null;
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(x.responseText);
-                Session.updateToken(jsonResponse.token);
+                Session.updateToken(x.token);
                 deferred.resolve([EVENTS.promiseSuccess]);
                 console.log('restService.replaceAttachment succeeded');
             }
