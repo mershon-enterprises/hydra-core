@@ -1,11 +1,12 @@
+<!-- Share Mode Select Box -->
 <select class="share-mode-select"
         ng-model="shareMode"
         ng-options="item.id as item.label for item in shareOptions"
         ng-change="checkForDuration()">
 </select>
 
+<!-- Content area that changes depending on Share Mode -->
 <div ng-switch="shareMode" class="share">
-
     <section ng-switch-when="none">
         <h1>This file will be no longer shared.</h1>
         <i class="fa fa-times"></i>
@@ -31,7 +32,7 @@
     </section>
 </div>
 
-
+<!-- Duration Select Box -->
 <section ng-show="showDuration">
     <select class="share-mode-select"
         ng-model="duration"
@@ -40,7 +41,7 @@
      </select>
 </section>
 
-
+<!-- UI Buttons -->
 <div class="controls">
     <button class="back" ng-click="toggleDialogModal()">Cancel</button>
     <span ng-switch="shareMode">

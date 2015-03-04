@@ -10,12 +10,8 @@ angular.module('webServiceApp').directive('share', function() {
         templateUrl: 'templates/share.html',
         controller: function ($scope, NotificationService, RestService) {
 
-            //Set the default start and end dates for sharing.
-            $scope.startDate = new Date(Date.now());
-            $scope.expDate = null;
-
             //Tracks the method of sharing selected by the user with ng-model on
-            //the UI select box.
+            //the share mode select box.
             $scope.shareMode = 'none';
 
             //List the options that will be available in that select box. When
@@ -40,10 +36,13 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
-            //Tracks how long the current file will be shared.
+            //Tracks how long the current file will be shared. Binded with
+            //ng-model to the duration select box.
             $scope.duration = 'forever';
 
-            //List the options that will be available for duration.
+            //List the options that will be available for the duration select
+            //box. When the user selects a label, the id of the option will
+            //be stored in $scope.duration.
             $scope.durationOptions = [
                 {
                     'id': 'forever',
@@ -63,8 +62,8 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             ];
 
-            //Small check that determines if the duration box should be displayed
-            //based on share mode.
+            //On every change of the shareMode select box, this function will
+            //run to determine if the duration select box should be displayed.
             $scope.showDuration = false;
             $scope.checkForDuration = function() {
                 if ($scope.shareMode === 'none') {
@@ -75,6 +74,13 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             };
 
+            //Set the default start and expiration dates for sharing.
+            $scope.startDate = new Date(Date.now());
+            $scope.expDate = null;
+
+            //On every change of the duration select box, this function will
+            //run to set the new expiration date based on the newly selected
+            //duration.
             $scope.changeDuration = function() {
 
                 //Reset the start date to the moment they select a new duration.
@@ -100,8 +106,12 @@ angular.module('webServiceApp').directive('share', function() {
                 }
             };
 
-            //Generate share URL had to be seperate from the other rest client
-            //calls because it could be invoked multiple times in the UX.
+            //Generates a URL that, if visited, will allow the user to download
+            //a file regardless of other share permissions. Similar to a
+            //Dropbox share link. The URL is bound via ng-model to a textarea
+            //element via ng-model. The resulting URL will always appear there.
+            //This function could not be in shareFile() because the link could
+            //be generated multiple times before the user was finished.
             $scope.generateShareURL = function() {
 
                 //Due to a caveat of the backend, we cannot set a share URL to
@@ -137,17 +147,21 @@ angular.module('webServiceApp').directive('share', function() {
                 window.prompt('Copy to clipboard: Ctrl+C, Enter', $scope.shareLink);
             };
 
-            //When the user clicks the save button, perform logic based on which
-            //shareMode we are currently in.
+            //Shares the file after the user clicks the UI's "Save" button.
+            //Call the appropriate restclient method, and then close the modal
+            //on success.
             $scope.shareFile = function() {
 
                 //Call rest service depending on which share mode we're in.
                 switch ($scope.shareMode) {
 
                     case 'none':
+                        //Stop sharing the attachment...
                         RestService.stopSharingAttachment($scope.ukey).then(
                         function(){
+                            //Close the modal.
                             $scope.toggleDialogModal();
+                            //Repopulate the UI with the new sharing info.
                             $scope.collectFileInfo();
                             NotificationService.success(
                                 'Success',
@@ -163,7 +177,12 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'all':
-                        RestService.shareAttachment($scope.ukey, $scope.startDate, $scope.expDate, '*').then(
+                        //Passing in '*' to the backend's email list will
+                        //share the file to all users.
+                        RestService.shareAttachment(    $scope.ukey,
+                                                        $scope.startDate,
+                                                        $scope.expDate,
+                                                        '*').then(
                         function(){
                             $scope.toggleDialogModal();
                             $scope.collectFileInfo();
@@ -181,11 +200,11 @@ angular.module('webServiceApp').directive('share', function() {
                     break;
 
                     case 'url':
+                        //Logic for this case is handled in generateShareURL()
                         $scope.toggleDialogModal();
                     break;
 
                     case 'specific':
-
                         if($scope.emailShareList.length === 0) {
                             NotificationService.info(
                                 'No Emails Entered',
@@ -193,7 +212,10 @@ angular.module('webServiceApp').directive('share', function() {
                             );
                         }
                         else {
-                            RestService.shareAttachment($scope.ukey, $scope.startDate, $scope.expDate, $scope.emailShareList).then(
+                            RestService.shareAttachment(    $scope.ukey,
+                                                            $scope.startDate,
+                                                            $scope.expDate,
+                                                            $scope.emailShareList).then(
                             function(){
                                 $scope.toggleDialogModal();
                                 $scope.collectFileInfo();
