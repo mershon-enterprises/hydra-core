@@ -1093,10 +1093,12 @@
 
 (defn data-set-attachment-sharable-download-link
   [email-address uuid filename exp-date]
+  ; log the activity in the session
   (log-detail email-address
               constants/session-activity
               (str constants/session-add-sharable-download-link " "
                    uuid " " filename))
+
   (let [access (set (get-user-access email-address))
         can-access (or (contains? access constants/manage-attachments)
                        (contains? access constants/view-attachments))
@@ -1115,8 +1117,10 @@
                                          :row-fn format-attachment-get))
         attachment-count (count (:headers attachment))
         attachment-own-count (count (:headers attachment-own))]
+
     (if can-access
       (if (> attachment-count 0)
+        ; generate sharable download link
         (generate-sharable-download-link email-address uuid filename exp-date)
         (status (response {:response "File not found."}) 404))
       (if (> attachment-own-count 0)
@@ -1126,14 +1130,15 @@
           (do
             (log/debug (format (str "User %s tried to create a sharable "
                                     "download link for '%s' from data-set '%s' "
-                                    "but lacks access")
+                                    "but does not own it and is not an admin")
                                email-address
                                filename
                                uuid))
-          (access-denied constants/manage-data)))))))
+            (access-denied constants/manage-data)))))))
 
 (defn data-set-attachment-sharing
   [email-address data-set-uuid filename start-date exp-date user_email_list]
+  ; log the activity in the session
   (log-detail email-address
               constants/session-activity
               (str constants/session-add-shared-attachment-access
@@ -1183,10 +1188,10 @@
                      "  ?::timestamp with time zone, "  ; start_date
                      "  ?::timestamp with time zone)")] ; expiration_date
 
-            ; delete current shared access
+            ; delete current attachment shared access
             (sql/execute! conn [delete-attachment-shared-access-query
                                 attachment-id])
-            ; create new shared access
+            ; create new attachment shared access
             (sql/execute! conn [create-attachment-shared-access-query
                                 attachment-id
                                 start-date
@@ -1223,7 +1228,7 @@
                          "?, "    ;user email address
                          "?)")]   ;attachment shared access id
 
-                ; add data_set_attachment-shared_access_user row for each email
+                ; add shared user access for each email
                 (sql/execute! conn [add-user-access-query
                                     user-email
                                     attachment-shared-access-id]))))
@@ -1321,6 +1326,7 @@
 
 (defn data-set-attachment-shared-access-user-update
   [email-address data-set-uuid filename user-email-list]
+  ; log the activity in the session
   (log-detail email-address
               constants/session-activity
               (str constants/session-update-shared-attachment-user-list 
@@ -1360,7 +1366,7 @@
                               ; return an empty data-set
                               []))
 
-                ; arbitrary number of parameters for IN clause of prepared query
+                ; generate "?"'s for IN clause in the prepared query for each email
                 in-clause-parameters
                 (loop [i (- (count email-list) 1)
                        in-clause "?"]
@@ -1385,7 +1391,7 @@
                 (:id (first (sql/query conn [attachment-shared-access-id-query
                                              attachment-id])))]
 
-            ; delete all shared access users for current attachment shared access
+            ; delete all shared access users for active attachment
             (sql/execute! conn (into [] (flatten [delete-shared-attachment-user-query
                                                   attachment-shared-access-id
                                                   email-list])))
@@ -1417,6 +1423,7 @@
 
 (defn data-set-attachment-shared-access-delete
   [email-address data-set-uuid filename]
+  ; log the activity in the session
   (log-detail email-address
               constants/session-activity
               (str constants/session-delete-shared-attachment-access
@@ -1471,8 +1478,10 @@
                 (:id (first (sql/query (db) [attachment-shared-access-id-query
                                              attachment-id])))]
 
+            ; delete all shared access users for attachment
             (sql/execute! conn [remove-user-access-query
                                 attachment-shared-access-id])
+            ; delete attachment shared access
             (sql/execute! conn [remove-shared-attachment-access-query
                                 attachment-shared-access-id]))
           (status (response {:response "OK"}) 200 )
