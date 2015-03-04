@@ -69,9 +69,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Mark that we have received data
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.authenticate succeeded');
-                    console.log('Session created for ' + firstName + ' ' +
-                        lastName);
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -106,7 +103,6 @@ angular.module('webServiceApp').factory('RestService',
                     var jsonResponse = response.entity.version;
 
                     deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
-                    console.log('restclient.version succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -144,7 +140,6 @@ angular.module('webServiceApp').factory('RestService',
                     $rootScope.$broadcast(EVENTS.cacheUpdate, ['accessLevels', responseBody]);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listAccessLevels succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -182,7 +177,6 @@ angular.module('webServiceApp').factory('RestService',
                     $rootScope.$broadcast(EVENTS.cacheUpdate, ['clients', responseBody]);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listClients succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -222,7 +216,6 @@ angular.module('webServiceApp').factory('RestService',
 
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listUsers succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -264,7 +257,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
 
-                    console.log('restclient.listAttachments succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -315,7 +307,6 @@ angular.module('webServiceApp').factory('RestService',
 
         if (response) {
             deferred.resolve([EVENTS.promiseSuccess, response]);
-            console.log('restclient.getAttachmentURL succeeded');
         }
         else {
             deferred.reject([EVENTS.promiseFailed]);
@@ -353,7 +344,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.getAttachmentInfo succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -396,7 +386,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.getAttachmentDownloadLink succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -439,7 +428,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response]
                     );
-                    console.log('restclient.getAttachmentSharingInfo succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -484,7 +472,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.shareAttachment succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -526,7 +513,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.stopSharingAttachment succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -580,7 +566,6 @@ angular.module('webServiceApp').factory('RestService',
                 var jsonResponse = JSON.parse(x.responseText);
                 Session.updateToken(jsonResponse.token);
                 deferred.resolve([EVENTS.promiseSuccess]);
-                console.log('restService.submitData succeeded');
             }
             else {
                 // Remove this handler so we don't accidentally re-fire.
@@ -715,9 +700,11 @@ angular.module('webServiceApp').factory('RestService',
                 // Remove this handler so we don't accidentally re-fire.
                 x.onreadystatechange = null;
 
-                Session.updateToken(x.token);
+                //TODO x.response.token does not resolve as it's supposed to.
+
+                Session.updateToken(x.response.token);
+
                 deferred.resolve([EVENTS.promiseSuccess]);
-                console.log('restService.replaceAttachment succeeded');
             }
             else {
                 // Remove this handler so we don't accidentally re-fire.
