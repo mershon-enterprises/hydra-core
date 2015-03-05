@@ -440,27 +440,23 @@ angular.module('webServiceApp').factory('RestService',
         }, false);
 
         x.onreadystatechange = function() {
-            var statusCode = x.status;
 
-            if (statusCode === STATUS_CODES.created) {
-                // Remove this handler so we don't accidentally re-fire.
-                x.onreadystatechange = null;
+            if(x.readyState === 4) {
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(x.responseText);
-                Session.updateToken(jsonResponse.token);
-                deferred.resolve([EVENTS.promiseSuccess]);
-                console.log('restService.submitData succeeded');
+                var statusCode = x.status;
+
+                if (statusCode === STATUS_CODES.created) {
+                    Session.updateToken(JSON.parse(x.response).token);
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus]);
+                    restService.statusHandler('submitData', statusCode);
+                }
+
+                NProgress.done();
+
             }
-            else {
-                // Remove this handler so we don't accidentally re-fire.
-                x.onreadystatechange = null;
-
-                deferred.reject([EVENTS.badStatus]);
-                restService.statusHandler('submitData', statusCode);
-            }
-
-            NProgress.done();
         };
 
         x.send(form);
@@ -578,27 +574,21 @@ angular.module('webServiceApp').factory('RestService',
         }, false);
 
         x.onreadystatechange = function() {
-            var statusCode = x.status;
+            if(x.readyState === 4) {
+                var statusCode = x.status;
+                if (statusCode === STATUS_CODES.ok) {
 
-            if (statusCode === STATUS_CODES.ok) {
-                // Remove this handler so we don't accidentally re-fire.
-                x.onreadystatechange = null;
+                    Session.updateToken(JSON.parse(x.response).token);
 
-                //Parse out the data from the restclient response.
-                var jsonResponse = JSON.parse(x.responseText);
-                Session.updateToken(jsonResponse.token);
-                deferred.resolve([EVENTS.promiseSuccess]);
-                console.log('restService.replaceAttachment succeeded');
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus]);
+                    restService.statusHandler('replaceAttachment', statusCode);
+                }
+
+                NProgress.done();
             }
-            else {
-                // Remove this handler so we don't accidentally re-fire.
-                x.onreadystatechange = null;
-
-                deferred.reject([EVENTS.badStatus]);
-                restService.statusHandler('replaceAttachment', statusCode);
-            }
-
-            NProgress.done();
         };
 
         x.send(form);
