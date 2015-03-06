@@ -820,8 +820,8 @@
                                     "and u.email_address=? "
                                     search-string-query
                                     tag-name-query)]
-    (if can-access
-      (try
+    (try
+      (if can-access
         (response {:response
                    {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
                     :result_count (:count (first (sql/query (db) [query-result-count])))}})
@@ -829,11 +829,10 @@
         ; data instead
         (response {:response
                    {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                    :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}})
-
-        (catch Exception e
-          (log/error e (str "There was an error listing attachments"))
-          (status (response {:response "Failure"}) 400))))))
+                    :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}}))
+      (catch Exception e
+        (log/error e (str "There was an error listing attachments"))
+        (status (response {:response "Failure"}) 400)))))
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
