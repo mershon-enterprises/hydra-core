@@ -1043,7 +1043,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(13);
+    test.expect(14);
 
     var attachments = [];
     var datasetWithAttachmentUUID;
@@ -1102,6 +1102,8 @@ exports['listAttachments'] = {
             'attachment created-by should be stated');
           test.ok('filename' in data.entity['response']['attachments'][0],
             'attachment filename should be stated');
+          test.ok('is_shared' in data.entity['response']['attachments'][0],
+            'attachment is_shared should be stated');
         });
         test.done();
     });
@@ -2162,7 +2164,7 @@ exports['shareAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(12);
+    test.expect(13);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2215,6 +2217,8 @@ exports['shareAttachment'] = {
                     'should return result count of exactly 1 attachments');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
                     'filename should be called "shared.csv"');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared'], true,
+                    'attachment is_shared should be true');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
                     'created_by should be "admin@example.com"');
                 });

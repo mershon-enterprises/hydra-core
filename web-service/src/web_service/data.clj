@@ -61,7 +61,8 @@
    :created_by (:created_by row)
    :client (:client row)
    :location (:location row)
-   :data_set_uuid (:data_set_uuid row)})
+   :data_set_uuid (:data_set_uuid row)
+   :is_shared (:is_shared row)})
 
 
 ; format the specified row from the data_set_attachment for info display
@@ -113,7 +114,11 @@
        "  c.name as client, "
        "  cl.description as location, "
        "  ds.id as data_set_id, ",
-       "  ds.uuid as data_set_uuid "
+       "  ds.uuid as data_set_uuid, "
+       "  case when "
+       "    asa.start_date is not null "
+       "    and (expiration_date is null or expiration_date > now()) "
+       "  then true else false end as is_shared "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
@@ -132,6 +137,8 @@
        "  on ds.client_location_id = cl.id "
        "left join public.client as c "
        "  on cl.client_id = c.id "
+       "left join public.data_set_attachment_shared_access as asa "
+       "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
