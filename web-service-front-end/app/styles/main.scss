@@ -23,6 +23,8 @@ $default-padding: 10px;
 $default-margin: 20px;
 $default-rounding: 20px;
 $default-hover-offset: #222222;
+$default-figure-width: 400px;
+$default-figcaption-height: 20px;
 
 /* Mixins */
 @mixin rounded($topleft, $topright, $bottomright, $bottomleft) {
@@ -152,7 +154,31 @@ header {
   background-color: $dark-red;
   color: $off-white;
   font-size: 2em;
-  line-height: 2em;
+
+  .hydra-logo {
+    width: 400px;
+  }
+
+  .title {
+    position: absolute;
+    top: 0px;
+    left: 30px;
+  }
+
+  .version {
+    position: absolute;
+    top: 30px;
+    left: 35px;
+    font-size: 0.5em !important;
+  }
+
+  .helpIcon {
+    position: absolute;
+    top: 25px;
+    right: 15px;
+    font-size: 0.7em !important;
+  }
+
 }
 
 table {
@@ -246,6 +272,10 @@ footer {
   img {
     width: 200px;
   }
+
+  i {
+    padding-right: $default-padding/2;
+  }
 }
 
 .inactive {
@@ -262,6 +292,7 @@ nav {
 
   background-color: $dark-gray;
   color: $off-white;
+  height: 2.5em;
   line-height: 2.5em;
   text-align: center;
 
@@ -286,25 +317,31 @@ nav {
     }
   }
 
-  .search {
-    width: 50%;
-  }
-
-  .search-button {
-    @include rounded( $default-rounding/3,
-                  $default-rounding/3,
-                  $default-rounding/3,
-                  $default-rounding/3);
-    cursor: pointer;
-    font-size: 1em;
-    &:hover {
-      background-color: $gray + $default-hover-offset;
-    }
-  }
-
   .upload-link {
     float: left;
     padding-left: $default-padding;
+  }
+}
+
+/* Omnibox */
+
+omnibox {
+  width: 65%;
+}
+
+.search {
+    width: 75%;
+}
+
+.search-button {
+  @include rounded( $default-rounding/3,
+                $default-rounding/3,
+                $default-rounding/3,
+                $default-rounding/3);
+  cursor: pointer;
+  font-size: 1em;
+  &:hover {
+    background-color: $gray + $default-hover-offset;
   }
 }
 
@@ -529,4 +566,59 @@ nav {
     margin-left: $default-margin;
     float: right;
   }
+}
+
+#documentation {
+    text-align: left;
+    width: 850px;
+    margin: 0 auto 50px;
+    $default-figure-width: 425px;
+
+    ul {
+      list-style-type: disc;
+    }
+
+    figure {
+      padding: $default-padding;
+      text-align: center;
+      border: 2px solid $dark-gray;
+      border-radius: 15px;
+      margin: $default-margin auto;
+      max-width: $default-figure-width;
+    }
+
+    figure img {
+      max-width: $default-figure-width;
+    }
+
+    figure.medium {
+      max-width: $default-figure-width * 1.5;
+    }
+
+    figure.medium img {
+      max-width: $default-figure-width * 1.5;
+    }
+
+    figure.large {
+      max-width: $default-figure-width * 2;
+    }
+
+    figure.large img {
+      max-width: $default-figure-width * 2;
+    }
+
+    figcaption {
+      height: $default-figcaption-height;
+      font-size: .75em;
+    }
+
+    a {
+      color: $light-red;
+      text-decoration: none;
+
+      &:hover{
+        color: $light-red + $default-hover-offset;
+        cursor: pointer;
+      }
+    }
 }

@@ -1,0 +1,170 @@
+<div id="documentation">
+    <section>
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a ng-click="navigate('login_and_logout')">Login and Logout</a></li>
+            <li><a ng-click="navigate('upload_and_download_files')">Upload and Download Files</a></li>
+            <li><a ng-click="navigate('view_and_edit_files')">View and Edit Files</a></li>
+            <li><a ng-click="navigate('search_and_navigation')">Search and Navigation</a></li>
+            <li><a ng-click="navigate('keyboard_shortcuts')">Keyboard Shortcuts</a></li>
+        </ul>
+    </section>
+
+    <section>
+        <a name="login_and_logout"></a>
+        <h3>Login and Logout</h3>
+        <h4>Logging In</h4>
+        <p>
+            To begin using the Hydra File Explorer, enter your <strong>Email</strong> and <strong>Password</strong> on the login page and click <strong>Login</strong>.
+        </p>
+        <figure>
+            <img src="images/documentation/manual_login.png">
+            <figcaption>Login Page</figcaption>
+        </figure>
+        <h4>Logging Out</h4>
+        <p>
+            When ready to logout of your account, click the <strong>Logout</strong> button on the right side of the top menu bar.
+        </p>
+        <figure>
+            <img src="images/documentation/manual_logout.png">
+            <figcaption>Logout Button</figcaption>
+        </figure>
+    </section>
+
+    <section>
+        <a name="upload_and_download_files"></a>
+        <h3>Upload and Download Files</h3>
+        <h4>Upload a File</h4>
+        <p>
+            Access the <strong>Upload File</strong> page through the link on left side of the File Explorer menu bar (keyboard shortcut: <strong>Alt-U</strong>).
+        </p>
+        <p>
+            Continue by clicking <strong>Choose File</strong> (keyboard shortcut: <strong>Alt-C</strong>) and navigating to the file you wish to upload. Once selected, the file information will be displayed with options to rename and tag the file before upload. Rename the file by typing in the <strong>Filename</strong> field where the current filename is displayed. Add tags by filling out the empty <strong>Tag Name</strong> and <strong>Tag Value</strong> fields and clicking the <img src="images/documentation/manual_fa_plus.png"> icon, and remove tags by clicking the <img src="images/documentation/manual_fa_minus.png"> icon. When desired changes are complete click <strong>Save</strong> to finish, or cancel by clicking the <strong>Back</strong> button.
+        </p>
+        <p>
+            For easy entry of tag information, use the <strong>Tab</strong> key to switch between tag name and value fields. Using <strong>Tab</strong> again while in the value field will automatically select and create a new tag row.
+        </p>
+        <figure class="medium">
+            <img src="images/documentation/manual_upload.png">
+            <figcaption>File Upload Page</figcaption>
+        </figure>
+        <h4>Download a File</h4>
+        <p>
+            A copy of a file can be downloaded from the File Explorer to your local hard drive using the associated <img src="images/documentation/manual_fa_download.png"> icon on the right side of the file list, as well as the green <strong>Download</strong> button on the file details page as seen in the following section.
+        </p>
+        <figure class="medium">
+            <img src="images/documentation/manual_download.png">
+            <figcaption>File Download Button</figcaption>
+        </figure>
+    </section>
+
+    <section>
+        <a name="view_and_edit_files"></a>
+        <h3>View and Edit Files</h3>
+        <h4>View File Details</h4>
+        <p>
+            File details can be accessed from the file list by clicking anywhere in the associated file row or by clicking the <img src="images/documentation/manual_fa_cog.png"> icon to the right. Use the <strong>Back</strong> button or the <strong>File Explorer</strong> (keyoard shortcut: <strong>Alt-F</strong>) link to return to the file list.
+        </p>
+        <figure class="medium">
+            <img src="images/documentation/manual_cog.png">
+            <figcaption>File Details Button</figcaption>
+        </figure>
+        <figure class="medium">
+            <img src="images/documentation/manual_file_details.png">
+            <figcaption>File Details Page</figcaption>
+        </figure>
+        <h4>Renaming a File</h4>
+        <p>
+            A filename can be renamed on the file details page by entering text in Rename field and clicking the <strong>Rename</strong> button.
+        </p>
+        <h4>Sharing a File</h4>
+        <p>
+            A file can be shared from the file details page by clicking the <strong>Share</strong> button. This will generate a link that can be copied and sent to those you wish to share the file with. Each link will have a default expiration one week from the time it was generated. You can change the expiration date before generating a link by clicking the <strong>Expiration Date</strong> text and selecting from the calendar.
+        </p>
+        <h4>Editing File Tags</h4>
+        <p>
+            Add tags on the file details page by filling out the empty <strong>Tag Name</strong> and <strong>Tag Value</strong> fields and clicking the <img src="images/documentation/manual_fa_plus.png"> icon, and remove tags by clicking the <img src="images/documentation/manual_fa_minus.png"> icon.
+        </p>
+        <p>
+            For easy entry of tag information, use the <strong>Tab</strong> key to switch between tag name and value fields. Using <strong>Tab</strong> again while in the value field will automatically select and create a new tag row.
+        </p>
+        <h4>Replacing a File</h4>
+        <p>
+            Replace functions as an alternative to deleting and uploading a new file but will maintain the currently entered filename and tags. Use the <strong>Replace</strong> button on the file details page and navigate to the new file you wish to overwrite the current file with.
+        </p>
+    </section>
+
+    <section>
+        <a name="search_and_navigation"></a>
+        <h3>Search and Navigation</h3>
+        <h4>Searching Files</h4>
+        <p>
+            You can search files with the search field above the file list (keyboard shortcut: <strong>/</strong> ). You may serch by <strong>Filename, Author, Creation Date, and Tag Value</strong>. Reset the file list to display all files by performing a blank search (keyboard shortcut: <strong>Esc</strong>) or by clicking the <strong>Reset</strong> button from the navigation options.
+        </p>
+        <p>
+            Searching for files by <strong>Creation Date</strong> the search must be part of the following format: [YYYY]-[MM]-[DD]<br>
+            Examples: Search for entries on January 3rd, 2015 by entering "2015-01-03” as a search without quotes. Search for all January entries with "2015-01"
+        </p>
+        <figure class="large">
+            <img src="images/documentation/manual_search.png">
+            <figcaption>File List Search</figcaption>
+        </figure>
+        <h4>Navigating and Sorting File List</h4>
+        <p>
+            At the top and bottom of the file list a navigation bar provides options for display and navigation of pages. The <strong>25, 50, and 100</strong> options will change the number of entries displayed per page. Use <strong>Reset</strong> to return to default display settings. Navigate between pages with the arrows on the right. Single arrows change one page at a time, double arrows jump to the first or last page, and the drop down menu can select a specific page number.
+        </p>
+        <p>
+            Click a the name of a file attribute (Filename, File Size, Author, Creation Date) to toggle between descending and ascending sorting of the file list. Collapse categories by clicking the <img src="images/documentation/manual_fa_minus_square.png"> icon and expand by clicking the <img src="images/documentation/manual_fa_plus_square.png"> icon.
+        </p>
+        <figure class="large">
+            <img src="images/documentation/manual_navigate.png">
+            <figcaption>Navigation Options</figcaption>
+        </figure>
+    </section>
+
+    <section>
+        <a name="keyboard_shortcuts"></a>
+        <h3>Keyboard Shortcuts</h3>
+        <table>
+            <tr>
+                <th colspan="2">Shortcut</th>
+                <th>Command</th>
+            </tr>
+            <tr>
+                <td>/</td>
+                <td>(forward slash)</td>
+                <td>Switch to the File Explorer, and select the search bar.</td>
+            </tr>
+            <tr>
+                <td>Esc</td>
+                <td>(on the File Explorer)</td>
+                <td>Reset the search filter.</td>
+            </tr>
+            <tr>
+                <td>PageUp/<br>PageDown</td>
+                <td>(on the File Explorer)</td>
+                <td>Go to the previous/next page respectively.</td>
+            </tr>
+            <tr>
+                <td>Alt-F</td>
+                <td></td>
+                <td>Switch to the File Explorer screen.</td>
+            </tr>
+            <tr>
+                <td>Alt-U</td>
+                <td></td>
+                <td>Switch to the Upload File screen.</td>
+            </tr>
+            <tr>
+                <td>Alt-C</td>
+                <td>(on the Upload File screen)</td>
+                <td>Choose the file to upload.</td>
+            </tr>
+            <tr>
+                <td>Tab</td>
+                <td>(on the Upload File screen)</td>
+                <td>Select the next Tag field. If a Tag Value cell is currently selected, add the current tag and create a new blank one and select the Tag Name cell.</td>
+            </tr>
+        </table>
+    </section>
+</div>

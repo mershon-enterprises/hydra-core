@@ -385,6 +385,12 @@ module.exports = function (grunt) {
       restclient: {
         dest: 'bower_components/restclient/restclient.js',
         src: '../rest-client/dist/restclient.standalone.js'
+      },
+      documentation: {
+        files: {
+          dest: 'app/templates/documentation.html',
+          src: '../project-documentation/app/hydra-file-explorer.html'
+        }
       }
     },
 

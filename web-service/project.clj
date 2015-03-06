@@ -1,4 +1,4 @@
-(defproject web-service "0.5.0-SNAPSHOT"
+(defproject web-service "0.5.5-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "slixbits.com"
   :dependencies [[org.clojure/clojure "1.6.0"]
@@ -22,6 +22,7 @@
                  [org.clojure/data.generators "0.1.2"]  ; random data generators
                                                         ;   used for mocking
                  [org.clojure/data.codec "0.1.0"]       ; base64 codec
+                 [com.lispcast/org.apache.commons.lang "2.5.0"] ; random strings
                  ]
 
   :plugins [[lein-ring "0.8.11"]

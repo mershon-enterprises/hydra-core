@@ -2,36 +2,16 @@
 
 //Navbar Directive
 
-//Controls the display of various UI elements depending on if user is logged
-//in or not. Also feeds input from search box to ngGrid's filtering tools.
-//Allows Nav Bar to be declared as an element in the markup.
+//Controls the display of various navigation elements and binds navigation hotkeys.
 angular.module('webServiceApp').directive('navbar', function() {
     return {
         restrict: 'E',
         templateUrl: 'templates/navbar.html',
         controller: function ($rootScope, $scope, $location, Session, EVENTS) {
 
-            $('.search').keyup(function(event) {
-                 if ( event.which === 13 ) {
-                    event.preventDefault();
-                    $rootScope.$broadcast(EVENTS.newSearch, $(this).val());
-                }
-            });
-
-            $('.search-button').click(function() {
-                if($rootScope.controller !== 'AttachmentExplorer') {
-                    var ans = confirm('Cancel your work and return to the file explorer?');
-                    if(ans) {
-                        $location.path('/attachment_explorer');
-                        //forces Angular to update, since normally the $digest wont
-                        //trigger when a directive asks to change location.
-                        //http://stackoverflow.com/questions/17177492/location-path-not-working-inside-an-angular-directive
-                        $scope.$apply();
-                    }
-                }
-                $rootScope.$broadcast(EVENTS.newSearch, $('.search').val());
-            });
-
+            // Keep track of the user-logged-in state and change state when
+            // various events are broadcast. The template will update based on
+            // which state we are in.
             var self = this;
             self.isLoggedIn = Session.exists();
 
@@ -43,8 +23,7 @@ angular.module('webServiceApp').directive('navbar', function() {
                 self.isLoggedIn = false;
             });
 
-
-            //Keyboard shortcuts
+            //Keyboard navigation shortcuts
             Mousetrap.bind('/', function() {
                 //Clear the search bar and focus on it
                 $('input.search').val('');

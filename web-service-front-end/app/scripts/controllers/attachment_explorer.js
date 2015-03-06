@@ -9,7 +9,10 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
     function (
         $rootScope,
         $scope,
+        $q,
+        CacheService,
         NotificationService,
+        Preferences,
         RestService,
         Session,
         EVENTS
@@ -20,255 +23,96 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
     //If the user is logged in...
     if (Session.exists()) {
 
-        //Storage variables for the file this controller is operating on.
+        //Bind the search parameters used by this controller to the Preferences
+        //service, which will maintain those preferences between controllers.
+        $scope.searchParams = Preferences.searchParams;
+
+        //Bind the pagination preferences in the same way.
+        $scope.paginationParams = Preferences.paginationParams;
+
+        //View variables.
         $scope.data = null;
         $scope.resultCount = 0;
         $scope.resultCountLabel = '';
         $scope.clientCollapseOptions = {};
         $scope.locationCollapseOptions = {};
-        $scope.currentPage = 0;
-        $scope.paginationPages = [];
 
-        //Store the parameters for custom backend calls.
-        $scope.searchParams = {
-            search_string: '',
-            limit: 25,
-            offset: 0,
-            order_by: 'date_created',
-            order: 'desc'
-        };
+        //NG-CLICK Functions ===================================================
 
-        //If anyone clicks on a <td> that has file data in it, take them
-        //to the details view by forwarding the click event to the file
-        //details button for that row.
-        $(document).on('click', '.data-cell', function() {
-            $(this).parent('tr').find('.fa-cog').click();
-        });
-
-        //If anyone clicks on a + or - in a table header, collapse or expand
-        //the section the + or - is related to.
-        $(document).on('click', '.toggle', function() {
-
-            var toggle = null;
-            var clientName = null;
-            var locationName = null;
-
-            //If it's a client header...
-            if($(this).attr('client')) {
-                //Remember this icon.
-                toggle = $(this);
-                //Get the client's name.
-                clientName = $(this).attr('client');
-                //For all locations...
-                $('.location-table').each(function() {
-                    //If the location is for the client we found earlier...
-                    if ($(this).attr('parent-client') === clientName) {
-                        //If the section is collapsed, expand it.
-                        //If the section is expanded, collapse it.
-                        if ($scope.clientCollapseOptions[clientName]) {
-                            $(this).show();
-                            //And then change the + to -
-                            toggle.removeClass('fa-plus-square').addClass(
-                                                            'fa-minus-square');
-                        }
-                        else {
-                            $(this).hide();
-                            //Or vice-versa.
-                            toggle.removeClass('fa-minus-square').addClass(
-                                                            'fa-plus-square');
-                        }
-                    }
-                });
-                //Remember the change we made.
-                $scope.clientCollapseOptions[clientName] =
-                !$scope.clientCollapseOptions[clientName];
-            }
-
-            //If this a location row...
-            if($(this).attr('location')) {
-                //Remember this icon.
-                toggle = $(this);
-                //Get the client's name.
-                clientName = $(this).attr('parent-client');
-                //Get the location name.
-                locationName = $(this).attr('location');
-                //For all data rows...
-                $('.data-row').each(function() {
-                    //If this row is related to the client and location...
-                    if (($(this).attr('parent-client') === clientName) &&
-                        ($(this).attr('location') === locationName))
-                    {
-                        //If the section is collapsed, expand it.
-                        //If the section is expanded, collapse it.
-                        if ($scope.locationCollapseOptions[clientName+
-                                                                locationName]) {
-                            $(this).show();
-                            toggle.removeClass('fa-plus-square').addClass(
-                                                            'fa-minus-square');
-                        }
-                        else {
-                            $(this).hide();
-                            toggle.removeClass('fa-minus-square').addClass(
-                                                            'fa-plus-square');
-                        }
-                    }
-                });
-                //Remember the change we made.
-                $scope.locationCollapseOptions[clientName+locationName] =
-                !$scope.locationCollapseOptions[clientName+locationName];
-            }
-        });
-
-        //If someone clicks on the column headers, sort the column by desc order
-        //if it already is in desc, change it to asc order.
-        $(document).on('click', '.file-explorer-header * th', function() {
-            //Get the key from the column and check if we are already sorting
-            //by that key.
-            if ($scope.searchParams.order_by === $(this).attr('key')) {
-                //If the order is desc, use asc.
-                if ($scope.searchParams.order === 'desc') {
-                    $scope.searchParams.order = 'asc';
-                }
-                //Otherwise, use desc.
-                else {
-                    $scope.searchParams.order = 'desc';
-                }
-            }
-            //Otherwise, set the ordering to that key and set it to desc.
-            else {
-                $scope.searchParams.order_by = $(this).attr('key');
-                $scope.searchParams.order = 'desc';
-            }
-            //Force UI update.
-            $scope.$apply();
-        });
-
-        //If someone clicks on a pagination button...
-        $(document).on('click', '.pages > li', function() {
-            //If it was the reset button, set the search params to a default
-            //value and clear the search box.
-            if($(this).html() === 'Reset') {
-                $scope.searchParams = {
-                    search_string: '',
-                    limit: 25,
-                    offset: 0,
-                    order_by: 'date_created',
-                    order: 'desc'
-                };
+        //ng-click function for the paginate buttons.
+        //Sets items-per-page vaule that was clicked by the user.
+        //Resets preferences and clears search bar if 'Reset' button is pressed.
+        $scope.paginate = function(pageValue) {
+            if (pageValue === 'reset') {
+                Preferences.reset();
                 $('input.search').val('');
             }
-            //Otherwise, parse the value of the button as a search parameter.
             else {
-                $scope.searchParams.limit = parseInt($(this).html());
-                $scope.searchParams.limit = parseInt($(this).html());
+                $scope.searchParams.limit = pageValue;
             }
 
-            $scope.currentPage = 1;
-            $scope.$apply();
-        });
+            $scope.paginationParams.currentPage = 1;
+        };
 
-        //Figure out which arrow it was, and alter the "offset" for
-        //query. This alters the 'starting row' for the returned set of
-        //data. "Limit" is the range of values we want, starting from the
-        //offset. Ex Limit = 25, Offset = 25 -> Rows 26-50
-        $(document).on('click', '.navigation-arrow', function() {
+        //ng-click function for navigation buttons.
+        //Navigates the page forward or back depending on which button was
+        //pressed.
+        $scope.navigate = function(direction) {
 
-            var lastPage = $scope.paginationPages.slice(-1)[0];
+            var lastPage = $scope.paginationParams.paginationPages.slice(-1)[0];
 
-            if ($(this).children().hasClass('fa-angle-double-left')) {
-                $scope.currentPage = 1;
+            if (direction === 'first') {
+                $scope.paginationParams.currentPage = 1;
             }
-            else if ($(this).children().hasClass('fa-angle-left')) {
-                if (($scope.currentPage - 1) > 0) {
-                    $scope.currentPage = $scope.currentPage - 1;
+            else if (direction === 'prev') {
+                if (($scope.paginationParams.currentPage - 1) > 0) {
+                    $scope.paginationParams.currentPage =
+                    $scope.paginationParams.currentPage - 1;
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-right')) {
-                if (($scope.currentPage + 1) <= lastPage){
-                    $scope.currentPage = $scope.currentPage + 1;
+            else if (direction === 'next') {
+                if (($scope.paginationParams.currentPage + 1) <= lastPage){
+                    $scope.paginationParams.currentPage =
+                    $scope.paginationParams.currentPage + 1;
                 }
             }
-            else if ($(this).children().hasClass('fa-angle-double-right')) {
-                $scope.currentPage = lastPage;
+            else if (direction === 'last') {
+                $scope.paginationParams.currentPage = lastPage;
             }
 
-            //Force UI Update.
-            $scope.$apply();
-        });
+            $scope.updateOffset();
+        };
 
-        //If someone clicks the download button on a row...
-        $(document).on('click', '.fa-download', function() {
-            //Call the RestService to get the URL for that file in the
-            //backend.
-            RestService.getAttachmentURL($(this).attr('ukey')).then(
-            function(success){
-                //If you got it, set the browser to that URL to have the
-                //browser start file-download.
-                if(success[0] === EVENTS.promiseSuccess) {
-                window.location.href = success[1];
-            }
-            },
-            function(){
-                NotificationService.error(
-                    'Critical Error',
-                    'Please contact support.'
-                );
-            });
-        });
-
-        //If someone clicks the properties button on a row...
-        $(document).on('click', '.fa-cog', function(){
-            //Store the ukey for this file into the rootScope so the details
-            //controller can use it.
-            $rootScope.ukey = $(this).attr('ukey');
-            //Navigate us to that controller.
-            window.location.href = '#/attachment_details';
-        });
+        //UI Functions =========================================================
 
         //Retrieve data from the restservice, with query parameters specified
         //in $scope.searchParams.
-        $scope.getData = function () {
+        $scope.getTableData = function () {
+            var deferred = $q.defer();
             NProgress.start();
             NProgress.inc();
             RestService.listAttachments($scope.searchParams).then(
             function (success) {
                 NProgress.set(0.75);
                 if (success[0] === EVENTS.promiseSuccess) {
+                    deferred.resolve();
                     $scope.data = success[1];
                     $scope.resultCount = success[2];
-
-                    //Calculate the page numbers for the pagination dropdown.
-                    var temp = $scope.resultCount;
-                    var i = 1;
-                    $scope.paginationPages = [];
-                    while(temp > 0) {
-                        $scope.paginationPages.push(i);
-                        temp = temp - $scope.searchParams.limit;
-                        i = i+1;
-                    }
-
-                    $scope.resultCountLabel =
-                        'Showing ' +
-                        ($scope.searchParams.offset + 1) +
-                        ' - ' +
-                        Math.min(
-                            ($scope.searchParams.offset +
-                             $scope.searchParams.limit),
-                            $scope.resultCount) +
-                        ' of ' + $scope.resultCount + ' Results';
-                    $scope.sortData();
                 }
                 NProgress.done();
             },
             function (error) {
+                deferred.reject();
                 console.log('AttachmentExplorerCtrl promise error.');
                 console.log(error);
                 NProgress.set(0.0);
             });
+            return deferred.promise;
         };
 
-        //Sort the data into containers based on client/field combinations.
-        $scope.sortData = function () {
+        //Sort the data into containers based on client/field combinations
+        //so the file-explorer-table directive can display them all properly.
+        $scope.sortTableData = function () {
 
             var groups = {};
             groups.clients = {};
@@ -332,7 +176,7 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                     }
                     //If they have no client (and implicitly no location...)
                     else if (!(value.client)) {
-                        //Sort into special "noClient" client.
+                        //Sort into special "No Client" client.
                         groups.noClient.push(value);
                     }
                 });
@@ -340,12 +184,9 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
 
             //Data has been sorted.
             $scope.data = groups;
-            //Update the cache.
-            RestService.updateCacheValue('data', $scope.data);
         };
 
-        //Update the up and down arrows that indicate sort direction based
-        //what the searchParameters currently are.
+        //Update the sort-direction arrows in every column.
         $scope.updateColumnHeaders = function () {
             $scope.filename_show = false;
             $scope.bytes_show = false;
@@ -382,36 +223,96 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
             }
         };
 
+        //Update the 'first item' offset based on the limit and currentPage.
+        $scope.updateOffset = function() {
+            $scope.searchParams.offset = $scope.searchParams.limit *
+            ($scope.paginationParams.currentPage - 1);
+        };
+
+        //Update the displayed result count and repopulate the select box with
+        //the new pagination page numbers. If an invalid result is found
+        //eg. "Displaying 500-600 of 135 items", reset the current page to 1.
+        $scope.updateResultCount = function () {
+
+            //Calculate the page numbers for the pagination dropdown.
+            var temp = $scope.resultCount;
+            var i = 1;
+            $scope.paginationParams.paginationPages = [];
+            while(temp > 0) {
+                $scope.paginationParams.paginationPages.push(i);
+                temp = temp - $scope.searchParams.limit;
+                i = i+1;
+            }
+
+            //reset the offset and currentPage to defaults if the offset
+            //is larger than the resultCount
+            if($scope.searchParams.offset >= $scope.resultCount) {
+               $scope.searchParams.offset = 0;
+               $scope.paginationParams.currentPage = 1;
+            }
+
+            //Update the view label with the new values.
+            $scope.resultCountLabel =
+                'Showing ' +
+                ($scope.searchParams.offset + 1) +
+                ' - ' +
+                Math.min(
+                    ($scope.searchParams.offset +
+                     $scope.searchParams.limit),
+                    $scope.resultCount) +
+                ' of ' + $scope.resultCount + ' Results';
+
+        };
+
+        //Calls all functions required to update the UI after a user event.
+        $scope.refreshFileExplorer = function() {
+            $scope.getTableData().then(
+                function() {
+                    $scope.sortTableData();
+                    $scope.updateResultCount();
+                    $scope.updateColumnHeaders();
+                },
+                function() {
+                });
+        };
+
+        // WATCHERS ============================================================
+
+        //Retrieve new data every time the searchParams updates.
         $scope.$watch('searchParams', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
-            $scope.getData();
-            $scope.updateColumnHeaders();
+            $scope.refreshFileExplorer();
         }, true);
 
-        $scope.$watch('currentPage', function(newValue, oldValue) {
+        //Update the view every time the user changes the current page.
+        //Note, this fires the 'searchParams' watcher to acheieve this.
+        $scope.$watch('paginationParams.currentPage', function(newValue, oldValue) {
             if (newValue === oldValue) { return; }
-            $scope.searchParams.offset = $scope.searchParams.limit * ($scope.currentPage - 1);
+            $scope.updateOffset();
         }, true);
 
+        //If you see a new search event from the navbar directive, update the
+        //view with new data. Note, this fires the 'searchParams' watcher to
+        //acheieve this.
         $scope.$on(EVENTS.newSearch, function(event, args) {
-            $scope.searchParams.search_string = args;
+            $.extend($scope.searchParams, args);
             $scope.$apply();
         });
 
         //If the cache is ready, force a reload of the page and
         //mark that the cache is ready for future reloads.
         $scope.$on(EVENTS.cacheReady, function() {
-            $scope.getData();
-            $scope.updateColumnHeaders();
+            $scope.refreshFileExplorer();
         });
+
+        // CACHE ===============================================================
 
         //Whenever the page is loaded or refreshed, check if the cache
         //is ready and populate the page if it is. This eliminates race
         //conditions with the api-token that could put the app into an
         //unusuable state.
-        if(RestService.getCacheValue('cacheReady')) {
-            $scope.getData();
-            $scope.updateColumnHeaders();
+        if(CacheService.getCacheValue('cacheReady')) {
+            $scope.refreshFileExplorer();
         }
 
     }
