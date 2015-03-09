@@ -943,13 +943,6 @@
       (catch Exception e
         (log/error e (str "There was an error listing shard attachments"))
         (status (response {:response "Failure"}) 409)))))
-=======
-                   {:attachments (sql/query (db) [query-own email-address] :row-fn format-data-set-attachment)
-                    :result_count (:count (first (sql/query (db) [query-own-result-count email-address])))}}))
-      (catch Exception e
-        (log/error e (str "There was an error listing attachments"))
-        (status (response {:response "Failure"}) 400)))))
->>>>>>> development
 
 ; get data_set_attachment info
 (defn data-set-attachment-info-get
