@@ -126,9 +126,7 @@ angular.module('webServiceApp').directive('share', function() {
                 //backend.
                 RestService.getAttachmentDownloadLink($scope.ukey, $scope.expDate).then(
                 function(success){
-                    var uri = window.location.protocol + '//' +
-                              window.location.host +
-                              success[1];
+                    var uri = success[1];
                     $scope.shareLink = uri;
                     NotificationService.success(
                         'Success',
