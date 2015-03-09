@@ -102,7 +102,7 @@
             </td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'M/d/yyyy h:mm a'}}
             </td>
             <td>
                 <i  ng-click="downloadFile(row.unique_key)"
@@ -130,7 +130,7 @@
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'M/d/yyyy h:mm a'}}</td>
         <td>
             <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
             <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
