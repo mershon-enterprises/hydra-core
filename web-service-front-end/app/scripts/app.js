@@ -5,7 +5,8 @@ angular.module('webServiceApp', [
       'ngModal', //Modal Directive
       'LocalStorageModule', // Angular Localstorage
       'file-model', //Angular File Directives
-      'selectize'
+      'selectize', //Angular directive support for SelectizeJS
+      '720kb.tooltips' //Angular Tooltips
     ])
     .config(function ($routeProvider, localStorageServiceProvider, ngModalDefaultsProvider) {
       //Routes. When user visits various URLs, navigate them to specific views
