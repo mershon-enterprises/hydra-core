@@ -91,7 +91,7 @@
             location="{{locationName}}"
             ng-repeat="row in location"
             >
-            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}} <i ng-if="row.is_shared" class="fa fa-share"></i></td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
