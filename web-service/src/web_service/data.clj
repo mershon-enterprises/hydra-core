@@ -774,7 +774,7 @@
         order-by-query
         (if (:order_by json-search-params)
           (let [order (if (and (:order json-search-params)
-                               (= (:order json-search-params "asc")))
+                               (= (:order json-search-params) "asc"))
                         "asc"
                         "desc")]
             (str "order by \"" (string/replace (:order_by json-search-params)
