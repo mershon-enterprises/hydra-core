@@ -290,10 +290,10 @@
     (invalid-token)))
 
 (defn generate-sharable-download-link
-  [email-address data-set-uuid filename exp-date]
+  [email-address data-set-uuid filename exp-date end-point-url]
   (let [client-uuid (str (java.util.UUID/randomUUID))
         api-token-map (make-token email-address client-uuid exp-date)
         api-token (:token api-token-map)
-        link [(str "/data/" data-set-uuid "/" filename
+        link [(str end-point-url "/data/" data-set-uuid "/" filename
                          "/?client_uuid=" client-uuid "&api_token=" api-token)]]
     (response {:response link})))

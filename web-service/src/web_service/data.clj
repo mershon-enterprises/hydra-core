@@ -1099,7 +1099,7 @@
       (access-denied constants/manage-data))))
 
 (defn data-set-attachment-sharable-download-link
-  [email-address uuid filename exp-date]
+  [email-address uuid filename exp-date end-point-url]
   ; log the activity in the session
   (log-detail email-address
               constants/session-activity
@@ -1128,10 +1128,12 @@
     (if can-access
       (if (> attachment-count 0)
         ; generate sharable download link
-        (generate-sharable-download-link email-address uuid filename exp-date)
+        (generate-sharable-download-link
+          email-address uuid filename exp-date end-point-url)
         (status (response {:response "File not found."}) 404))
       (if (> attachment-own-count 0)
-        (generate-sharable-download-link email-address uuid filename exp-date)
+        (generate-sharable-download-link
+          email-address uuid filename exp-date end-point-url)
         (if (= attachment-count attachment-own-count 0)
           (status (response {:response "File not found."}) 404)
           (do
