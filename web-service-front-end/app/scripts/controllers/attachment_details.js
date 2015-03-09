@@ -16,6 +16,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
     $rootScope.controller = 'AttachmentDetails';
 
+    //Kill any tooltips that are currently displayed. Known bug in angular-
+    //tooltip.
+    $('._720kb-tooltip').css('display', 'none');
+
     //Only run if the user has a session.
     if (Session.exists()) {
 
