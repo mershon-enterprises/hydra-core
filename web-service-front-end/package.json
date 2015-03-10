@@ -7,10 +7,10 @@
     "url": "http://github.com/npm/npm.git"
   },
   "dependencies": {
-    "imagemin-gifsicle": "^4.1.0",
-    "imagemin-jpegtran": "^4.1.0",
-    "imagemin-optipng": "^4.2.0",
-    "imagemin-pngquant": "^4.0.0"
+    "imagemin-gifsicle": "^1.0.0",
+    "imagemin-jpegtran": "^1.0.0",
+    "imagemin-optipng": "^1.0.0",
+    "imagemin-pngquant": "^1.0.0"
   },
   "devDependencies": {
     "download": "=3.1.1",
