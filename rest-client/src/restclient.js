@@ -266,7 +266,68 @@
       params: {
         client_uuid: clientUUID,
         api_token: apiToken,
-        exp_date: expDate
+        exp_date: (expDate instanceof Date) ? expDate.toISOString() : null,
+        end_point_url: exports.endpointUrl
+      }
+    });
+  };
+
+  exports.shareAttachment= function(clientUUID, apiToken, uuid, filename, startDate, expDate, userEmailList) {
+    return rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        start_date: (startDate instanceof Date) ? startDate.toISOString() : null,
+        exp_date: (expDate instanceof Date) ? expDate.toISOString() : null,
+        user_email_list: JSON.stringify(userEmailList)
+      }
+    });
+  };
+
+  exports.listSharedAttachments= function(clientUUID, apiToken) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + "/attachments/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.updateSharedAttachmentUserList= function(clientUUID, apiToken, uuid, filename, userEmailList) {
+    return rest({
+      method: 'PUT',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+        user_email_list: JSON.stringify(
+          (userEmailList instanceof Array) ? userEmailList : [userEmailList])
+      }
+    });
+  };
+
+  exports.getAttachmentSharingInfo= function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
+  exports.stopSharingAttachment= function(clientUUID, apiToken, uuid, filename) {
+    return rest({
+      method: 'DELETE',
+      path: exports.endpointUrl + '/data/' + uuid + "/" + filename + "/sharing",
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
       }
     });
   };

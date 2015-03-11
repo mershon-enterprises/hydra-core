@@ -69,9 +69,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     //Mark that we have received data
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.authenticate succeeded');
-                    console.log('Session created for ' + firstName + ' ' +
-                        lastName);
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -106,7 +103,6 @@ angular.module('webServiceApp').factory('RestService',
                     var jsonResponse = response.entity.version;
 
                     deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
-                    console.log('restclient.version succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -144,7 +140,6 @@ angular.module('webServiceApp').factory('RestService',
                     $rootScope.$broadcast(EVENTS.cacheUpdate, ['accessLevels', responseBody]);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listAccessLevels succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -182,7 +177,6 @@ angular.module('webServiceApp').factory('RestService',
                     $rootScope.$broadcast(EVENTS.cacheUpdate, ['clients', responseBody]);
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listClients succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -222,7 +216,6 @@ angular.module('webServiceApp').factory('RestService',
 
 
                     deferred.resolve([EVENTS.promiseSuccess]);
-                    console.log('restclient.listUsers succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -264,7 +257,6 @@ angular.module('webServiceApp').factory('RestService',
 
                     deferred.resolve([EVENTS.promiseSuccess, parsedData, resultCount]);
 
-                    console.log('restclient.listAttachments succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -315,7 +307,6 @@ angular.module('webServiceApp').factory('RestService',
 
         if (response) {
             deferred.resolve([EVENTS.promiseSuccess, response]);
-            console.log('restclient.getAttachmentURL succeeded');
         }
         else {
             deferred.reject([EVENTS.promiseFailed]);
@@ -353,7 +344,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.getAttachmentInfo succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -396,7 +386,6 @@ angular.module('webServiceApp').factory('RestService',
                     deferred.resolve([  EVENTS.promiseSuccess,
                                         entity.response[0]]
                     );
-                    console.log('restclient.getAttachmentDownloadLink succeeded');
                 }
                 else {
                     deferred.reject([EVENTS.badStatus, statusCode]);
@@ -406,6 +395,133 @@ angular.module('webServiceApp').factory('RestService',
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
                 console.log('restclient.getAttachmentDownloadLink promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
+    //Get the current sharing state of a file and details about when the file
+    //was shared.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.getAttachmentSharingInfo = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.getAttachmentSharingInfo(    clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response]
+                    );
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('getAttachmentSharingInfo', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAttachmentSharingInfo promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
+    //Share an attachment with all users or a subset of users.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.shareAttachment = function (ukey, startDate, expDate, userEmailList) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.shareAttachment(             clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename,
+                                                startDate,
+                                                expDate,
+                                                userEmailList
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response[0]]
+                    );
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('shareAttachment', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.shareAttachment promise failed: ' + error);
+            });
+        return deferred.promise;
+    };
+
+    //Stop sharing an attachment with all users.
+    //ukey = 'filename' + '\n' + 'uuid'
+    restService.stopSharingAttachment = function (ukey) {
+
+        var deferred = $q.defer();
+
+        var clientUUID = localStorageService.get('clientUUID');
+        var filename = ukey.split('\n')[0];
+        var uuid = ukey.split('\n')[1];
+
+        restclient.stopSharingAttachment(   clientUUID,
+                                                Session.getToken(),
+                                                uuid,
+                                                filename
+        ).then(
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([  EVENTS.promiseSuccess,
+                                        entity.response[0]]
+                    );
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('stopSharingAttachment', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.stopSharingAttachment promise failed: ' + error);
             });
         return deferred.promise;
     };
@@ -574,6 +690,7 @@ angular.module('webServiceApp').factory('RestService',
         }, false);
 
         x.onreadystatechange = function() {
+
             if(x.readyState === 4) {
                 var statusCode = x.status;
                 if (statusCode === STATUS_CODES.ok) {

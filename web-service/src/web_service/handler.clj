@@ -145,13 +145,14 @@
                                          data-set-attachment-info-get
                                          uuid
                                          filename))
-              (GET "/sharable-link" [api_token client_uuid exp_date]
+              (GET "/sharable-link" [api_token client_uuid exp_date end_point_url]
                    (guard-with-user api_token
                                     client_uuid
                                     data-set-attachment-sharable-download-link
                                     uuid
                                     filename
-                                    exp_date))
+                                    exp_date
+                                    end_point_url))
               (PUT "/" [api_token client_uuid new_filename]
                    (guard-with-user api_token
                                     client_uuid
@@ -166,13 +167,43 @@
                                     uuid
                                     filename
                                     new_contents))
-              (POST "/" [] (not-implemented "Submit data attachment"))
+                            (POST "/" [] (not-implemented "Submit data attachment"))
               (DELETE "/" [api_token client_uuid]
                       (guard-with-user api_token
                                        client_uuid
                                        data-set-attachment-delete
-                                       uuid filename))))))))
-
+                                       uuid filename))
+              (context
+                "/sharing" []
+                (defroutes document-routes
+                  (GET "/" [api_token client_uuid]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-shared-access-info
+                                        uuid
+                                        filename))
+                  (POST "/" [api_token client_uuid start_date exp_date user_email_list]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-sharing
+                                        uuid
+                                        filename
+                                        start_date
+                                        exp_date
+                                        user_email_list))
+                  (PUT "/" [api_token client_uuid user_email_list]
+                       (guard-with-user api_token
+                                        client_uuid
+                                        data-set-attachment-shared-access-user-update
+                                        uuid
+                                        filename
+                                        user_email_list))
+                  (DELETE "/" [api_token client_uuid]
+                          (guard-with-user api_token
+                                           client_uuid
+                                           data-set-attachment-shared-access-delete
+                                           uuid
+                                           filename))))))))))
   (context
     "/attachments" []
       (defroutes document-routes
@@ -180,8 +211,14 @@
            (guard-with-user api_token client_uuid data-set-attachment-list search_params))
         (PUT "/" [] (not-allowed "Update-all data attachments"))
         (POST "/" [] (not-allowed "Sumbit-all  data attachemnts"))
-        (DELETE "/" [] (not-allowed "Delete-all data attachments"))))
-
+        (DELETE "/" [] (not-allowed "Delete-all data attachments"))
+        (context
+          "/sharing" []
+          (defroutes document-routes
+            (GET "/" [api_token client_uuid]
+                 (guard-with-user api_token
+                                  client_uuid
+                                  shared-data-set-attachment-list))))))
   (context
     "/users" []
     (defroutes document-routes
