@@ -941,7 +941,7 @@
                                                    (db) [shared-data-set-attachment-list-count-query
                                                          email-address])))}}))
       (catch Exception e
-        (log/error e (str "There was an error listing shard attachments"))
+        (log/error e (str "There was an error listing shared attachments"))
         (status (response {:response "Failure"}) 409)))))
 
 ; get data_set_attachment info
