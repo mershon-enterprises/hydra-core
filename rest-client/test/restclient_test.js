@@ -33,7 +33,7 @@ var limitedLogin= function(callback) {
     clientUUID,
     'admin@example.com',
     'adminpassword',
-    'basicuser@example.com'
+    'manager@example.com'
   ).then(
     function(data) {
       // update the api token
@@ -223,7 +223,7 @@ exports['adminAuthenticate'] = {
       clientUUID,
       'admin@example.com',
       'adminpassword',
-      'basicuser@example.com'
+      'manager@example.com'
     ).then(
       function(data) {
         test.doesNotThrow( function() {
@@ -1679,7 +1679,7 @@ exports['getAttachment'] = {
           clientUUID,
           'admin@example.com',
           'adminpassword',
-          'basicuser@example.com'
+          'manager@example.com'
         );
       }
     ).then(
@@ -1924,7 +1924,7 @@ exports['getAttachment'] = {
           clientUUID,
           'admin@example.com',
           'adminpassword',
-          'basicuser@example.com'
+          'manager@example.com'
         );
       }
     ).then(
@@ -2189,7 +2189,7 @@ exports['shareAttachment'] = {
           attachmentFilename,
           new Date(),
           null,
-          ["basicuser@example.com"]
+          ["manager@example.com"]
         );
       }
     ).then(
@@ -2253,7 +2253,7 @@ exports['shareAttachment'] = {
           attachmentFilename,
           new Date(),
           null,
-          ["basicuser@example.com"]
+          ["manager@example.com"]
         );
       }
     ).then(
@@ -2349,7 +2349,7 @@ exports['shareAttachment'] = {
       "doesNotExist.csv",
       new Date(),
       null,
-      ["basicuser@example.com"]
+      ["manager@example.com"]
     ).then(
       function(shareAttachmentResponse) {
         test.doesNotThrow( function() {
@@ -2393,7 +2393,7 @@ exports['shareAttachment'] = {
               "shared.csv",
               new Date(),
               null,
-              "basicuser@example.com"
+              "manager@example.com"
             ).then(
               function(shareAttachmentWithUserResponse) {
                 test.doesNotThrow( function() {
@@ -2517,7 +2517,7 @@ exports['listSharedAttachments'] = {
           "shared.csv",
           new Date(),
           null,
-          ["basicuser@example.com" ]
+          ["manager@example.com" ]
         );
       }
     ).then(
@@ -2616,7 +2616,7 @@ exports['updateSharedAttachmentUserList'] = {
           apiToken,
           datasetWithAttachmentUUID,
           attachmentFilename,
-          "basicuser@example.com"
+          "manager@example.com"
         );
       }
     ).then(
@@ -2662,7 +2662,7 @@ exports['updateSharedAttachmentUserList'] = {
       "doesNotExist.csv",
       new Date(),
       null,
-      "basicuser@example.com"
+      "manager@example.com"
     ).then(
       function(shareAttachmentWithUserResponse) {
         test.doesNotThrow( function() {
@@ -2706,7 +2706,7 @@ exports['updateSharedAttachmentUserList'] = {
               "shared.csv",
               new Date(),
               null,
-              "basicuser@example.com"
+              "manager@example.com"
             ).then(
               function(shareAttachmentWithUserResponse) {
                 test.doesNotThrow( function() {
@@ -2773,7 +2773,7 @@ exports['getAttachmentSharingInfo'] = {
           attachmentFilename,
           expDate,
           startDate,
-          ["basicuser@example.com"]
+          ["manager@example.com"]
         );
       }
     ).then(
@@ -2806,8 +2806,8 @@ exports['getAttachmentSharingInfo'] = {
             startDate.toISOString(),
             'expiration_date date should be the same as' + expDate.toISOString());
           test.equal(getAttachmentSharedUserListResponse.entity['response']['email_list'][0],
-            'basicuser@example.com',
-            'first element in email_list should be \'basicuser@example.com\'');
+            'manager@example.com',
+            'first element in email_list should be \'manager@example.com\'');
         });
         test.done()
     });
@@ -2911,7 +2911,7 @@ exports['stopSharingAttachment'] = {
           attachmentFilename,
           new Date(),
           null,
-          ["basicuser@example.com" ]
+          ["manager@example.com" ]
         );
       }
     ).then(
@@ -3041,7 +3041,7 @@ exports['stopSharingAttachment'] = {
               "shared.csv",
               new Date(),
               null,
-              "basicuser@example.com"
+              "manager@example.com"
             ).then(
               function(stopSharingAttachmentResponse) {
                 test.doesNotThrow( function() {
