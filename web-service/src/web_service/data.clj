@@ -118,7 +118,10 @@
        "  case when "
        "    asa.start_date is not null "
        "    and (expiration_date is null or expiration_date > now()) "
-       "  then true else false end as is_shared "
+       "  then true else false end as is_shared_with_others, "
+       "  case  when "
+       "    sau.user_email_address is not null "
+       "  then true else false end as is_shared_with_me "
        "from data_set_attachment as dsa "
        "inner join data_set as ds "
        "  on ds.id = dsa.data_set_id "
@@ -139,6 +142,9 @@
        "  on cl.client_id = c.id "
        "left join public.data_set_attachment_shared_access as asa "
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
+       "left join public.data_set_attachment_shared_access_user as sau "
+       "  on sau.user_email_address='admin@example.com' "
+      "   and asa.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
