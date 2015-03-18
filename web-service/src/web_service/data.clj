@@ -62,7 +62,8 @@
    :client (:client row)
    :location (:location row)
    :data_set_uuid (:data_set_uuid row)
-   :is_shared (:is_shared row)})
+   :is_shared_with_me (:is_shared_with_me row)
+   :is_shared_with_others (:is_shared_with_others row)})
 
 
 ; format the specified row from the data_set_attachment for info display

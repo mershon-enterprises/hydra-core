@@ -1043,7 +1043,7 @@ exports['listAttachments'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(14);
+    test.expect(15);
 
     var attachments = [];
     var datasetWithAttachmentUUID;
@@ -1102,8 +1102,10 @@ exports['listAttachments'] = {
             'attachment created-by should be stated');
           test.ok('filename' in data.entity['response']['attachments'][0],
             'attachment filename should be stated');
-          test.ok('is_shared' in data.entity['response']['attachments'][0],
-            'attachment is_shared should be stated');
+          test.ok('is_shared_with_others' in data.entity['response']['attachments'][0],
+            'attachment is_shared_with_others should be stated');
+          test.ok('is_shared_with_me' in data.entity['response']['attachments'][0],
+            'attachment is_shared_with_me should be stated');
         });
         test.done();
     });
@@ -2164,7 +2166,7 @@ exports['shareAttachment'] = {
       });
   },
   'with-api-token': function(test) {
-    test.expect(13);
+    test.expect(14);
 
     var attachmentFilename,
         datasetWithAttachmentUUID,
@@ -2217,8 +2219,10 @@ exports['shareAttachment'] = {
                     'should return result count of exactly 1 attachments');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
                     'filename should be called "shared.csv"');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared'], true,
-                    'attachment is_shared should be true');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared_with_others'], true,
+                    'attachment is_shared_with_others should be true');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared_with_me'], false,
+                    'attachment is_shared_with_me should be false');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
                     'created_by should be "admin@example.com"');
                 });
