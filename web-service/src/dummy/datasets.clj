@@ -117,6 +117,11 @@
                                 "where data_set_id=("
                                 "  select id from public.data_set "
                                 "  where uuid::character varying=?)")
+          query-attachments (str "select dsa.id, dsa.filename "
+                                 "from public.data_set_attachment dsa "
+                                 "inner join public.data_set ds "
+                                 " on ds.id = dsa.data_set_id "
+                                 "where ds.uuid::character varying=?")
           ]
       (data-set-submit
         (:email_address ds)
@@ -128,10 +133,28 @@
         (sql/execute! (db) [client-location-query (+ (rand-int 5) 1) (:uuid ds)])
         (sql/execute! (db) [attachment-created-by-query (:uuid ds) (:uuid ds)])
         (sql/execute! (db) [text-created-by-query (:uuid ds) (:uuid ds)])
+
+        (doseq [attachment (sql/query (db) [query-attachments (:uuid ds)])]
+          (def email_user_list [])
+
+          (if (and (gen/boolean) (not (= (:email_address ds) "admin@example.com")))
+            (def email_user_list (conj email_user_list "admin@example.com")))
+          (if (and (gen/boolean) (not (= (:email_address ds) "manager@example.com")))
+            (def email_user_list (conj email_user_list "manager@example.com")))
+
+          (if (not (empty? email_user_list))
+            (data-set-attachment-sharing
+              (:email_address ds)
+              (:uuid ds)
+              (:filename attachment)
+              (generate-string (java.util.Date.))
+              (generate-string (java.util.Date. (+ (* 7 86400 1000) (.getTime (java.util.Date.)))))
+              (generate-string email_user_list))))
+
         (catch Exception e
           (if (instance? SQLException e)
             (do (.getCause e)
                 (println (.getNextException e)))
             (println (.getMessage e)))
-          false ))))
+          false))))
   true)
