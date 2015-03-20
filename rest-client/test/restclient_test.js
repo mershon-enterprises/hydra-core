@@ -1561,6 +1561,207 @@ exports['listAttachments'] = {
       }
     );
   },
+  'with-api-token-search-with-sharing-with-others-flag': function(test) {
+    test.expect(31);
+
+    var datasetWithAttachmentUUID;
+    var attachment = restclient.Attachment("shared.csv", "text/csv", "");
+    var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
+
+    submitMockData( [attachment, primitive]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          "shared.csv",
+          new Date(),
+          null,
+          ["manager@example.com"]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          apiToken = shareAttachmentResponse.entity['token'];
+          checkResponse(test, shareAttachmentResponse.entity);
+          test.equal(shareAttachmentResponse.status.code, 200,
+            'list data should succeed');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {is_shared_with_others: true}
+        );
+      }
+    ).then(
+      function(listAttachmentsResponse) {
+        test.doesNotThrow( function() {
+          apiToken = listAttachmentsResponse.entity['token'];
+          checkResponse(test, listAttachmentsResponse.entity);
+          test.equal(listAttachmentsResponse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in listAttachmentsResponse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in listAttachmentsResponse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(listAttachmentsResponse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.ok(listAttachmentsResponse.entity['response']['attachments'].length = 1,
+            'there should be at least one attachments');
+          test.ok(listAttachmentsResponse.entity['response']['result_count'] = 1,
+            'result count should be a least 1');
+          test.ok('data_set_uuid' in listAttachmentsResponse.entity['response']['attachments'][0],
+            'data-set_uuid should be stated');
+          test.ok('date_created' in listAttachmentsResponse.entity['response']['attachments'][0],
+            'attachment date created should be stated');
+          test.ok('created_by' in listAttachmentsResponse.entity['response']['attachments'][0],
+            'attachment created-by should be stated');
+          test.ok(listAttachmentsResponse.entity['response']['attachments'][0]['filename'] === 'shared.csv',
+            'filename should be called "shared.csv"');
+          test.ok(listAttachmentsResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+            'created_by should be "admin@example.com"');
+        });
+
+        return restclient.listAttachments(
+            clientUUID,
+            apiToken,
+            {is_shared_with_others: false}
+        );
+      }
+    ).then(
+      function(listAttachmentSharedFalse) {
+        test.doesNotThrow( function() {
+          apiToken = listAttachmentSharedFalse.entity['token'];
+          checkResponse(test, listAttachmentSharedFalse.entity);
+          test.equal(listAttachmentSharedFalse.status.code, 200,
+            'list data should succeed');
+          test.ok('attachments' in listAttachmentSharedFalse.entity['response'],
+            'attachments data should be stated');
+          test.ok('result_count' in listAttachmentSharedFalse.entity['response'],
+            'result count should be stated');
+          test.ok(Array.isArray(listAttachmentSharedFalse.entity['response']['attachments']),
+            'attachment list should be an array');
+          test.equal(listAttachmentSharedFalse.entity['response']['attachments'].length, 0,
+            'there should be at no attachments');
+          test.equal(listAttachmentSharedFalse.entity['response']['result_count'], 0,
+            'result count should be 0');
+        });
+        test.done();
+    });
+  },
+  'with-api-token-search-with-sharing-with-me-flag': function(test) {
+    test.expect(36);
+
+    var datasetWithAttachmentUUID;
+    var attachment = restclient.Attachment("shared.csv", "text/csv", "");
+    var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
+
+    submitMockData( [attachment, primitive]
+    ).then(
+      function(submitResponse) {
+        test.doesNotThrow( function() {
+          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
+          apiToken = submitResponse.entity['token'];
+        });
+
+        return restclient.shareAttachment(
+          clientUUID,
+          apiToken,
+          datasetWithAttachmentUUID,
+          "shared.csv",
+          new Date(),
+          null,
+          ["manager@example.com"]
+        );
+      }
+    ).then(
+      function(shareAttachmentResponse) {
+        test.doesNotThrow( function() {
+          checkResponse(test, shareAttachmentResponse.entity);
+          test.equal(shareAttachmentResponse.status.code, 200,
+            'list data should succeed');
+        });
+
+        limitedLogin (
+          function(limitLoginResponse) {
+            test.doesNotThrow( function() {
+              checkResponse(test, limitLoginResponse.entity);
+              test.equal(limitLoginResponse.status.code, 200,
+                'login should succeed');
+              apiToken = limitLoginResponse.entity['token'];
+            });
+
+            restclient.listAttachments(
+              clientUUID,
+              apiToken,
+              {is_shared_with_me: true}
+            ).then(
+              function(listAttachmentsResponse) {
+                test.doesNotThrow( function() {
+                  console.log(listAttachmentsResponse.entity);
+                  apiToken = listAttachmentsResponse.entity['token'];
+                  checkResponse(test, listAttachmentsResponse.entity);
+                  test.equal(listAttachmentsResponse.status.code, 200,
+                    'list data should succeed');
+                  test.ok('attachments' in listAttachmentsResponse.entity['response'],
+                    'attachments data should be stated');
+                  test.ok('result_count' in listAttachmentsResponse.entity['response'],
+                    'result count should be stated');
+                  test.ok(Array.isArray(listAttachmentsResponse.entity['response']['attachments']),
+                    'attachment list should be an array');
+                  test.equal(listAttachmentsResponse.entity['response']['attachments'].length, 1,
+                    'there should be at least one attachments');
+                  test.equal(listAttachmentsResponse.entity['response']['result_count'], 1,
+                    'result count should be a least 1');
+                  test.ok('data_set_uuid' in listAttachmentsResponse.entity['response']['attachments'][0],
+                    'data-set_uuid should be stated');
+                  test.ok('date_created' in listAttachmentsResponse.entity['response']['attachments'][0],
+                    'attachment date created should be stated');
+                  test.ok('created_by' in listAttachmentsResponse.entity['response']['attachments'][0],
+                    'attachment created-by should be stated');
+                  test.ok(listAttachmentsResponse.entity['response']['attachments'][0]['filename'] === 'shared.csv',
+                    'filename should be called "shared.csv"');
+                  test.ok(listAttachmentsResponse.entity['response']['attachments'][0]['created_by'] === 'admin@example.com',
+                    'created_by should be "admin@example.com"');
+                });
+
+                return restclient.listAttachments(
+                    clientUUID,
+                    apiToken,
+                    {is_shared_with_me: false}
+                );
+              }
+            ).then(
+              function(listAttachmentSharedFalse) {
+                test.doesNotThrow( function() {
+                  apiToken = listAttachmentSharedFalse.entity['token'];
+                  checkResponse(test, listAttachmentSharedFalse.entity);
+                  test.equal(listAttachmentSharedFalse.status.code, 200,
+                    'list data should succeed');
+                  test.ok('attachments' in listAttachmentSharedFalse.entity['response'],
+                    'attachments data should be stated');
+                  test.ok('result_count' in listAttachmentSharedFalse.entity['response'],
+                    'result count should be stated');
+                  test.ok(Array.isArray(listAttachmentSharedFalse.entity['response']['attachments']),
+                    'attachment list should be an array');
+                  test.equal(listAttachmentSharedFalse.entity['response']['attachments'].length, 0,
+                    'there should be at no attachments');
+                  test.equal(listAttachmentSharedFalse.entity['response']['result_count'], 0,
+                    'result count should be 0');
+                });
+                test.done();
+            });
+        });
+    });
+  },
 };
 
 exports['getAttachment'] = {
