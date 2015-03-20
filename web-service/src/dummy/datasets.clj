@@ -117,11 +117,6 @@
                                 "where data_set_id=("
                                 "  select id from public.data_set "
                                 "  where uuid::character varying=?)")
-          query-attachments (str "select dsa.id, dsa.filename "
-                                 "from public.data_set_attachment dsa "
-                                 "inner join public.data_set ds "
-                                 " on ds.id = dsa.data_set_id "
-                                 "where ds.uuid::character varying=?")
           ]
       (data-set-submit
         (:email_address ds)
@@ -134,7 +129,10 @@
         (sql/execute! (db) [attachment-created-by-query (:uuid ds) (:uuid ds)])
         (sql/execute! (db) [text-created-by-query (:uuid ds) (:uuid ds)])
 
-        (doseq [attachment (sql/query (db) [query-attachments (:uuid ds)])]
+        (doseq [attachment (filter
+                             (fn [data-info] (= (:type data-info) "attachment"))
+                             (:data ds))]
+
           (def email_user_list [])
 
           (if (and (gen/boolean) (not (= (:email_address ds) "admin@example.com")))
