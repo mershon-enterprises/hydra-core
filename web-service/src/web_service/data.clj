@@ -144,7 +144,7 @@
        "left join public.data_set_attachment_shared_access as asa "
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
-       "  on sau.user_email_address='admin@example.com' "
+       "  on sau.user_email_address=? "
       "   and asa.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
@@ -171,6 +171,10 @@
        "  on ds.client_location_id = cl.id "
        "left join public.client as c "
        "  on cl.client_id = c.id "
+       "left join public.data_set_attachment_shared_access as asa "
+       "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
+       "left join public.data_set_attachment_shared_access_user as sau "
+       "  on sau.user_email_address=? "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
@@ -271,11 +275,11 @@
                        "and u.email_address=? "
                        "order by data_set_attachment_id ")]
     (if can-access
-      (first (sql/query (db) [query uuid filename]
+      (first (sql/query (db) [query email-address uuid filename]
                   :row-fn format-attachment-info))
       ; if the user cannot access all data, try to at least show them their
       ; own data instead
-      (first (sql/query (db) [query-own uuid filename email-address]
+      (first (sql/query (db) [query-own email-address uuid filename email-address]
                         :row-fn format-attachment-info)))))
 
 
@@ -862,18 +866,20 @@
     (try
       (if can-access
         (response {:response
-                   {:attachments (sql/query (db) [query] :row-fn format-data-set-attachment)
-                    :result_count (:count (first (sql/query (db) [query-result-count])))}})
+                   {:attachments (sql/query (db) [query email-address] :row-fn format-data-set-attachment)
+                    :result_count (:count (first (sql/query (db) [query-result-count email-address])))}})
         ; if the user cannot access all data, try to at least show them their own
         ; data instead
         (response {:response
                    {:attachments (sql/query (db) [query-own
+                                                  email-address
                                                   email-address
                                                   email-address]
                                             :row-fn format-data-set-attachment)
                     :result_count (:count (first
                                             (sql/query
                                               (db) [query-own-result-count
+                                                    email-address
                                                     email-address
                                                     email-address ])))}}))
       (catch Exception e
