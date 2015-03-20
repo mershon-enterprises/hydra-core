@@ -789,6 +789,24 @@
           (str "and dst.tag_names ilike " (escape (:tag_name json-search-params)) " ")
           " ")
 
+        shared-with-me-query
+        (if (:is_shared_with_others json-search-params)
+          (if (= (:is_shared_with_others json-search-params) true)
+            (str "and ( "
+                 "  asa.start_date is not null "
+                 "  and (expiration_date is null or expiration_date > now())) "))
+          (if (= (:is_shared_with_others json-search-params) false)
+            "and ( asa.start_date is null or expiration_date < now()) "
+            " "))
+
+        shared-with-others-query
+        (if (:is_shared_with_me json-search-params)
+          (if (= (:is_shared_with_me json-search-params) true)
+            "and sau.user_email_address is not null ")
+          (if (= (:is_shared_with_me json-search-params) false)
+            "and sau.user_email_address is null "
+            " "))
+
         order-by-query
         (if (:order_by json-search-params)
           (let [order (if (and (:order json-search-params)
@@ -813,6 +831,8 @@
                    data-set-attachment-query
                    search-string-query
                    tag-name-query
+                   shared-with-me-query
+                   shared-with-others-query
                    "order by data_set_attachment_id "
                    " ) as dsa_table "
                    order-by-query
@@ -821,12 +841,17 @@
 
         query-result-count (str data-set-attachment-query-count
                                 search-string-query
-                                tag-name-query)
+                                tag-name-query
+                                shared-with-me-query
+                                shared-with-others-query
+                                )
 
         query-own (str "select * from ("
                        data-set-attachment-query
                        search-string-query
                        tag-name-query
+                       shared-with-me-query
+                       shared-with-others-query
                        "and ( "
                        "  u.email_address=? "
                        "  or dsa.id in ( "
@@ -847,6 +872,10 @@
                        offset-query)
 
         query-own-result-count (str data-set-attachment-query-count
+                                    search-string-query
+                                    tag-name-query
+                                    shared-with-me-query
+                                    shared-with-others-query
                                     "and ( "
                                     "   u.email_address=? "
                                     "   or dsa.id in ( "
@@ -859,9 +888,7 @@
                                     "     and asa.date_deleted is null "
                                     "     and sau.date_deleted is null "
                                     "   ) "
-                                    ") "
-                                    search-string-query
-                                    tag-name-query)]
+                                    ") ")]
 
     (try
       (if can-access
