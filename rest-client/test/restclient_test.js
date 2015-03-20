@@ -1706,7 +1706,6 @@ exports['listAttachments'] = {
             ).then(
               function(listAttachmentsResponse) {
                 test.doesNotThrow( function() {
-                  console.log(listAttachmentsResponse.entity);
                   apiToken = listAttachmentsResponse.entity['token'];
                   checkResponse(test, listAttachmentsResponse.entity);
                   test.equal(listAttachmentsResponse.status.code, 200,
@@ -2422,8 +2421,8 @@ exports['shareAttachment'] = {
                     'filename should be called "shared.csv"');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared_with_others'], true,
                     'attachment is_shared_with_others should be true');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared_with_me'], false,
-                    'attachment is_shared_with_me should be false');
+                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['is_shared_with_me'], true,
+                    'attachment is_shared_with_me should be true');
                   test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
                     'created_by should be "admin@example.com"');
                 });
