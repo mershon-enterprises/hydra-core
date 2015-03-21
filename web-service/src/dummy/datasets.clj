@@ -135,9 +135,9 @@
 
           (def email_user_list [])
 
-          (if (and (gen/boolean) (not (= (:email_address ds) "admin@example.com")))
+          (if (and (gen/boolean) (not (= (:created_by ds) "admin@example.com")))
             (def email_user_list (conj email_user_list "admin@example.com")))
-          (if (and (gen/boolean) (not (= (:email_address ds) "manager@example.com")))
+          (if (and (gen/boolean) (not (= (:created_by ds) "manager@example.com")))
             (def email_user_list (conj email_user_list "manager@example.com")))
 
           (if (not (empty? email_user_list))
