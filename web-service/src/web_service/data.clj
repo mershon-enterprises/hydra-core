@@ -118,7 +118,7 @@
        "  ds.uuid as data_set_uuid, "
        "  case when "
        "    asa.start_date is not null "
-       "    and (expiration_date is null or expiration_date > now()) "
+       "    and (asa.expiration_date is null or asa.expiration_date > now()) "
        "  then true else false end as is_shared_with_others, "
        "  case  when "
        "    sau.user_email_address is not null "
@@ -144,8 +144,9 @@
        "left join public.data_set_attachment_shared_access as asa "
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
-       "  on sau.user_email_address=? "
-      "   and asa.date_deleted is null "
+       "  on asa.id = sau.attachment_shared_access_id "
+       "  and sau.user_email_address=? "
+       "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
@@ -174,7 +175,9 @@
        "left join public.data_set_attachment_shared_access as asa "
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
-       "  on sau.user_email_address=? "
+       "  on asa.id = sau.attachment_shared_access_id "
+       "  and sau.user_email_address=? "
+       "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
@@ -794,9 +797,9 @@
           (if (= (:is_shared_with_others json-search-params) true)
             (str "and ( "
                  "  asa.start_date is not null "
-                 "  and (expiration_date is null or expiration_date > now())) "))
+                 "  and (asa.expiration_date is null or asa.expiration_date > now())) "))
           (if (= (:is_shared_with_others json-search-params) false)
-            "and ( asa.start_date is null or expiration_date < now()) "
+            "and ( asa.start_date is null or asa.expiration_date < now()) "
             " "))
 
         shared-with-others-query
