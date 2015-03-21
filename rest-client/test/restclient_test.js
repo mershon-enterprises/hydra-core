@@ -1568,6 +1568,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("shared.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
 
+    //submit attachment as admin
     submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
@@ -1576,6 +1577,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
         });
 
+        //share attachment as amdin with manager@example.com
         return restclient.shareAttachment(
           clientUUID,
           apiToken,
@@ -1595,6 +1597,7 @@ exports['listAttachments'] = {
             'list data should succeed');
         });
 
+        //get attachment list as admin, setting is_shared_with_others to true 
         return restclient.listAttachments(
             clientUUID,
             apiToken,
@@ -1635,6 +1638,7 @@ exports['listAttachments'] = {
 
         });
 
+        //get attachment list as admin, setting is_shared_with_others to false
         return restclient.listAttachments(
             clientUUID,
             apiToken,
@@ -1660,6 +1664,7 @@ exports['listAttachments'] = {
             'result count should be 0');
         });
 
+        //login as manager@example.com (non-admin user)
         limitedLogin (
           function(limitLoginResponse) {
             test.doesNotThrow( function() {
@@ -1669,6 +1674,7 @@ exports['listAttachments'] = {
               apiToken = limitLoginResponse.entity['token'];
             });
 
+            //get attachment list as non-admin, setting is_shared_with others true
             restclient.listAttachments(
               clientUUID,
               apiToken,
@@ -1706,6 +1712,7 @@ exports['listAttachments'] = {
                     'is_shared_with_others should be true');
                 });
 
+                //get attachment list as non-admin, setting is_shared_with_others to false
                 return restclient.listAttachments(
                     clientUUID,
                     apiToken,
@@ -1742,6 +1749,7 @@ exports['listAttachments'] = {
     var attachment = restclient.Attachment("shared.csv", "text/csv", "");
     var primitive = restclient.PrimitiveData("text", "thisTag", "thisValue");
 
+    //submit attachment as admin
     submitMockData( [attachment, primitive]
     ).then(
       function(submitResponse) {
@@ -1750,6 +1758,7 @@ exports['listAttachments'] = {
           apiToken = submitResponse.entity['token'];
         });
 
+        //share attachment as amdin with manager@example.com
         return restclient.shareAttachment(
           clientUUID,
           apiToken,
@@ -1768,6 +1777,7 @@ exports['listAttachments'] = {
             'list data should succeed');
         });
 
+        //get attachment list as admin, setting is_shared_with_me to false
         return restclient.listAttachments(
             clientUUID,
             apiToken,
@@ -1808,6 +1818,7 @@ exports['listAttachments'] = {
 
         });
 
+        //get attachment list as admin, setting is_shared_with_me to true 
         return restclient.listAttachments(
             clientUUID,
             apiToken,
@@ -1833,6 +1844,7 @@ exports['listAttachments'] = {
             'result count should be 0');
         });
 
+        //login as manager@example.com (non-admin user)
         limitedLogin (
           function(limitLoginResponse) {
             test.doesNotThrow( function() {
@@ -1842,6 +1854,7 @@ exports['listAttachments'] = {
               apiToken = limitLoginResponse.entity['token'];
             });
 
+            //get attachment list as non-admin, setting is_shared_with_me to true
             restclient.listAttachments(
               clientUUID,
               apiToken,
@@ -1879,6 +1892,7 @@ exports['listAttachments'] = {
                     'is_shared_with_others should be true');
                 });
 
+                //get attachment list as non-admin, setting is_shared_with_me to false
                 return restclient.listAttachments(
                     clientUUID,
                     apiToken,
