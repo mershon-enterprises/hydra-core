@@ -1,4 +1,16 @@
 <ul class="pagination pages">
+    <li ng-click="paginate('me')"
+        tooltips
+        tooltip-title="Show files shared with you."
+        tooltip-speed="fast">
+        <i class="fa fa-sign-in"></i>
+    </li>
+    <li ng-click="paginate('others')"
+        tooltips
+        tooltip-title="Show files you've shared with others."
+        tooltip-speed="fast">
+        <i class="fa fa-sign-out"></i>
+    </li>
     <li ng-click="paginate(25)">25</li>
     <li ng-click="paginate(50)">50</li>
     <li ng-click="paginate(100)">100</li>
