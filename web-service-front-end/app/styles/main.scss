@@ -377,6 +377,17 @@ omnibox {
       font-size: .8em;
     }
 
+    .name {
+        position: relative;
+        i {
+            position: absolute;
+            top: 25%;
+            right: $default-padding;
+        }
+    }
+
+
+
     th {
       background-color: $dark-gray;
       color: $off-white;

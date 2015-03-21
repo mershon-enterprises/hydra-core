@@ -271,17 +271,32 @@ angular.module('webServiceApp').factory('RestService',
     };
 
     //Parse the data from the restClient into a format the attachment_explorer
-    //wants. Currently only adds a new value "unique key" to the data for use in
-    //the UI.
+    //wants.
+    //"unique_key" uniquely identifies the file row for controller use
+    //"share_state" creates a value ng-switch can use to display share state.
     restService.parseData = function (rawData) {
 
         var data = [];
         var uniqueKey = null;
+        var shareState = null;
 
         if (rawData) {
             $.each(rawData, function(index, value){
+
+                if(value.is_shared_with_me) {
+                    shareState = {share_state: 'me'};
+                }
+                else if (value.is_shared_with_others) {
+                    shareState = {share_state: 'others'};
+                }
+                else {
+                    shareState = {share_state: 'none'};
+                }
+
                 uniqueKey = {unique_key: value.filename + '\n' + value.data_set_uuid};
+                $.extend(uniqueKey, shareState);
                 data.push($.extend(value, uniqueKey));
+
             });
         }
 

@@ -91,14 +91,22 @@
             location="{{locationName}}"
             ng-repeat="row in location"
             >
-            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell name">
                 {{row.filename}}
+                <span ng-switch="row.share_state">
                 <i  tooltips
-                    tooltip-title="This file is shared."
+                    tooltip-title="This file is shared with other users."
                     tooltip-speed="fast"
-                    ng-if="row.is_shared_with_others"
-                    class="fa fa-share">
+                    ng-switch-when="others"
+                    class="fa fa-upload">
                 </i>
+                <i  tooltips
+                    tooltip-title="This file is shared to you."
+                    tooltip-speed="fast"
+                    ng-switch-when="me"
+                    class="fa fa-download">
+                </i>
+                </span>
             </td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
