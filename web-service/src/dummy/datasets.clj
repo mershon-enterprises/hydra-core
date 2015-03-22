@@ -70,6 +70,39 @@
                                                "id,first_name,last_name,email,country,ip_address\n"
                                                "1,Janet,Turner,jturner0@pcworld.com,China,239.119.160.8"))))})
 
+(defn mock-attachment-sharing
+  "share specified attachment with randomly users but not with attachment owner"
+  [data-set filename]
+  (try
+    (def email_user_list [])
+
+    ;maybe share with with admin@example.com
+    (if (and (gen/boolean) (not (= (:created_by data-set) "admin@example.com")))
+      (def email_user_list (conj email_user_list "admin@example.com")))
+    ;maybe share with with manager@example.com
+    (if (and (gen/boolean) (not (= (:created_by data-set) "manager@example.com")))
+      (def email_user_list (conj email_user_list "manager@example.com")))
+
+    ;if share attachment with randomly selected users
+    (if (not (empty? email_user_list))
+      (data-set-attachment-sharing
+        (:email_address data-set)
+        (:uuid data-set)
+        filename
+          ;starting now
+        (generate-string (java.util.Date.))
+          ;ending week from now
+        (generate-string (java.util.Date. (+ (* 7 86400 1000) (.getTime (java.util.Date.)))))
+        (generate-string email_user_list)))
+
+    (catch Exception e
+      (if (instance? SQLException e)
+        (do (.getCause e)
+            (println (.getNextException e)))
+        (println (.getMessage e)))
+      false)))
+
+
 (defn mock-dataset
   "create a dataset that randomly either has or does not have an attachment"
   []
@@ -132,22 +165,7 @@
         (doseq [attachment (filter
                              (fn [data-info] (= (:type data-info) "attachment"))
                              (:data ds))]
-
-          (def email_user_list [])
-
-          (if (and (gen/boolean) (not (= (:created_by ds) "admin@example.com")))
-            (def email_user_list (conj email_user_list "admin@example.com")))
-          (if (and (gen/boolean) (not (= (:created_by ds) "manager@example.com")))
-            (def email_user_list (conj email_user_list "manager@example.com")))
-
-          (if (not (empty? email_user_list))
-            (data-set-attachment-sharing
-              (:email_address ds)
-              (:uuid ds)
-              (:filename attachment)
-              (generate-string (java.util.Date.))
-              (generate-string (java.util.Date. (+ (* 7 86400 1000) (.getTime (java.util.Date.)))))
-              (generate-string email_user_list))))
+          (mock-attachment-sharing ds (:filename attachment)))
 
         (catch Exception e
           (if (instance? SQLException e)
