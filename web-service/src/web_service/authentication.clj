@@ -22,7 +22,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def ldap-credentials {:host     (env :ldap-host)
+(def ldap-credentials {:domain   (env :ldap-domain)
+                       :host     (env :ldap-host)
                        :bind-dn  (env :ldap-bind-dn)
                        :password (env :ldap-password)})
 
@@ -37,7 +38,7 @@
     (try
       ; first login as the base user to check if the email address exists
       (ldap/search! ldap-server
-                    "dc=domain,dc=local"
+                    (str "dc=" (:domain ldap-credentials) ",dc=local")
                     {:filter (str "(&(objectClass=user)(mail=" email-address "))")}
                     search-fn)
 
@@ -66,7 +67,7 @@
     ; now, try to authenticate as that user
     (if (and (not (nil? ldap-user))
              (ldap/bind? ldap-server
-                         (str "domain\\" (:account-name ldap-user))
+                         (str (:domain ldap-credentials) "\\" (:account-name ldap-user))
                          password))
       (do
         (log/trace "login to LDAP successful")
