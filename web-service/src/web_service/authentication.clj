@@ -37,7 +37,7 @@
     (try
       ; first login as the base user to check if the email address exists
       (ldap/search! ldap-server
-                    "dc=pic,dc=local"
+                    "dc=domain,dc=local"
                     {:filter (str "(&(objectClass=user)(mail=" email-address "))")}
                     search-fn)
 
@@ -66,7 +66,7 @@
     ; now, try to authenticate as that user
     (if (and (not (nil? ldap-user))
              (ldap/bind? ldap-server
-                         (str "pic\\" (:account-name ldap-user))
+                         (str "domain\\" (:account-name ldap-user))
                          password))
       (do
         (log/trace "login to LDAP successful")

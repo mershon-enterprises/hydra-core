@@ -1,6 +1,6 @@
 (defproject web-service "0.6.0-SNAPSHOT"
   :description "REST API for hydra-core"
-  :url "slixbits.com"
+  :url "mershon.enterprises"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.4"]
                  [compojure "1.1.8"]
@@ -41,7 +41,7 @@
                          :db-user           "postgres"
                          :db-password       "password"
                          :ldap-host         "localhost:3389"
-                         :ldap-bind-dn      "pic\\admin"
+                         :ldap-bind-dn      "domain\\admin"
                          :ldap-password     "adminpassword"
                          :rabbitmq-host     "localhost"
                          :rabbitmq-username "guest"

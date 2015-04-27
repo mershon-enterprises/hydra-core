@@ -1,7 +1,8 @@
 hydra-core
 =======================
 
-Cloud-based Application for the Extraction of in-field Datafiles
+This is the back-end components for the core of the Hydra distributed data
+collection and data warehousing suite of web applications.
 
 Overview
 --

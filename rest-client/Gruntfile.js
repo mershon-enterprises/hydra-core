@@ -64,7 +64,7 @@ module.exports = function (grunt) {
           replacements: [
             {
               pattern: 'ENDPOINT_URL',
-              replacement: 'http://hydra.slixbits.com'
+              replacement: 'http://hydra.mershon.enterprises'
             }
           ]
         }
