@@ -33,20 +33,13 @@
                                                         ;   files from WARs
          :destroy web-service.handler/destroy}
   :main web-service.core
-  :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                                  [ring-mock "0.1.5"]]
-                   :env {:db-host           "localhost"
-                         :db-port           5432
-                         :db-name           "postgres"
-                         :db-user           "postgres"
-                         :db-password       "password"
-                         :ldap-domain       "domain"
-                         :ldap-host         "localhost:3389"
-                         :ldap-bind-dn      "domain\\admin"
-                         :ldap-password     "adminpassword"
-                         :rabbitmq-host     "localhost"
-                         :rabbitmq-username "guest"
-                         :rabbitmq-password "guest"}}
+  :profiles {
+             ; override 'dev' settings in ~/.lein/profiles.clj
+             ; make sure the following is under :dev
+             ;
+             ; :dependencies [[javax.servlet/servlet-api "2.5"]
+             ;               [ring-mock "0.1.5"]
+
              :test {:env
                     {:db-host           "localhost"
                      :db-port           5432
