@@ -35,10 +35,6 @@
   :main web-service.core
   :profiles {
              ; override 'dev' settings in ~/.lein/profiles.clj
-             ; make sure the following is under :dev
-             ;
-             ; :dependencies [[javax.servlet/servlet-api "2.5"]
-             ;               [ring-mock "0.1.5"]
 
              :test {:env
                     {:db-host           "localhost"
