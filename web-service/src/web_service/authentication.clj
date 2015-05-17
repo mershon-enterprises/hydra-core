@@ -4,75 +4,29 @@
         [web-service.session]
         [web-service.user-helpers])
   (:require [compojure.core :refer :all]
-            [clj-ldap.client :as ldap]
             [clojure.tools.logging :as log]
             [clojure.java.jdbc :as sql]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
+            [clj-time.format :as f]
             [crypto.random]
-            [web-service.constants :as constants]
-            [web-service.amqp :as amqp]
             [environ.core :refer [env]]
-            [clj-time.format :as f]))
+            [web-service.constants :as constants]
+            [web-service.amqp :as amqp]))
 
 (import java.sql.SQLException)
+
+
+; dynamically require the authenticator
+(let [authenticator (symbol (str "web-service.authentication."
+                                 (env :authenticator)))]
+  (require authenticator)
+  (alias 'auth authenticator))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(def ldap-credentials {:domain   (env :ldap-domain)
-                       :host     (env :ldap-host)
-                       :bind-dn  (env :ldap-bind-dn)
-                       :password (env :ldap-password)})
-
-(defn- find-user-ldap
-  [email-address]
-  (def ^:dynamic user-data nil)
-  (let [ldap-server (ldap/connect ldap-credentials)
-        search-fn (fn [x]
-                    (def user-data {:account-name (:sAMAccountName x)
-                                    :dn (:dn x)})
-                    (log/debug (str "Found user " user-data)))]
-    (try
-      ; first login as the base user to check if the email address exists
-      (ldap/search! ldap-server
-                    (str "dc=" (:domain ldap-credentials) ",dc=local")
-                    {:filter (str "(&(objectClass=user)(mail=" email-address "))")}
-                    search-fn)
-
-      (catch Exception e
-        ; do nothing
-        nil))
-
-    ; now, authenticate and pull the user's data directly
-    (if (not (nil? user-data))
-      (do
-        (log/trace "LDAP account exists")
-        (let [user (ldap/get ldap-server (:dn user-data))]
-          {:account-name (:sAMAccountName user)
-           :first-name (:givenName user)
-           :last-name (:sn user)
-           :email-address (:mail user)
-           :groups (:memberOf user)}))
-      nil)))
-
-
-(defn- get-user-ldap
-  [email-address password]
-  (let [ldap-user (find-user-ldap email-address)
-        ldap-server (ldap/connect ldap-credentials)]
-
-    ; now, try to authenticate as that user
-    (if (and (not (nil? ldap-user))
-             (ldap/bind? ldap-server
-                         (str (:domain ldap-credentials) "\\" (:account-name ldap-user))
-                         password))
-      (do
-        (log/trace "login to LDAP successful")
-        ldap-user)
-      nil)))
 
 
 ; response helper for access denied
@@ -164,16 +118,16 @@
                 :token_expiration_date expiration-date}))))))))
 
 
-(defn- format-ldap-user
-  [ldap-user]
-  {:response {:email_address (:email-address ldap-user)
-              :first_name (:first-name ldap-user)
-              :last_name (:last-name ldap-user)
-              :access (get-user-access (:email-address ldap-user))}})
+(defn- format-user
+  [user-map]
+  {:response {:email_address (:email-address user-map)
+              :first_name (:first-name user-map)
+              :last_name (:last-name user-map)
+              :access (get-user-access (:email-address user-map))}})
 
 
 (defn- login-and-maybe-create-user
-  [client-uuid email-address ldap-user db-user]
+  [client-uuid email-address auth-user db-user]
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
         handle-user (fn [x]
@@ -184,10 +138,10 @@
                                       (str email-address " has logged in"))
 
                       (let [api-token (make-token email-address client-uuid)]
-                        {:body (merge (format-ldap-user x) api-token)}))]
-    (if ldap-user
+                        {:body (merge (format-user x) api-token)}))]
+    (if auth-user
       (if db-user
-        (handle-user ldap-user)
+        (handle-user auth-user)
 
         ; otherwise, create the user first
         (do
@@ -195,7 +149,7 @@
           (amqp/broadcast "text/plain"
                           "authentication"
                           (str email-address " has been created as a new user"))
-          (handle-user ldap-user)))
+          (handle-user auth-user)))
       ; invalid user
       bad-credentials)))
 
@@ -213,36 +167,33 @@
 
     ; we need both an email and password to authenticate
     (if (and email-address password)
-      ; authenticate the user to the LDAP server first, and only if the user
-      ; exists in LDAP, try to verify the user to the databsae
-      (let [ldap-user (get-user-ldap email-address password)
+      ; authenticate the user to the authentication implementation first,
+      ; and only if the user authenticates do we try to verify the user to the
+      ; databsae
+      (let [auth-user (auth/login email-address password)
             db-user (get-user email-address)]
-        (login-and-maybe-create-user client-uuid email-address ldap-user db-user))
+        (login-and-maybe-create-user client-uuid email-address auth-user db-user))
 
       ; no email was specified
       bad-credentials)))
 
 
-; authenticate a user on behalf of a domain admin
+; authenticate a user on behalf of an admin
 (defn admin-authenticate
   [client-uuid email-address password user-email-address]
 
-  ; first, just authenticate the domain admin normally
+  ; first, just authenticate the admin normally
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
         admin (authenticate client-uuid email-address password)]
     (if admin
-      ; now that we know the admin is a valid user, we want to ensure that the
-      ; admin is actually a member of the Domain Admins group
-      (let [admin-ldap-user (get-user-ldap email-address password)
-            groups (:groups admin-ldap-user)
-            ; there's no substring in Clojure, wtf
-            is-domain-admin (and (not (empty? groups))
-                                 (not= (.indexOf groups "Domain Admins") -1))]
-        (if is-domain-admin
-          (let [ldap-user (find-user-ldap user-email-address)
+      ; now that we know the account in question is for a valid user, we want to
+      ; ensure that the user is actually an admin
+      (let [admin-auth-user (auth/login email-address password)]
+        (if (:is-admin admin-auth-user)
+          (let [auth-user (auth/find-user user-email-address)
                 db-user (get-user user-email-address)]
-            (login-and-maybe-create-user client-uuid user-email-address ldap-user db-user))
+            (login-and-maybe-create-user client-uuid user-email-address auth-user db-user))
           bad-credentials))
       bad-credentials)))
 
