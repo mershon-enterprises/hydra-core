@@ -166,10 +166,10 @@
                          :status 401}]
 
     ; we need both an email and password to authenticate
-    (if (and email-address password)
+    (if (not-any? nil? [email-address password])
       ; authenticate the user to the authentication implementation first,
       ; and only if the user authenticates do we try to verify the user to the
-      ; databsae
+      ; database
       (let [auth-user (auth/login email-address password)
             db-user (get-user email-address)]
         (login-and-maybe-create-user client-uuid email-address auth-user db-user))
@@ -186,7 +186,8 @@
   (let [bad-credentials {:body "Invalid credentials"
                          :status 401}
         admin (authenticate client-uuid email-address password)]
-    (if admin
+    (if (and (not-any? nil? [email-address password user-email-address])
+             admin)
       ; now that we know the account in question is for a valid user, we want to
       ; ensure that the user is actually an admin
       (let [admin-auth-user (auth/login email-address password)]
