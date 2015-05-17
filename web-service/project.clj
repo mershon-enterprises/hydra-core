@@ -42,10 +42,7 @@
                      :db-name           "postgres"
                      :db-user           "postgres"
                      :db-password       "password"
-                     :ldap-domain       "domain"
-                     :ldap-host         "testHost"
-                     :ldap-bind-dn      "testUser"
-                     :ldap-password     "testPassword"
+                     :authenticator     "match"
                      :rabbitmq-host     "localhost"
                      :rabbitmq-username "guest"
                      :rabbitmq-password "guest"}}})
