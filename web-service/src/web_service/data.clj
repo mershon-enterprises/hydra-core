@@ -7,6 +7,7 @@
   (:require [clojure.java.jdbc :as sql]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
+            [clojure.data.codec.base64 :as b64]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
             [web-service.constants :as constants])
@@ -177,6 +178,23 @@
        "  and dsa.date_deleted is null "))
 
 
+; semi-internal API for getting an attachment directly (used by child services)
+(defn do-get-attachment
+  [uuid filename]
+  (let [query (str data-set-attachment-query-get
+                   "and uuid::character varying=? "
+                   "and dsa.filename=? ")
+        attachment (first (sql/query (db)
+                                     [query uuid filename]
+                                     :row-fn #(:contents %)))]
+    (if attachment
+      (String. (b64/encode attachment))
+      (do
+        (log/error (format "do-get-attachment couldn't find file '%s' in data-set '%s'"
+                         filename
+                         uuid))
+        nil))))
+
 ; semi-internal API for renaming attachments directly (used by child services)
 (defn do-rename-attachment
   [uuid filename new-filename]
@@ -242,27 +260,34 @@
 ; semi-internal API for getting attachment info directly (may be used by child
 ; services)
 (defn do-get-attachment-info
-  [email-address uuid filename]
+  ([uuid filename]
+   (let [query (str data-set-attachment-query
+                    "and uuid::character varying ilike ? "
+                    "and dsa.filename=? "
+                    "order by data_set_attachment_id ")]
+     (first (sql/query (db) [query uuid filename]
+                     :row-fn format-attachment-info))))
 
-  (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))
-        query (str data-set-attachment-query
-                   "and uuid::character varying=? "
-                   "and dsa.filename=? "
-                   "order by data_set_attachment_id ")
-        query-own (str data-set-attachment-query
-                       "and uuid::character varying=? "
-                       "and dsa.filename=? "
-                       "and u.email_address=? "
-                       "order by data_set_attachment_id ")]
-    (if can-access
-      (first (sql/query (db) [query uuid filename]
-                  :row-fn format-attachment-info))
-      ; if the user cannot access all data, try to at least show them their
-      ; own data instead
-      (first (sql/query (db) [query-own uuid filename email-address]
-                        :row-fn format-attachment-info)))))
+  ([email-address uuid filename]
+   (let [access (set (get-user-access email-address))
+         can-access (or (contains? access constants/manage-data)
+                        (contains? access constants/view-attachments))
+         query (str data-set-attachment-query
+                    "and uuid::character varying=? "
+                    "and dsa.filename=? "
+                    "order by data_set_attachment_id ")
+         query-own (str data-set-attachment-query
+                        "and uuid::character varying=? "
+                        "and dsa.filename=? "
+                        "and u.email_address=? "
+                        "order by data_set_attachment_id ")]
+     (if can-access
+       (first (sql/query (db) [query uuid filename]
+                         :row-fn format-attachment-info))
+       ; if the user cannot access all data, try to at least show them their
+       ; own data instead
+       (first (sql/query (db) [query-own uuid filename email-address]
+                         :row-fn format-attachment-info))))))
 
 
 ; semi-internal API for replacing attachment contents directly (may be used by
