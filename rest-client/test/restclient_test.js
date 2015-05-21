@@ -31,7 +31,7 @@ var goodLogin = function(callback) {
   restclient.authenticate(
     clientUUID,
     "admin@example.com",
-    "adminpassword"
+    "admin@example.com"
   ).then(
     function(data) {
       // update the api token
@@ -201,8 +201,8 @@ exports['adminAuthenticate'] = {
     restclient.adminAuthenticate(
       clientUUID,
       'admin@example.com',
-      'adminpassword',
-      'basicuser@example.com'
+      'admin@example.com',
+      'manager@example.com'
     ).then(
       function(data) {
         test.doesNotThrow( function() {
@@ -1655,8 +1655,8 @@ exports['getAttachment'] = {
         return restclient.adminAuthenticate(
           clientUUID,
           'admin@example.com',
-          'adminpassword',
-          'basicuser@example.com'
+          'admin@example.com',
+          'manager@example.com'
         );
       }
     ).then(
@@ -1900,8 +1900,8 @@ exports['getAttachment'] = {
         return restclient.adminAuthenticate(
           clientUUID,
           'admin@example.com',
-          'adminpassword',
-          'basicuser@example.com'
+          'admin@example.com',
+          'manager@example.com'
         );
       }
     ).then(
