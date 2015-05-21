@@ -19,7 +19,9 @@
 
 ; dynamically require the authenticator
 (let [authenticator (symbol (str "web-service.authentication."
-                                 (env :authenticator)))]
+                                 (or (env :authenticator)
+                                     "match" ; default to 'match' authenticator
+                                     )))]
   (require authenticator)
   (alias 'auth authenticator))
 
