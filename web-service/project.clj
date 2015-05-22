@@ -36,7 +36,8 @@
   :profiles {
              ; override 'dev' settings in ~/.lein/profiles.clj
 
-             :test {:env
+             :test {:dependencies [[ring-mock "0.1.5"]]
+                    :env
                     {:db-host           "localhost"
                      :db-port           5432
                      :db-name           "postgres"
