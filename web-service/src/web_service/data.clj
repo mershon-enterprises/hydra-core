@@ -324,15 +324,16 @@
                                                  filename
                                                  :transaction? false
                                                  :conn conn)]
-            (if (sql/execute! conn [query
-                                    uuid
-                                    (:date_created attachment-info)
-                                    (:created_by attachment-info)
-                                    filename
-                                    (:mime_type attachment-info)
-                                    new-contents]
-                              :transaction? false)
-              true))
+            (if is-deleted
+              (sql/execute! conn [query
+                                  uuid
+                                  (:date_created attachment-info)
+                                  (:created_by attachment-info)
+                                  filename
+                                  (:mime_type attachment-info)
+                                  new-contents]
+                            :transaction? false)
+              false))
           (catch Exception e
             (log/error e (format (str "There was an error replacing "
                                       "attachment '%s' in data-set "
@@ -975,7 +976,8 @@
   ; log the activity in the session
   (log-detail email-address
               constants/session-activity
-              (str constants/session-replace-dataset-attachment " " uuid))
+              (str constants/session-replace-dataset-attachment
+                   " " uuid " " filename))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
