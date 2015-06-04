@@ -164,17 +164,20 @@
 ; authenticate to the API or error
 (defn authenticate
   [client-uuid email-address password]
-  (let [bad-credentials {:body "Invalid credentials"
+  (let [sanitized-email (-> (or email-address "")
+                            (.trim)
+                            (.toLowerCase))
+        bad-credentials {:body "Invalid credentials"
                          :status 401}]
 
     ; we need both an email and password to authenticate
-    (if (not-any? nil? [email-address password])
+    (if (not-any? nil? [sanitized-email password])
       ; authenticate the user to the authentication implementation first,
       ; and only if the user authenticates do we try to verify the user to the
       ; database
-      (let [auth-user (auth/login email-address password)
-            db-user (get-user email-address)]
-        (login-and-maybe-create-user client-uuid email-address auth-user db-user))
+      (let [auth-user (auth/login sanitized-email password)
+            db-user (get-user sanitized-email)]
+        (login-and-maybe-create-user client-uuid sanitized-email auth-user db-user))
 
       ; no email was specified
       bad-credentials)))
@@ -185,18 +188,24 @@
   [client-uuid email-address password user-email-address]
 
   ; first, just authenticate the admin normally
-  (let [bad-credentials {:body "Invalid credentials"
+  (let [sanitized-email (-> (or email-address "")
+                            (.trim)
+                            (.toLowerCase))
+        sanitized-user-email (-> (or user-email-address "")
+                                 (.trim)
+                                 (.toLowerCase))
+        bad-credentials {:body "Invalid credentials"
                          :status 401}
-        admin (authenticate client-uuid email-address password)]
-    (if (and (not-any? nil? [email-address password user-email-address])
+        admin (authenticate client-uuid sanitized-email password)]
+    (if (and (not-any? nil? [sanitized-email password sanitized-user-email])
              admin)
       ; now that we know the account in question is for a valid user, we want to
       ; ensure that the user is actually an admin
-      (let [admin-auth-user (auth/login email-address password)]
+      (let [admin-auth-user (auth/login sanitized-email password)]
         (if (:is-admin admin-auth-user)
-          (let [auth-user (auth/find-user user-email-address)
-                db-user (get-user user-email-address)]
-            (login-and-maybe-create-user client-uuid user-email-address auth-user db-user))
+          (let [auth-user (auth/find-user sanitized-user-email)
+                db-user (get-user sanitized-user-email)]
+            (login-and-maybe-create-user client-uuid sanitized-user-email auth-user db-user))
           bad-credentials))
       bad-credentials)))
 
