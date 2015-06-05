@@ -18,13 +18,12 @@
 
 
 ; dynamically require the authenticator
-(let [authenticator (symbol (str "web-service.authentication."
-                                 (or (env :authenticator)
-                                     "match" ; default to 'match' authenticator
-                                     )))]
-  (require authenticator)
-  (alias 'auth authenticator))
-
+(def authenticator (symbol (str "web-service.authentication."
+                                (or (env :authenticator)
+                                    "match" ; default to 'match' authenticator
+                                    ))))
+(require authenticator)
+(alias 'auth authenticator)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
