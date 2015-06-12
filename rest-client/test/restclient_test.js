@@ -32,7 +32,7 @@ var limitedLogin= function(callback) {
   return restclient.adminAuthenticate(
     clientUUID,
     'admin@example.com',
-    'adminpassword',
+    'admin@example.com',
     'manager@example.com'
   ).then(
     function(data) {
@@ -222,7 +222,7 @@ exports['adminAuthenticate'] = {
     restclient.adminAuthenticate(
       clientUUID,
       'admin@example.com',
-      'adminpassword',
+      'admin@example.com',
       'manager@example.com'
     ).then(
       function(data) {
@@ -2041,7 +2041,7 @@ exports['getAttachment'] = {
         return restclient.adminAuthenticate(
           clientUUID,
           'admin@example.com',
-          'adminpassword',
+          'admin@example.com',
           'manager@example.com'
         );
       }
@@ -2286,7 +2286,7 @@ exports['getAttachment'] = {
         return restclient.adminAuthenticate(
           clientUUID,
           'admin@example.com',
-          'adminpassword',
+          'admin@example.com',
           'manager@example.com'
         );
       }
@@ -2602,9 +2602,9 @@ exports['shareAttachment'] = {
             "b3JpZ2luYWw=" // "original"
     );
 
-    submitMockData( [attachment]
-    ).then(
-      function(submitResponse) {
+    submitMockData( [attachment])
+      .then( function(submitResponse) {
+        //console.log("1st")
         test.doesNotThrow( function() {
           datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
           attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
@@ -2619,215 +2619,92 @@ exports['shareAttachment'] = {
           new Date(),
           null,
           ["manager@example.com"]
-        );
-      }
-    ).then(
-      function(shareAttachmentResponse) {
-        test.doesNotThrow( function() {
-          apiToken = shareAttachmentResponse.entity['token'];
-        });
-
-        return limitedLogin (
-          function(limitLoginResponse) {
+        ).then(
+          function(shareAttachmentResponse) {
             test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
+              //console.log("2nd")
+              apiToken = shareAttachmentResponse.entity['token'];
             });
-            restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
+
+            limitedLogin (
+              function(limitLoginResponse) {
                 test.doesNotThrow( function() {
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
-                    'should return exactly 1 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
-                    'should return result count of exactly 1 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
-                    'filename should be called "shared.csv"');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
-                    'created_by should be "admin@example.com"');
+                  //console.log("3rd")
+                  apiToken = limitLoginResponse.entity['token'];
                 });
-            });
-        });
-      }
-    ).then(
-      function() {
-        return goodLogin(
-          function(goodLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = goodLoginResponse.entity['token'];
-            });
 
-            restclient.shareAttachment(
-                clientUUID,
-                apiToken,
-                datasetWithAttachmentUUID,
-                attachmentFilename,
-                new Date(),
-                null,
-                []
-            ).then(
-              function(shareAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  checkResponse(test, shareAttachmentResponse.entity);
-                  apiToken = shareAttachmentResponse.entity['token'];
-                  test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
+                return restclient.listAttachments(
+                  clientUUID,
+                  apiToken
+                ).then(
+                  function(listAttachmentResponse) {
+                    test.doesNotThrow( function() {
+                      console.log("4th")
+                      checkResponse(test, listAttachmentResponse.entity);
+                      test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                      test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+                        'should return exactly 1 attachments');
+                      test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
+                        'should return result count of exactly 1 attachments');
+                      test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
+                        'filename should be called "shared.csv"');
+                      test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
+                        'created_by should be "admin@example.com"');
+                    });
+                }).then(
+                  function() {
+                    goodLogin(
+                      function(goodLoginResponse) {
+                        test.doesNotThrow( function() {
+                          //console.log("5th")
+                          apiToken = goodLoginResponse.entity['token'];
+                        });
+
+                        return restclient.shareAttachment(
+                            clientUUID,
+                            apiToken,
+                            datasetWithAttachmentUUID,
+                            attachmentFilename,
+                            new Date(),
+                            null,
+                            []
+                        ).then(
+                          function(shareAttachmentResponse) {
+                            test.doesNotThrow( function() {
+                              //console.log("6th")
+                              checkResponse(test, shareAttachmentResponse.entity);
+                              apiToken = shareAttachmentResponse.entity['token'];
+                              test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
+                            });
+                        }).then(
+                          function() {
+                            limitedLogin (
+                              function(limitLoginResponse) {
+                                test.doesNotThrow( function() {
+                                  //console.log("7th")
+                                  apiToken = limitLoginResponse.entity['token'];
+                                });
+
+                                return restclient.listAttachments(
+                                  clientUUID,
+                                  apiToken
+                                ).then(
+                                  function(listAttachmentResponse) {
+                                    test.doesNotThrow( function() {
+                                      //console.log("8nd")
+                                      checkResponse(test, listAttachmentResponse.entity);
+                                      test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                                      test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+                                        'should return exactly 0 attachments');
+                                      test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+                                        'should return result count of exactly 0 attachments');
+                                    });
+                                    test.done();
+                                });
+                            });
+                        });
+                    });
                 });
-            });
-        });
-      }
-    ).then(
-      function() {
-        return limitedLogin (
-          function(limitLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-
-            restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
-                    'should return exactly 0 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
-                    'should return result count of exactly 0 attachments');
-                });
-                test.done();
-            });
-        });
-    });
-  },
-  'failure-when-sharing-a-filename-that-does-not-exist': function(test) {
-    test.expect(1);
-
-    restclient.shareAttachment(
-      clientUUID,
-      apiToken,
-      "00000000-0000-0000-0000-000000000000",
-      "doesNotExist.csv",
-      new Date(),
-      null,
-      ["manager@example.com"]
-    ).then(
-      function(shareAttachmentResponse) {
-        test.doesNotThrow( function() {
-          test.equal(shareAttachmentResponse.status.code, 404,
-            'Sharing attachment should fail with 404 response');
-          test.done();
-        });
-    });
-  },
-  'failure-when-sharing-attachment-you-do-not-own': function(test) {
-    test.expect(4);
-
-    var attachmentFilename,
-        datasetWithAttachmentUUID,
-        attachment = restclient.Attachment("shared.csv",
-            "text/csv",
-            "b3JpZ2luYWw=" // "original"
-    );
-
-    submitMockData( [attachment]
-    ).then(
-      function(submitResponse) {
-        test.doesNotThrow( function() {
-          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-          apiToken = submitResponse.entity['token'];
-        });
-
-
-        limitedLogin (
-          function(limitLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-
-            restclient.shareAttachment(
-              clientUUID,
-              apiToken,
-
-              datasetWithAttachmentUUID,
-              "shared.csv",
-              new Date(),
-              null,
-              "manager@example.com"
-            ).then(
-              function(shareAttachmentWithUserResponse) {
-                test.doesNotThrow( function() {
-                  test.equal(shareAttachmentWithUserResponse.status.code, 404,
-                    'Sharing attachment should fail with 404 response');
-                });
-                test.done();
-            });
-        });
-    });
-  },
-  'share-with-everyone-delimiter': function(test) {
-    test.expect(12);
-
-    var attachmentFilename,
-        datasetWithAttachmentUUID,
-        attachment = restclient.Attachment("shared.csv",
-            "text/csv",
-            "b3JpZ2luYWw=" // "original"
-    );
-
-    submitMockData( [attachment]
-    ).then(
-      function(submitResponse) {
-        test.doesNotThrow( function() {
-          datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
-          attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
-          apiToken = submitResponse.entity['token'];
-        });
-
-        return restclient.shareAttachment(
-          clientUUID,
-          apiToken,
-          datasetWithAttachmentUUID,
-          attachmentFilename,
-          new Date(),
-          null,
-          ["*"]
-        );
-      }
-    ).then(
-      function(shareAttachmentResponse) {
-        test.doesNotThrow( function() {
-          apiToken = shareAttachmentResponse.entity['token'];
-        });
-
-        limitedLogin (
-          function(limitLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-            restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
-                    'should return exactly 1 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
-                    'should return result count of exactly 1 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['filename'], 'shared.csv',
-                    'filename should be called "shared.csv"');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'][0]['created_by'], 'admin@example.com',
-                    'created_by should be "admin@example.com"');
-                });
-                test.done();
             });
         });
     });
