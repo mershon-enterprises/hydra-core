@@ -5,16 +5,16 @@
   "keywords": [
     "jquery-plugin"
   ],
-  "homepage": "https://github.com/Slixbits/hydra-core",
-  "bugs": "https://github.com/Slixbits/restclient/issues",
+  "homepage": "https://github.com/mershon-enterprises/hydra-core",
+  "bugs": "https://github.com/mershon-enterprises/hydra-core/issues",
   "author": {
     "name": "Kevin Mershon",
-    "email": "kevin@slixbits.com",
-    "url": "https://slixbits.com"
+    "email": "kevin@mershon.enterprises",
+    "url": "https://mershon.enterprises"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Slixbits/restclient"
+    "url": "https://github.com/mershon-enterprises/hydra-core"
   },
   "licenses": [
     {

@@ -1,8 +1,8 @@
 /*
- * RestClient
- * https://github.com/Slixbits/hydra-core
+ * Hydra rest-client
+ * https://github.com/mershon-enterprises/hydra-core
  *
- * Copyright (c) 2014 Kevin Mershon
+ * Copyright (c) 2015 Mershon Enterprises LLC
  * Licensed under the GPLv3 license.
  */
 

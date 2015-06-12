@@ -52,7 +52,7 @@ var goodLogin = function(callback) {
   return restclient.authenticate(
     clientUUID,
     "admin@example.com",
-    "adminpassword"
+    "admin@example.com"
   ).then(
     function(data) {
       // update the api token

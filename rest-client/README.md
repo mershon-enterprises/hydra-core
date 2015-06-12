@@ -1,6 +1,6 @@
-# Rest Client
+# Hydra rest-client
 
-CommonJS REST API client
+Hydra CommonJS REST API client
 
 * [Getting Started](#getting-started)
  * [On the server](#on-the-server)
@@ -349,4 +349,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _Also, please don't edit files in the "dist" subdirectory as they are generated via Grunt. You'll find source code in the "lib" subdirectory!_
 
 ## License
- Copyright (c) 2014 Slixbits Inc. Licensed under the GPLv3 license.
+ Copyright (c) 2015 Mershon Enterprises LLC Licensed under the GPLv3 license.

@@ -1,7 +1,7 @@
-(ns web-service.test.authentication
+(ns web-service.test.authentication.ldap
   (:require [clojure.test :refer :all]
             [clj-ldap.client :as ldap]
-            [web-service.authentication :refer :all]))
+            [web-service.authentication.ldap :refer :all]))
 
 ; rebind the ldap functions to not hit a server
 (defn mock-ldap [account-info tests]
@@ -19,54 +19,54 @@
 
 (deftest test-app
 
-  ; test find-user-ldap with good account
-  (testing "find-user-ldap with good account"
+  ; test find-user with good account
+  (testing "find-user with good account"
     (mock-ldap
       {:sAMAccountName "username"
        :givenName "first-name"
        :sn "last-name"
        :mail "email-address"
        :memberOf "group1,group2"}
-      #(let [ldap-user (#'web-service.authentication/find-user-ldap "a@b.c")]
-         ; verify the structure returned from find-user-ldap
+      #(let [ldap-user (#'web-service.authentication.ldap/find-user "a@b.c")]
+         ; verify the structure returned from find-user
          (is (= (:account-name ldap-user) "username"))
          (is (= (:first-name ldap-user) "first-name"))
          (is (= (:last-name ldap-user) "last-name"))
          (is (= (:email-address ldap-user) "email-address"))
-         (is (= (:groups ldap-user) "group1,group2")))))
+         (is (false? (:is-admin ldap-user))))))
 
-  ; test find-user-ldap with bad account
-  (testing "find-user-ldap with bad account"
+  ; test find-user with bad account
+  (testing "find-user with bad account"
     (mock-ldap
       nil
-      #(let [ldap-user (#'web-service.authentication/find-user-ldap "a@b.c")]
+      #(let [ldap-user (#'web-service.authentication.ldap/find-user "a@b.c")]
          ; verify the return value of find is nil
          (is (nil? ldap-user)))))
 
-  ; test get-user-ldap with matching password
-  (testing "get-user-ldap with good password"
+  ; test login with matching password
+  (testing "login with good password"
     (mock-ldap
       {:sAMAccountName "username"
        :givenName "first-name"
        :sn "last-name"
        :mail "email-address"
        :memberOf "group1,group2"}
-      #(let [user (#'web-service.authentication/get-user-ldap "a@b.c" "password")]
-         ; verify the structure returned from find-user-ldap
+      #(let [user (#'web-service.authentication.ldap/login "a@b.c" "password")]
+         ; verify the structure returned from login
          (is (= (:account-name user) "username"))
          (is (= (:first-name user) "first-name"))
          (is (= (:last-name user) "last-name"))
          (is (= (:email-address user) "email-address"))
-         (is (= (:groups user) "group1,group2")))))
+         (is (false? (:is-admin user))))))
 
-  ; test get-user-ldap with matching password
-  (testing "get-user-ldap with bad password"
+  ; test login with matching password
+  (testing "login with bad password"
     (mock-ldap
       {:sAMAccountName "username"
        :givenName "first-name"
        :sn "last-name"
        :mail "email-address"
        :memberOf "group1,group2"}
-      #(let [user (#'web-service.authentication/get-user-ldap "a@b.c" "bad-password")]
-         ; verify the return value of get-user-ldap is nil
+      #(let [user (#'web-service.authentication.ldap/login "a@b.c" "bad-password")]
+         ; verify the return value of login is nil
          (is (nil? user))))))

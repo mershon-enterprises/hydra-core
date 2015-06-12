@@ -1,6 +1,6 @@
-(defproject web-service "0.5.5-SNAPSHOT"
+(defproject web-service "0.6.3-SNAPSHOT"
   :description "REST API for hydra-core"
-  :url "slixbits.com"
+  :url "mershon.enterprises"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.4"]
                  [compojure "1.1.8"]
@@ -33,28 +33,17 @@
                                                         ;   files from WARs
          :destroy web-service.handler/destroy}
   :main web-service.core
-  :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                                  [ring-mock "0.1.5"]]
-                   :env {:db-host           "localhost"
-                         :db-port           5432
-                         :db-name           "postgres"
-                         :db-user           "postgres"
-                         :db-password       "password"
-                         :ldap-host         "localhost:3389"
-                         :ldap-bind-dn      "pic\\admin"
-                         :ldap-password     "adminpassword"
-                         :rabbitmq-host     "localhost"
-                         :rabbitmq-username "guest"
-                         :rabbitmq-password "guest"}}
-             :test {:env
+  :profiles {
+             ; override 'dev' settings in ~/.lein/profiles.clj
+
+             :test {:dependencies [[ring-mock "0.1.5"]]
+                    :env
                     {:db-host           "localhost"
                      :db-port           5432
                      :db-name           "postgres"
                      :db-user           "postgres"
                      :db-password       "password"
-                     :ldap-host         "testHost"
-                     :ldap-bind-dn      "testUser"
-                     :ldap-password     "testPassword"
+                     :authenticator     "match"
                      :rabbitmq-host     "localhost"
                      :rabbitmq-username "guest"
                      :rabbitmq-password "guest"}}})

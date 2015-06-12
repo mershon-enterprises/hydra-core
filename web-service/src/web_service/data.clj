@@ -7,6 +7,7 @@
   (:require [clojure.java.jdbc :as sql]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
+            [clojure.data.codec.base64 :as b64]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
             [web-service.constants :as constants])
@@ -198,6 +199,23 @@
        "  and dsa.date_deleted is null "))
 
 
+; semi-internal API for getting an attachment directly (used by child services)
+(defn do-get-attachment
+  [uuid filename]
+  (let [query (str data-set-attachment-query-get
+                   "and uuid::character varying=? "
+                   "and dsa.filename=? ")
+        attachment (first (sql/query (db)
+                                     [query uuid filename]
+                                     :row-fn #(:contents %)))]
+    (if attachment
+      (String. (b64/encode attachment))
+      (do
+        (log/error (format "do-get-attachment couldn't find file '%s' in data-set '%s'"
+                         filename
+                         uuid))
+        nil))))
+
 ; semi-internal API for renaming attachments directly (used by child services)
 (defn do-rename-attachment
   [uuid filename new-filename]
@@ -285,7 +303,6 @@
       (first (sql/query (db) [query-own email-address uuid filename email-address]
                         :row-fn format-attachment-info)))))
 
-
 ; semi-internal API for replacing attachment contents directly (may be used by
 ; child services)
 (defn do-replace-attachment
@@ -320,15 +337,16 @@
                                                  filename
                                                  :transaction? false
                                                  :conn conn)]
-            (if (sql/execute! conn [query
-                                    uuid
-                                    (:date_created attachment-info)
-                                    (:created_by attachment-info)
-                                    filename
-                                    (:mime_type attachment-info)
-                                    new-contents]
-                              :transaction? false)
-              true))
+            (if is-deleted
+              (sql/execute! conn [query
+                                  uuid
+                                  (:date_created attachment-info)
+                                  (:created_by attachment-info)
+                                  filename
+                                  (:mime_type attachment-info)
+                                  new-contents]
+                            :transaction? false)
+              false))
           (catch Exception e
             (log/error e (format (str "There was an error replacing "
                                       "attachment '%s' in data-set "
@@ -1122,7 +1140,8 @@
   ; log the activity in the session
   (log-detail email-address
               constants/session-activity
-              (str constants/session-replace-dataset-attachment " " uuid))
+              (str constants/session-replace-dataset-attachment
+                   " " uuid " " filename))
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
