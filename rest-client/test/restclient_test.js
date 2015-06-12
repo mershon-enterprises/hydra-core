@@ -3269,6 +3269,7 @@ exports['stopSharingAttachment'] = {
     ).then(
       function(submitResponse) {
         test.doesNotThrow( function() {
+          //console.log('1st')
           datasetWithAttachmentUUID = submitResponse.entity['response']['uuid'];
           attachmentFilename = submitResponse.entity['response']['data'][0]['filename']
           apiToken = submitResponse.entity['token'];
@@ -3282,79 +3283,83 @@ exports['stopSharingAttachment'] = {
           new Date(),
           null,
           ["manager@example.com" ]
-        );
-      }
-    ).then(
-      function(shareAttachmentResponse) {
-        test.doesNotThrow( function() {
-          apiToken = shareAttachmentResponse.entity['token'];
-          test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
-        });
-
-        return limitedLogin (
-          function(limitLoginResponse) {
+        ).then(
+          function(shareAttachmentResponse) {
             test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-            restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  apiToken = listAttachmentResponse.entity['token'];
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
-                    'should return exactly 1 after attachment is shared');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
-                    'should return result count of exactly 1 after attachment is shared');
-                });
-            });
-        });
-      }
-    ).then(
-      function() {
-        return goodLogin (
-          function(goodLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = goodLoginResponse.entity['token'];
+              //console.log('2nd')
+              apiToken = shareAttachmentResponse.entity['token'];
+              test.equal(shareAttachmentResponse.status.code, 200, 'login should succeed');
             });
 
-            restclient.stopSharingAttachment(
-              clientUUID,
-              apiToken,
-              datasetWithAttachmentUUID,
-              attachmentFilename
-            ).then(
-              function(stopSharingAttachmentResponse) {
+            return limitedLogin (
+              function(limitLoginResponse) {
                 test.doesNotThrow( function() {
-                  test.equal(stopSharingAttachmentResponse.status.code, 200, 'login should succeed');
+                  //console.log('3rd')
+                  apiToken = limitLoginResponse.entity['token'];
                 });
-            });
-        });
-      }
-    ).then(
-      function() {
-        limitedLogin (
-          function(limitLoginResponse) {
-            test.doesNotThrow( function() {
-              apiToken = limitLoginResponse.entity['token'];
-            });
-            return restclient.listAttachments(
-              clientUUID,
-              apiToken
-            ).then(
-              function(listAttachmentResponse) {
-                test.doesNotThrow( function() {
-                  apiToken = listAttachmentResponse.entity['token'];
-                  checkResponse(test, listAttachmentResponse.entity);
-                  test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
-                  test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
-                    'should return 0 attachments');
-                  test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
-                    'should return result count of exactly 0 attachments');
-                  test.done()
+                restclient.listAttachments(
+                  clientUUID,
+                  apiToken
+                ).then(
+                  function(listAttachmentResponse) {
+                    //console.log('4th')
+                    test.doesNotThrow( function() {
+                      apiToken = listAttachmentResponse.entity['token'];
+                      checkResponse(test, listAttachmentResponse.entity);
+                      test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                      test.equal(listAttachmentResponse.entity['response']['attachments'].length, 1,
+                        'should return exactly 1 after attachment is shared');
+                      test.equal(listAttachmentResponse.entity['response']['result_count'], 1,
+                        'should return result count of exactly 1 after attachment is shared');
+                    });
+                }).then(
+                  function() {
+                    return goodLogin (
+                      function(goodLoginResponse) {
+                        //console.log('5th')
+                        test.doesNotThrow( function() {
+                          apiToken = goodLoginResponse.entity['token'];
+                        });
+
+                        restclient.stopSharingAttachment(
+                          clientUUID,
+                          apiToken,
+                          datasetWithAttachmentUUID,
+                          attachmentFilename
+                        ).then(
+                          function(stopSharingAttachmentResponse) {
+                            //console.log('6th')
+                            test.doesNotThrow( function() {
+                              test.equal(stopSharingAttachmentResponse.status.code, 200, 'login should succeed');
+                            });
+                        }).then(
+                          function() {
+                            limitedLogin (
+                              function(limitLoginResponse) {
+                                test.doesNotThrow( function() {
+                                  //console.log('7th')
+                                  apiToken = limitLoginResponse.entity['token'];
+                                });
+                                return restclient.listAttachments(
+                                  clientUUID,
+                                  apiToken
+                                ).then(
+                                  function(listAttachmentResponse) {
+                                    //console.log('8th')
+                                    test.doesNotThrow( function() {
+                                      apiToken = listAttachmentResponse.entity['token'];
+                                      checkResponse(test, listAttachmentResponse.entity);
+                                      test.equal(listAttachmentResponse.status.code, 200, 'login should succeed');
+                                      test.equal(listAttachmentResponse.entity['response']['attachments'].length, 0,
+                                        'should return 0 attachments');
+                                      test.equal(listAttachmentResponse.entity['response']['result_count'], 0,
+                                        'should return result count of exactly 0 attachments');
+                                      test.done()
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
