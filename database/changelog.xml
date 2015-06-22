@@ -9,13 +9,13 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <include file="changelogs/0001-postgres-extensions.xml"/>
-    <include file="changelogs/0002-user-tables.xml"/>
-    <include file="changelogs/0003-client-tables.xml"/>
-    <include file="changelogs/0004-data-tables.xml"/>
-    <include file="changelogs/0005-revisions.xml"/>
-    <include file="changelogs/0006-api-token-client-uuid.xml"/>
-    <include file="changelogs/0007-filename-unique-if-not-deleted.xml"/>
+    <include file="../database/changelogs/0001-postgres-extensions.xml"/>
+    <include file="../database/changelogs/0002-user-tables.xml"/>
+    <include file="../database/changelogs/0003-client-tables.xml"/>
+    <include file="../database/changelogs/0004-data-tables.xml"/>
+    <include file="../database/changelogs/0005-revisions.xml"/>
+    <include file="../database/changelogs/0006-api-token-client-uuid.xml"/>
+    <include file="../database/changelogs/0007-filename-unique-if-not-deleted.xml"/>
 
     <!-- add child changelogs above this line -->
 
