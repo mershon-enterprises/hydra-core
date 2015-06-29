@@ -16,6 +16,7 @@
     <include file="../database/changelogs/0005-revisions.xml"/>
     <include file="../database/changelogs/0006-api-token-client-uuid.xml"/>
     <include file="../database/changelogs/0007-filename-unique-if-not-deleted.xml"/>
+    <include file="../database/changelogs/0008-attachment-sharing-tables.xml"/>
 
     <!-- add child changelogs above this line -->
 

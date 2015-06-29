@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2" author="Cristopher Pascua">
+        <createTable schemaName="public" tableName="data_set_attachment_shared_access"
+                remarks="describes a relationship between attachment and shared access">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="attachment_id" type="bigint">
+                <constraints unique="false" nullable="false" />
+            </column>
+            <column name="start_date" type="timestamp with time zone" defaultValue="NOW()">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiration_date" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="data_set_attachment_shared_access_id" type="bigint">
+              <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="data_set_attachment_shared_access"
+            baseColumnNames="attachment_id"
+            constraintName="pk_data_set_attachment_shared_access_id"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set_attachment" />
+        <sql>
+          CREATE UNIQUE INDEX only_one_row_with_null_date_deleted_per_attachment_id ON data_set_attachment_shared_access USING btree (attachment_id) WHERE (date_deleted IS NULL);
+        </sql>
+        <createTable schemaName="public" tableName="data_set_attachment_shared_access_user "
+                remarks="describes a shared access user">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_email_address" type="character varying(255)">
+                <constraints unique="true" nullable="false" />
+              </column>
+            <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
+                <constraints nullable="false" />
+            </column>
+            <column name="date_deleted" type="timestamp with time zone">
+                <constraints nullable="true" />
+            </column>
+            <column name="attachment_shared_access_id" type="bigint">
+              <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="data_set_attachment_shared_access_user "
+            baseColumnNames="attachment_shared_access_id"
+            constraintName="fk_attachment_shared_access_id"
+            deferrable="false"
+            initiallyDeferred="false"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="data_set_attachment_shared_access" />
+        <sql>
+          CREATE UNIQUE INDEX only_one_row_with_null_date_deleted_per_attachment_shared_acces ON data_set_attachment_shared_access_user USING btree (attachment_shared_access_id, user_email_address) WHERE (date_deleted IS NULL);
+        </sql>
+    </changeSet>
+  </databaseChangeLog>
