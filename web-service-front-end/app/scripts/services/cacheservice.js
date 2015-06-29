@@ -26,12 +26,10 @@ angular.module('webServiceApp').factory('CacheService', function ($rootScope, $q
                 if (success) {
                     cacheService.updateCacheValue('cacheReady', true);
                     $rootScope.$broadcast(EVENTS.cacheReady);
-                    console.log('refreshCache succeed.');
                 }
             },
             function(error) {
-                console.log('refreshCache failed.');
-                console.log(error);
+                console.log('refreshCache promise failed: ' + error);
             });
     };
 

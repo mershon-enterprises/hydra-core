@@ -95,7 +95,7 @@
                  ; token itself, because security
                  query (str "insert into public.user_api_token "
                             "(api_token, client_uuid, expiration_date, user_id) values "
-                            "(crypt(?, gen_salt('bf', 7)), ?::uuid, ?, "
+                            "(crypt(?, gen_salt('bf', 7)), ?::uuid, CAST(? AS TIMESTAMP WITH TIME ZONE), "
                             "(select id from public.user where email_address=?)"
                             ")")
                  success (try (sql/execute! conn
@@ -253,11 +253,10 @@
     (invalid-token)))
 
 (defn generate-sharable-download-link
-  [email-address data-set-uuid filename exp-date]
+  [email-address data-set-uuid filename exp-date end-point-url]
   (let [client-uuid (str (java.util.UUID/randomUUID))
-        sql-exp-date (c/to-sql-date (f/parse (f/formatters :date) exp-date))
-        api-token-map (make-token email-address client-uuid sql-exp-date)
+        api-token-map (make-token email-address client-uuid exp-date)
         api-token (:token api-token-map)
-        link [(str "/data/" data-set-uuid "/" filename
+        link [(str end-point-url "/data/" data-set-uuid "/" filename
                          "/?client_uuid=" client-uuid "&api_token=" api-token)]]
     (response {:response link})))

@@ -14,7 +14,9 @@ angular.module('webServiceApp').factory('Preferences', function () {
         limit: 25,
         offset: 0,
         order_by: 'date_created',
-        order: 'desc'
+        order: 'desc',
+        is_shared_with_me: null,
+        is_shared_with_others: null
     };
 
     preferences.paginationParams = {
@@ -35,6 +37,8 @@ angular.module('webServiceApp').factory('Preferences', function () {
         preferences.searchParams.offset = 0;
         preferences.searchParams.order_by = 'date_created';
         preferences.searchParams.order = 'desc';
+        preferences.searchParams.is_shared_with_me = null;
+        preferences.searchParams.is_shared_with_others = null;
 
         preferences.currentPage = 1;
         preferences.paginationPages = [];

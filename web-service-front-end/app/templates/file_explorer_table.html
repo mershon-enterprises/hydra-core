@@ -91,14 +91,40 @@
             location="{{locationName}}"
             ng-repeat="row in location"
             >
-            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell name">
+                {{row.filename}}
+                <span ng-switch="row.share_state">
+                <i  tooltips
+                    tooltip-title="This file is shared with other users."
+                    tooltip-speed="fast"
+                    ng-switch-when="others"
+                    class="fa fa-sign-out">
+                </i>
+                <i  tooltips
+                    tooltip-title="This file is shared to you."
+                    tooltip-speed="fast"
+                    ng-switch-when="me"
+                    class="fa fa-sign-in">
+                </i>
+                </span>
+            </td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
             <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}
+            <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'M/d/yyyy h:mm a'}}
             </td>
             <td>
-                <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
-                <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
+                <i  ng-click="downloadFile(row.unique_key)"
+                    tooltips
+                    tooltip-title="Download File"
+                    tooltip-speed="fast"
+                    class="fa fa-download">
+                </i>
+                <i  ng-click="viewFileDetails(row.unique_key)"
+                    tooltips
+                    tooltip-title="File Details"
+                    tooltip-speed="fast"
+                    class="fa fa-cog">
+                </i>
             </td>
         </tr>
     </table>
@@ -112,7 +138,7 @@
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.filename}}</td>
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.bytes | filesize}}</td>
         <td ng-click="viewFileDetails(row.unique_key)" class="data-cell author">{{row.created_by}}</td>
-        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'short'}}</td>
+        <td ng-click="viewFileDetails(row.unique_key)" class="data-cell">{{row.date_created | date : 'M/d/yyyy h:mm a'}}</td>
         <td>
             <i ng-click="downloadFile(row.unique_key)" class="fa fa-download"></i>
             <i ng-click="viewFileDetails(row.unique_key)" class="fa fa-cog"></i>
