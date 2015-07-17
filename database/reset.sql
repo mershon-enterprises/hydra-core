@@ -8,17 +8,17 @@ truncate table public.data_set cascade;
 truncate table public.user cascade;
 
 -- set up access levels
-insert into public.user_access_level (description) values
-('Create Attachments'),
-('Create Data'),
-('Manage Attachments'),
-('Manage Clients'),
-('Manage Data'),
-('Manage Users'),
-('View Attachments'),
-('View Clients'),
-('View Same Client Data'),
-('View Same Client Location Data');
+insert into public.user_access_level (id, description) values
+(1, 'Create Attachments'),
+(2, 'Create Data'),
+(3, 'Manage Attachments'),
+(4, 'Manage Clients'),
+(5, 'Manage Data'),
+(6, 'Manage Users'),
+(7, 'View Attachments'),
+(8, 'View Clients'),
+(9, 'View Same Client Data'),
+(10, 'View Same Client Location Data');
 
 -- set up clients
 insert into public.client (name) values
