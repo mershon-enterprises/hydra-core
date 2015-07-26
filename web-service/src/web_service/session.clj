@@ -10,7 +10,7 @@
   (status
     {:body
      {:response (str "Access Denied: requires ['" access-level "'] access")}}
-    401))
+    403))
 
 
 ; start a new session, and immediately end it

@@ -85,10 +85,6 @@ insert into public.user_to_user_access_level (user_id, access_level_id) values
     (select id from public.user_access_level where description='Create Data')
 ),
 (
-    (select id from public.user where email_address='manager@example.com'),
-    (select id from public.user_access_level where description='View Attachments')
-),
-(
     (select id from public.user where email_address='basic_user_a@example.com'),
     (select id from public.user_access_level where description='Create Data')
 ),

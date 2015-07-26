@@ -423,6 +423,48 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                     $scope.tags = success[1].primitive_text_data;
                     $scope.fileMimeType = success[1].mime_type;
                 }
+                RestService.getAttachmentSharingInfo($scope.ukey).then(
+                    function(success) {
+                        $scope.isShared = success[1].is_shared;
+                        $scope.shareLabel = '';
+                        $scope.sharingInfo = {
+                            'startDate': null,
+                            'expDate': null,
+                        };
+
+                        if($scope.isShared) {
+                            var index = success[1].email_list.indexOf('*');
+                            if (index === -1) {
+                                $.each(success[1].email_list, function(index, value) {
+                                    $scope.selectizeOptions.push({'name':'', 'email': value});
+                                    if (index !== success[1].email_list.length - 1){
+                                        $scope.shareLabel += (value + ', ');
+                                    }
+                                    else {
+                                        $scope.shareLabel += (value);
+                                    }
+                                });
+                            }
+                            else {
+                                $scope.shareLabel = 'everyone';
+                            }
+                            $scope.sharingInfo.startDate = moment(success[1].sharing_info.start_date).format('YYYY[-]MM[-]DD');
+                            if(success[1].sharing_info.expiration_date) {
+                                $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
+                            }
+                        }
+                        else {
+                            $scope.shareLabel = 'no one';
+                        }
+                    },
+                    function(error) {
+                        if(error[0] === EVENTS.promiseFailed) {
+                            NotificationService.error(
+                                'Critical Error',
+                                'Please contact support.'
+                            );
+                        }
+                    });
             },
             //Notify user if something went wrong.
             function (error) {
@@ -432,50 +474,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                         'Please contact support.'
                     );
                 }
+                $location.path('/attachment_explorer');
             });
-
-            RestService.getAttachmentSharingInfo($scope.ukey).then(
-                function(success) {
-                    $scope.isShared = success[1].is_shared;
-                    $scope.shareLabel = '';
-                    $scope.sharingInfo = {
-                        'startDate': null,
-                        'expDate': null,
-                    };
-
-                    if($scope.isShared) {
-                        var index = success[1].email_list.indexOf('*');
-                        if (index === -1) {
-                            $.each(success[1].email_list, function(index, value) {
-                                $scope.selectizeOptions.push({'name':'', 'email': value});
-                                if (index !== success[1].email_list.length - 1){
-                                    $scope.shareLabel += (value + ', ');
-                                }
-                                else {
-                                    $scope.shareLabel += (value);
-                                }
-                            });
-                        }
-                        else {
-                            $scope.shareLabel = 'everyone';
-                        }
-                        $scope.sharingInfo.startDate = moment(success[1].sharing_info.start_date).format('YYYY[-]MM[-]DD');
-                        if(success[1].sharing_info.expiration_date) {
-                            $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
-                        }
-                    }
-                    else {
-                        $scope.shareLabel = 'no one';
-                    }
-                },
-                function(error) {
-                    if(error[0] === EVENTS.promiseFailed) {
-                        NotificationService.error(
-                            'Critical Error',
-                            'Please contact support.'
-                        );
-                    }
-                });
         };
 
         // SELECTIZEJS =========================================================

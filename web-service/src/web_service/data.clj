@@ -1023,7 +1023,7 @@
       (response {:response [(do-get-attachment-info email-address
                                                    uuid
                                                    filename)]})
-      (access-denied constants/manage-data))))
+      (access-denied constants/view-attachments))))
 
 
 ; get the specified attachment to a data set, by date and filename
