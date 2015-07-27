@@ -12,13 +12,8 @@
     <changeSet id="1" author="Cristopher Pascua">
       <sql>
         CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-        COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-        CREATE EXTENSION IF NOT EXISTS adminpack WITH SCHEMA pg_catalog;
-        COMMENT ON EXTENSION adminpack IS 'administrative functions for PostgreSQL';
 
         CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
-        COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
         </sql>
     </changeSet>
 </databaseChangeLog>
