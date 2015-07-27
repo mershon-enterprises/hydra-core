@@ -14,7 +14,6 @@
 
 (defn -main
   [& args]
-
   (shared-init/init)
 
   ; mock 500 datasets
