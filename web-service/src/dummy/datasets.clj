@@ -60,7 +60,7 @@
   "create an attachment to be part of a dataset"
   []
   {:type "attachment"
-   :created_by (+ 1 (rand-int 2))
+   :created_by (+ 1 (rand-int 5))
    :filename (str "20" (+ 12 (rand-int 2))
                   "-" (format "%02d" (+ 1 (rand-int 12)))
                   "-" (format "%02d" (+ 1 (rand-int 30)))
@@ -82,6 +82,13 @@
     ;maybe share with with manager@example.com
     (if (and (gen/boolean) (not (= (:created_by data-set) "manager@example.com")))
       (def email_user_list (conj email_user_list "manager@example.com")))
+
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_a@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_a@example.com")))
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_b@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_b@example.com")))
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_c@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_c@example.com")))
 
     ;if share attachment with randomly selected users
     (if (not (empty? email_user_list))
@@ -125,7 +132,10 @@
    :uuid (str (java.util.UUID/randomUUID))
    :date_created (new java.util.Date (- 1415667697780 (* (+ 1 (rand-int 35600)) 86400000)))
    :created_by (rand-nth ["admin@example.com"
-                          "manager@example.com"])
+                          "manager@example.com"
+                          "basic_user_a@example.com"
+                          "basic_user_b@example.com"
+                          "basic_user_c@example.com"])
    :data data})
 
 (defn mock-datasets

@@ -2309,7 +2309,7 @@ exports['getAttachment'] = {
     ).then(
       function(getRestrictedResponse) {
         test.doesNotThrow( function() {
-          test.equal(getRestrictedResponse.status.code, 401,
+          test.equal(getRestrictedResponse.status.code, 403,
             'get attachment should fail with 401');
         });
 

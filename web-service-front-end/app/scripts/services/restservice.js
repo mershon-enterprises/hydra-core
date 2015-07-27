@@ -11,6 +11,7 @@ angular.module('webServiceApp').factory('RestService',
                 $q,
                 localStorageService,
                 Session,
+                NotificationService,
                 EVENTS,
                 STATUS_CODES
     ){
@@ -360,8 +361,11 @@ angular.module('webServiceApp').factory('RestService',
                                         entity.response[0]]
                     );
                 }
-                else {
+                else if (statusCode === STATUS_CODES.forbidden) {
                     deferred.reject([EVENTS.badStatus, statusCode]);
+                    NotificationService.error('Access Denied', response.entity.response);
+                }
+                else {
                     restService.statusHandler('getAttachmentInfo', statusCode);
                 }
             },
@@ -806,8 +810,7 @@ angular.module('webServiceApp').factory('RestService',
 
     restService.statusHandler = function (methodName, statusCode) {
         console.log(methodName + ' returned bad status code : ' + statusCode);
-        if (statusCode === STATUS_CODES.unauthorized ||
-            statusCode === STATUS_CODES.forbidden) {
+        if (statusCode === STATUS_CODES.unauthorized) {
 
             $rootScope.$broadcast(EVENTS.logoutAction);
 
