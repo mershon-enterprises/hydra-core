@@ -47,6 +47,14 @@ angular.module('webServiceApp').controller('AttachmentExplorerCtrl',
                 Preferences.reset();
                 $('input.search').val('');
             }
+            else if (pageValue === 'me') {
+                $scope.searchParams.is_shared_with_me = true;
+                $scope.searchParams.is_shared_with_others = null;
+            }
+            else if (pageValue === 'others') {
+                $scope.searchParams.is_shared_with_others = true;
+                $scope.searchParams.is_shared_with_me = false;
+            }
             else {
                 $scope.searchParams.limit = pageValue;
             }

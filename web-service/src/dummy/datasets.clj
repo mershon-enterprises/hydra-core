@@ -60,7 +60,7 @@
   "create an attachment to be part of a dataset"
   []
   {:type "attachment"
-   :created_by (+ 1 (rand-int 2))
+   :created_by (+ 1 (rand-int 5))
    :filename (str "20" (+ 12 (rand-int 2))
                   "-" (format "%02d" (+ 1 (rand-int 12)))
                   "-" (format "%02d" (+ 1 (rand-int 30)))
@@ -69,6 +69,46 @@
    :contents (String. (b64/encode (.getBytes (str
                                                "id,first_name,last_name,email,country,ip_address\n"
                                                "1,Janet,Turner,jturner0@pcworld.com,China,239.119.160.8"))))})
+
+(defn mock-attachment-sharing
+  "share specified attachment with randomly users but not with attachment owner"
+  [data-set filename]
+  (try
+    (def email_user_list [])
+
+    ;maybe share with with admin@example.com
+    (if (and (gen/boolean) (not (= (:created_by data-set) "admin@example.com")))
+      (def email_user_list (conj email_user_list "admin@example.com")))
+    ;maybe share with with manager@example.com
+    (if (and (gen/boolean) (not (= (:created_by data-set) "manager@example.com")))
+      (def email_user_list (conj email_user_list "manager@example.com")))
+
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_a@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_a@example.com")))
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_b@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_b@example.com")))
+    (if (and (gen/boolean) (not (= (:created_by data-set) "basic_user_c@example.com")))
+      (def email_user_list (conj email_user_list "basic_user_c@example.com")))
+
+    ;if share attachment with randomly selected users
+    (if (not (empty? email_user_list))
+      (data-set-attachment-sharing
+        (:email_address data-set)
+        (:uuid data-set)
+        filename
+          ;starting now
+        (generate-string (java.util.Date.))
+          ;ending week from now
+        (generate-string (java.util.Date. (+ (* 7 86400 1000) (.getTime (java.util.Date.)))))
+        (generate-string email_user_list)))
+
+    (catch Exception e
+      (if (instance? SQLException e)
+        (do (.getCause e)
+            (println (.getNextException e)))
+        (println (.getMessage e)))
+      false)))
+
 
 (defn mock-dataset
   "create a dataset that randomly either has or does not have an attachment"
@@ -92,7 +132,10 @@
    :uuid (str (java.util.UUID/randomUUID))
    :date_created (new java.util.Date (- 1415667697780 (* (+ 1 (rand-int 35600)) 86400000)))
    :created_by (rand-nth ["admin@example.com"
-                          "manager@example.com"])
+                          "manager@example.com"
+                          "basic_user_a@example.com"
+                          "basic_user_b@example.com"
+                          "basic_user_c@example.com"])
    :data data})
 
 (defn mock-datasets
@@ -128,10 +171,16 @@
         (sql/execute! (db) [client-location-query (+ (rand-int 5) 1) (:uuid ds)])
         (sql/execute! (db) [attachment-created-by-query (:uuid ds) (:uuid ds)])
         (sql/execute! (db) [text-created-by-query (:uuid ds) (:uuid ds)])
+
+        (doseq [attachment (filter
+                             (fn [data-info] (= (:type data-info) "attachment"))
+                             (:data ds))]
+          (mock-attachment-sharing ds (:filename attachment)))
+
         (catch Exception e
           (if (instance? SQLException e)
             (do (.getCause e)
                 (println (.getNextException e)))
             (println (.getMessage e)))
-          false ))))
+          false))))
   true)

@@ -1,0 +1,52 @@
+<!-- Share Mode Select Box -->
+<select class="share-mode-select"
+        ng-model="shareMode"
+        ng-options="item.id as item.label for item in shareOptions"
+        ng-change="checkForDuration()">
+</select>
+
+<!-- Content area that changes depending on Share Mode -->
+<div ng-switch="shareMode" class="share">
+    <section ng-switch-when="none">
+        <h1>This file will be no longer shared.</h1>
+        <i class="fa fa-times"></i>
+    </section>
+
+    <section ng-switch-when="all">
+        <h1>This file will be shared with all users.</h1>
+        <i class="fa fa-check"></i>
+    </section>
+
+    <section ng-switch-when="url">
+        <h1 ng-hide="shareLink">Select the duration this file will be shared.</h1>
+        <h1 ng-show="shareLink">Anyone with this share URL will be able to access the file.</h1>
+        <textarea ng-show="shareLink" class="share-url" ng-model="shareLink"></textarea>
+    </section>
+
+    <section ng-switch-when="specific">
+        <h1>Enter the emails of the users who may access this file.</h1>
+        <selectize  config="selectizeConfig"
+                    options="selectizeOptions"
+                    ng-model="selectizeModel">
+        </selectize>
+    </section>
+</div>
+
+<!-- Duration Select Box -->
+<section ng-show="showDuration">
+    <select class="share-mode-select"
+        ng-model="duration"
+        ng-options="item.id as item.label for item in durationOptions"
+        ng-change="changeDuration()">
+     </select>
+</section>
+
+<!-- UI Buttons -->
+<div class="controls">
+    <button class="back" ng-click="toggleDialogModal()">Cancel</button>
+    <span ng-switch="shareMode">
+        <button ng-click="generateShareURL()" ng-switch-when="url">Create Link</button>
+        <button ng-show="shareLink" ng-click="copyURLtoClipboard()" ng-switch-when="url">Copy?</button>
+    </span>
+    <button ng-click="shareFile()" class="file-action">Save</button>
+</div>

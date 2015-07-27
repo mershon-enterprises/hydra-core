@@ -377,6 +377,17 @@ omnibox {
       font-size: .8em;
     }
 
+    .name {
+        position: relative;
+        i {
+            position: absolute;
+            top: 25%;
+            right: $default-padding;
+        }
+    }
+
+
+
     th {
       background-color: $dark-gray;
       color: $off-white;
@@ -386,11 +397,11 @@ omnibox {
     tr {
       th:nth-child(1),
       td:nth-child(1) {
-        width: 22%;
+        width: 35%;
       }
       th:nth-child(2),
       td:nth-child(2) {
-        width: 20%;
+        width: 10%;
       }
       th:nth-child(3),
       td:nth-child(3) {
@@ -398,7 +409,7 @@ omnibox {
       }
       th:nth-child(4),
       td:nth-child(4) {
-        width: 20%;
+        width: 17%;
       }
       th:nth-child(5),
       td:nth-child(5) {
@@ -481,9 +492,10 @@ omnibox {
 .attachment-view {
   @include gray-box(1em);
   padding: $default-padding * 2 $default-padding * 4 !important;
+  position: relative;
 
   table {
-    margin: $default-margin auto;
+    margin: 0 auto;
     width: 90%;
   }
 
@@ -536,13 +548,6 @@ omnibox {
       border-color: $dark-gray;
     }
 
-    .download-button {
-      background-color: $dark-green !important;
-      &:hover {
-        background-color: $dark-green + $default-hover-offset !important;
-      }
-    }
-
     .spacer {
       background: $dark-gray;
 
@@ -556,15 +561,48 @@ omnibox {
       color: $red;
       display: none;
     }
+
+    .fa-check {
+      font-size: 5em;
+    }
+
+    .share-url {
+      width: 90%;
+    }
   }
 
-  .back {
+  .share-info {
+    width: 60%;
     float: left;
+    text-align: left;
+    p {
+        margin: $default-margin/4;
+    }
   }
 
-  .file-action {
-    margin-left: $default-margin;
-    float: right;
+
+  .controls {
+    height: 58px;
+    margin: $default-margin/2;
+
+    .download-button {
+      position: absolute;
+      left: 45%;
+      top: 30px;
+      background-color: $dark-green !important;
+      &:hover {
+        background-color: $dark-green + $default-hover-offset !important;
+      }
+    }
+
+    .back {
+      float: left;
+    }
+
+    .file-action {
+      margin-left: $default-margin;
+      float: right;
+    }
   }
 }
 
@@ -621,4 +659,71 @@ omnibox {
         cursor: pointer;
       }
     }
+}
+
+
+
+.ng-modal-dialog {
+
+  @include gray-box(1em);
+  display: table;
+  width: 50%;
+
+  .ng-modal-dialog-content {
+    width: 100%;
+    share {
+      width: 100%;
+    }
+  }
+
+  .share {
+    display: table-cell;
+    vertical-align: middle;
+    height: 300px;
+    width: 5%;
+
+    i {
+      font-size: 10em;
+    }
+
+    textarea {
+      height: 150px;
+      width: 60%;
+    }
+
+    section {
+      width: 90%;
+      margin: 0 auto;
+
+      h1 {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .share-mode-select {
+    height: 30px;
+    font-size: 1.2em;
+  }
+
+  .selectize-input {
+    div {
+      background-color: $dark-red !important;
+      color: $off-white !important;
+      @include rounded( $default-rounding/6,
+                    $default-rounding/6,
+                    $default-rounding/6,
+                    $default-rounding/6);
+    }
+    span{
+      margin: $default-margin/8 !important;
+    }
+  }
+
+  .selectize-dropdown-content {
+    span{
+      margin: $default-margin/8 !important;
+    }
+  }
+
 }

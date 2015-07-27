@@ -16,6 +16,10 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
     $rootScope.controller = 'AttachmentDetails';
 
+    //Kill any tooltips that are currently displayed. Known bug in angular-
+    //tooltip.
+    $('._720kb-tooltip').css('display', 'none');
+
     //Only run if the user has a session.
     if (Session.exists()) {
 
@@ -27,13 +31,21 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
         $scope.tags = [];
         $scope.file = null;
         $scope.fileData = null;
-        $scope.dateOptions = {
-            dateFormat: 'yy-mm-dd',
-            defaultDate: +7,
-            minDate: new Date()
+
+        //UI expressions for displaying the share info for the file.
+        $scope.sharingInfo = {
+            'startDate': null,
+            'expDate': null,
         };
-        var currentDate = new Date();
-        $scope.expirationDate = new Date(currentDate.setDate(currentDate.getDate()+7));
+        $scope.shareLabel = '';
+
+        //Manages whether or not the share modal is displayed.
+        $scope.dialogShown = false;
+        $scope.toggleDialogModal = function() {
+            $scope.dialogShown = !$scope.dialogShown;
+        };
+
+        // FILE REPLACEMENT ====================================================
 
         //Allows us to forward click events from our nice-looking styled
         //upload button to the hidden and unstyle-able nasty-looking file
@@ -42,13 +54,16 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             $('.upload-input').click();
         });
 
-        //Watch for updated file attachment.
+        //Watch for if the user attaches a file.
         $scope.$watch('file', function () {
+
+            //if they successfully attached a file in UI...
             if($scope.file) {
 
                 //Read file's binary data.
                 //http://www.html5rocks.com/en/tutorials/file/dndfiles/
                 var reader = new FileReader();
+
                 // Closure to capture the file information.
                 reader.onload = (function() {
                     return function(e) {
@@ -96,40 +111,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             }
         });
 
-        //The user should not be visiting this view unless sent from the
-        //attachment explorer controller. $rootscope.ukey will be populated if
-        //they were.
-        if (!$rootScope.ukey) {
-            //Return user to attachment explorer.
-            $location.path('/attachment_explorer');
-        }
-        //If the ukey is in the $rootScope, the user has visted this view in the
-        //correct way. Invoke the RestService to get the file data from the
-        //backend and store them in the $scope variables.
-        else {
-            RestService.getAttachmentInfo($rootScope.ukey).then(
-            function(success) {
-                if (success[0] === EVENTS.promiseSuccess) {
-                    $scope.filename = success[1].filename;
-                    $scope.newFilename = $scope.filename;
-                    $scope.dateCreated = success[1].date_created;
-                    $scope.createdBy = success[1].created_by;
-                    $scope.tags = success[1].primitive_text_data;
-                    $scope.fileMimeType = success[1].mime_type;
-                }
-            },
-            //Notify user if something went wrong.
-            function (error) {
-                if(error[0] === EVENTS.promiseFailed) {
-                    NotificationService.error(
-                        'Critical Error',
-                        'Please contact support.'
-                    );
-                }
-            });
-        }
-
-        // Watches for keystrokes in the filename input field.
+        //Watches for keystrokes in the filename input field and determines
+        //if the extension will change. Displays a warning if it will.
         $('#fileName').keyup(function (event) {
             //Hides the rename button and makes it unclickable as long as there
             //is no text in the rename input field.
@@ -140,20 +123,20 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 $('.rename-button').removeClass('inactive');
             }
 
-            // If it's the enter key (keycode 13), then click the rename button
+            //If it's the enter key (keycode 13), then click the rename button
             if (event.keyCode === 13) {
                 if(!$('.rename-button').hasClass('inactive')) {
                     $('.rename-button').click();
                 }
             }
 
-            // Get last substring of array after a '.' character.
-            // whatever.min.js -> js
+            //Get last substring of array after a '.' character.
+            //whatever.min.js -> js
             $scope.extension = $scope.filename.split('.').slice(-1)[0];
 
-            // If the filename field doesn't contain the previous filename's
-            // extension, display a warning. If the previous file had no
-            // extension, ignore this.
+            //If the filename field doesn't contain the previous filename's
+            //extension, display a warning. If the previous file had no
+            //extension, ignore this.
             if($(this).val() !== '') {
                 if ($scope.filename.indexOf('.') > -1) {
                     if ($(this).val().toLowerCase().split('.').slice(-1)[0] === $scope.extension) {
@@ -167,8 +150,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
 
         });
 
-        // Validate that a filename was entered properly and notify user if
-        // it was not.
+        //Validate that a filename was entered properly and notify user if
+        //it was not.
         $scope.validateFilename = function () {
 
             // Make sure it's not blank.
@@ -223,6 +206,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             }
         };
 
+        // FILE DELETION =======================================================
+
         //Delete the file from the backend whose ukey is in scope.
         $scope.deleteFile = function() {
             //Invoke the RestService to delete the file with the ukey that is
@@ -262,6 +247,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         };
 
+        // FILE DOWNLOADING ====================================================
+
         $scope.downloadFile = function() {
             //Call the RestService to get the URL for that file in the
             //backend.
@@ -280,6 +267,8 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
                 );
             });
         };
+
+        // TAG MANAGEMENT ======================================================
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.
         $scope.addRow = function(description, value) {
@@ -419,38 +408,170 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             $location.path('/attachment_explorer');
         };
 
-        //Share link URL button
-        $scope.generateShareLink = function () {
-            //Disable the button to avoid corrupting the API token
-            $('#share-button').prop('disabled', true);
+        // UI FILE DATA ========================================================
 
-            //Call the RestService to get the URL for that file in the
-            //backend.
-            var expirationDate = $('.exp-date-field').val();
-            RestService.getAttachmentDownloadLink($scope.ukey, expirationDate).then(
-            function(success){
-                if(success[0] === EVENTS.promiseSuccess) {
-                    var uri = window.location.protocol + '//' +
-                              window.location.host +
-                              success[1];
-                    $('.share-url').val(uri);
-                    window.prompt('Copy to clipboard: Ctrl+C, Enter', uri);
+        //Collects file information and file sharing information that the UI
+        //needs to display.
+        $scope.collectFileInfo = function() {
+            RestService.getAttachmentInfo($rootScope.ukey).then(
+            function(success) {
+                if (success[0] === EVENTS.promiseSuccess) {
+                    $scope.filename = success[1].filename;
+                    $scope.newFilename = $scope.filename;
+                    $scope.dateCreated = success[1].date_created;
+                    $scope.createdBy = success[1].created_by;
+                    $scope.tags = success[1].primitive_text_data;
+                    $scope.fileMimeType = success[1].mime_type;
+                }
+                RestService.getAttachmentSharingInfo($scope.ukey).then(
+                    function(success) {
+                        $scope.isShared = success[1].is_shared;
+                        $scope.shareLabel = '';
+                        $scope.sharingInfo = {
+                            'startDate': null,
+                            'expDate': null,
+                        };
 
-                    //Re-enable the share button
-                    $('#share-button').prop('disabled', false);
-            }
+                        if($scope.isShared) {
+                            var index = success[1].email_list.indexOf('*');
+                            if (index === -1) {
+                                $.each(success[1].email_list, function(index, value) {
+                                    $scope.selectizeOptions.push({'name':'', 'email': value});
+                                    if (index !== success[1].email_list.length - 1){
+                                        $scope.shareLabel += (value + ', ');
+                                    }
+                                    else {
+                                        $scope.shareLabel += (value);
+                                    }
+                                });
+                            }
+                            else {
+                                $scope.shareLabel = 'everyone';
+                            }
+                            $scope.sharingInfo.startDate = moment(success[1].sharing_info.start_date).format('YYYY[-]MM[-]DD');
+                            if(success[1].sharing_info.expiration_date) {
+                                $scope.sharingInfo.expDate = moment(success[1].sharing_info.expiration_date).format('YYYY[-]MM[-]DD');
+                            }
+                        }
+                        else {
+                            $scope.shareLabel = 'no one';
+                        }
+                    },
+                    function(error) {
+                        if(error[0] === EVENTS.promiseFailed) {
+                            NotificationService.error(
+                                'Critical Error',
+                                'Please contact support.'
+                            );
+                        }
+                    });
             },
-            function(){
-                NotificationService.error(
-                    'Critical Error',
-                    'Please contact support.'
-                );
-
-                //Re-enable the share button
-                $('#share-button').prop('disabled', false);
+            //Notify user if something went wrong.
+            function (error) {
+                if(error[0] === EVENTS.promiseFailed) {
+                    NotificationService.error(
+                        'Critical Error',
+                        'Please contact support.'
+                    );
+                }
+                $location.path('/attachment_explorer');
             });
         };
 
-    }
+        // SELECTIZEJS =========================================================
+        //https://github.com/brianreavis/selectize.js/blob/master/docs/usage.md
+        //https://github.com/machineboy2045/angular-selectize
+        $scope.emailShareList = [];
+        $scope.selectizeModel = {};
+        $scope.selectizeOptions = [];
 
+        var REGEX_EMAIL = '([a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@' + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
+
+        var formatName = function(item) {
+            return $.trim((item.first_name || '') + ' ' + (item.last_name || ''));
+        };
+
+        $scope.selectizeConfig = {
+            placeholder: 'Enter email addresses...',
+            plugins: ['remove_button'],
+            persist: true,
+            maxItems: null,
+            valueField: 'email',
+            labelField: 'name',
+            searchField: ['first_name', 'last_name', 'email'],
+            sortField: [
+                {field: 'first_name', direction: 'asc'},
+                {field: 'last_name', direction: 'asc'}
+            ],
+            onItemAdd: function(value) {
+                var index = $scope.emailShareList.indexOf(value);
+                if (index === -1) {
+                    $scope.emailShareList.push(value);
+                }
+            },
+            onItemRemove: function(value) {
+                var index = $scope.emailShareList.indexOf(value);
+                if (index > -1) {
+                    $scope.emailShareList.splice(index, 1);
+                }
+            },
+            render: {
+                item: function(item, escape) {
+                    var name = formatName(item);
+                    return '<div>' +
+                    (name ? '<span class="name">' + escape(name) + '</span>' : '') +
+                    (item.email ? '<span class="email">[' + escape(item.email) + ']</span>' : '') +
+                    '</div>';
+                },
+                option: function(item, escape) {
+                    var name = formatName(item);
+                    var label = name || item.email;
+                    var caption = name ? item.email : null;
+                    return '<div>' +
+                    '<span class="label">' + escape(label) + '</span>' +
+                    (caption ? '<span class="caption">[' + escape(caption) + ']</span>' : '') +
+                    '</div>';
+                }
+            },
+            createFilter: function(input) {
+                var regexpA = new RegExp('^' + REGEX_EMAIL + '$', 'i');
+                var regexpB = new RegExp('^([^<]*)\<' + REGEX_EMAIL + '\>$', 'i');
+                return regexpA.test(input) || regexpB.test(input);
+            },
+            create: function(input) {
+                if ((new RegExp('^' + REGEX_EMAIL + '$', 'i')).test(input)) {
+                return {email: input};
+            }
+            var match = input.match(new RegExp('^([^<]*)\<' + REGEX_EMAIL + '\>$', 'i'));
+            if (match) {
+                var name = $.trim(match[1]);
+                var pos_space = name.indexOf(' ');
+                var first_name = name.substring(0, pos_space);
+                var last_name = name.substring(pos_space + 1);
+                return {
+                    email: match[2],
+                    first_name: first_name,
+                    last_name: last_name
+                };
+            }
+            NotificationService.warning('Invalid Email', 'Please try again.');
+            return false;
+            }
+        };
+
+        //The user should not be visiting this view unless sent from the
+        //attachment explorer controller. $rootscope.ukey will be populated if
+        //they were.
+        if (!$rootScope.ukey) {
+            //Return user to attachment explorer.
+            $location.path('/attachment_explorer');
+        }
+        //If the ukey is in the $rootScope, the user has visted this view in the
+        //correct way. Invoke the RestService to get the file data from the
+        //backend and store them in the $scope variables.
+        else {
+            $scope.collectFileInfo();
+        }
+
+    }
 });
