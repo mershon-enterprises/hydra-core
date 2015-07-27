@@ -3,7 +3,6 @@
   (:require [ring.adapter.jetty :as jetty]
             [web-service.handler :as handler]
             [web-service.shared-init :as shared-init]
-            [web-service.schema :as schema]
             [dummy.datasets]))
 
 ; define a configurator function for the jetty web server so we can override the
@@ -15,7 +14,6 @@
 
 (defn -main
   [& args]
-  (schema/update)
   (shared-init/init)
 
   ; mock 500 datasets

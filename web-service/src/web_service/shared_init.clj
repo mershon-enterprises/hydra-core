@@ -2,10 +2,14 @@
   (:use [web-service.data])
   (:require [cheshire.core :refer :all]
             [langohr.basic :as lb]
-            [web-service.amqp :as amqp]))
+            [web-service.amqp :as amqp]
+            [web-service.schema :as schema]))
 
 (defn init
   []
+  ; update the database
+  (schema/update)
+
   (let [ch (amqp/connect)]
     ; listen for incoming authentications and just print to the standard out
     (amqp/start-consumer
