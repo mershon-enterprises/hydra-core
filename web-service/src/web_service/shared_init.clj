@@ -8,7 +8,7 @@
 (defn init
   []
   ; update the database
-  (schema/update)
+  ;(schema/update)
 
   (let [ch (amqp/connect)]
     ; listen for incoming authentications and just print to the standard out

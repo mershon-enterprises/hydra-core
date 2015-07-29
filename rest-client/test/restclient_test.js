@@ -2287,7 +2287,7 @@ exports['getAttachment'] = {
           clientUUID,
           'admin@example.com',
           'admin@example.com',
-          'manager@example.com'
+          'no-access-user@example.com'
         );
       }
     ).then(
@@ -2310,7 +2310,7 @@ exports['getAttachment'] = {
       function(getRestrictedResponse) {
         test.doesNotThrow( function() {
           test.equal(getRestrictedResponse.status.code, 403,
-            'get attachment should fail with 401');
+            'get attachment should fail with 403');
         });
 
         //try to retrieve attachment that doesn't exist as restricted user
