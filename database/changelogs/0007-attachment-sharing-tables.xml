@@ -9,7 +9,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="8" author="Cristopher Pascua">
+    <changeSet id="1" author="Cristopher Pascua">
         <createTable schemaName="public" tableName="data_set_attachment_shared_access"
                 remarks="describes a relationship between attachment and shared access">
             <column name="id" type="bigserial">
