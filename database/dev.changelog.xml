@@ -12,7 +12,8 @@
     <!--
      -->
     <include relativeToChangelogFile="true" file="changelog.xml"/>
-    <include relativeToChangelogFile="true" file="dev-changelogs/0001-dev-mock-data.xml"/>
+    <include relativeToChangelogFile="true" file="dev-changelogs/0001-postgres-extensions.xml"/>
+    <include relativeToChangelogFile="true" file="dev-changelogs/0002-dev-mock-data.xml"/>
     <!-- add child changelogs above this line -->
 
 </databaseChangeLog>
