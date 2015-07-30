@@ -48,4 +48,6 @@
                      :authenticator     "match"
                      :rabbitmq-host     "localhost"
                      :rabbitmq-username "guest"
-                     :rabbitmq-password "guest"}}})
+                     :rabbitmq-password "guest"
+                     :changelog-path    "private/database/dev.changelog.xml"
+                     }}})

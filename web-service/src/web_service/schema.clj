@@ -25,7 +25,7 @@
         instance (DatabaseFactory/getInstance)
         database (.findCorrectDatabaseImplementation instance connection)
         fsra (new FileSystemResourceAccessor)
-        changelogs (-> (io/resource "private/database/changelog.xml")
+        changelogs (-> (io/resource (env :changelog-path))
                        (io/file)
                        (.getAbsolutePath))]
     (new Liquibase changelogs fsra database)))

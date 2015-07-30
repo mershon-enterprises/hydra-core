@@ -21,38 +21,21 @@
             <column name="start_date" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
-            <column name="expiration_date" type="timestamp with time zone">
-                <constraints nullable="false" />
-            </column>
+            <column name="expiration_date" type="timestamp with time zone"/>
             <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
             </column>
             <column name="date_deleted" type="timestamp with time zone">
                 <constraints nullable="true" />
             </column>
-            <column name="data_set_attachment_shared_access_id" type="bigint">
-              <constraints nullable="false" />
-            </column>
         </createTable>
-        <addForeignKeyConstraint baseTableName="data_set_attachment_shared_access"
-            baseColumnNames="attachment_id"
-            constraintName="pk_data_set_attachment_shared_access_id"
-            deferrable="false"
-            initiallyDeferred="false"
-            onDelete="CASCADE"
-            onUpdate="RESTRICT"
-            referencedColumnNames="id"
-            referencedTableName="data_set_attachment" />
-        <sql>
-          CREATE UNIQUE INDEX only_one_row_with_null_date_deleted_per_attachment_id ON data_set_attachment_shared_access USING btree (attachment_id) WHERE (date_deleted IS NULL);
-        </sql>
         <createTable schemaName="public" tableName="data_set_attachment_shared_access_user "
                 remarks="describes a shared access user">
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" />
             </column>
             <column name="user_email_address" type="character varying(255)">
-                <constraints unique="true" nullable="false" />
+                <constraints nullable="false" />
               </column>
             <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
                 <constraints nullable="false" />
