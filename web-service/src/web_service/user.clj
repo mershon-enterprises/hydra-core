@@ -95,31 +95,53 @@
               (str constants/session-add-user-access " "
                    target-email-address " " access-level))
 
-  (let [access (set (get-user-access email-address))]
-    (if (contains? access constants/manage-users)
-      (let
-        [query (str "insert into public.user_to_user_access_level "
-                    "(user_id, access_level_id) "
-                    "values ("
-                    "(select id from public.user where email_address=?), "
-                    "(select id from public.user_access_level where description=?))")
-         success (try (sql/execute! (db) [query
-                                          target-email-address
-                                          access-level])
-                      true
-                      (catch Exception e
-                        (println (.getMessage e))
-                        (println (.getMessage (.getNextException e)))
-                        false))]
+  (let [sanitized-email (-> (or target-email-address "")
+                            (.trim)
+                            (.toLowerCase))
+        access (set (get-user-access email-address))]
+    (let [user-query (str "select * from public.user "
+                          "where email_address = ?::character varying(255) ")
+          access-level-query (str "select * from user_access_level "
+                                  "where description = ?::character varying(255) ")
+          user? (not (empty? (sql/query (db)
+                                       [user-query
+                                        sanitized-email])))
+          access-level? (not (empty? (sql/query (db)
+                                               [access-level-query
+                                                access-level])))]
+      (if (contains? access constants/manage-users)
+        (if (not access-level?)
+          (status (response {:response (str "User access level doesn't exists: "
+                                            access-level)}) 400)
+          (if (not user?)
+            (status (response {:response (str "Target user level doesn't exists: "
+                                              sanitized-email)}) 400)
+            (let
+              [query (str "insert into public.user_to_user_access_level "
+                          "(user_id, access_level_id) "
+                          "values ("
+                          "(select id from public.user where email_address=?), "
+                          "(select id from public.user_access_level where description=?))")
+               success (try (sql/execute! (db) [query
+                                                sanitized-email
+                                                access-level])
+                            true
+                            (catch Exception e
+                              (println (.getMessage e))
+                              (println (.getMessage (.getNextException e)))
+                              false))]
 
-        ; if we successfully created the user access level, return a "created"
-        ; status and invoke user-access-list
-        ; otherwise, return a "conflict" status
-        (if success
-          (status (user-access-list email-address target-email-address) 201)
-          (status (response {:response (str "User access for "
-                                            target-email-address
-                                            " already exists: "
-                                            access-level)})
-                  409)))
-      (access-denied constants/manage-users))))
+              ; if we successfully created the user access level, return a "created"
+              ; status and invoke user-access-list
+              ; otherwise, return a "conflict" status
+              (if success
+                (status (user-access-list email-address sanitized-email) 201)
+                ;TODO conflict can not be determined by success of excuted query
+                ;table constraint for user_id and access_level_id is not 
+                ;implemented
+                (status (response {:response (str "User access for "
+                                                  sanitized-email
+                                                  " already exists: "
+                                                  access-level)})
+                        409)))))
+        (access-denied constants/manage-users)))))
