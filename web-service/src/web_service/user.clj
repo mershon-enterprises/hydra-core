@@ -26,16 +26,19 @@
 
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
-  (let [access (set (get-user-access email-address))
-        can-access (or (= target-user-email-address email-address)
+  (let [sanitized-email (-> (or target-user-email-address "")
+                            (.trim)
+                            (.toLowerCase))
+        access (set (get-user-access email-address))
+        can-access (or (= sanitized-email  email-address)
                        (contains? access constants/manage-users))]
     (if can-access
-      (let [user (get-user target-user-email-address)]
+      (let [user (get-user sanitized-email  )]
         ; log the activity in the session
         (log-detail email-address
                     constants/session-activity
                     (str constants/session-get-user " "
-                         target-user-email-address))
+                         sanitized-email  ))
         (if user
           (response {:response user})
           (not-found "User not found"))) ; inconceivable!
@@ -71,11 +74,14 @@
 
   ; let a user view their own information but not the information of others,
   ; unless they have the Manage Users access
-  (let [access (set (get-user-access email-address))
-        can-access (or (= email-address target-email-address)
+  (let [sanitized-email (-> (or target-email-address "")
+                            (.trim)
+                            (.toLowerCase))
+        access (set (get-user-access email-address))
+        can-access (or (= email-address sanitized-email )
                        (contains? access constants/manage-users))]
     (if can-access
-      (response {:response (get-user-access target-email-address)})
+      (response {:response (get-user-access sanitized-email )})
       (access-denied constants/manage-users))))
 
 
