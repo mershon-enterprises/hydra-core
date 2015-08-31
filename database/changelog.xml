@@ -17,6 +17,10 @@
     <include relativeToChangelogFile="true" file="changelogs/0006-filename-unique-if-not-deleted.xml"/>
     <include relativeToChangelogFile="true" file="changelogs/0007-attachment-sharing-tables.xml"/>
 
-    <!-- add child changelogs above this line -->
+    <!-- Development Enviroment changelogs context="dev"-->
+    <include relativeToChangelogFile="true" file="dev.changelog.xml"/>
+    <!-- Testing Enviroment changelogs context="test"-->
+    <include relativeToChangelogFile="true" file="test.changelog.xml"/>
 
+    <!-- add child changelogs above this line -->
 </databaseChangeLog>

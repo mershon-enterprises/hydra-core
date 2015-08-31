@@ -25,7 +25,7 @@
         instance (DatabaseFactory/getInstance)
         database (.findCorrectDatabaseImplementation instance connection)
         fsra (new FileSystemResourceAccessor)
-        changelogs (-> (io/resource (env :changelog-path))
+        changelogs (-> (io/resource "private/database/changelog.xml")
                        (io/file)
                        (.getAbsolutePath))]
     (new Liquibase changelogs fsra database)))
@@ -34,4 +34,4 @@
   "Build/update database using liquibase changelogs context"
   []
   (log/info "Applying new liquibase changelogs to database if they exist.")
-  (.update (liquibase-instance) nil))
+  (.update (liquibase-instance) (env :liquibase-context)))

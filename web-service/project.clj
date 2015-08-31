@@ -50,4 +50,5 @@
                      :rabbitmq-username "guest"
                      :rabbitmq-password "guest"
                      :changelog-path    "private/database/dev.changelog.xml"
+                     :liquibase-context "test"
                      }}})
