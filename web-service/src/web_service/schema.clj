@@ -35,3 +35,13 @@
   []
   (log/info "Applying new liquibase changelogs to database if they exist.")
   (.update (liquibase-instance) (env :liquibase-context)))
+
+(defn reset
+  "Populate database based on environment specific liquibase context"
+  []
+  (log/info (str "Clearing database before applying '"
+                 (env :profile) "' liquibase changlogs."))
+  (.dropAll (liquibase-instance))
+  (log/info (str "Applying '" (env :profile) "' liquibase "
+                 "changlogs to database."))
+  (.update (liquibase-instance) (env :liquibase-context)))

@@ -3,14 +3,21 @@
             [web-service.handler :refer :all]
             [ring.mock.request :as mock]
             [cheshire.core :refer :all]
-            [web-service.amqp :as amqp]))
+            [web-service.amqp :as amqp]
+            [web-service.schema :as schema]
+            ))
+
 
 (defn test-wrapper [tests]
   (amqp/connect)
   (tests)
   (amqp/disconnect))
 
-(use-fixtures :once test-wrapper)
+(defn once-fixture [tests]
+  (schema/reset)
+  (test-wrapper tests))
+
+(use-fixtures :once once-fixture)
 
 (deftest test-app
 

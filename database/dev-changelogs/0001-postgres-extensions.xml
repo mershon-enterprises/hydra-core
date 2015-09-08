@@ -9,7 +9,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet author="Development" id="1" context="dev">
+    <changeSet author="Development" id="1" context="!prod and dev and !test">
       <sql>
         CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
         CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;

@@ -40,7 +40,8 @@
 
              :test {:dependencies [[ring-mock "0.1.5"]]
                     :env
-                    {:db-host           "localhost"
+                    {:profile           "test"
+                     :db-host           "localhost"
                      :db-port           5432
                      :db-name           "postgres"
                      :db-user           "postgres"
@@ -49,6 +50,5 @@
                      :rabbitmq-host     "localhost"
                      :rabbitmq-username "guest"
                      :rabbitmq-password "guest"
-                     :changelog-path    "private/database/dev.changelog.xml"
                      :liquibase-context "test"
                      }}})
