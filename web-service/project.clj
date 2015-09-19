@@ -24,7 +24,7 @@
                  [org.clojure/data.codec "0.1.0"]       ; base64 codec
                  [com.lispcast/org.apache.commons.lang "2.5.0"] ; random strings
                  [org.liquibase/liquibase-core "3.3.3"] ; database versioning
-                 [postgresql "9.3-1102.jdbc4"]          ; postgres jdbc driver 
+                 [postgresql "9.3-1102.jdbc4"]          ; postgres jdbc driver
                  ]
 
   :plugins [[lein-ring "0.8.11"]
