@@ -88,12 +88,42 @@ angular.module('webServiceApp').factory('RestService',
 
     };
 
-    //Returns the access levels available to the current user.
-    restService.version = function () {
+    //Returns the authenticator used by the service back-end.
+    restService.getAuthenticator = function () {
 
         var deferred = $q.defer();
 
-        restclient.version().then(
+        restclient.getAuthenticator().then(
+
+            function(response) {
+
+                var statusCode = response.status.code;
+
+                if (statusCode === STATUS_CODES.ok) {
+
+                    var jsonResponse = response.entity.authenticator;
+
+                    deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
+                }
+                else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('authenticator', statusCode);
+                }
+            },
+            function(error) {
+                deferred.reject([EVENTS.promiseFailed, error]);
+                console.log('restclient.getAuthenticator promise failed: ' + error);
+            });
+
+        return deferred.promise;
+    };
+
+    //Returns the version of the service back-end.
+    restService.getVersion = function () {
+
+        var deferred = $q.defer();
+
+        restclient.getVersion().then(
 
             function(response) {
 
@@ -112,7 +142,7 @@ angular.module('webServiceApp').factory('RestService',
             },
             function(error) {
                 deferred.reject([EVENTS.promiseFailed, error]);
-                console.log('restclient.version promise failed: ' + error);
+                console.log('restclient.getVersion promise failed: ' + error);
             });
 
         return deferred.promise;

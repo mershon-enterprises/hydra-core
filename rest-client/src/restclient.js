@@ -48,12 +48,15 @@
     };
   };
 
-  exports.version = function() {
+  exports.getVersion = function() {
     return rest({
       method: 'GET',
       path: exports.endpointUrl + '/version',
     });
   };
+
+  // deprecated -- use .getVersion instead
+  exports.version = exports.getVersion;
 
   exports.authenticate = function(clientUUID, emailAddress, password) {
     return rest({
@@ -81,6 +84,13 @@
         password: password,
         user_email_address: userEmailAddress
       }
+    });
+  };
+
+  exports.getAuthenticator = function() {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/authenticator',
     });
   };
 

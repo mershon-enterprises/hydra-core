@@ -7,11 +7,34 @@
 angular.module('webServiceApp').controller('LoginCtrl',
  function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, localStorageService, Session) {
 
-    //If they are at the login route and already have a valid session, send them
-    //to where they need to be.
-    if(Session.exists()) {
-        $location.path('/attachment_explorer');
-    }
+    //Collect the version of the app to be displayed in the UI.
+    RestService.getAuthenticator().then(
+        function(success) {
+            $scope.authenticator = success[1];
+
+            if ($scope.authenticator == 'persona') {
+                navigator.id.watch({
+                  loggedInUser: (Session.exists() ? Session.email : null),
+                  onlogin: function(assertion) {
+                    $scope.login({
+                      email:    null,
+                      password: assertion
+                    });
+                  },
+                  onlogout: function() {
+                    $scope.logout();
+                  }
+                });
+            } else if (Session.exists()) {
+                // If they are at the login route and already have a valid
+                // session, send them to where they need to be.
+                $location.path('/attachment_explorer');
+            }
+        },
+        function() {
+            console.log('Authenticator component promise error.');
+        }
+    );
 
     //Will be populated by user on login view.
     $scope.credentials = {

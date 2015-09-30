@@ -9,12 +9,17 @@
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
             [compojure.route :as route]
+            [environ.core :refer [env]]
             [web-service.shared-init :as shared-init]))
 
 ; get the version of the API
 (defn get-version
   []
-  (response {:version "0.7.0"}))
+  (response {:version "0.7.1"}))
+
+(defn get-authenticator
+  []
+  (response {:authenticator (env :authenticator)}))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed
@@ -34,6 +39,7 @@
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
         (authenticate client_uuid email_address password))
+  (GET "/authenticator" [] (get-authenticator))
   (GET "/version" [] (get-version))
 
   (context

@@ -1,7 +1,8 @@
-<div class="login-form">
+<div class="login-form" ng-controller="LoginCtrl">
+    <!-- Default authenticator -->
+    <div ng-if="authenticator != 'persona'">
         <!-- Login form to display when login controller is in scope. -->
         <form   name="loginForm"
-                ng-controller="LoginCtrl"
                 ng-submit="login(credentials)"
                 novalidate>
 
@@ -19,7 +20,14 @@
                     required>
 
             <button type="submit">Login</button>
-
         </form>
-</div>
+    </div>
 
+    <!-- Persona -->
+    <div ng-if="authenticator == 'persona'">
+        <button id="persona-login"
+                onclick="navigator.id.request()">
+            Login with Mozilla Persona
+        </button>
+    </div>
+</div>
