@@ -17,7 +17,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
                   loggedInUser: (Session.exists() ? Session.email : null),
                   onlogin: function(assertion) {
                     $scope.login({
-                      email:    null,
+                      email:    "mozilla@persona",
                       password: assertion
                     });
                   },
