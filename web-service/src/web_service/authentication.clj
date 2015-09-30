@@ -20,7 +20,7 @@
 ; dynamically require the authenticator
 (def authenticator (symbol (str "web-service.authentication."
                                 (or (env :authenticator)
-                                    "match" ; default to 'match' authenticator
+                                    "persona" ; default to Mozilla Persona
                                     ))))
 (require authenticator)
 (alias 'auth authenticator)
