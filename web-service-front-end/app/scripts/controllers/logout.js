@@ -8,7 +8,11 @@ angular.module('webServiceApp').controller('LogoutCtrl',
  function ($scope, $rootScope, $location, EVENTS, CacheService, NotificationService, RestService, Session) {
 
     $scope.logout = function () {
-        Session.destroy();
+        if ($rootScope.authenticator == 'persona') {
+            navigator.id.logout();
+        } else {
+            Session.destroy();
+        }
         CacheService.destroyCache();
         $rootScope.$broadcast(EVENTS.logoutSuccess);
         NotificationService.info('Logout Successful', 'Redirecting to home.');

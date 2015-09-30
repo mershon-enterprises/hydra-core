@@ -7,10 +7,10 @@
 angular.module('webServiceApp').controller('LoginCtrl',
  function ($scope, $rootScope, $location, EVENTS, RestService, NotificationService, localStorageService, Session) {
 
-    //Collect the version of the app to be displayed in the UI.
+    // Determine which authenticator UI to use based on back-end support
     RestService.getAuthenticator().then(
         function(success) {
-            $scope.authenticator = success[1];
+            $rootScope.authenticator = success[1];
 
             if ($scope.authenticator == 'persona') {
                 navigator.id.watch({
@@ -22,7 +22,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
                     });
                   },
                   onlogout: function() {
-                    $scope.logout();
+                    Session.destroy();
                   }
                 });
             } else if (Session.exists()) {
