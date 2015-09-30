@@ -16,7 +16,10 @@ angular.module('webServiceApp').controller('LoginCtrl',
                 navigator.id.watch({
                   loggedInUser: (Session.exists() ? Session.email : null),
                   onlogin: function(assertion) {
-                    $scope.login(assertion);
+                    $scope.login({
+                      email:    null,
+                      password: assertion
+                    });
                   },
                   onlogout: function() {
                     $scope.logout();
