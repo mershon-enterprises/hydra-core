@@ -15,7 +15,7 @@
 ; get the version of the API
 (defn get-version
   []
-  (response {:version "0.7.0"}))
+  (response {:version "0.7.1"}))
 
 (defn get-authenticator
   []
