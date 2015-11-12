@@ -11,7 +11,7 @@
                            :username            (env :rabbitmq-username)
                            :password            (env :rabbitmq-password)
                            :requested-heartbeat 3
-                           :connection-timeout  5})
+                           :connection-timeout  30})
 
 ; dynamic variables for connection and channel
 (def ^:dynamic conn nil)
