@@ -601,6 +601,33 @@
         (status (response {:response "Failure"}) 409))
       (access-denied constants/manage-data))))
 
+(defn data-set-reprocess
+  "Reissue a dataset for post-processing in downstream microservices"
+  [email-address data-set-uuid]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-reprocess-dataset
+                   "(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)]
+    (if can-access
+      (let [data-saved (data-set-get email-address uuid)]
+        ; broadcast the dataset including attachment binary data to
+        ; listeners
+        (let [with-attachments (merge (:response (:body data-saved))
+                                      ; FIXME -- We need to reload the
+                                      ; attachments for the dataset from the
+                                      ; database
+                                      ;
+                                      ; use function (do-get-attachment uuid filename)
+                                      {} #_{:data json-data})] ;FIXME -- return merged data
+          (amqp/broadcast "text/json"
+                          "dataset"
+                          (generate-string with-attachments)))
+        (status data-saved 201))
+      (access-denied constants/manage-data))))
+
 (defn data-set-primitive-update
   [email-address data-set-uuid type description value]
 
