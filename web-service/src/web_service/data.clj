@@ -21,7 +21,7 @@
 
 
 (defn- format-data-set [row & {:keys [include-attachments?]
-                               :or [include-attachments? false]}]
+                               :or {include-attachments? false}}]
   "format the specified row from the data_set table"
   (assoc (select-keys row [:uuid :date_created :location :client])
          :data (let [args {:data_set_id (:id row)}]
@@ -341,7 +341,7 @@
 ; get the specified data_set set by date
 (defn data-set-get
   [email-address uuid & {:keys [include-attachments?]
-                         :or [include-attachments? false]}]
+                         :or {include-attachments? false}}]
 
   ; log the activity in the session
   (log-detail email-address
