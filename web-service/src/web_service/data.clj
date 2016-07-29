@@ -20,11 +20,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn- format-data-set [row]
+(defn- format-data-set [row & {:keys [include-attachments?]
+                               :or [include-attachments? false]}]
   "format the specified row from the data_set table"
   (assoc (select-keys row [:uuid :date_created :location :client])
          :data (let [args {:data_set_id (:id row)}]
-                 (flatten [(queries/get-attachment-data args {})
+                 (flatten [(if include-attachments?
+                             (queries/get-attachment-data args {:row-fn (fn [it]
+                                                                          (assoc it :contents
+                                                                                 (String. (b64/encode (:contents it)))))})
+                             (queries/get-attachment-info args {}))
                            (queries/get-boolean-data    args {})
                            (queries/get-date-data       args {})
                            (queries/get-integer-data    args {})
@@ -335,7 +340,8 @@
 
 ; get the specified data_set set by date
 (defn data-set-get
-  [email-address uuid]
+  [email-address uuid & {:keys [include-attachments?]
+                         :or [include-attachments? false]}]
 
   ; log the activity in the session
   (log-detail email-address
@@ -351,12 +357,14 @@
     (if can-access
       (response {:response (first (sql/query (db)
                                              [query uuid]
-                                             :row-fn format-data-set))})
+                                             :row-fn (fn [it] (format-data-set it
+                                                                               :include-attachments? include-attachments?))))})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (response {:response (first (sql/query (db)
                                              [query-own uuid email-address]
-                                             :row-fn format-data-set))}))))
+                                             :row-fn (fn [it] (format-data-set it
+                                                                               :include-attachments? include-attachments?))))}))))
 
 
 ; delete the specified data_set by date
@@ -582,19 +590,13 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)]
     (if can-access
-      (let [data-saved (data-set-get email-address data-set-uuid)]
+      (let [data-saved (data-set-get email-address data-set-uuid
+                                     :include-attachments? true)]
         ; broadcast the dataset including attachment binary data to
         ; listeners
-        (let [with-attachments (merge (:response (:body data-saved))
-                                      ; FIXME -- We need to reload the
-                                      ; attachments for the dataset from the
-                                      ; database
-                                      ;
-                                      ; use function (do-get-attachment data-set-uuid filename)
-                                      {} #_{:data json-data})] ;FIXME -- return merged data
-          (amqp/broadcast "text/json"
-                          "dataset"
-                          (generate-string with-attachments)))
+        (amqp/broadcast "text/json"
+                        "dataset"
+                        (generate-string (:response (:body data-saved))))
         (status data-saved 201))
       (access-denied constants/manage-data))))
 
