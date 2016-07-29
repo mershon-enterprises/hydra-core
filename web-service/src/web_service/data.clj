@@ -612,7 +612,7 @@
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)]
     (if can-access
-      (let [data-saved (data-set-get email-address uuid)]
+      (let [data-saved (data-set-get email-address data-set-uuid)]
         ; broadcast the dataset including attachment binary data to
         ; listeners
         (let [with-attachments (merge (:response (:body data-saved))
@@ -620,7 +620,7 @@
                                       ; attachments for the dataset from the
                                       ; database
                                       ;
-                                      ; use function (do-get-attachment uuid filename)
+                                      ; use function (do-get-attachment data-set-uuid filename)
                                       {} #_{:data json-data})] ;FIXME -- return merged data
           (amqp/broadcast "text/json"
                           "dataset"
