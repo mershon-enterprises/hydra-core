@@ -1051,16 +1051,14 @@
                                      :row-fn format-attachment-get))
         attachment-own (first (sql/query (db)
                                          [query-own uuid filename email-address]
-                                         :row-fn format-attachment-get))
-        attachment-count (count (:headers attachment))
-        attachment-own-count (count (:headers attachment-own))]
+                                         :row-fn format-attachment-get))]
     (if can-access
-      (if (> attachment-count 0)
+      (if (not (nil? attachment))
         attachment
         (status (response {:response "File not found."}) 404))
-      (if (> attachment-own-count 0)
+      (if (not (nil? attachment-own))
         attachment-own
-        (if (= attachment-count attachment-own-count 0)
+        (if (= attachment attachment-own nil)
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to download attachment '%s' "
@@ -1183,20 +1181,18 @@
                                      :row-fn format-attachment-get))
         attachment-own (first (sql/query (db)
                                          [query-own uuid filename email-address]
-                                         :row-fn format-attachment-get))
-        attachment-count (count (:headers attachment))
-        attachment-own-count (count (:headers attachment-own))]
+                                         :row-fn format-attachment-get))]
 
     (if can-access
-      (if (> attachment-count 0)
+      (if (not (nil? attachment))
         ; generate sharable download link
         (generate-sharable-download-link
           email-address uuid filename exp-date end-point-url)
         (status (response {:response "File not found."}) 404))
-      (if (> attachment-own-count 0)
+      (if (not (nil? attachment-own))
         (generate-sharable-download-link
           email-address uuid filename exp-date end-point-url)
-        (if (= attachment-count attachment-own-count 0)
+        (if (= attachment attachment-own nil)
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to create a sharable "
