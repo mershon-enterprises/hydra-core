@@ -10,7 +10,8 @@
             [clojure.data.codec.base64 :as b64]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
-            [web-service.constants :as constants])
+            [web-service.constants :as constants]
+            [web-service.schema :as queries :include-macros true])
   (:import java.sql.SQLException
            org.apache.commons.lang.RandomStringUtils))
 
@@ -19,63 +20,32 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn- get-attachment-data
-  [data-set-id]
-  (let [query (str "select 'attachment' as type, filename, "
-                   "  octet_length(contents) as bytes "
-                   "from public.data_set_attachment "
-                   "where data_set_id=? "
-                   "and date_deleted is null")]
-    (sql/query (db) [query data-set-id])))
-
-
-(defn- get-primitive-data
-  [type data-set-id]
-  (let [query (str "select '" type "' as type, description, value "
-                   "from public.data_set_" type " "
-                   "where data_set_id=? "
-                   "and date_deleted is null")]
-    (sql/query (db) [query data-set-id])))
-
-
-; format the specified row from the data_set table
 (defn- format-data-set [row]
-  {:uuid (:uuid row)
-   :date_created (:date_created row)
-   :created_by (:email_address row)
-   :location (:location row)
-   :client (:client row)
-   :data (flatten [(get-attachment-data (:id row))
-                   (get-primitive-data "boolean" (:id row))
-                   (get-primitive-data "date" (:id row))
-                   (get-primitive-data "integer" (:id row))
-                   (get-primitive-data "real" (:id row))
-                   (get-primitive-data "text" (:id row))])})
+  "format the specified row from the data_set table"
+  (assoc (select-keys row [:uuid :date_created :location :client])
+         :data (let [args {:data_set_id (:id row)}]
+                 (flatten [(queries/get-attachment-data args {})
+                           (queries/get-boolean-data    args {})
+                           (queries/get-date-data       args {})
+                           (queries/get-integer-data    args {})
+                           (queries/get-real-data       args {})
+                           (queries/get-text-data       args {})]))
+         :created_by (:email_address row)))
 
 
-; format the specified row from the data_set_attachment table
 (defn- format-data-set-attachment [row]
-  {:filename (:filename row)
-   :mime_type (:mime_type row)
-   :bytes (:bytes row)
-   :date_created (:date_created row)
-   :created_by (:created_by row)
-   :client (:client row)
-   :location (:location row)
-   :data_set_uuid (:data_set_uuid row)
-   :is_shared_with_me (:is_shared_with_me row)
-   :is_shared_with_others (:is_shared_with_others row)})
+  "format the specified row from the data_set_attachment table"
+  (select-keys row [:filename :mime_type :bytes :date_created :created_by
+                    :location :data_set_uuid :is_shared_with_me
+                    :is_shared_with_others]))
 
 
-; format the specified row from the data_set_attachment for info display
 (defn- format-attachment-info [row]
-  {:filename (:filename row)
-   :mime_type (:mime_type row)
-   :bytes (:bytes row)
-   :date_created (:date_created row)
-   :created_by (:created_by row)
-   :data_set_uuid (:data_set_uuid row)
-   :primitive_text_data (get-primitive-data "text" (:data_set_id row))})
+  "format the specified row from the data_set_attachment for info display"
+  (assoc (select-keys row [:filename :mime_type :bytes :date_created :created_by
+                           :data_set_uuid])
+         :primitive_text_data (queries/get-text-data {:data_set_id (:data_set_id row)}
+                                                     {})))
 
 
 ; format the specified attachment from the data_set_attachment for download
