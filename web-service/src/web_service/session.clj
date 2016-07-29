@@ -1,7 +1,6 @@
 (ns web-service.session
-  (:use [ring.util.response]
-        [web-service.db])
-  (:require [clojure.java.jdbc :as sql]))
+  (:use [ring.util.response])
+  (:require [web-service.schema :as queries :include-macros true]))
 
 
 ; quick helper for access denied
@@ -21,46 +20,23 @@
 (defn start
   [email-address]
 
-  (let [query (str "insert into public.user_session "
-                   "(start_date, end_date, user_id) "
-                   "values (now(), now(), "
-                   "  (select id from public.user where email_address=?)"
-                   ")")]
-    (try (sql/execute! (db) [query email-address])
-         true
-         (catch Exception e
-           (println (.getMessage e))
-           false))))
+  (try (queries/session-start! {:email_address email-address} {})
+       true
+       (catch Exception e
+         false)))
 
 
 ; get the current session id
 (defn- get-current-id
   [email-address]
-  (let [get-query (str "select us.id from public.user_session us "
-                       "inner join public.user u "
-                       "  on u.id = us.user_id "
-                       "where u.email_address=? "
-                       "and ("
-                       "  us.end_date is null"
-                       "  or (now() - us.end_date) < interval '30 minutes'"
-                       ")")
-        update-query (str "update public.user_session "
-                          "set end_date=now(), date_modified=now() "
-                          "where id=?")
-        get-current (fn []
-                      (first (sql/query (db)
-                                        [get-query email-address]
-                                        :row-fn :id)))
-        update-current (fn [current-id]
-                         (try (sql/execute! (db) [update-query current-id])
-                              (catch Exception e
-                                (.printStackTrace e))))
+  (let [get-current (fn [] (queries/session-get-current {:email_address email-address}
+                                                        {:result-set-fn (comp :id first)}))
         current-id (get-current)]
 
     ; if there isn't a current session, start one
     (if current-id
       (do
-        (update-current current-id)
+        (queries/session-update! {:session_id current-id} {})
         current-id)
       (do
         (start email-address)
@@ -70,14 +46,11 @@
 ; log some arbitrary detail about a session
 (defn log-detail
   [email-address attribute value]
-  (let [query (str "insert into public.user_session_detail "
-                   "(attribute, value, session_id) values (?,?,?)")
-        session-id (get-current-id email-address)]
-    (try (sql/execute! (db) [query
-                           attribute
-                           value
-                           (get-current-id email-address)])
+  (let [session-id (get-current-id email-address)]
+    (try (queries/session-log-detail! {:attribute attribute
+                                       :value     value
+                                       :session_id (get-current-id email-address)}
+                                      {})
          true
          (catch Exception e
-           (.printStackTrace e)
            false))))

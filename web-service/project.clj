@@ -25,6 +25,8 @@
                  [com.lispcast/org.apache.commons.lang "2.5.0"] ; random strings
                  [org.liquibase/liquibase-core "3.3.3"] ; database versioning
                  [clj-http "2.0.0"]
+
+                 [yesql "0.5.2"]
                  ]
 
   :plugins [[lein-ring "0.8.11"]
