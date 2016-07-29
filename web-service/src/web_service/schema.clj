@@ -19,6 +19,7 @@
 
 (defqueries "queries/dataset.sql"     {:connection db-spec})
 (defqueries "queries/session.sql"     {:connection db-spec})
+(defqueries "queries/user.sql"        {:connection db-spec})
 
 
 (defn- liquibase-instance
