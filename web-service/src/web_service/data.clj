@@ -782,19 +782,19 @@
 
         shared-with-me-query
         (if (:is_shared_with_others json-search-params)
-          (if (= (:is_shared_with_others json-search-params) true)
+          (if (true? (:is_shared_with_others json-search-params))
             (str "and ( "
                  "  asa.start_date is not null "
                  "  and (asa.expiration_date is null or asa.expiration_date > now())) "))
-          (if (= (:is_shared_with_others json-search-params) false)
+          (if (false? (:is_shared_with_others json-search-params))
             "and ( asa.start_date is null or asa.expiration_date < now()) "
             " "))
 
         shared-with-others-query
         (if (:is_shared_with_me json-search-params)
-          (if (= (:is_shared_with_me json-search-params) true)
+          (if (true? (:is_shared_with_me json-search-params))
             "and sau.user_email_address is not null ")
-          (if (= (:is_shared_with_me json-search-params) false)
+          (if (false? (:is_shared_with_me json-search-params))
             "and sau.user_email_address is null "
             " "))
 
@@ -1025,12 +1025,12 @@
         attachment-count (count (:headers attachment))
         attachment-own-count (count (:headers attachment-own))]
     (if can-access
-      (if (> attachment-count 0)
+      (if (pos? attachment-count)
         attachment
         (status (response {:response "File not found."}) 404))
-      (if (> attachment-own-count 0)
+      (if (pos? attachment-own-count)
         attachment-own
-        (if (= attachment-count attachment-own-count 0)
+        (if (zero? attachment-count attachment-own-count)
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to download attachment '%s' "
@@ -1158,15 +1158,15 @@
         attachment-own-count (count (:headers attachment-own))]
 
     (if can-access
-      (if (> attachment-count 0)
+      (if (pos? attachment-count)
         ; generate sharable download link
         (generate-sharable-download-link
           email-address uuid filename exp-date end-point-url)
         (status (response {:response "File not found."}) 404))
-      (if (> attachment-own-count 0)
+      (if (pos? attachment-own-count)
         (generate-sharable-download-link
           email-address uuid filename exp-date end-point-url)
-        (if (= attachment-count attachment-own-count 0)
+        (if (zero? attachment-count attachment-own-count)
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to create a sharable "
