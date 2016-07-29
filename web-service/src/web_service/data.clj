@@ -1030,7 +1030,8 @@
         (status (response {:response "File not found."}) 404))
       (if (pos? attachment-own-count)
         attachment-own
-        (if (zero? attachment-count attachment-own-count)
+        (if (and (zero? attachment-count)
+                 (zero? attachment-own-count))
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to download attachment '%s' "
@@ -1166,7 +1167,8 @@
       (if (pos? attachment-own-count)
         (generate-sharable-download-link
           email-address uuid filename exp-date end-point-url)
-        (if (zero? attachment-count attachment-own-count)
+        (if (and (zero? attachment-count)
+                 (zero? attachment-own-count))
           (status (response {:response "File not found."}) 404)
           (do
             (log/debug (format (str "User %s tried to create a sharable "
