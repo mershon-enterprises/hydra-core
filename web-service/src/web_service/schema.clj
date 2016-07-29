@@ -6,7 +6,19 @@
            (liquibase.resource FileSystemResourceAccessor))
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [yesql.core :refer [defqueries]]))
+
+(def db-spec {:classname   "org.postgresql.Driver"
+              :subprotocol "postgresql"
+              :subname     (str "//" (env :db-host)
+                                ":"  (env :db-port)
+                                "/"  (env :db-name))
+              :user        (env :db-user)
+              :password    (env :db-password)})
+
+(defqueries "queries/session.sql"     {:connection db-spec})
+
 
 (defn- liquibase-instance
   "Generate liquibase instance using environment variables."
