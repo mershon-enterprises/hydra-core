@@ -1,10 +1,8 @@
 (ns web-service.user
   (:use [ring.util.response]
         [web-service.authentication]
-        [web-service.db]
         [web-service.session])
-  (:require [clojure.java.jdbc :as sql]
-            [web-service.constants :as constants]
+  (:require [web-service.constants :as constants]
             [web-service.schema :as queries :include-macros true]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -72,10 +70,7 @@
 
   (let [access (set (get-user-access email-address))]
     (if (contains? access constants/manage-users)
-      (response {:response (sql/query
-                             (db)
-                             ["select * from public.user"]
-                             :row-fn :email_address)})
+      (response {:response (queries/list-users {} {:row-fn :email_address})})
       (access-denied constants/manage-users))))
 
 
@@ -115,16 +110,9 @@
                             (.trim)
                             (.toLowerCase))
         access (set (get-user-access email-address))
-        user-query (str "select * from public.user "
-                        "where email_address = ?::character varying(255) ")
-        access-level-query (str "select * from user_access_level "
-                                "where description = ?::character varying(255) ")
-        user? (not (empty? (sql/query (db)
-                                      [user-query
-                                       sanitized-email])))
-        access-level? (not (empty? (sql/query (db)
-                                              [access-level-query
-                                               access-level])))]
+        user? (not (nil? (get-user sanitized-email)))
+        access-level? (not (empty? (queries/get-access-level {:access_level access-level}
+                                                             {:result-set-fn (comp :description first)})))]
 
     (cond
       (not (contains? access constants/manage-users))
@@ -140,18 +128,11 @@
 
       :else
       (let
-        [query (str "insert into public.user_to_user_access_level "
-                    "(user_id, access_level_id) "
-                    "values ("
-                    "(select id from public.user where email_address=?), "
-                    "(select id from public.user_access_level where description=?))")
-         success (try (sql/execute! (db) [query
-                                          sanitized-email
-                                          access-level])
+        [success (try (queries/add-user-access! {:email_address sanitized-email
+                                                 :access_level  access-level}
+                                                {})
                       true
                       (catch Exception e
-                        (println (.getMessage e))
-                        (println (.getMessage (.getNextException e)))
                         false))]
 
         ; if we successfully created the user access level, return a "created"
