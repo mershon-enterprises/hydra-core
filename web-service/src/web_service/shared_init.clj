@@ -1,15 +1,13 @@
 (ns web-service.shared-init
   (:use [web-service.data])
-  (:require [cheshire.core :refer :all]
+  (:require [clojure.tools.logging :as log]
+            [cheshire.core :refer :all]
             [langohr.basic :as lb]
             [web-service.amqp :as amqp]
             [web-service.schema :as schema]))
 
-(defn init
+(defn- rabbitmq-connect
   []
-  ; update the database
-  (schema/update)
-
   (let [ch (amqp/connect)]
     ; listen for incoming authentications and just print to the standard out
     (amqp/start-consumer
@@ -44,6 +42,17 @@
           ; acknowledge the message and send response
           (lb/ack ch (:delivery-tag meta))
           (amqp/reply "text/json" (:reply-to meta) response (:correlation-id meta)))))))
+
+(defn init
+  []
+  ; update the database
+  (schema/update)
+
+  (try
+    (rabbitmq-connect)
+    (catch Exception ex
+      (log/error "Failed to connect to RabbitMQ server. Event processing is disabled.")
+      )))
 
 (defn destroy
   []
