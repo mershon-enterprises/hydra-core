@@ -8,6 +8,7 @@
                  [ring/ring-jetty-adapter "1.2.1"]      ; dev HTTP server
                                                         ;   configuration
                  [ring/ring-json "0.3.1"]               ; JSON response wrapping
+                 [jumblerg/ring.middleware.cors "1.0.1"] ; cross-origin support
                  [postgresql "9.3-1102.jdbc4"]          ; postgres jdbc driver
                  [org.clojars.pntblnk/clj-ldap "0.0.9"] ; ldap integration
                  [org.clojure/tools.logging "0.3.0"]

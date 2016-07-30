@@ -8,6 +8,7 @@
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
+            [ring.middleware.cors :refer [wrap-cors]]
             [compojure.route :as route]
             [environ.core :refer [env]]
             [web-service.shared-init :as shared-init]))
@@ -271,4 +272,5 @@
   (->
     (handler/site app-routes)
     (json/wrap-json-params)
-    (json/wrap-json-response)))
+    (json/wrap-json-response)
+    (wrap-cors #".*")))
