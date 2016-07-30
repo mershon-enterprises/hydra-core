@@ -51,8 +51,7 @@
   (try
     (rabbitmq-connect)
     (catch Exception ex
-      (log/error "Failed to connect to RabbitMQ server. Event processing is disabled.")
-      )))
+      (log/error "Failed to connect to RabbitMQ server. Event processing is disabled."))))
 
 (defn destroy
   []
