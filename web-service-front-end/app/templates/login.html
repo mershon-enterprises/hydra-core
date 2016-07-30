@@ -1,6 +1,6 @@
 <div class="login-form" ng-controller="LoginCtrl">
     <!-- Default authenticator -->
-    <div ng-if="authenticator == 'match' || authenticator == 'ldap'">
+    <div ng-if="authenticator.name == 'match' || authenticator.name == 'ldap'">
         <!-- Login form to display when login controller is in scope. -->
         <form   name="loginForm"
                 ng-submit="login(credentials)"
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Persona -->
-    <div ng-if="authenticator == 'persona'">
+    <div ng-if="authenticator.name == 'persona'">
         <button id="persona-login"
                 onclick="navigator.id.request()">
             Login with Mozilla Persona
@@ -33,5 +33,4 @@
 
     <!-- Firebase -->
     <div id="firebaseui-auth-container"></div>
-    <div ng-if="authenticator == 'firebase'"></div>
 </div>
