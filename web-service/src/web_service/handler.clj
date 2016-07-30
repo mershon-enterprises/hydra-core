@@ -20,7 +20,7 @@
 
 (defn get-authenticator
   []
-  (response {:authenticator (env :authenticator)}))
+  (response (authenticator-config)))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed

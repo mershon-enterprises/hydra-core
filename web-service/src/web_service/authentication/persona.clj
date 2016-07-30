@@ -3,6 +3,10 @@
             [cheshire.core :refer :all]
             [environ.core :refer [env]]))
 
+(defn config
+  []
+  {:name "persona"})
+
 ; Using 'persona' authentication, anyone with a Mozilla Persona account is
 ; allowed to login, but by default their permissions are very limited.
 (defn find-user

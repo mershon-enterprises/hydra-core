@@ -101,7 +101,7 @@ angular.module('webServiceApp').factory('RestService',
 
                 if (statusCode === STATUS_CODES.ok) {
 
-                    var jsonResponse = response.entity.authenticator;
+                    var jsonResponse = response.entity;
 
                     deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
                 }

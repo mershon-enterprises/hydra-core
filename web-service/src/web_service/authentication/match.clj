@@ -1,5 +1,9 @@
 (ns web-service.authentication.match)
 
+(defn config
+  []
+  {:name "match"})
+
 (defn find-user
   [email-address]
 

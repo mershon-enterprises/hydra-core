@@ -28,6 +28,7 @@
                  [clj-http "2.0.0"]
 
                  [yesql "0.5.2"]
+                 [clj-jwt "0.1.1"]                      ; clojure JSON webtokens
                  ]
 
   :plugins [[lein-ring "0.8.11"]

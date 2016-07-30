@@ -8,8 +8,12 @@ angular.module('webServiceApp').controller('LogoutCtrl',
  function ($scope, $rootScope, $location, EVENTS, CacheService, NotificationService, RestService, Session) {
 
     $scope.logout = function () {
-        if ($rootScope.authenticator == 'persona') {
+        if ($rootScope.authenticator.name == 'persona') {
             navigator.id.logout();
+        } else if ($rootScope.authenticator.name == 'firebase') {
+            firebase.auth().signOut();
+            Session.destroy();
+            window.location.reload();
         } else {
             Session.destroy();
         }
