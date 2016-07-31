@@ -1,4 +1,4 @@
-(defproject web-service "0.7.2-SNAPSHOT"
+(defproject web-service "0.7.3-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "mershon.enterprises"
   :dependencies [[org.clojure/clojure "1.6.0"]
@@ -8,6 +8,7 @@
                  [ring/ring-jetty-adapter "1.2.1"]      ; dev HTTP server
                                                         ;   configuration
                  [ring/ring-json "0.3.1"]               ; JSON response wrapping
+                 [jumblerg/ring.middleware.cors "1.0.1"] ; cross-origin support
                  [postgresql "9.3-1102.jdbc4"]          ; postgres jdbc driver
                  [org.clojars.pntblnk/clj-ldap "0.0.9"] ; ldap integration
                  [org.clojure/tools.logging "0.3.0"]
@@ -25,6 +26,9 @@
                  [com.lispcast/org.apache.commons.lang "2.5.0"] ; random strings
                  [org.liquibase/liquibase-core "3.3.3"] ; database versioning
                  [clj-http "2.0.0"]
+
+                 [yesql "0.5.2"]
+                 [clj-jwt "0.1.1"]                      ; clojure JSON webtokens
                  ]
 
   :plugins [[lein-ring "0.8.11"]

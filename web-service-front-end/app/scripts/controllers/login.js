@@ -12,7 +12,7 @@ angular.module('webServiceApp').controller('LoginCtrl',
         function(success) {
             $rootScope.authenticator = success[1];
 
-            if ($scope.authenticator == 'persona') {
+            if ($scope.authenticator.name == 'persona') {
                 navigator.id.watch({
                   loggedInUser: (Session.exists() ? Session.email : null),
                   onlogin: function(assertion) {
@@ -24,6 +24,45 @@ angular.module('webServiceApp').controller('LoginCtrl',
                   onlogout: function() {
                     Session.destroy();
                   }
+                });
+            } else if ($scope.authenticator.name == 'firebase') {
+                // Initialize Firebase
+                var config = {
+                    apiKey: $scope.authenticator['firebase-key'],
+                    authDomain: $scope.authenticator['firebase-domain']
+                };
+                firebase.initializeApp(config);
+
+                // FirebaseUI config.
+                var uiConfig = {
+                    'signInSuccessUrl': window.location.href,
+                    'signInOptions': [
+                        // Leave the lines as is for the providers you want to offer your users.
+                        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                        // firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                        // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+                        // firebase.auth.GithubAuthProvider.PROVIDER_ID,
+                        firebase.auth.EmailAuthProvider.PROVIDER_ID
+                    ],
+                    // Terms of service url.
+                    'tosUrl': window.location.href + '/#/manual'
+                };
+
+                // Initialize the FirebaseUI Widget using Firebase.
+                var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+                // The start method will wait until the DOM is loaded.
+                ui.start('#firebaseui-auth-container', uiConfig);
+
+                firebase.auth().onAuthStateChanged(function(currentUser) {
+                    if (currentUser) {
+                        $scope.login({
+                          email:    currentUser.email,
+                          password: currentUser.getToken()
+                        });
+                    } else {
+                        Session.destroy();
+                    }
                 });
             } else if (Session.exists()) {
                 // If they are at the login route and already have a valid

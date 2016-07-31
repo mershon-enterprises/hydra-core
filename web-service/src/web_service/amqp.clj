@@ -1,5 +1,6 @@
 (ns web-service.amqp
-  (:require [langohr.core      :as rmq]
+  (:require [clojure.tools.logging :as log]
+            [langohr.core      :as rmq]
             [langohr.channel   :as lch]
             [langohr.exchange  :as le]
             [langohr.queue     :as lq]
@@ -14,6 +15,7 @@
                            :connection-timeout  30})
 
 ; dynamic variables for connection and channel
+(defonce is-connected? (atom false))
 (def ^:dynamic conn nil)
 (def ^:dynamic ch nil)
 
@@ -27,11 +29,13 @@
   [content-type routing-key payload]
 
   ; send payload to the listeners
-  (lb/publish ch
-              ex
-              routing-key
-              payload
-              {:content-type content-type}))
+  (if @is-connected?
+    (lb/publish ch
+                ex
+                routing-key
+                payload
+                {:content-type content-type})
+    (log/warn "Not connected to RabbitMQ. Event cannot be processed.")))
 
 (defn reply
   [content-type routing-key payload correlation-id]
@@ -62,6 +66,7 @@
 (defn connect
   []
   (def conn (rmq/connect rabbitmq-credentials))
+  (reset! is-connected? true)
   (def ch (lch/open conn))
 
   ; declare a topic exchange that is not persisted across reboots and
@@ -83,4 +88,5 @@
       ))
   ; null out the channel and connection
   (def ch nil)
-  (def conn nil))
+  (def conn nil)
+  (reset! is-connected? false))

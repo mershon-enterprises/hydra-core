@@ -93,7 +93,7 @@ $default-figcaption-height: 20px;
   overflow: auto;
   padding: $default-padding;
 
-  button {
+  button:not(.firebaseui-idp-button) {
     @include button-style($fontSize);
   }
 }
@@ -356,7 +356,7 @@ omnibox {
   vertical-align: top;
   width: 35%;
 
-  button {
+  button:not(.firebaseui-idp-button) {
     margin-top: $default-margin*2;
   }
 }

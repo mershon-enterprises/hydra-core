@@ -3,6 +3,10 @@
             [clojure.tools.logging :as log]
             [environ.core :refer [env]]))
 
+(defn config
+  []
+  {:name "ldap"})
+
 (def ldap-credentials {:domain   (env :ldap-domain)
                        :host     (env :ldap-host)
                        :bind-dn  (env :ldap-bind-dn)

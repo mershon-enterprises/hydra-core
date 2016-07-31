@@ -24,6 +24,7 @@
                                     ))))
 (require authenticator)
 (alias 'auth authenticator)
+(defn authenticator-config [] (auth/config))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
