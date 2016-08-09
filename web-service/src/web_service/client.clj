@@ -4,7 +4,7 @@
         [web-service.session]
         [web-service.user-helpers])
   (:require [clojure.java.jdbc :as sql]
-            [web-service.constants :as constants]))
+            [hydra.constants :as constants]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;

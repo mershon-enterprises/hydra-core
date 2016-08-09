@@ -1,7 +1,7 @@
 (ns web-service.access-level
   (:use [ring.util.response]
         [web-service.session])
-  (:require [web-service.constants :as constants]
+  (:require [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true]))
 
 (defn access-level-get

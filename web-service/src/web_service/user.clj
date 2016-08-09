@@ -2,7 +2,7 @@
   (:use [ring.util.response]
         [web-service.authentication]
         [web-service.session])
-  (:require [web-service.constants :as constants]
+  (:require [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

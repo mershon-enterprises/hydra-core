@@ -11,7 +11,7 @@
             [clj-time.format :as f]
             [crypto.random]
             [environ.core :refer [env]]
-            [web-service.constants :as constants]
+            [hydra.constants :as constants]
             [web-service.amqp :as amqp]))
 
 (import java.sql.SQLException)
