@@ -13,16 +13,8 @@
             [environ.core :refer [env]]
             [web-service.shared-init :as shared-init]
 
+            [hydra.routes.authenticator :as authenticator]
             [hydra.routes.version :as version]))
-
-; get the version of the API
-(defn get-version
-  []
-  (response {:version "0.7.2"}))
-
-(defn get-authenticator
-  []
-  (response (authenticator-config)))
 
 ; easy methods to handle not allowed and not implemented APIs
 (defn- not-allowed
@@ -42,8 +34,8 @@
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
         (authenticate client_uuid email_address password))
-  (GET "/authenticator" [] (get-authenticator))
 
+  authenticator/authenticator-routes
   version/version-routes
 
   (context
