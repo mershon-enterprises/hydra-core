@@ -16,6 +16,7 @@
             [hydra.access-level :refer [not-allowed]]
 
             [hydra.routes.access-level :as access-level]
+            [hydra.routes.branding :as branding]
             [hydra.routes.authenticator :as authenticator]
             [hydra.routes.version :as version]))
 
@@ -35,6 +36,7 @@
         (authenticate client_uuid email_address password))
 
   access-level/access-level-routes
+  branding/branding-routes
   authenticator/authenticator-routes
   version/version-routes
 
