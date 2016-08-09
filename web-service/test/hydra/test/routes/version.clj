@@ -1,4 +1,4 @@
-(ns web-service.test.routes.version
+(ns hydra.test.routes.version
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
             [cheshire.core :refer :all]

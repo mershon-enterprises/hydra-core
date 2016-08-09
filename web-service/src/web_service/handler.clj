@@ -11,7 +11,9 @@
             [ring.middleware.cors :refer [wrap-cors]]
             [compojure.route :as route]
             [environ.core :refer [env]]
-            [web-service.shared-init :as shared-init]))
+            [web-service.shared-init :as shared-init]
+
+            [hydra.routes.version :as version]))
 
 ; get the version of the API
 (defn get-version
@@ -41,7 +43,8 @@
   (POST "/authenticate" [client_uuid email_address password]
         (authenticate client_uuid email_address password))
   (GET "/authenticator" [] (get-authenticator))
-  (GET "/version" [] (get-version))
+
+  version/version-routes
 
   (context
     "/access-levels" []
