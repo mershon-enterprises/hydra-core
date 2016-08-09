@@ -124,17 +124,6 @@
       ; verify the response body says "Invalid credentials"
       (is (= (:body response) "Invalid credentials"))))
 
-  ; test /version
-  (testing "version route"
-    (let [response (app (mock/request :get "/version"))
-          json-body (parse-string (:body response) true)]
-
-      ; verify that the response status is HTTP 200
-      (is (= (:status response) 200))
-
-      ; verify that /version returns a map with the version number
-      (contains? json-body :version)))
-
   (testing "not-found route"
     (let [response (app (mock/request :get "/invalid"))]
       (is (= (:status response) 404)))))
