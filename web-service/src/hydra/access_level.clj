@@ -1,8 +1,13 @@
-(ns web-service.access-level
+(ns hydra.access-level
   (:use [ring.util.response]
         [web-service.session])
   (:require [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true]))
+
+(defn not-allowed
+  [api-method]
+  (status {:body (str api-method " not allowed")}
+          403))
 
 (defn access-level-get
   "get the specified access level"

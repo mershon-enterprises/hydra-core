@@ -1,6 +1,6 @@
 (ns web-service.handler
   (:use [ring.util.response]
-        [web-service.access-level]
+
         [web-service.authentication]
         [web-service.client]
         [web-service.data]
@@ -13,14 +13,13 @@
             [environ.core :refer [env]]
             [web-service.shared-init :as shared-init]
 
+            [hydra.access-level :refer [not-allowed]]
+
+            [hydra.routes.access-level :as access-level]
             [hydra.routes.authenticator :as authenticator]
             [hydra.routes.version :as version]))
 
 ; easy methods to handle not allowed and not implemented APIs
-(defn- not-allowed
-  [api-method]
-  (status {:body (str api-method " not allowed")}
-          403))
 (defn- not-implemented
   [api-method]
   (status {:body (str api-method " not implemented")}
@@ -35,25 +34,10 @@
   (POST "/authenticate" [client_uuid email_address password]
         (authenticate client_uuid email_address password))
 
+  access-level/access-level-routes
   authenticator/authenticator-routes
   version/version-routes
 
-  (context
-    "/access-levels" []
-    (defroutes document-routes
-      (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid access-level-list))
-      (PUT "/" [] (not-allowed "Update-all access levels"))
-      (POST "/" [] (not-allowed "Create access level"))
-      (DELETE "/" [] (not-allowed "Delete-all access levels"))
-      (context
-        "/:description" [description]
-        (defroutes document-routes
-          (GET "/" [api_token client_uuid]
-               (guard-with-user api_token client_uuid access-level-get description))
-          (PUT "/" [] (not-allowed "Update access level"))
-          (POST "/" [] (not-allowed "Create access level"))
-          (DELETE "/" [] (not-allowed "Delete access level"))))))
 
   (context
     "/clients" []
