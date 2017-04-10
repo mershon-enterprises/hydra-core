@@ -147,7 +147,7 @@
 
         ; otherwise, create the user first
         (do
-          (add-user email-address)
+          (add-user! email-address)
           (amqp/broadcast "text/plain"
                           "authentication"
                           (str email-address " has been created as a new user"))
