@@ -77,14 +77,4 @@
                    :plugins [[com.jakemccrary/lein-test-refresh "0.19.0"]]
                    :source-paths ["dev" "src"]}
 
-                 :test {:dependencies [[ring-mock "0.1.5"]]
-                        :env {:db-host            "localhost"
-                              :db-port            5432
-                              :db-name            "postgres"
-                              :db-user            "postgres"
-                              :db-password        "password"
-                              :authenticator      "match"
-                              :authenticator-host "http://localhost:3000"
-                              :rabbitmq-host      "localhost"
-                              :rabbitmq-username  "guest"
-                              :rabbitmq-password  "guest"}}})
+                 :test {:dependencies [[ring-mock "0.1.5"]]}})
