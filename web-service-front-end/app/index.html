@@ -21,6 +21,9 @@
         <!-- build:css(.tmp) styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
+        <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.js"></script>
+        <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.css" />
     </head>
     <body ng-app="webServiceApp">
         <!--[if lt IE 7]>
@@ -40,15 +43,7 @@
 
             <!-- Templates will load here. -->
             <div ng-view=""></div>
-
-            <footer>
-                <img src="images/logo-full.png" />
-                <ul>
-                    <li><i class="fa fa-phone-square"></i> (661) 425-9099</li>
-                    <li><i class="fa fa-envelope-square"></i> kevin@mershon.enterprises</li>
-                </ul>
-            </footer>
-
+            <brandfooter></brandfooter>
         </div>
 
         <!-- build:js(.) scripts/oldieshim.js -->
@@ -101,6 +96,7 @@
         <script src="scripts/directives/share.js"></script>
         <script src="scripts/directives/omnibox.js"></script>
         <script src="scripts/directives/version.js"></script>
+        <script src="scripts/directives/brand_footer.js"></script>
         <script src="scripts/filters/filesize.js"></script>
         <script src="scripts/controllers/attachment_details.js"></script>
         <script src="scripts/controllers/attachment_explorer.js"></script>

@@ -94,6 +94,13 @@
     });
   };
 
+  exports.getBranding = function() {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/branding',
+    });
+  };
+
   exports.listAccessLevels = function(clientUUID, apiToken) {
     return rest({
       method: 'GET',

@@ -3,7 +3,7 @@
         [web-service.authentication]
         [web-service.session]
         [web-service.user-helpers])
-  (:require [web-service.constants :as constants]
+  (:require [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,4 +1,4 @@
-(ns web-service.constants)
+(ns hydra.constants)
 
 ;
 ; access level constants
@@ -49,3 +49,4 @@
 (def session-get-shared-attachment-user-list "get shared attachment user list")
 (def session-update-shared-attachment-user-list "update shared attachment user list")
 (def session-delete-shared-attachment-access "delete shared attachment access")
+

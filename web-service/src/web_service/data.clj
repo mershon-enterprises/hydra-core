@@ -10,7 +10,7 @@
             [clojure.data.codec.base64 :as b64]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
-            [web-service.constants :as constants]
+            [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true])
   (:import java.sql.SQLException
            org.apache.commons.lang.RandomStringUtils))

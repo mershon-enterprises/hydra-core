@@ -1,6 +1,6 @@
 {
   "name": "webservice",
-  "version": "0.0.0",
+  "version": "0.7.3",
   "description": "AngularJS frontend for the clojure web-service.",
   "repository": {
     "type": "git",
