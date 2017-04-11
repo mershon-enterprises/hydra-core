@@ -52,8 +52,6 @@
                          :db-port             5432
                          :db-user             "postgres"
                          :db-password         "password"
-
-                         ; Hydra Process Instruments
                          :db-name             "hydra"
 
                          :authenticator       "match"
