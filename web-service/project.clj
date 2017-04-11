@@ -47,7 +47,8 @@
 
   :repl-options {:init-ns user}
 
-  :profiles {:dev {:env {:db-host             "localhost"
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]
+                   :env {:db-host             "localhost"
                          :db-port             5432
                          :db-user             "postgres"
                          :db-password         "password"
