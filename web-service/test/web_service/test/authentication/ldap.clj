@@ -14,7 +14,7 @@
                                  (if (not (nil? account-info))
                                    (search-fn {:sAmAccountName (:sAmAccountName account-info)
                                                :dn "lookup-domain-name"})
-                                   (throw Exception "not found")))}
+                                   (throw (Exception. "not found"))))}
     #(tests)))
 
 (deftest test-app

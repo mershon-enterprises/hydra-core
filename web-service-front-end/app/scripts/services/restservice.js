@@ -101,7 +101,7 @@ angular.module('webServiceApp').factory('RestService',
 
                 if (statusCode === STATUS_CODES.ok) {
 
-                    var jsonResponse = response.entity.authenticator;
+                    var jsonResponse = response.entity;
 
                     deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
                 }
@@ -116,6 +116,27 @@ angular.module('webServiceApp').factory('RestService',
             });
 
         return deferred.promise;
+    };
+
+    //Returns the branding used by the service back-end.
+    restService.getBranding = function () {
+      var deferred = $q.defer();
+      restclient.getBranding().then(
+          function(response) {
+            var statusCode = response.status.code;
+            if (statusCode === STATUS_CODES.ok) {
+              var jsonResponse = response.entity;
+              deferred.resolve([EVENTS.promiseSuccess, jsonResponse]);
+            } else {
+              deferred.reject([EVENTS.badStatus, statusCode]);
+              restService.statusHandler('branding', statusCode);
+            }
+          },
+          function(error) {
+            deferred.reject([EVENTS.promiseFailed, error]);
+            console.log('restclient.getBranding promise failed: ' + error);
+          });
+      return deferred.promise;
     };
 
     //Returns the version of the service back-end.

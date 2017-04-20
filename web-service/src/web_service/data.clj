@@ -10,7 +10,7 @@
             [clojure.data.codec.base64 :as b64]
             [cheshire.core :refer :all]
             [web-service.amqp :as amqp]
-            [web-service.constants :as constants]
+            [hydra.constants :as constants]
             [web-service.schema :as queries :include-macros true])
   (:import java.sql.SQLException
            org.apache.commons.lang.RandomStringUtils))
@@ -173,6 +173,15 @@
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
+; semi-internal API for getting an attachment directly (used by child services)
+(defn do-get-data-set
+  [uuid include-attachments?]
+  (let [query (str data-set-query " and uuid::character varying=?")]
+    (first (sql/query (db)
+                      [query uuid]
+                      :row-fn #(format-data-set %
+                                                :include-attachments?
+                                                include-attachments?)))))
 
 ; semi-internal API for getting an attachment directly (used by child services)
 (defn do-get-attachment
@@ -350,15 +359,11 @@
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
-        query (str data-set-query " and uuid::character varying=?")
         query-own (str data-set-query
                        " and uuid::character varying=?"
                        " and u.email_address=?")]
     (if can-access
-      (response {:response (first (sql/query (db)
-                                             [query uuid]
-                                             :row-fn (fn [it] (format-data-set it
-                                                                               :include-attachments? include-attachments?))))})
+      (response {:response (do-get-data-set uuid include-attachments?)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (response {:response (first (sql/query (db)

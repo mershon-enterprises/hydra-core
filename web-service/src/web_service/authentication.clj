@@ -11,7 +11,7 @@
             [clj-time.format :as f]
             [crypto.random]
             [environ.core :refer [env]]
-            [web-service.constants :as constants]
+            [hydra.constants :as constants]
             [web-service.amqp :as amqp]))
 
 (import java.sql.SQLException)
@@ -24,6 +24,7 @@
                                     ))))
 (require authenticator)
 (alias 'auth authenticator)
+(defn authenticator-config [] (auth/config))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                INTERNAL APIS                                 ;
@@ -147,7 +148,7 @@
 
         ; otherwise, create the user first
         (do
-          (add-user email-address)
+          (add-user! email-address)
           (amqp/broadcast "text/plain"
                           "authentication"
                           (str email-address " has been created as a new user"))

@@ -1,6 +1,6 @@
 (ns web-service.handler
   (:use [ring.util.response]
-        [web-service.access-level]
+
         [web-service.authentication]
         [web-service.client]
         [web-service.data]
@@ -8,24 +8,19 @@
   (:require [compojure.core :refer :all]
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
+            [ring.middleware.cors :refer [wrap-cors]]
             [compojure.route :as route]
             [environ.core :refer [env]]
-            [web-service.shared-init :as shared-init]))
+            [web-service.shared-init :as shared-init]
 
-; get the version of the API
-(defn get-version
-  []
-  (response {:version "0.7.2"}))
+            [hydra.access-level :refer [not-allowed]]
 
-(defn get-authenticator
-  []
-  (response {:authenticator (env :authenticator)}))
+            [hydra.routes.access-level :as access-level]
+            [hydra.routes.branding :as branding]
+            [hydra.routes.authenticator :as authenticator]
+            [hydra.routes.version :as version]))
 
 ; easy methods to handle not allowed and not implemented APIs
-(defn- not-allowed
-  [api-method]
-  (status {:body (str api-method " not allowed")}
-          403))
 (defn- not-implemented
   [api-method]
   (status {:body (str api-method " not implemented")}
@@ -39,25 +34,12 @@
         (admin-authenticate client_uuid email_address password user_email_address))
   (POST "/authenticate" [client_uuid email_address password]
         (authenticate client_uuid email_address password))
-  (GET "/authenticator" [] (get-authenticator))
-  (GET "/version" [] (get-version))
 
-  (context
-    "/access-levels" []
-    (defroutes document-routes
-      (GET "/" [api_token client_uuid]
-           (guard-with-user api_token client_uuid access-level-list))
-      (PUT "/" [] (not-allowed "Update-all access levels"))
-      (POST "/" [] (not-allowed "Create access level"))
-      (DELETE "/" [] (not-allowed "Delete-all access levels"))
-      (context
-        "/:description" [description]
-        (defroutes document-routes
-          (GET "/" [api_token client_uuid]
-               (guard-with-user api_token client_uuid access-level-get description))
-          (PUT "/" [] (not-allowed "Update access level"))
-          (POST "/" [] (not-allowed "Create access level"))
-          (DELETE "/" [] (not-allowed "Delete access level"))))))
+  access-level/access-level-routes
+  branding/branding-routes
+  authenticator/authenticator-routes
+  version/version-routes
+
 
   (context
     "/clients" []
@@ -277,4 +259,5 @@
   (->
     (handler/site app-routes)
     (json/wrap-json-params)
-    (json/wrap-json-response)))
+    (json/wrap-json-response)
+    (wrap-cors #".*")))
