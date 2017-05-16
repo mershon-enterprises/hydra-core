@@ -121,7 +121,7 @@
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
        "  on asa.id = sau.attachment_shared_access_id "
-       "  and sau.user_email_address=? "
+       "  and sau.user_email_address ilike ? "
        "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
@@ -152,7 +152,7 @@
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
        "  on asa.id = sau.attachment_shared_access_id "
-       "  and sau.user_email_address=? "
+       "  and sau.user_email_address ilike ? "
        "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
