@@ -268,6 +268,25 @@ angular.module('webServiceApp').controller('AttachmentDetailsCtrl',
             });
         };
 
+        $scope.reprocess = function() {
+            //Call the RestService to reprocess the dataset associated with the
+            //selected file, in the backend.
+            RestService.reprocessData($rootScope.ukey).then(
+                function(success){
+                    NotificationService.success(
+                        'Success',
+                        'Dataset reprocessed'
+                    );
+                },
+                function() {
+                    NotificationService.error(
+                        'Critical Error',
+                        'Please contact support.'
+                    );
+                }
+            );
+        };
+
         // TAG MANAGEMENT ======================================================
 
         //Adds a tag row to the tag table. Prevents adding duplicate values.

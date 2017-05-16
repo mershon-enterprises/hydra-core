@@ -227,6 +227,17 @@
     });
   };
 
+  exports.reprocessData = function(clientUUID, apiToken, uuid) {
+    return rest({
+      method: 'POST',
+      path: exports.endpointUrl + '/data/' + uuid + '/reprocess',
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken
+      }
+    });
+  };
+
   exports.deleteData = function(clientUUID, apiToken, uuid) {
     return rest({
       method: 'DELETE',
