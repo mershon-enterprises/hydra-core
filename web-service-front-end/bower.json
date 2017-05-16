@@ -1,6 +1,6 @@
 {
   "name": "web-service",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "dependencies": {
     "angular": "~1.2.0",
     "json3": "~3.3.1",

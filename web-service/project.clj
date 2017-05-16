@@ -1,4 +1,4 @@
-(defproject web-service "0.7.3-SNAPSHOT"
+(defproject web-service "0.7.4-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "mershon.enterprises"
   :dependencies [[org.clojure/clojure "1.9.0-alpha15" :exclusions [core.async]]
