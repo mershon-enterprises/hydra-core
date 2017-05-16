@@ -265,27 +265,24 @@
 ; semi-internal API for getting attachment info directly (may be used by child
 ; services)
 (defn do-get-attachment-info
-  [email-address uuid filename]
+  ;2-arg version
+  ([uuid filename]
+   (let [query (str data-set-attachment-query
+                    "and uuid::character varying ilike ? "
+                    "and dsa.filename=? "
+                    "order by data_set_attachment_id ")]
+     (first (sql/query (db) [query "%" uuid filename]
+                       :row-fn format-attachment-info))))
+  ;3-arg version
+  ([email-address uuid filename]
+   (let [query-own (str data-set-attachment-query
+                        "and uuid::character varying=? "
+                        "and dsa.filename=? "
+                        "and u.email_address=? "
+                        "order by data_set_attachment_id ")]
+     (first (sql/query (db) [query-own email-address uuid filename email-address]
+                       :row-fn format-attachment-info)))) )
 
-  (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))
-        query (str data-set-attachment-query
-                   "and uuid::character varying=? "
-                   "and dsa.filename=? "
-                   "order by data_set_attachment_id ")
-        query-own (str data-set-attachment-query
-                       "and uuid::character varying=? "
-                       "and dsa.filename=? "
-                       "and u.email_address=? "
-                       "order by data_set_attachment_id ")]
-    (if can-access
-      (first (sql/query (db) [query email-address uuid filename]
-                  :row-fn format-attachment-info))
-      ; if the user cannot access all data, try to at least show them their
-      ; own data instead
-      (first (sql/query (db) [query-own email-address uuid filename email-address]
-                        :row-fn format-attachment-info)))))
 
 ; semi-internal API for replacing attachment contents directly (may be used by
 ; child services)
@@ -1025,8 +1022,8 @@
       ; FIXME -- this shouldn't be returning a list, but I don't want to break
       ; compatibility with the front-end
       (response {:response [(do-get-attachment-info email-address
-                                                   uuid
-                                                   filename)]})
+                                                    uuid
+                                                    filename)]})
       (access-denied constants/view-attachments))))
 
 
