@@ -1016,14 +1016,20 @@
               constants/session-list-datasets)
 
   (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))]
-    (if can-access
+        can-manage (contains? access constants/manage-data)
+        can-view   (contains? access constants/view-attachments)]
+    (if (or can-manage can-view)
       ; FIXME -- this shouldn't be returning a list, but I don't want to break
       ; compatibility with the front-end
-      (response {:response [(do-get-attachment-info email-address
-                                                    uuid
-                                                    filename)]})
+      (response {:response [(if can-manage
+                              ; managers use the 2-arg version (don't check user
+                              ; email)
+                              (do-get-attachment-info uuid filename)
+                              ; regular users use the 3-arg version (check user
+                              ; email)
+                              (do-get-attachment-info email-address
+                                                      uuid
+                                                      filename))]})
       (access-denied constants/view-attachments))))
 
 
