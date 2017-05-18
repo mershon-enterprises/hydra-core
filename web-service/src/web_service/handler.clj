@@ -60,6 +60,16 @@
                 (guard-with-user api_token client_uuid client-register name))
           (DELETE "/" [] (not-allowed "Delete client"))
           (context
+            "/metadata" []
+            (defroutes document-routes
+              (GET "/" [] (not-implemented "Get metadata"))
+              (POST "/" [] (not-implemented "Add metadata"))
+              (context
+                "/:key_name" [key_name]
+                (defroutes document-routes
+                  (PUT "/" [] (not-implemented "Update metadata"))
+                  (DELETE "/" [] (not-implemented "Delete metadata"))))))
+          (context
             "/locations" []
             (defroutes document-routes
               (GET "/" [api_token client_uuid]
