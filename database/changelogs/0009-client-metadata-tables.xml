@@ -19,7 +19,7 @@
           <constraints nullable="false" />
         </column>
 
-        <column name="user_id" type="bigint">
+        <column name="created_by" type="bigint">
           <constraints nullable="false" />
         </column>
 
@@ -50,8 +50,8 @@
 
       <addForeignKeyConstraint
         constraintName="fk_client_metadata_to_client"
-        baseColumnNames="client_id"
         baseTableName="client_metadata"
+        baseColumnNames="client_id"
         referencedTableName="client"
         referencedColumnNames="id"
         deferrable="false"
@@ -60,9 +60,9 @@
         onUpdate="RESTRICT"/>
 
       <addForeignKeyConstraint
-        constraintName="fk_client_metadata_to_user"
-        baseColumnNames="client_id"
+        constraintName="fk_client_metadata_to_created_by"
         baseTableName="client_metadata"
+        baseColumnNames="created_by"
         referencedTableName="user"
         referencedColumnNames="id"
         deferrable="false"
