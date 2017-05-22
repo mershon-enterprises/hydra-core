@@ -50,3 +50,13 @@
   []
   (log/info "Applying new liquibase changelogs to database if they exist.")
   (.update (liquibase-instance) nil))
+
+#_(defqueries "queries/client_metadata.sql" {:connection db-spec})
+#_(add-client-metadata<! {:email_address "cristopher@mershonenterprises.com" 
+                          :client_name "MEC"
+                          :key_name "this_key3"
+                          :key_value "this_value3"})
+
+#_(defqueries "queries/client_metadata.sql" {:connection db-spec})
+#_(get-client-metadata-list {:client_name "MEC"})
+
