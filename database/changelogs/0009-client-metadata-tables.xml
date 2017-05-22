@@ -40,13 +40,11 @@
         </column>
       </createTable>
 
-      <addUniqueConstraint
-        constraintName="unique_client_key_name"
-        tableName="client_metadata"
-        columnNames="id, key_name"
-        deferrable="true"
-        disabled="true"
-        initiallyDeferred="true"/>
+      <sql>
+        CREATE UNIQUE INDEX unique_client_id_key_name
+        ON client_metadata(client_id, key_name)
+        WHERE date_deleted IS NULL
+      </sql>
 
       <addForeignKeyConstraint
         constraintName="fk_client_metadata_to_client"

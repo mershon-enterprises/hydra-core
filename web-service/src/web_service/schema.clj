@@ -17,11 +17,11 @@
               :user        (env :db-user)
               :password    (env :db-password)})
 
-(defqueries "queries/access_level.sql" {:connection db-spec})
-(defqueries "queries/dataset.sql"      {:connection db-spec})
-(defqueries "queries/session.sql"      {:connection db-spec})
-(defqueries "queries/user.sql"         {:connection db-spec})
-
+(defqueries "queries/access_level.sql"    {:connection db-spec})
+(defqueries "queries/dataset.sql"         {:connection db-spec})
+(defqueries "queries/session.sql"         {:connection db-spec})
+(defqueries "queries/user.sql"            {:connection db-spec})
+(defqueries "queries/client_metadata.sql" {:connection db-spec})
 
 (defn- liquibase-instance
   "Generate liquibase instance using environment variables."
