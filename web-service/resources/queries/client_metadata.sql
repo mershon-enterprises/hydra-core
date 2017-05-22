@@ -30,7 +30,7 @@ inner join "client" c on c.id = ncm.client_id
 inner join "user"   u on u.id = ncm.created_by
 ; --
 
--- name: get-client-metadata-list
+-- name: get-client-metadata-list-by-client-name
 with
   valid_client as
   (select id from "client" where name = :client_name)
