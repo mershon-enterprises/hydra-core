@@ -39,13 +39,22 @@ with
   (select id from "user"
    where email_address = :email_address)
 
-select * from "client_metadata"
-where client_id = (select id from valid_client)
+select
+  cm.key_name,
+  cm.key_value,
+  u.email_address,
+  c.name as client_name
+
+from "client_metadata" cm
+inner join "client" c on c.id = cm.client_id
+inner join "user"   u on u.id = cm.created_by
+
+where cm.client_id = (select id from valid_client)
 
   and case when (nullif(:email_address, null) is null) then true
-      else created_by = (select id from valid_user) end
+      else cm.created_by = (select id from valid_user) end
 
-  and date_deleted is null;
+  and cm.date_deleted is null;
 
 -- name: delete-client-metadata<!
 with
