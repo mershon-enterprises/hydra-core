@@ -33,10 +33,18 @@ inner join "user"   u on u.id = ncm.created_by
 -- name: get-client-metadata-list-by-client-name
 with
   valid_client as
-  (select id from "client" where name = :client_name)
+  (select id from "client" where name = :client_name),
+
+  valid_user as
+  (select id from "user"
+   where email_address = :email_address)
 
 select * from "client_metadata"
 where client_id = (select id from valid_client)
+
+  and case when (nullif(:email_address, null) is null) then true
+      else created_by = (select id from valid_user) end
+
   and date_deleted is null;
 
 -- name: delete-client-metadata<!
