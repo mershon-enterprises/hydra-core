@@ -16,11 +16,9 @@
            org.apache.commons.lang.RandomStringUtils))
 
 (defn add-client-metadata!
-  [& {:keys [key_name
-             client_name
-             email_address
-             key_value
-             ] :as args}]
+  [email_address & {:keys [key_name
+                           client_name
+                           key_value] :as args}]
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "add-client-metadata!")
   (log/debug "args:   " args)
@@ -43,9 +41,8 @@
       (access-denied (str constants/manage-clients)))))
 
 (defn get-client-metadata
-  [& {:keys [client_name
-             email_address
-             key_name] :as args}]
+  [email_address & {:keys [client_name
+                           key_name] :as args}]
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "get-client-metadata")
   (log/debug "args:   " args)
@@ -71,8 +68,7 @@
       (access-denied (str constants/manage-clients)))))
 
 (defn get-client-metadata-list
-  [& {:keys [client_name
-             email_address] :as args}]
+  [email_address & {:keys [client_name] :as args}]
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "get-client-metadata-list")
   (log/debug "args:   " args)
@@ -96,9 +92,8 @@
       (access-denied (str constants/manage-clients)))))
 
 (defn delete-client-metadata!
-  [& {:keys [client_name
-             email_address
-             key_name] :as args}]
+  [email_address & {:keys [client_name
+                           key_name] :as args}]
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "delete-client-metadata!")
   (log/debug "args:   " args)
@@ -120,10 +115,9 @@
       (access-denied (str constants/manage-clients)))))
 
 (defn update-client-metadata!
-  [& {:keys [client_name
-             email_address
-             key_name
-             key_value] :as args}]
+  [email_address & {:keys [client_name
+                           key_name
+                           key_value] :as args}]
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "update-client-metadata!")
   (log/debug "args:   " args)
