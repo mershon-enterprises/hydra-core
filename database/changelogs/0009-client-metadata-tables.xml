@@ -23,6 +23,10 @@
           <constraints nullable="false" />
         </column>
 
+        <column name="deleted_by" type="bigint">
+          <constraints nullable="true" />
+        </column>
+
         <column name="key_name" type="character varying(255)">
           <constraints nullable="false"/>
         </column>
@@ -61,6 +65,17 @@
         constraintName="fk_client_metadata_to_created_by"
         baseTableName="client_metadata"
         baseColumnNames="created_by"
+        referencedTableName="user"
+        referencedColumnNames="id"
+        deferrable="false"
+        initiallyDeferred="false"
+        onDelete="CASCADE"
+        onUpdate="RESTRICT"/>
+
+      <addForeignKeyConstraint
+        constraintName="fk_client_metadata_to_deleted_by"
+        baseTableName="client_metadata"
+        baseColumnNames="deleted_by"
         referencedTableName="user"
         referencedColumnNames="id"
         deferrable="false"

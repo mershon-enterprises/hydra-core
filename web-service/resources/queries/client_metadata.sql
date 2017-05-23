@@ -66,7 +66,8 @@ with
 
   deleted_client_metadata as
   (update "client_metadata"
-   set date_deleted = now()
+   set date_deleted = now(),
+       deleted_by = (select id from valid_user)
    where key_name = :key_name
      and client_id = (select id from valid_client)
      and date_deleted is null
@@ -77,9 +78,11 @@ select
   dcm.key_value,
   dcm.date_created,
   dcm.date_deleted,
-  u.email_address,
+  cbu.email_address created_by,
+  dbu.email_address deleted_by,
   c.name as client_name
 from deleted_client_metadata dcm
 inner join "client" c on c.id = dcm.client_id
-inner join "user"   u on u.id = dcm.created_by
+inner join "user"   cbu on cbu.id = dcm.created_by
+inner join "user"   dbu on dbu.id = dcm.deleted_by
 ; --
