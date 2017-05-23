@@ -30,6 +30,36 @@ inner join "client" c on c.id = ncm.client_id
 inner join "user"   u on u.id = ncm.created_by
 ; --
 
+-- name: get-client-metadata
+with
+  valid_client as
+  (select id from "client" where name = :client_name),
+
+  valid_user as
+  (select id from "user"
+   where email_address = :email_address)
+
+select
+  cm.key_name,
+  cm.key_value,
+  u.email_address as last_updated_by,
+  c.name as client_name
+
+from "client_metadata" cm
+inner join "client" c on c.id = cm.client_id
+inner join "user"   u on u.id = cm.created_by
+
+where cm.client_id = (select id from valid_client)
+
+  and cm.key_name = :key_name
+
+  and case when (nullif(:email_address, null) is null) then true
+      else cm.created_by = (select id from valid_user) end
+
+  and cm.date_deleted is null;
+
+
+
 -- name: get-client-metadata-list-by-client-name
 with
   valid_client as
