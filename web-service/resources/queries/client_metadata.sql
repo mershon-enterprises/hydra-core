@@ -23,7 +23,7 @@ with
 select
   ncm.key_name,
   ncm.key_value,
-  u.email_address,
+  u.email_address as last_updated_by,
   c.name as client_name
 from new_client_metadata ncm
 inner join "client" c on c.id = ncm.client_id
@@ -72,7 +72,7 @@ with
 select
   cm.key_name,
   cm.key_value,
-  u.email_address,
+  u.email_address as last_updated_by,
   c.name as client_name
 
 from "client_metadata" cm
@@ -108,7 +108,7 @@ select
   dcm.key_value,
   dcm.date_created,
   dcm.date_deleted,
-  cbu.email_address created_by,
+  cbu.email_address last_updated_by,
   dbu.email_address deleted_by,
   c.name as client_name
 from deleted_client_metadata dcm
