@@ -55,7 +55,7 @@
         restrict_email_address (if can-manage-data nil email_address)]
 
     (if can-access
-      (let [client_metadata (queries/get-client-metadata-list-by-client-name
+      (let [client_metadata (queries/get-client-metadata
                               {:client_name   client_name
                                :email_address restrict_email_address
                                :key_name      key_name}

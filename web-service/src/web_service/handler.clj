@@ -3,6 +3,7 @@
 
         [web-service.authentication]
         [web-service.client]
+        [web-service.client-metadata]
         [web-service.data]
         [web-service.user])
   (:require [compojure.core :refer :all]
@@ -62,13 +63,36 @@
           (context
             "/metadata" []
             (defroutes document-routes
-              (GET "/" [] (not-implemented "Get metadata"))
-              (POST "/" [] (not-implemented "Add metadata"))
+              (GET "/" [api_token client_uuid]
+                 (guard-with-user
+                  api_token client_uuid
+                  get-client-metadata-list :client_name name))
+              (POST "/" [api_token client_uuid key_name key_value]
+                (guard-with-user
+                  api_token client_uuid
+                  add-client-metadata! :client_name name
+                                       :key_name   key_name
+                                       :key_value  key_value))
               (context
                 "/:key_name" [key_name]
                 (defroutes document-routes
-                  (PUT "/" [] (not-implemented "Update metadata"))
-                  (DELETE "/" [] (not-implemented "Delete metadata"))))))
+                  (GET "/" [api_token client_uuid]
+                    (guard-with-user
+                      api_token client_uuid
+                      get-client-metadata :client_name name
+                                          :key_name    key_name))
+                  (PUT "/" [api_token client_uuid key_value]
+                    (guard-with-user
+                      api_token client_uuid
+                      update-client-metadata! :client_name name
+                                              :key_name    key_name
+                                              :key_value   key_value))
+                  (DELETE "/" [api_token client_uuid]
+                    (guard-with-user
+                      api_token client_uuid
+                      delete-client-metadata! :client_name name
+                                              :key_name    key_name))
+                           ))))
           (context
             "/locations" []
             (defroutes document-routes
