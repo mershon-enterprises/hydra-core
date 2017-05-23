@@ -43,3 +43,30 @@
         (not-found "client metadata not found"))
 
       (access-denied (str constants/manage-clients)))))
+
+(defn get-client-metadata
+  [& {:keys [client_name
+             email_address] :as args}]
+  {:pre [true] :post [true]} ;FIXME add spec validators
+  (log/debug "get-client-metadata")
+  (log/debug "args:   " args)
+
+  ;[View Data | Manage Data] AND [View Clients | Manage Clients]
+  (let [access          (set (get-user-access email_address))
+        can-access      (or (contains? access constants/view-clients)
+                            (contains? access constants/manage-clients))
+        can-manage-data (contains? access constants/manage-data)
+
+        restrict_email_address (if can-manage-data nil email_address)]
+
+    (if-let [client_metadata_list
+             (and can-access
+                  (queries/get-client-metadata-list-by-client-name
+                    {:client_name   client_name
+                     :email_address restrict_email_address}))]
+
+      (if (not-empty client_metadata_list)
+        (response {:response client_metadata_list})
+        (not-found "client metadata not found"))
+
+      (access-denied (str constants/manage-clients)))))
