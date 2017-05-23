@@ -91,8 +91,7 @@
                     (guard-with-user
                       api_token client_uuid
                       delete-client-metadata! :client_name name
-                                              :key_name    key_name))
-                           ))))
+                                              :key_name    key_name))))))
           (context
             "/locations" []
             (defroutes document-routes

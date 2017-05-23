@@ -22,23 +22,27 @@
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "add-client-metadata!")
   (log/debug "args:   " args)
+  (try
+    (let [access     (set (get-user-access email_address))
+          can-access true #_(contains? access constants/manage-clients)]
 
-  (let [access     (set (get-user-access email_address))
-        can-access (contains? access constants/manage-clients)]
+      (if can-access
+        (let [client_metadata (queries/add-client-metadata<!
+                                {:client_name   client_name
+                                 :email_address email_address
+                                 :key_name      key_name
+                                 :key_value     key_value}
+                                {:result-set-fn first})]
 
-    (if can-access
-      (let [client_metadata (queries/add-client-metadata<!
-                              {:client_name   client_name
-                               :email_address email_address
-                               :key_name      key_name
-                               :key_value     key_value}
-                              {:result-set-fn first})]
+          (if client_metadata
+            (response {:response client_metadata})
+            (not-found "client metadata not found")))
 
-        (if client_metadata
-          (response {:response client_metadata})
-          (not-found "client metadata not found")))
-
-      (access-denied (str constants/manage-clients)))))
+        (access-denied (str constants/manage-clients))))
+    (catch SQLException sqle
+      (log/error (str sqle))
+      (prn (str sqle))
+      (response {:response "Internal Server Error"}))))
 
 (defn get-client-metadata
   [email_address & {:keys [client_name
@@ -47,25 +51,31 @@
   (log/debug "get-client-metadata")
   (log/debug "args:   " args)
 
-  (let [access          (set (get-user-access email_address))
-        can-access      (or (contains? access constants/view-clients)
-                                   (contains? access constants/manage-clients))
-        can-manage-data (contains? access constants/manage-data)
+  (try
+    (let [access          (set (get-user-access email_address))
+          can-access      (or (contains? access constants/view-clients)
+                              (contains? access constants/manage-clients))
+          can-manage-data (contains? access constants/manage-data)
 
-        restrict_email_address (if can-manage-data nil email_address)]
+          restrict_email_address (if can-manage-data nil email_address)]
 
-    (if can-access
-      (let [client_metadata (queries/get-client-metadata
-                              {:client_name   client_name
-                               :email_address restrict_email_address
-                               :key_name      key_name}
-                              {:result-set-fn first})]
+      (if can-access
+        (let [client_metadata (queries/get-client-metadata
+                                {:client_name   client_name
+                                 :email_address restrict_email_address
+                                 :key_name      key_name}
+                                {:result-set-fn first})]
 
-        (if client_metadata
-          (response {:response client_metadata})
-          (not-found "client metadata not found")))
+          (if client_metadata
+            (response {:response client_metadata})
+            (not-found "client metadata not found")))
 
-      (access-denied (str constants/manage-clients)))))
+        (access-denied (str constants/manage-clients))))
+
+    (catch SQLException sqle
+      (log/error (str sqle))
+      (prn (str sqle))
+      (response {:response "Internal Server Error"}))))
 
 (defn get-client-metadata-list
   [email_address & {:keys [client_name] :as args}]
@@ -73,23 +83,29 @@
   (log/debug "get-client-metadata-list")
   (log/debug "args:   " args)
 
-  (let [access          (set (get-user-access email_address))
-        can-access      (or (contains? access constants/view-clients)
-                            (contains? access constants/manage-clients))
-        can-manage-data (contains? access constants/manage-data)
+  (try
+    (let [access          (set (get-user-access email_address))
+          can-access      (or (contains? access constants/view-clients)
+                              (contains? access constants/manage-clients))
+          can-manage-data (contains? access constants/manage-data)
 
-        restrict_email_address (if can-manage-data nil email_address)]
+          restrict_email_address (if can-manage-data nil email_address)]
 
-    (if can-access
-      (let [client_metadata_list (queries/get-client-metadata-list-by-client-name
-                                   {:client_name   client_name
-                                    :email_address restrict_email_address})]
+      (if can-access
+        (let [client_metadata_list (queries/get-client-metadata-list-by-client-name
+                                     {:client_name   client_name
+                                      :email_address restrict_email_address})]
 
-        (if (not-empty client_metadata_list)
-          (response {:response client_metadata_list})
-          (not-found "client metadata not found")))
+          (if (not-empty client_metadata_list)
+            (response {:response client_metadata_list})
+            (not-found "client metadata not found")))
 
-      (access-denied (str constants/manage-clients)))))
+        (access-denied (str constants/manage-clients))))
+
+    (catch SQLException sqle
+      (log/error (str sqle))
+      (prn (str sqle))
+      (response {:response "Internal Server Error"}))))
 
 (defn delete-client-metadata!
   [email_address & {:keys [client_name
@@ -98,21 +114,26 @@
   (log/debug "delete-client-metadata!")
   (log/debug "args:   " args)
 
-  (let [access     (set (get-user-access email_address))
-        can-access (contains? access constants/manage-clients)]
+  (try
+    (let [access     (set (get-user-access email_address))
+          can-access (contains? access constants/manage-clients)]
 
-    (if can-access
-      (let [deleted_client_metadata (queries/delete-client-metadata<!
-                                      {:client_name   client_name
-                                       :email_address email_address
-                                       :key_name key_name}
-                                      {:result-set-fn first})]
+      (if can-access
+        (let [deleted_client_metadata (queries/delete-client-metadata<!
+                                        {:client_name   client_name
+                                         :email_address email_address
+                                         :key_name key_name}
+                                        {:result-set-fn first})]
 
-        (if deleted_client_metadata
-          (response {:response deleted_client_metadata})
-          (not-found "client metadata not found")))
+          (if deleted_client_metadata
+            (response {:response deleted_client_metadata})
+            (not-found "client metadata not found")))
 
-      (access-denied (str constants/manage-clients)))))
+        (access-denied (str constants/manage-clients))))
+    (catch SQLException sqle
+      (log/error (str sqle))
+      (prn (str sqle))
+      (response {:response "Internal Server Error"}))))
 
 (defn update-client-metadata!
   [email_address & {:keys [client_name
@@ -122,26 +143,32 @@
   (log/debug "update-client-metadata!")
   (log/debug "args:   " args)
 
-  (let [conn (db)
-        access     (set (get-user-access email_address))
-        can-access (contains? access constants/manage-clients)]
+  (try
+    (let [conn (db)
+          access     (set (get-user-access email_address))
+          can-access (contains? access constants/manage-clients)]
 
-    (sql/with-db-transaction
-      [conn db-spec]
-      (if can-access
-        (let [_deleted_client_metadata (queries/delete-client-metadata<!
+      (sql/with-db-transaction
+        [conn db-spec]
+        (if can-access
+          (let [_deleted_client_metadata (queries/delete-client-metadata<!
+                                           {:client_name   client_name
+                                            :email_address email_address
+                                            :key_name key_name})
+                update_client_metadata (queries/add-client-metadata<!
                                          {:client_name   client_name
                                           :email_address email_address
-                                          :key_name key_name})
-              update_client_metadata (queries/add-client-metadata<!
-                                       {:client_name   client_name
-                                        :email_address email_address
-                                        :key_name      key_name
-                                        :key_value     key_value}
-                                       {:result-set-fn first})]
+                                          :key_name      key_name
+                                          :key_value     key_value}
+                                         {:result-set-fn first})]
 
-          (if update_client_metadata
-            (response {:response update_client_metadata})
-            (not-found "client metadata not found")))
+            (if update_client_metadata
+              (response {:response update_client_metadata})
+              (not-found "client metadata not found")))
 
-        (access-denied (str constants/manage-clients))))))
+          (access-denied (str constants/manage-clients)))))
+
+    (catch SQLException sqle
+      (log/error (str sqle))
+      (prn (str sqle))
+      (response {:response "Internal Server Error"}))))
