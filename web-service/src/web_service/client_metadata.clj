@@ -24,7 +24,6 @@
   {:pre [true] :post [true]} ;FIXME add spec validators
   (log/debug "add-client-metadata!")
   (log/debug "args:   " args)
-  ; users who can view or manage clients can see information about a client
 
   (let [access     (set (get-user-access email_address))
         can-access (contains? access constants/manage-clients)]
@@ -51,7 +50,6 @@
   (log/debug "get-client-metadata")
   (log/debug "args:   " args)
 
-  ;[View Data | Manage Data] AND [View Clients | Manage Clients]
   (let [access          (set (get-user-access email_address))
         can-access      (or (contains? access constants/view-clients)
                             (contains? access constants/manage-clients))
