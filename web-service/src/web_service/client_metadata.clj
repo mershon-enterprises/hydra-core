@@ -90,3 +90,36 @@
           (not-found "client metadata not found")))
 
       (access-denied (str constants/manage-clients)))))
+
+(defn update-client-metadata!
+  [& {:keys [client_name
+             email_address
+             key_name
+             key_value] :as args}]
+  {:pre [true] :post [true]} ;FIXME add spec validators
+  (log/debug "update-client-metadata!")
+  (log/debug "args:   " args)
+
+  (let [conn (db)
+        access     (set (get-user-access email_address))
+        can-access (contains? access constants/manage-clients)]
+
+    (sql/with-db-transaction
+      [conn db-spec]
+      (if can-access
+        (let [_deleted_client_metadata (queries/delete-client-metadata<!
+                                         {:client_name   client_name
+                                          :email_address email_address
+                                          :key_name key_name})
+              update_client_metadata (queries/add-client-metadata<!
+                                       {:client_name   client_name
+                                        :email_address email_address
+                                        :key_name      key_name
+                                        :key_value     key_value}
+                                       {:result-set-fn first})]
+
+          (if update_client_metadata
+            (response {:response update_client_metadata})
+            (not-found "client metadata not found")))
+
+        (access-denied (str constants/manage-clients))))))
