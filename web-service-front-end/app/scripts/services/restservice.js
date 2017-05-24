@@ -650,6 +650,33 @@ angular.module('webServiceApp').factory('RestService',
         return deferred.promise;
     };
 
+    restService.reprocessData = function (ukey) {
+        var deferred = $q.defer();
+        var clientUUID = localStorageService.get('clientUUID');
+        var uuid = ukey.split('\n')[1];
+
+        restclient.reprocessData(clientUUID, Session.getToken(), uuid).then(
+            function(response) {
+                var statusCode = response.status.code;
+                if (statusCode === STATUS_CODES.created) {
+                    //Parse out the data from the restclient response.
+                    var entity = response.entity;
+                    Session.updateToken(entity.token);
+
+                    deferred.resolve([EVENTS.promiseSuccess]);
+                    console.log("Data set " + uuid + " reprocessed.");
+                } else {
+                    deferred.reject([EVENTS.badStatus, statusCode]);
+                    restService.statusHandler('reprocessData', statusCode);
+                }
+            },
+            function(error) {
+                console.log('restclient.reprocessData promise failed: ' + error);
+            }
+        );
+        return deferred.promise;
+    };
+
     //Delete an attachment on the server.
     //ukey = 'filename' + '\n' + 'uuid'
     restService.deleteAttachment = function (ukey) {

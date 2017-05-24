@@ -1,20 +1,22 @@
-(defproject web-service "0.7.3-SNAPSHOT"
+(defproject web-service "0.7.4-SNAPSHOT"
   :description "REST API for hydra-core"
   :url "mershon.enterprises"
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha15" :exclusions [core.async]]
+                 [org.clojure/core.async "0.3.442"]
                  [org.clojure/java.jdbc "0.3.4"]
-                 [compojure "1.1.8"]
-                 [ring/ring-core "1.2.1"]
+                 [ring "1.4.0"]
+                 [ring/ring-defaults "0.2.0"]
+                 [ring/ring-json "0.4.0"]               ; JSON response wrapping
                  [ring/ring-jetty-adapter "1.2.1"]      ; dev HTTP server
                                                         ;   configuration
-                 [ring/ring-json "0.3.1"]               ; JSON response wrapping
                  [jumblerg/ring.middleware.cors "1.0.1"] ; cross-origin support
+                 [compojure "1.5.0"]
                  [postgresql "9.3-1102.jdbc4"]          ; postgres jdbc driver
                  [org.clojars.pntblnk/clj-ldap "0.0.9"] ; ldap integration
                  [org.clojure/tools.logging "0.3.0"]
                  [crypto-password "0.1.3"]              ; hashing/crypto support
                                                         ;   for API tokens
-                 [environ "1.0.0"]                      ; environment-based
+                 [environ "1.1.0"]                      ; environment-based
                                                         ;   configuration
                  [com.mchange/c3p0 "0.9.2.1"]           ; connection pooling
                  [com.novemberain/langohr "3.0.0-rc2"]  ; AMQP rabbitmq library
@@ -28,29 +30,50 @@
                  [clj-http "2.0.0"]
 
                  [yesql "0.5.2"]
-                 [clj-jwt "0.1.1"]                      ; clojure JSON webtokens
-                 ]
 
-  :plugins [[lein-ring "0.8.11"]
-            [lein-environ "1.0.0"]]
+                 [clj-jwt "0.1.1"]]                      ; clojure JSON webtokens
+
+
+  :plugins [[lein-ring "0.11.0"]
+            [lein-environ "1.0.3"]]
+
+  :source-paths ["src"]
+
   :ring {:handler web-service.handler/app
          :init web-service.handler/init
          :war-exclusions []                             ; don't exclude hidden
                                                         ;   files from WARs
          :destroy web-service.handler/destroy}
-  :main web-service.core
-  :profiles {
-             ; override 'dev' settings in ~/.lein/profiles.clj
 
-             :test {:dependencies [[ring-mock "0.1.5"]]
-                    :env
-                    {:db-host            "localhost"
-                     :db-port            5432
-                     :db-name            "postgres"
-                     :db-user            "postgres"
-                     :db-password        "password"
-                     :authenticator      "match"
-                     :authenticator-host "http://localhost:3000"
-                     :rabbitmq-host      "localhost"
-                     :rabbitmq-username  "guest"
-                     :rabbitmq-password  "guest"}}})
+  :repl-options {:init-ns user}
+
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]
+                   :env {:db-host             "localhost"
+                         :db-port             5432
+                         :db-user             "postgres"
+                         :db-password         "password"
+                         :db-name             "hydra"
+
+                         :authenticator       "match"
+
+                         ;:authenticator      "firebase"
+                         ;:authenticator-firebase-key "firebase-key"
+                         ;:authenticator-firebase-domain "firebase-domain"
+
+                         ;:authenticator      "persona"
+                         ;:authenticator-host "http://localhost:3000"
+
+                         ;:authenticator      "ldap"
+                         ;:ldap-domain        "domain"
+                         ;:ldap-host          "host"
+                         ;:ldap-bind-dn       "domain"
+                         ;:ldap-password      "password"
+
+
+                         :rabbitmq-host       "localhost"
+                         :rabbitmq-username   "guest"
+                         :rabbitmq-password   "guest"}
+                   :plugins [[com.jakemccrary/lein-test-refresh "0.19.0"]]
+                   :source-paths ["dev" "src"]}
+
+                 :test {:dependencies [[ring-mock "0.1.5"]]}})

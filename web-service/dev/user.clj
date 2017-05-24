@@ -1,5 +1,4 @@
-(ns web-service.core
-  (:use [web-service.handler])
+(ns user
   (:require [ring.adapter.jetty :as jetty]
             [web-service.handler :as handler]
             [web-service.shared-init :as shared-init]
@@ -12,17 +11,24 @@
   (doseq [connector (.getConnectors jetty)]
     (.setRequestHeaderSize connector 8388608)))
 
-(defn -main
-  [& args]
-  (shared-init/init)
+(defn mock-data
+  ([num]
+   (if (not-empty num)
+     (do
+       (println (str "Mocking" num "datasets..."))
+       (dummy.datasets/mock-datasets num))))
+  ([]
+   (mock-data 500)))
 
-  ; mock 500 datasets
-  (if (and (not (empty? args))
-           (not= -1 (.indexOf args "--mock-data")))
-    (do
-      (println "Mocking 500 datasets...")
-      (dummy.datasets/mock-datasets 500))
-    (println "If needed, use '--mock-data' flag to generate mock data-sets."))
+(defn run
+  []
+  (try
+    (shared-init/init)
+    (catch Exception ex
+      ; do nothing  
+      nil))
+
+  (println "if needed, use (mock-data <cnt>) function to generate mock data-sets.")
 
   (jetty/run-jetty handler/app {:port 3000
                                 :configurator full-head-avoidance}))

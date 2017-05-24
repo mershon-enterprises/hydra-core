@@ -20,11 +20,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn- format-data-set [row]
+(defn- format-data-set [row & {:keys [include-attachments?]
+                               :or {include-attachments? false}}]
   "format the specified row from the data_set table"
   (assoc (select-keys row [:uuid :date_created :location :client])
          :data (let [args {:data_set_id (:id row)}]
-                 (flatten [(queries/get-attachment-data args {})
+                 (flatten [(if include-attachments?
+                             (queries/get-attachment-data args {:row-fn (fn [it]
+                                                                          (assoc it :contents
+                                                                                 (String. (b64/encode (:contents it)))))})
+                             (queries/get-attachment-info args {}))
                            (queries/get-boolean-data    args {})
                            (queries/get-date-data       args {})
                            (queries/get-integer-data    args {})
@@ -116,7 +121,7 @@
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
        "  on asa.id = sau.attachment_shared_access_id "
-       "  and sau.user_email_address=? "
+       "  and sau.user_email_address ilike ? "
        "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
@@ -147,7 +152,7 @@
        "  on asa.date_deleted is null and asa.attachment_id = dsa.id "
        "left join public.data_set_attachment_shared_access_user as sau "
        "  on asa.id = sau.attachment_shared_access_id "
-       "  and sau.user_email_address=? "
+       "  and sau.user_email_address ilike ? "
        "  and sau.date_deleted is null "
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
@@ -168,6 +173,15 @@
        "where ds.date_deleted is null "
        "  and dsa.date_deleted is null "))
 
+; semi-internal API for getting an attachment directly (used by child services)
+(defn do-get-data-set
+  [uuid include-attachments?]
+  (let [query (str data-set-query " and uuid::character varying=?")]
+    (first (sql/query (db)
+                      [query uuid]
+                      :row-fn #(format-data-set %
+                                                :include-attachments?
+                                                include-attachments?)))))
 
 ; semi-internal API for getting an attachment directly (used by child services)
 (defn do-get-attachment
@@ -251,27 +265,24 @@
 ; semi-internal API for getting attachment info directly (may be used by child
 ; services)
 (defn do-get-attachment-info
-  [email-address uuid filename]
+  ;2-arg version
+  ([uuid filename]
+   (let [query (str data-set-attachment-query
+                    "and uuid::character varying ilike ? "
+                    "and dsa.filename=? "
+                    "order by data_set_attachment_id ")]
+     (first (sql/query (db) [query "%" uuid filename]
+                       :row-fn format-attachment-info))))
+  ;3-arg version
+  ([email-address uuid filename]
+   (let [query-own (str data-set-attachment-query
+                        "and uuid::character varying=? "
+                        "and dsa.filename=? "
+                        "and u.email_address=? "
+                        "order by data_set_attachment_id ")]
+     (first (sql/query (db) [query-own email-address uuid filename email-address]
+                       :row-fn format-attachment-info)))) )
 
-  (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))
-        query (str data-set-attachment-query
-                   "and uuid::character varying=? "
-                   "and dsa.filename=? "
-                   "order by data_set_attachment_id ")
-        query-own (str data-set-attachment-query
-                       "and uuid::character varying=? "
-                       "and dsa.filename=? "
-                       "and u.email_address=? "
-                       "order by data_set_attachment_id ")]
-    (if can-access
-      (first (sql/query (db) [query email-address uuid filename]
-                  :row-fn format-attachment-info))
-      ; if the user cannot access all data, try to at least show them their
-      ; own data instead
-      (first (sql/query (db) [query-own email-address uuid filename email-address]
-                        :row-fn format-attachment-info)))))
 
 ; semi-internal API for replacing attachment contents directly (may be used by
 ; child services)
@@ -335,7 +346,8 @@
 
 ; get the specified data_set set by date
 (defn data-set-get
-  [email-address uuid]
+  [email-address uuid & {:keys [include-attachments?]
+                         :or {include-attachments? false}}]
 
   ; log the activity in the session
   (log-detail email-address
@@ -344,19 +356,17 @@
 
   (let [access (set (get-user-access email-address))
         can-access (contains? access constants/manage-data)
-        query (str data-set-query " and uuid::character varying=?")
         query-own (str data-set-query
                        " and uuid::character varying=?"
                        " and u.email_address=?")]
     (if can-access
-      (response {:response (first (sql/query (db)
-                                             [query uuid]
-                                             :row-fn format-data-set))})
+      (response {:response (do-get-data-set uuid include-attachments?)})
       ; if the user cannot access all data, try to at least show them their own
       ; data instead
       (response {:response (first (sql/query (db)
                                              [query-own uuid email-address]
-                                             :row-fn format-data-set))}))))
+                                             :row-fn (fn [it] (format-data-set it
+                                                                               :include-attachments? include-attachments?))))}))))
 
 
 ; delete the specified data_set by date
@@ -569,6 +579,27 @@
                         [query data-set-uuid email-address description value])
         (status (response {:response "OK"}) 200 )
         (status (response {:response "Failure"}) 409))
+      (access-denied constants/manage-data))))
+
+(defn data-set-reprocess
+  "Reissue a dataset for post-processing in downstream microservices"
+  [email-address data-set-uuid]
+
+  (log-detail email-address constants/session-activity
+              (str constants/session-reprocess-dataset
+                   "(" data-set-uuid ")"))
+
+  (let [access (set (get-user-access email-address))
+        can-access (contains? access constants/manage-data)]
+    (if can-access
+      (let [data-saved (data-set-get email-address data-set-uuid
+                                     :include-attachments? true)]
+        ; broadcast the dataset including attachment binary data to
+        ; listeners
+        (amqp/broadcast "text/json"
+                        "dataset"
+                        (generate-string (:response (:body data-saved))))
+        (status data-saved 201))
       (access-denied constants/manage-data))))
 
 (defn data-set-primitive-update
@@ -985,14 +1016,20 @@
               constants/session-list-datasets)
 
   (let [access (set (get-user-access email-address))
-        can-access (or (contains? access constants/manage-data)
-                       (contains? access constants/view-attachments))]
-    (if can-access
+        can-manage (contains? access constants/manage-data)
+        can-view   (contains? access constants/view-attachments)]
+    (if (or can-manage can-view)
       ; FIXME -- this shouldn't be returning a list, but I don't want to break
       ; compatibility with the front-end
-      (response {:response [(do-get-attachment-info email-address
-                                                   uuid
-                                                   filename)]})
+      (response {:response [(if can-manage
+                              ; managers use the 2-arg version (don't check user
+                              ; email)
+                              (do-get-attachment-info uuid filename)
+                              ; regular users use the 3-arg version (check user
+                              ; email)
+                              (do-get-attachment-info email-address
+                                                      uuid
+                                                      filename))]})
       (access-denied constants/view-attachments))))
 
 

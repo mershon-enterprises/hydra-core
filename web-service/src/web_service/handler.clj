@@ -110,6 +110,12 @@
                   type
                   description
                   value))
+          (POST "/reprocess" [api_token client_uuid]
+                (guard-with-user
+                  api_token
+                  client_uuid
+                  data-set-reprocess
+                  uuid))
           (DELETE "/delete-tag" [api_token client_uuid type description]
                   (guard-with-user
                     api_token

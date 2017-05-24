@@ -1,5 +1,11 @@
--- name: get-attachment-data
+-- name: get-attachment-info
 select 'attachment' as type, filename, octet_length(contents) as bytes
+from public.data_set_attachment
+where data_set_id=:data_set_id
+and date_deleted is null;
+
+-- name: get-attachment-data
+select 'attachment' as type, mime_type, filename, contents
 from public.data_set_attachment
 where data_set_id=:data_set_id
 and date_deleted is null;
