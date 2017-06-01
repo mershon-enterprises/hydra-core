@@ -156,6 +156,17 @@
     });
   };
 
+  exports.listClientMetaData = function(clientUUID, apiToken, name) {
+    return rest({
+      method: 'GET',
+      path: exports.endpointUrl + '/clients/' + name + '/metadata',
+      params: {
+        client_uuid: clientUUID,
+        api_token: apiToken,
+      }
+    });
+  };
+
   exports.listData = function(clientUUID, apiToken, searchParams) {
     if (!searchParams)
       searchParams = '';

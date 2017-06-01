@@ -278,9 +278,8 @@
    (let [query-own (str data-set-attachment-query
                         "and uuid::character varying=? "
                         "and dsa.filename=? "
-                        "and u.email_address=? "
                         "order by data_set_attachment_id ")]
-     (first (sql/query (db) [query-own email-address uuid filename email-address]
+     (first (sql/query (db) [query-own email-address uuid filename]
                        :row-fn format-attachment-info)))) )
 
 

@@ -15,6 +15,14 @@
   (:import java.sql.SQLException
            org.apache.commons.lang.RandomStringUtils))
 
+(defn do-get-client-metadata
+  [client_name key_name email_address]
+  (queries/get-client-metadata
+    {:client_name   client_name
+     :email_address (or email_address nil)
+     :key_name      key_name}
+    {:result-set-fn first}))
+
 (defn add-client-metadata!
   [email_address & {:keys [key_name
                            client_name
@@ -60,11 +68,10 @@
           restrict_email_address (if can-manage-data nil email_address)]
 
       (if can-access
-        (let [client_metadata (queries/get-client-metadata
-                                {:client_name   client_name
-                                 :email_address restrict_email_address
-                                 :key_name      key_name}
-                                {:result-set-fn first})]
+        (let [client_metadata (do-get-client-metadata
+                                client_name
+                                restrict_email_address
+                                key_name)]
 
           (if client_metadata
             (response {:response client_metadata})
