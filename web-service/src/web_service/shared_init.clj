@@ -1,4 +1,5 @@
 (ns web-service.shared-init
+  (:use [web-service.client-metadata])
   (:use [web-service.data])
   (:require [clojure.tools.logging :as log]
             [cheshire.core :refer :all]

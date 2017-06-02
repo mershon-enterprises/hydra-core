@@ -17,6 +17,7 @@
     <include relativeToChangelogFile="true" file="changelogs/0006-api-token-client-uuid.xml"/>
     <include relativeToChangelogFile="true" file="changelogs/0007-filename-unique-if-not-deleted.xml"/>
     <include relativeToChangelogFile="true" file="changelogs/0008-attachment-sharing-tables.xml"/>
+    <include relativeToChangelogFile="true" file="changelogs/0009-client-metadata-tables.xml"/>
 
     <!-- add child changelogs above this line -->
 

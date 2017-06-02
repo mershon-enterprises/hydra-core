@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="9" author="Cristopher Pascua">
+      <createTable schemaName="public" tableName="client_metadata">
+        <column name="id" type="bigserial">
+          <constraints primaryKey="true" nullable="false" />
+        </column>
+
+        <column name="client_id" type="bigint">
+          <constraints nullable="false" />
+        </column>
+
+        <column name="created_by" type="bigint">
+          <constraints nullable="false" />
+        </column>
+
+        <column name="deleted_by" type="bigint">
+          <constraints nullable="true" />
+        </column>
+
+        <column name="key_name" type="character varying(255)">
+          <constraints nullable="false"/>
+        </column>
+
+        <column name="key_value" type="text">
+          <constraints nullable="false"/>
+        </column>
+
+        <column name="date_created" type="timestamp with time zone" defaultValue="NOW()">
+          <constraints nullable="false" />
+        </column>
+
+        <column name="date_deleted" type="timestamp with time zone">
+          <constraints nullable="true" />
+        </column>
+      </createTable>
+
+      <sql>
+        CREATE UNIQUE INDEX unique_client_id_key_name
+        ON client_metadata(client_id, key_name)
+        WHERE date_deleted IS NULL
+      </sql>
+
+      <addForeignKeyConstraint
+        constraintName="fk_client_metadata_to_client"
+        baseTableName="client_metadata"
+        baseColumnNames="client_id"
+        referencedTableName="client"
+        referencedColumnNames="id"
+        deferrable="false"
+        initiallyDeferred="false"
+        onDelete="CASCADE"
+        onUpdate="RESTRICT"/>
+
+      <addForeignKeyConstraint
+        constraintName="fk_client_metadata_to_created_by"
+        baseTableName="client_metadata"
+        baseColumnNames="created_by"
+        referencedTableName="user"
+        referencedColumnNames="id"
+        deferrable="false"
+        initiallyDeferred="false"
+        onDelete="CASCADE"
+        onUpdate="RESTRICT"/>
+
+      <addForeignKeyConstraint
+        constraintName="fk_client_metadata_to_deleted_by"
+        baseTableName="client_metadata"
+        baseColumnNames="deleted_by"
+        referencedTableName="user"
+        referencedColumnNames="id"
+        deferrable="false"
+        initiallyDeferred="false"
+        onDelete="CASCADE"
+        onUpdate="RESTRICT"/>
+    </changeSet>
+
+</databaseChangeLog>
