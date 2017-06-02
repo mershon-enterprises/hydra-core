@@ -236,29 +236,30 @@
                                   :or {transaction? true
                                        conn         (db)}}]
 
-  (let [access (set (get-user-access email-address))
-        can-access (contains? access constants/manage-data)
-        query (str "update public.data_set_attachment "
+  (let [query (str "update public.data_set_attachment "
                    "set date_deleted=now(), deleted_by="
                    "(select id from public.user where email_address=?) "
                    "where data_set_id="
                    "(select id from public.data_set where uuid::character varying=? ) "
                    "and filename=? "
                    "and date_deleted is null")]
-    (if can-access
-      (if (try (sql/execute! conn [query email-address uuid filename]
-                             :transaction? transaction?)
-               (catch Exception e
-                 (log/error e (format (str "There was an error deleting "
-                                           "attachment '%s' from data-set '%s' "
-                                           "by user %s")
-                                      filename
-                                      uuid
-                                      email-address))
-                 (if (instance? SQLException e)
-                   (log/error (.getCause e) "Caused by: "))
-                 false))
-        true
+    (if (try (sql/execute! conn [query email-address uuid filename]
+                           :transaction? transaction?)
+             (catch Exception e
+               (log/error e (format (str "There was an error deleting "
+                                         "attachment '%s' from data-set '%s' "
+                                         "by user %s")
+                                    filename
+                                    uuid
+                                    email-address))
+               (if (instance? SQLException e)
+                 (log/error (.getCause e) "Caused by: "))
+               (do
+                 (log/warn "Exception thrown and not logged")
+                 false)))
+      true
+      (do
+        (log/warn "Failed to delete attachment but no error was thrown")
         false))))
 
 
@@ -305,10 +306,12 @@
                    "   where email_address=? "
                    " ), ?, ?, decode(?, 'base64'))")]
     (if (nil? attachment-info)
-      false
+      (do
+        (log/warn "Attachment info was nil")
+        false)
       (sql/with-db-transaction
         [conn db-spec]
-        (println (format "Replacing '%s' with new contents in data-set '%s'"
+        (log/info (format "Replacing '%s' with new contents in data-set '%s'"
                          filename
                          uuid))
         (try
@@ -326,7 +329,9 @@
                                   (:mime_type attachment-info)
                                   new-contents]
                             :transaction? false)
-              false))
+              (do
+                (log/warn "Failed to delete attachment prior to updating")
+                false)))
           (catch Exception e
             (log/error e (format (str "There was an error replacing "
                                       "attachment '%s' in data-set "
@@ -335,7 +340,9 @@
                                  uuid))
             (if (instance? SQLException e)
               (log/error (.getCause e) "Caused by: "))
-            false))))))
+            (do
+              (log/warn "Exception thrown and no error")
+              false)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -407,7 +414,7 @@
           (status (response {:response "OK"}) 200 )
           (status (response {:response "Failure"}) 409)))
       (do
-        (log/debug
+        (log/info
           (format ("User %s tried to delete data-set '%s' but lacks access")
                   email-address
                   uuid))
